@@ -361,3 +361,29 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+
+############################################
+# ShellKrypt local data (vaults)
+############################################
+vaults/
+local/
+*.skvault
+*.sqlite
+*.sqlite3
+*.db
+*.db-wal
+*.db-shm
+*.sqlite-wal
+*.sqlite-shm
+
+############################################
+# Avalonia / Accelerate optional extras
+############################################
+*.vsix
+
+# JetBrains Rider / ReSharper caches (already partially covered, but safe)
+.idea/
+*.DotSettings
+
+# macOS devs contributing
+.DS_Store
