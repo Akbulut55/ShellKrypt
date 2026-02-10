@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.ShellView"
+             x:DataType="vm:ShellViewModel">
+  <Grid ColumnDefinitions="240,*">
+    <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
+      <DockPanel LastChildFill="True">
+        <StackPanel DockPanel.Dock="Top" Spacing="10">
+          <TextBlock Text="Vault" FontSize="18" FontWeight="Bold"/>
+          <Button Content="Lock" Command="{Binding LockCommand}"/>
+          <Separator/>
+        </StackPanel>
+
+        <ListBox ItemsSource="{Binding Sidebar}"
+                 SelectedItem="{Binding SelectedSection}"/>
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Column="1" ColumnDefinitions="*,2*">
+      <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
+        <StackPanel Spacing="10">
+          <TextBox Watermark="Search (in-memory after unlock in v1)"
+                   Text="{Binding SearchText}"/>
+          <TextBlock Text="List" FontWeight="Bold"/>
+          <ListBox ItemsSource="{Binding DemoList}"/>
+        </StackPanel>
+      </Border>
+
+      <Border Grid.Column="1" Padding="12">
+        <StackPanel Spacing="10">
+          <TextBlock Text="{Binding SelectedSection}" FontSize="18" FontWeight="Bold"/>
+          <TextBlock Text="Details pane (edit/view comes in Step 3)." Opacity="0.75" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+  </Grid>
+</UserControl>

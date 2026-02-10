@@ -1,7 +1,16 @@
-﻿namespace ShellKrypt.Desktop.ViewModels
+﻿using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace ShellKrypt.Desktop.ViewModels;
+
+public partial class MainWindowViewModel : ViewModelBase
 {
-    public partial class MainWindowViewModel : ViewModelBase
+    [ObservableProperty]
+    private ViewModelBase current;
+
+    public MainWindowViewModel()
     {
-        public string Greeting { get; } = "Welcome to Avalonia!";
+        Current = new WelcomeViewModel(this);
     }
+
+    public void NavigateTo(ViewModelBase vm) => Current = vm;
 }
