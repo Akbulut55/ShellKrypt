@@ -4,49 +4,27 @@
              x:Class="ShellKrypt.Desktop.Views.ShellView"
              x:DataType="vm:ShellViewModel">
 
-  <Grid ColumnDefinitions="320,*">
-    <!-- Left: Notes list -->
-    <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
-      <StackPanel Spacing="10">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Content="New Note" Command="{Binding NewNoteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Delete" Command="{Binding DeleteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Lock" Command="{Binding LockCommand}" IsEnabled="{Binding !IsBusy}"/>
+  <Grid ColumnDefinitions="240,*">
+
+    <!-- Sidebar -->
+    <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="16">
+      <DockPanel LastChildFill="True">
+
+        <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,16">
+          <TextBlock Text="My Vault" FontSize="18" FontWeight="Bold"/>
+          <TextBlock Text="Manage your passwords" Opacity="0.7"/>
+          <Button Content="Lock" Command="{Binding LockCommand}" Margin="0,8,0,0"/>
         </StackPanel>
 
-        <TextBlock Text="Notes" FontSize="18" FontWeight="Bold"/>
-
-        <ListBox ItemsSource="{Binding Notes}"
-                 SelectedItem="{Binding SelectedNote}">
-          <ListBox.ItemTemplate>
-            <DataTemplate>
-              <StackPanel Margin="0,4">
-                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
-              </StackPanel>
-            </DataTemplate>
-          </ListBox.ItemTemplate>
-        </ListBox>
-
-        <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
-      </StackPanel>
+        <ListBox ItemsSource="{Binding NavItems}"
+                 SelectedItem="{Binding SelectedNav}"/>
+        
+        <TextBlock DockPanel.Dock="Bottom" Text="Settings" Opacity="0.7" Margin="0,16,0,0"/>
+      </DockPanel>
     </Border>
 
-    <!-- Right: Editor -->
-    <Border Grid.Column="1" Padding="12">
-      <StackPanel Spacing="10">
-        <TextBlock Text="Editor" FontSize="18" FontWeight="Bold"/>
+    <!-- Page content -->
+    <ContentControl Grid.Column="1" Content="{Binding CurrentPage}"/>
 
-        <TextBox Watermark="Title" Text="{Binding EditorTitle}" IsEnabled="{Binding !IsBusy}"/>
-        <TextBox Watermark="Content"
-                 Text="{Binding EditorContent}"
-                 AcceptsReturn="True"
-                 TextWrapping="Wrap"
-                 MinHeight="300"
-                 IsEnabled="{Binding !IsBusy}"/>
-
-        <Button Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsBusy}"/>
-      </StackPanel>
-    </Border>
   </Grid>
-
 </UserControl>
