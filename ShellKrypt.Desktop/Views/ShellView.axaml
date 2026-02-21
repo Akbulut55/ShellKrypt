@@ -3,36 +3,50 @@
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.ShellView"
              x:DataType="vm:ShellViewModel">
-  <Grid ColumnDefinitions="240,*">
+
+  <Grid ColumnDefinitions="320,*">
+    <!-- Left: Notes list -->
     <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
-      <DockPanel LastChildFill="True">
-        <StackPanel DockPanel.Dock="Top" Spacing="10">
-          <TextBlock Text="Vault" FontSize="18" FontWeight="Bold"/>
-          <Button Content="Lock" Command="{Binding LockCommand}"/>
-          <Separator/>
+      <StackPanel Spacing="10">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="New Note" Command="{Binding NewNoteCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Delete" Command="{Binding DeleteCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Lock" Command="{Binding LockCommand}" IsEnabled="{Binding !IsBusy}"/>
         </StackPanel>
 
-        <ListBox ItemsSource="{Binding Sidebar}"
-                 SelectedItem="{Binding SelectedSection}"/>
-      </DockPanel>
+        <TextBlock Text="Notes" FontSize="18" FontWeight="Bold"/>
+
+        <ListBox ItemsSource="{Binding Notes}"
+                 SelectedItem="{Binding SelectedNote}">
+          <ListBox.ItemTemplate>
+            <DataTemplate>
+              <StackPanel Margin="0,4">
+                <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+              </StackPanel>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
+      </StackPanel>
     </Border>
 
-    <Grid Grid.Column="1" ColumnDefinitions="*,2*">
-      <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
-        <StackPanel Spacing="10">
-          <TextBox Watermark="Search (in-memory after unlock in v1)"
-                   Text="{Binding SearchText}"/>
-          <TextBlock Text="List" FontWeight="Bold"/>
-          <ListBox ItemsSource="{Binding DemoList}"/>
-        </StackPanel>
-      </Border>
+    <!-- Right: Editor -->
+    <Border Grid.Column="1" Padding="12">
+      <StackPanel Spacing="10">
+        <TextBlock Text="Editor" FontSize="18" FontWeight="Bold"/>
 
-      <Border Grid.Column="1" Padding="12">
-        <StackPanel Spacing="10">
-          <TextBlock Text="{Binding SelectedSection}" FontSize="18" FontWeight="Bold"/>
-          <TextBlock Text="Details pane (edit/view comes in Step 3)." Opacity="0.75" TextWrapping="Wrap"/>
-        </StackPanel>
-      </Border>
-    </Grid>
+        <TextBox Watermark="Title" Text="{Binding EditorTitle}" IsEnabled="{Binding !IsBusy}"/>
+        <TextBox Watermark="Content"
+                 Text="{Binding EditorContent}"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 MinHeight="300"
+                 IsEnabled="{Binding !IsBusy}"/>
+
+        <Button Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsBusy}"/>
+      </StackPanel>
+    </Border>
   </Grid>
+
 </UserControl>

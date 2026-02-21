@@ -8,6 +8,9 @@ public sealed class AppState
     public string? VaultPath { get; set; }
     public byte[]? VaultKey { get; set; }
 
+    public byte[] GetVaultKeyOrThrow()
+        => VaultKey ?? throw new InvalidOperationException("Vault is locked.");
+
     public void ClearSensitive()
     {
         if (VaultKey is not null)
