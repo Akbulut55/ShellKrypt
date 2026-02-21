@@ -24,4 +24,9 @@
     </PackageReference>
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ShellKrypt.Core\ShellKrypt.Core.csproj" />
+    <ProjectReference Include="..\ShellKrypt.Infrastructure\ShellKrypt.Infrastructure.csproj" />
+  </ItemGroup>
 </Project>

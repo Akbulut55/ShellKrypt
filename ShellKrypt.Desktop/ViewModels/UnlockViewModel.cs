@@ -1,30 +1,48 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+﻿using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using static System.Runtime.InteropServices.JavaScript.JSType;
+using ShellKrypt.Core.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class UnlockViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
+    private readonly IVaultService _vaultService;
 
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private string error = "";
 
-    public UnlockViewModel(MainWindowViewModel root) => _root = root;
+    public string VaultPath => _root.VaultPath ?? "(no vault selected)";
+
+    public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService)
+    {
+        _root = root;
+        _vaultService = vaultService;
+    }
 
     [RelayCommand]
-    private void Unlock()
+    private async Task UnlockAsync()
     {
-        if (string.IsNullOrWhiteSpace(MasterPassword))
+        Error = "";
+
+        if (_root.VaultPath is null)
         {
-            Error = "Enter a master password (real unlock in Step 2).";
+            Error = "No vault selected. Go back and Create/Open a vault.";
             return;
         }
 
-        Error = "";
-        _root.NavigateTo(new ShellViewModel(_root));
+        var result = await _vaultService.UnlockAsync(_root.VaultPath, MasterPassword);
+        if (!result.Success)
+        {
+            Error = result.Error ?? "Unlock failed.";
+            return;
+        }
+
+        MasterPassword = "";
+        _root.OnUnlocked(result.VaultKey!);
     }
 
-    [RelayCommand] private void Back() => _root.NavigateTo(new WelcomeViewModel(_root));
+    [RelayCommand]
+    private void Back() => _root.GoWelcome();
 }

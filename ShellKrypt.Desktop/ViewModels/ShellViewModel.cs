@@ -23,5 +23,6 @@ public partial class ShellViewModel : ViewModelBase
 
     public ShellViewModel(MainWindowViewModel root) => _root = root;
 
-    [RelayCommand] private void Lock() => _root.NavigateTo(new WelcomeViewModel(_root));
+    [RelayCommand]
+    private void Lock() => _root.Lock();
 }

@@ -9,7 +9,6 @@
 
     <Button Content="Create Vault" Command="{Binding CreateVaultCommand}"/>
     <Button Content="Open Vault" Command="{Binding OpenVaultCommand}"/>
-    <Button Content="Unlock" Command="{Binding GoToUnlockCommand}"/>
 
     <Border Margin="0,8,0,0" Padding="12" CornerRadius="8" BorderThickness="1">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap"/>
