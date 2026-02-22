@@ -46,11 +46,10 @@ public sealed partial class WebLoginRowVm : ObservableObject
 
     public bool IsViewing => !IsEditing;
 
-    public void RefreshComputed()
-    {
-        OnPropertyChanged(nameof(PasswordDisplay));
-        OnPropertyChanged(nameof(IconLetter));
-    }
+    partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
+    partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
+    partial void OnPasswordChanged(string value) => OnPropertyChanged(nameof(PasswordDisplay));
+    partial void OnIsPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(PasswordDisplay));
 
     public void BeginEdit()
     {
@@ -79,8 +78,6 @@ public sealed partial class WebLoginRowVm : ObservableObject
         IsNew = false;
         IsEditing = false;
         UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-        OnPropertyChanged(nameof(PasswordDisplay));
-        OnPropertyChanged(nameof(IconLetter));
     }
 }
 
@@ -137,7 +134,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Error = "";
         row.BeginEdit();
-        row.RefreshComputed();
+        
     }
 
     [RelayCommand]
@@ -177,6 +174,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
 
             row.MarkSaved();
+            
         }
         catch (Exception ex)
         {
@@ -189,6 +187,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Error = "";
         row.CancelEdit(removeIfNew: true, removeRow: RemoveRow);
+        
     }
 
     [RelayCommand]
@@ -212,7 +211,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void TogglePassword(WebLoginRowVm row)
     {
         row.IsPasswordVisible = !row.IsPasswordVisible;
-        row.RefreshComputed();
+        
     }
 
     private void RemoveRow(WebLoginRowVm row)

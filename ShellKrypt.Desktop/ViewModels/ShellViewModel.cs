@@ -36,6 +36,14 @@ public partial class ShellViewModel : ViewModelBase
 
     public WebLoginsViewModel WebLogins { get; }
     public SecureNotesViewModel SecureNotes { get; }
+    public PlaceholderPageViewModel AllItems { get; } =
+        new("All Items", "Coming soon: combined list of Web + Cards + Notes.");
+
+    public PlaceholderPageViewModel Cards { get; } =
+        new("Credit Cards", "Coming soon.");
+
+    public PlaceholderPageViewModel Settings { get; } =
+        new("Settings", "Coming soon.");
 
     partial void OnSelectedNavChanged(NavItemVm? value)
     {
@@ -46,8 +54,9 @@ public partial class ShellViewModel : ViewModelBase
             "web" => WebLogins,
             "notes" => SecureNotes,
             // placeholders for now:
-            "cards" => WebLogins,
-            "all" => WebLogins,
+            "cards" => Cards,
+            "all" => AllItems,
+            "settings" => Settings,
             _ => WebLogins
         };
     }
