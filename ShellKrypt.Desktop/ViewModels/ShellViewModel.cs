@@ -30,18 +30,16 @@ public partial class ShellViewModel : ViewModelBase
         // Pages
         WebLogins = new WebLoginsViewModel(_root, _repo);
         SecureNotes = new SecureNotesViewModel(_root, _repo);
+        Cards = new CardsViewModel(_root, _repo);
 
         SelectedNav = NavItems[1]; // default: Web Logins
     }
 
     public WebLoginsViewModel WebLogins { get; }
     public SecureNotesViewModel SecureNotes { get; }
+    public CardsViewModel Cards { get; }
     public PlaceholderPageViewModel AllItems { get; } =
         new("All Items", "Coming soon: combined list of Web + Cards + Notes.");
-
-    public PlaceholderPageViewModel Cards { get; } =
-        new("Credit Cards", "Coming soon.");
-
     public PlaceholderPageViewModel Settings { get; } =
         new("Settings", "Coming soon.");
 
@@ -53,8 +51,8 @@ public partial class ShellViewModel : ViewModelBase
         {
             "web" => WebLogins,
             "notes" => SecureNotes,
-            // placeholders for now:
             "cards" => Cards,
+            // placeholders for now:
             "all" => AllItems,
             "settings" => Settings,
             _ => WebLogins
