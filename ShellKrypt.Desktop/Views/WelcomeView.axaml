@@ -32,6 +32,7 @@
 
             <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
               <Button Content="Create Vault" Classes="primary" Command="{Binding CreateVaultCommand}"/>
+              <Button Content="Import Vault" Classes="subtle" Command="{Binding ImportVaultCommand}"/>
               <Button Content="Open Default" Classes="subtle" Command="{Binding OpenDefaultVaultCommand}"/>
               <Button Content="Remove Selected" Classes="danger" Command="{Binding RemoveSelectedVaultCommand}"/>
               <Button Content="Refresh" Classes="subtle" Command="{Binding RefreshCommand}"/>
@@ -42,7 +43,7 @@
             <StackPanel Spacing="8">
               <TextBlock Text="Status" Classes="caption"/>
               <TextBlock Text="{Binding Status}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-              <TextBlock Text="Use the vault manager below to review metadata, switch workspaces, or register an existing vault file."
+              <TextBlock Text="Use the vault manager below to review vaults, switch workspaces, or import an existing vault file."
                          Classes="page-subtitle"
                          TextWrapping="Wrap"/>
             </StackPanel>
@@ -70,7 +71,7 @@
                   <StackPanel Spacing="4">
                     <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
                     <TextBlock Text="{Binding DescriptionDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding PathDisplay}" Classes="page-subtitle" FontSize="11" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
                   </StackPanel>
                 </Border>
               </Button>
@@ -79,104 +80,66 @@
         </ItemsControl>
       </StackPanel>
 
-      <Grid ColumnDefinitions="1.2*,1*" ColumnSpacing="18">
-        <Border Classes="panel-raised" Padding="18">
-          <Grid RowDefinitions="Auto,*" RowSpacing="12">
-            <StackPanel Spacing="6">
-              <TextBlock Text="Vault Inventory" Classes="section-title"/>
-              <TextBlock Text="Registered vaults available on this machine." Classes="page-subtitle"/>
-            </StackPanel>
+      <Border Classes="panel-raised" Padding="18">
+        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Vault Inventory" Classes="section-title"/>
+            <TextBlock Text="Registered vaults available on this machine." Classes="page-subtitle"/>
+          </StackPanel>
 
-            <ListBox Grid.Row="1"
-                     ItemsSource="{Binding Vaults}"
-                     SelectedItem="{Binding SelectedVault}">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:VaultRecordVm">
-                  <Border Classes="panel" Padding="14">
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                      <StackPanel Spacing="6">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                          <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
-                          <Border Classes="badge" Padding="8,3">
-                            <TextBlock Text="{Binding DefaultBadge}" FontSize="11" FontWeight="SemiBold"/>
-                          </Border>
-                          <Border Classes="badge" Padding="8,3">
-                            <TextBlock Text="{Binding StatusDisplay}" FontSize="11" FontWeight="SemiBold"/>
-                          </Border>
-                        </StackPanel>
-                        <TextBlock Text="{Binding DescriptionDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding PathDisplay}" Classes="page-subtitle" FontSize="11" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding Vaults}"
+                   SelectedItem="{Binding SelectedVault}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:VaultRecordVm">
+                <Border Classes="panel" Padding="14">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+                    <StackPanel Spacing="6">
+                      <StackPanel Orientation="Horizontal" Spacing="8">
+                        <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
+                        <Border Classes="badge" Padding="8,3">
+                          <TextBlock Text="{Binding DefaultBadge}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
+                        <Border Classes="badge" Padding="8,3">
+                          <TextBlock Text="{Binding StatusDisplay}" FontSize="11" FontWeight="SemiBold"/>
+                        </Border>
                       </StackPanel>
+                      <TextBlock Text="{Binding DescriptionDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
+                    </StackPanel>
 
-                      <StackPanel Grid.Column="1"
-                                  Orientation="Horizontal"
-                                  Spacing="8"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Center"
-                                  IsVisible="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
-                        <Button Content="Open"
-                                Classes="primary"
-                                Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
-                        <Button Content="Delete"
-                                Classes="danger"
-                                Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
-                      </StackPanel>
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-          </Grid>
-        </Border>
-
-        <StackPanel Grid.Column="1" Spacing="18">
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="10">
-              <TextBlock Text="Selected Vault" Classes="section-title"/>
-              <TextBlock Text="Edit the display metadata without changing the physical vault file."
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"/>
-              <TextBox Watermark="Display name" Text="{Binding SelectedVault.DisplayName}"/>
-              <TextBox Watermark="Description"
-                       Text="{Binding SelectedVault.Description}"
-                       AcceptsReturn="True"
-                       MinHeight="88"
-                       TextWrapping="Wrap"/>
-              <Border Classes="panel" Padding="12">
-                <StackPanel Spacing="4">
-                  <TextBlock Text="Vault path" Classes="caption"/>
-                  <TextBlock Text="{Binding SelectedVault.PathDisplay}" TextWrapping="Wrap"/>
-                  <TextBlock Text="{Binding SelectedVault.CreatedDisplay}" Classes="page-subtitle" FontSize="11"/>
-                  <TextBlock Text="{Binding SelectedVault.LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
-                </StackPanel>
-              </Border>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Save Metadata" Classes="primary" Command="{Binding SaveSelectedMetadataCommand}"/>
-                <Button Content="Make Default" Classes="subtle" Command="{Binding MakeDefaultCommand}"/>
-              </StackPanel>
-            </StackPanel>
-          </Border>
-
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="10">
-              <TextBlock Text="Register Existing Vault" Classes="section-title"/>
-              <TextBlock Text="Add an existing `.skvault` file to the local manager. Removal can optionally delete the vault file from disk."
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"/>
-              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                <TextBox Grid.Column="0" Watermark="Existing vault path" Text="{Binding ExistingVaultPath}"/>
-                <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseExistingVaultCommand}"/>
-              </Grid>
-              <TextBox Watermark="Display name (optional)" Text="{Binding ExistingVaultDisplayName}"/>
-              <Button Content="Add Existing Vault" Classes="subtle" Command="{Binding RegisterExistingVaultCommand}" HorizontalAlignment="Left"/>
-              <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
-            </StackPanel>
-          </Border>
-        </StackPanel>
-      </Grid>
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                Spacing="8"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                IsVisible="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
+                      <Button Content="Open"
+                              Classes="primary"
+                              Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"/>
+                      <Button Content="Edit"
+                              Classes="subtle"
+                              Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"/>
+                      <Button Content="Make Default"
+                              Classes="subtle"
+                              Command="{Binding DataContext.MakeDefaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              IsEnabled="{Binding !IsDefault}"/>
+                      <Button Content="Delete"
+                              Classes="danger"
+                              Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"/>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
+      <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

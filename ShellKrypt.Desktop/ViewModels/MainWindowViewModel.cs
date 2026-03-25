@@ -34,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool autoLockEnabled;
     [ObservableProperty] private int autoLockMinutes;
     [ObservableProperty] private bool lockOnDeactivate;
+    [ObservableProperty] private int lockOnDeactivateSeconds;
     [ObservableProperty] private int clipboardClearSeconds;
     [ObservableProperty] private AppThemeMode themeMode;
 
@@ -43,6 +44,7 @@ public partial class MainWindowViewModel : ViewModelBase
         AutoLockEnabled = settings.AutoLockEnabled;
         AutoLockMinutes = Math.Max(1, settings.AutoLockMinutes);
         LockOnDeactivate = settings.LockOnDeactivate;
+        LockOnDeactivateSeconds = Math.Max(1, settings.LockOnDeactivateSeconds);
         ClipboardClearSeconds = Math.Max(1, settings.ClipboardClearSeconds);
         themeMode = settings.ThemeMode;
 
@@ -194,9 +196,30 @@ public partial class MainWindowViewModel : ViewModelBase
         return await dialog.ShowDialog<string?>(mainWindow);
     }
 
+    public async Task<(bool Confirmed, string VaultPath, string DisplayName)> ShowImportVaultDialogAsync(string? initialPath = null, string? initialDisplayName = null)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            return (false, "", "");
+
+        var dialog = new ImportVaultWindow(initialPath, initialDisplayName);
+        var confirmed = await dialog.ShowDialog<bool>(mainWindow);
+        return (confirmed, dialog.VaultPath, dialog.DisplayName);
+    }
+
+    public async Task<(bool Confirmed, string DisplayName, string Description)> ShowEditVaultDialogAsync(string displayName, string description, string vaultPath)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            return (false, displayName, description);
+
+        var dialog = new EditVaultWindow(displayName, description, vaultPath);
+        var confirmed = await dialog.ShowDialog<bool>(mainWindow);
+        return (confirmed, dialog.DisplayName, dialog.Description);
+    }
+
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndUpdateTimer();
     partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndUpdateTimer();
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndUpdateTimer();
+    partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndUpdateTimer();
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndUpdateTimer();
     partial void OnThemeModeChanged(AppThemeMode value)
     {
@@ -213,6 +236,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 AutoLockEnabled = AutoLockEnabled,
                 AutoLockMinutes = Math.Max(1, AutoLockMinutes),
                 LockOnDeactivate = LockOnDeactivate,
+                LockOnDeactivateSeconds = Math.Max(1, LockOnDeactivateSeconds),
                 ClipboardClearSeconds = Math.Max(1, ClipboardClearSeconds),
                 ThemeMode = ThemeMode,
             });
@@ -241,6 +265,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private void RestartFocusLossTimer()
     {
         StopFocusLossTimer();
+        _focusLossLockTimer.Interval = TimeSpan.FromSeconds(Math.Max(1, LockOnDeactivateSeconds));
         _focusLossLockTimer.Start();
     }
 

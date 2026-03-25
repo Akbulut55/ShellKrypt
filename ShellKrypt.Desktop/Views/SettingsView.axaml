@@ -19,23 +19,6 @@
         <StackPanel Spacing="18">
           <Border Classes="panel-raised" Padding="18">
             <StackPanel Spacing="12">
-              <TextBlock Text="Session" Classes="section-title"/>
-              <Border Classes="panel" Padding="12">
-                <StackPanel Spacing="6">
-                  <TextBlock Text="Vault state" Classes="caption"/>
-                  <TextBlock Text="{Binding SessionState}" FontWeight="SemiBold"/>
-                  <TextBlock Text="{Binding VaultPath}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                </StackPanel>
-              </Border>
-              <Button Content="Copy Vault Path"
-                      Classes="subtle"
-                      Command="{Binding CopyVaultPathCommand}"
-                      HorizontalAlignment="Left"/>
-            </StackPanel>
-          </Border>
-
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="12">
               <TextBlock Text="Appearance" Classes="section-title"/>
               <Grid ColumnDefinitions="Auto,180" ColumnSpacing="10">
                 <TextBlock Text="Theme" VerticalAlignment="Center"/>
@@ -53,14 +36,29 @@
             <StackPanel Spacing="12">
               <TextBlock Text="Security Controls" Classes="section-title"/>
               <CheckBox Content="Enable auto-lock" IsChecked="{Binding AutoLockEnabled}"/>
+              <TextBlock Text="Choose how long ShellKrypt can stay idle before it locks itself."
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"/>
 
-              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
+              <Grid ColumnDefinitions="Auto,180" ColumnSpacing="10">
                 <TextBlock Text="Auto-lock after" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Text="{Binding AutoLockMinutesText}"/>
-                <TextBlock Grid.Column="2" Text="minutes" VerticalAlignment="Center" Classes="page-subtitle"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding AutoLockDurations}"
+                          SelectedItem="{Binding SelectedAutoLockDuration}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}"/>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
               </Grid>
 
               <CheckBox Content="Lock after the app stays out of focus" IsChecked="{Binding LockOnDeactivate}"/>
+              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
+                <TextBlock Text="Out-of-focus lock delay" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding LockOnDeactivateSecondsText}"/>
+                <TextBlock Grid.Column="2" Text="seconds" VerticalAlignment="Center" Classes="page-subtitle"/>
+              </Grid>
               <TextBlock Text="{Binding FocusLockSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
 
               <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">

@@ -25,8 +25,6 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private string status = "Select a vault to unlock, or create a new one.";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
-    [ObservableProperty] private string existingVaultPath = "";
-    [ObservableProperty] private string existingVaultDisplayName = "";
 
     public WelcomeViewModel(MainWindowViewModel root, VaultRegistryStore vaultRegistry)
     {
@@ -67,28 +65,25 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void RegisterExistingVault()
+    private async Task ImportVaultAsync()
     {
         Error = "";
 
-        var path = ExistingVaultPath?.Trim() ?? "";
-        if (string.IsNullOrWhiteSpace(path))
-        {
-            Error = "Enter a vault path first.";
-            return;
-        }
-
-        if (!File.Exists(path))
-        {
-            Error = "That vault file does not exist.";
-            return;
-        }
-
         try
         {
-            var displayName = string.IsNullOrWhiteSpace(ExistingVaultDisplayName)
+            var (confirmed, path, displayNameInput) = await _root.ShowImportVaultDialogAsync();
+            if (!confirmed)
+                return;
+
+            if (!File.Exists(path))
+            {
+                Error = "That vault file does not exist.";
+                return;
+            }
+
+            var displayName = string.IsNullOrWhiteSpace(displayNameInput)
                 ? Path.GetFileNameWithoutExtension(path)
-                : ExistingVaultDisplayName.Trim();
+                : displayNameInput.Trim();
 
             var entry = _vaultRegistry.UpsertVault(
                 path,
@@ -97,10 +92,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
                 isDefault: !_vaultRegistry.ListVaults().Any(),
                 markOpened: false);
 
-            ExistingVaultPath = "";
-            ExistingVaultDisplayName = "";
             ReloadVaults(entry.VaultPath);
-            Status = "Existing vault added.";
+            Status = "Vault imported into the local manager.";
         }
         catch (Exception ex)
         {
@@ -289,11 +282,11 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void SaveSelectedMetadata()
+    private async Task EditVaultAsync(VaultRecordVm? vault)
     {
         Error = "";
 
-        if (SelectedVault is null)
+        if (vault is null)
         {
             Error = "Select a vault first.";
             return;
@@ -301,13 +294,21 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
         try
         {
-            _vaultRegistry.UpsertVault(
-                SelectedVault.VaultPath,
-                SelectedVault.DisplayName,
-                SelectedVault.Description,
-                SelectedVault.IsDefault);
+            var (confirmed, displayName, description) = await _root.ShowEditVaultDialogAsync(
+                vault.DisplayName,
+                vault.Description,
+                vault.VaultPath);
 
-            ReloadVaults(SelectedVault.VaultPath);
+            if (!confirmed)
+                return;
+
+            _vaultRegistry.UpsertVault(
+                vault.VaultPath,
+                displayName,
+                description,
+                vault.IsDefault);
+
+            ReloadVaults(vault.VaultPath);
             Status = "Vault metadata saved.";
         }
         catch (Exception ex)
@@ -317,11 +318,11 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void MakeDefault()
+    private void MakeDefault(VaultRecordVm? vault)
     {
         Error = "";
 
-        if (SelectedVault is null)
+        if (vault is null)
         {
             Error = "Select a vault first.";
             return;
@@ -329,31 +330,14 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
         try
         {
-            _vaultRegistry.SetDefaultVault(SelectedVault.VaultPath);
-            ReloadVaults(SelectedVault.VaultPath);
+            _vaultRegistry.SetDefaultVault(vault.VaultPath);
+            ReloadVaults(vault.VaultPath);
             Status = "Default vault updated.";
         }
         catch (Exception ex)
         {
             Error = ex.Message;
         }
-    }
-
-    [RelayCommand]
-    private async Task BrowseExistingVaultAsync()
-    {
-        Error = "";
-        var path = await _root.PickOpenFileAsync(
-            "Select existing vault",
-            [".skvault"],
-            "ShellKrypt Vault");
-
-        if (string.IsNullOrWhiteSpace(path))
-            return;
-
-        ExistingVaultPath = path;
-        if (string.IsNullOrWhiteSpace(ExistingVaultDisplayName))
-            ExistingVaultDisplayName = Path.GetFileNameWithoutExtension(path);
     }
 
     partial void OnSelectedVaultChanged(VaultRecordVm? value)
@@ -368,7 +352,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
         Status = value.Exists
             ? $"Selected {value.DisplayLabel}."
-            : $"Selected vault is missing: {value.PathDisplay}";
+            : "Selected vault file is missing.";
     }
 
     private void ReloadVaults(string? selectPath = null)
@@ -403,7 +387,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             {
                 Status = SelectedVault.Exists
                     ? $"Loaded {vaults.Length} vault{(vaults.Length == 1 ? "" : "s")}."
-                    : $"Selected vault is missing: {SelectedVault.PathDisplay}";
+                    : "Selected vault file is missing.";
             }
         }
         catch (Exception ex)

@@ -14,12 +14,25 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class SettingsViewModel : ViewModelBase
 {
+    public sealed class AutoLockDurationOption
+    {
+        public AutoLockDurationOption(int minutes, string label)
+        {
+            Minutes = minutes;
+            Label = label;
+        }
+
+        public int Minutes { get; }
+        public string Label { get; }
+    }
+
     private readonly MainWindowViewModel _root;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
 
     [ObservableProperty] private bool autoLockEnabled;
-    [ObservableProperty] private string autoLockMinutesText = "";
+    [ObservableProperty] private AutoLockDurationOption? selectedAutoLockDuration;
     [ObservableProperty] private bool lockOnDeactivate;
+    [ObservableProperty] private string lockOnDeactivateSecondsText = "";
     [ObservableProperty] private string clipboardClearSecondsText = "";
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private string status = "";
@@ -54,6 +67,17 @@ public sealed partial class SettingsViewModel : ViewModelBase
         AppThemeMode.Light
     ];
 
+    public ObservableCollection<AutoLockDurationOption> AutoLockDurations { get; } =
+    [
+        new(1, "1 minute"),
+        new(5, "5 minutes"),
+        new(10, "10 minutes"),
+        new(15, "15 minutes"),
+        new(30, "30 minutes"),
+        new(60, "1 hour"),
+        new(120, "2 hours"),
+    ];
+
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
 
     public SettingsViewModel(MainWindowViewModel root)
@@ -62,8 +86,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
         CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
 
         AutoLockEnabled = _root.AutoLockEnabled;
-        AutoLockMinutesText = _root.AutoLockMinutes.ToString(CultureInfo.InvariantCulture);
+        SelectedAutoLockDuration = ResolveAutoLockDuration(_root.AutoLockMinutes);
         LockOnDeactivate = _root.LockOnDeactivate;
+        LockOnDeactivateSecondsText = _root.LockOnDeactivateSeconds.ToString(CultureInfo.InvariantCulture);
         ClipboardClearSecondsText = _root.ClipboardClearSeconds.ToString(CultureInfo.InvariantCulture);
         SelectedThemeMode = _root.ThemeMode;
         Status = "Settings save automatically.";
@@ -73,17 +98,14 @@ public sealed partial class SettingsViewModel : ViewModelBase
         PlaintextExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Export", ".json");
     }
 
-    public string VaultPath => _root.VaultPathDisplay;
-    public string SessionState => _root.IsUnlocked ? "Unlocked" : "Locked";
     public bool HasCsvPreview => CsvPreviewRows.Count > 0;
     public string FocusLockSummary => LockOnDeactivate
-        ? "The vault locks after the app stays out of focus for about 20 seconds."
+        ? $"The vault locks after the app stays out of focus for about {LockOnDeactivateSecondsText} seconds."
         : "Switching away from the app will not immediately lock the vault.";
 
     partial void OnAutoLockEnabledChanged(bool value)
     {
         _root.AutoLockEnabled = value;
-        OnPropertyChanged(nameof(SessionState));
     }
 
     partial void OnLockOnDeactivateChanged(bool value)
@@ -92,28 +114,40 @@ public sealed partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(FocusLockSummary));
     }
 
+    partial void OnLockOnDeactivateSecondsTextChanged(string value)
+    {
+        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds))
+        {
+            Status = "Out-of-focus lock delay must be a whole number.";
+            OnPropertyChanged(nameof(FocusLockSummary));
+            return;
+        }
+
+        if (seconds < 1)
+        {
+            Status = "Out-of-focus lock delay must be at least 1 second.";
+            OnPropertyChanged(nameof(FocusLockSummary));
+            return;
+        }
+
+        _root.LockOnDeactivateSeconds = seconds;
+        Status = "Settings saved.";
+        OnPropertyChanged(nameof(FocusLockSummary));
+    }
+
+    partial void OnSelectedAutoLockDurationChanged(AutoLockDurationOption? value)
+    {
+        if (value is null)
+            return;
+
+        _root.AutoLockMinutes = value.Minutes;
+        Status = "Settings saved.";
+    }
+
     partial void OnSelectedThemeModeChanged(AppThemeMode value)
     {
         _root.ThemeMode = value;
         Status = $"Theme switched to {value}.";
-    }
-
-    partial void OnAutoLockMinutesTextChanged(string value)
-    {
-        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var minutes))
-        {
-            Status = "Auto-lock minutes must be a whole number.";
-            return;
-        }
-
-        if (minutes < 1)
-        {
-            Status = "Auto-lock minutes must be at least 1.";
-            return;
-        }
-
-        _root.AutoLockMinutes = minutes;
-        Status = "Settings saved.";
     }
 
     partial void OnClipboardClearSecondsTextChanged(string value)
@@ -132,26 +166,6 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         _root.ClipboardClearSeconds = seconds;
         Status = "Settings saved.";
-    }
-
-    [RelayCommand]
-    private async Task CopyVaultPathAsync()
-    {
-        if (string.IsNullOrWhiteSpace(_root.VaultPath))
-        {
-            Status = "No vault path is available yet.";
-            return;
-        }
-
-        try
-        {
-            await _root.CopyToClipboardAsync(_root.VaultPath);
-            Status = $"Vault path copied. Clipboard clears in {_root.ClipboardClearSeconds} seconds.";
-        }
-        catch (Exception ex)
-        {
-            Status = ex.Message;
-        }
     }
 
     [RelayCommand]
@@ -444,4 +458,15 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     private static string FormatImportSummary(VaultSnapshotSummary summary)
         => $"Previewing import: {summary.ItemCount} items, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
+
+    private AutoLockDurationOption ResolveAutoLockDuration(int minutes)
+    {
+        var existing = AutoLockDurations.FirstOrDefault(x => x.Minutes == minutes);
+        if (existing is not null)
+            return existing;
+
+        var custom = new AutoLockDurationOption(minutes, $"{minutes} minutes");
+        AutoLockDurations.Add(custom);
+        return custom;
+    }
 }

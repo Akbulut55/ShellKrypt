@@ -1,0 +1,47 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ShellKrypt.Desktop.Views.EditVaultWindow"
+        Width="620"
+        SizeToContent="Height"
+        CanResize="False"
+        WindowStartupLocation="CenterOwner"
+        Title="Edit Vault">
+  <Border Padding="20" Background="{StaticResource AppBackgroundBrush}">
+    <StackPanel Spacing="16">
+      <StackPanel Spacing="8">
+        <TextBlock Text="Edit Vault" Classes="section-title"/>
+        <TextBlock Text="Update the vault label and description without changing the vault file itself."
+                   Classes="page-subtitle"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Display name" Classes="caption"/>
+        <TextBox x:Name="DisplayNameBox" Watermark="Display name"/>
+      </StackPanel>
+
+      <StackPanel Spacing="6">
+        <TextBlock Text="Description" Classes="caption"/>
+        <TextBox x:Name="DescriptionBox"
+                 Watermark="Description"
+                 AcceptsReturn="True"
+                 TextWrapping="Wrap"
+                 MinHeight="110"/>
+      </StackPanel>
+
+      <Border Classes="panel" Padding="12">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Vault file" Classes="caption"/>
+          <TextBlock x:Name="PathText" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+
+      <StackPanel Orientation="Horizontal"
+                  Spacing="8"
+                  HorizontalAlignment="Right">
+        <Button Content="Cancel" Classes="subtle" Click="OnCancelClicked"/>
+        <Button Content="Save Changes" Classes="primary" IsDefault="True" Click="OnSaveClicked"/>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</Window>
