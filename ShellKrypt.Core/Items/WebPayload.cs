@@ -6,5 +6,6 @@ public sealed record WebPayload(
     string Username,
     string Password,
     string Notes,
-    string TwoFaNote
+    string TwoFaNote,
+    string TotpSecret
 );

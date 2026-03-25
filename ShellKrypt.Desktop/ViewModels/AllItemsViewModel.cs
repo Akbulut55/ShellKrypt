@@ -19,12 +19,16 @@ public sealed record AllItemEntry(
     string Snippet,
     IReadOnlyList<string> Labels,
     string SearchText,
+    bool Favorite,
+    bool HasTotp,
     string CreatedAtUtc,
     string UpdatedAtUtc)
 {
     public string TypeLabel => Type.ToString();
     public string IconLetter => string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim()[0].ToString().ToUpperInvariant();
     public string LabelsDisplay => Labels.Count == 0 ? "No labels" : string.Join(", ", Labels);
+    public string FavoriteGlyph => Favorite ? "*" : "";
+    public string SecurityBadge => HasTotp ? "TOTP" : "";
 }
 
 public sealed partial class AllItemsViewModel : ViewModelBase
@@ -275,6 +279,8 @@ public sealed partial class AllItemsViewModel : ViewModelBase
                 "",
                 labels,
                 string.Join(" ", labels),
+                row.Header.Favorite,
+                false,
                 row.Header.CreatedAtUtc,
                 row.Header.UpdatedAtUtc)
         };
@@ -284,7 +290,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     {
         var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts)
-            ?? new WebPayload("", "", "", "", "", "");
+            ?? new WebPayload("", "", "", "", "", "", "");
 
         var secondary = string.IsNullOrWhiteSpace(payload.Username)
             ? payload.Url
@@ -294,6 +300,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
 
         var snippetSource = FirstNonEmpty(payload.Notes, payload.TwoFaNote);
         var snippet = TrimSnippet(snippetSource);
+        var hasTotp = !string.IsNullOrWhiteSpace(payload.TotpSecret);
         return new AllItemEntry(
             row.Header.Id,
             row.Header.Type,
@@ -301,7 +308,9 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             secondary,
             snippet,
             labels,
-            BuildSearchText(payload.Title, secondary, snippetSource, string.Join(" ", labels)),
+            BuildSearchText(payload.Title, secondary, snippetSource, string.Join(" ", labels), hasTotp ? "totp" : "", row.Header.Favorite ? "favorite" : ""),
+            row.Header.Favorite,
+            hasTotp,
             row.Header.CreatedAtUtc,
             row.Header.UpdatedAtUtc);
     }
@@ -325,7 +334,9 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             secondary,
             snippet,
             labels,
-            BuildSearchText(payload.Title, secondary, snippetSource, string.Join(" ", labels), payload.Number, payload.Cvc),
+            BuildSearchText(payload.Title, secondary, snippetSource, string.Join(" ", labels), payload.Number, payload.Cvc, row.Header.Favorite ? "favorite" : ""),
+            row.Header.Favorite,
+            false,
             row.Header.CreatedAtUtc,
             row.Header.UpdatedAtUtc);
     }
@@ -345,7 +356,9 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             "Secure note",
             snippet,
             labels,
-            BuildSearchText(payload.Title, "Secure note", snippetSource, string.Join(" ", labels), payload.Content),
+            BuildSearchText(payload.Title, "Secure note", snippetSource, string.Join(" ", labels), payload.Content, row.Header.Favorite ? "favorite" : ""),
+            row.Header.Favorite,
+            false,
             row.Header.CreatedAtUtc,
             row.Header.UpdatedAtUtc);
     }

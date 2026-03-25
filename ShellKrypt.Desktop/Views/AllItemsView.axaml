@@ -80,8 +80,12 @@
                     </Border>
 
                     <StackPanel Grid.Column="1" Spacing="2">
-                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                      <StackPanel Orientation="Horizontal" Spacing="6">
+                        <TextBlock Text="{Binding FavoriteGlyph}" FontWeight="Bold" IsVisible="{Binding Favorite}"/>
+                        <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                      </StackPanel>
                       <TextBlock Text="{Binding SecondaryText}" Opacity="0.72" TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SecurityBadge}" Opacity="0.72" TextWrapping="Wrap" IsVisible="{Binding HasTotp}"/>
                     </StackPanel>
 
                     <TextBlock Grid.Column="2" Text="{Binding Snippet}" Opacity="0.72" TextWrapping="Wrap" VerticalAlignment="Center"/>
@@ -120,8 +124,10 @@
                 <StackPanel Spacing="10">
                   <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="SemiBold"/>
                   <TextBlock Text="{Binding TypeLabel}" Opacity="0.7"/>
+                  <TextBlock Text="{Binding FavoriteGlyph}" Opacity="0.7" IsVisible="{Binding Favorite}"/>
                   <TextBlock Text="{Binding SecondaryText}" TextWrapping="Wrap"/>
                   <TextBlock Text="{Binding Snippet}" TextWrapping="Wrap" Opacity="0.8"/>
+                  <TextBlock Text="{Binding SecurityBadge}" TextWrapping="Wrap" Opacity="0.8" IsVisible="{Binding HasTotp}"/>
                   <TextBlock Text="{Binding LabelsDisplay}" TextWrapping="Wrap" Opacity="0.8"/>
 
                   <TextBlock Text="Labels" FontWeight="SemiBold" Margin="0,8,0,0"/>

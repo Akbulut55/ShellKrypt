@@ -15,6 +15,7 @@ public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly AppState _state = new();
     private readonly AppSettingsStore _settingsStore = new();
+    private readonly VaultRegistryStore _vaultRegistryStore = new();
     private readonly ClipboardService _clipboardService = new();
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
@@ -31,10 +32,10 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         var settings = _settingsStore.Load();
-        autoLockEnabled = settings.AutoLockEnabled;
-        autoLockMinutes = Math.Max(1, settings.AutoLockMinutes);
-        lockOnDeactivate = settings.LockOnDeactivate;
-        clipboardClearSeconds = Math.Max(1, settings.ClipboardClearSeconds);
+        AutoLockEnabled = settings.AutoLockEnabled;
+        AutoLockMinutes = Math.Max(1, settings.AutoLockMinutes);
+        LockOnDeactivate = settings.LockOnDeactivate;
+        ClipboardClearSeconds = Math.Max(1, settings.ClipboardClearSeconds);
 
         _autoLockTimer.Tick += (_, _) =>
         {
@@ -42,7 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 Lock();
         };
 
-        Current = new WelcomeViewModel(this);
+        Current = new WelcomeViewModel(this, _vaultRegistryStore);
     }
 
     public string? VaultPath => _state.VaultPath;
@@ -50,7 +51,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
 
-    public void SetVaultPath(string path) => _state.VaultPath = path;
+    public void SetVaultPath(string path) => _state.VaultPath = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetFullPath(path);
     public void AttachClipboard(IClipboard? clipboard) => _clipboardService.Attach(clipboard);
 
     public void RecordActivity()
@@ -69,13 +70,17 @@ public partial class MainWindowViewModel : ViewModelBase
             Lock();
     }
 
-    public void GoWelcome() => Current = new WelcomeViewModel(this);
-    public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService);
-    public void GoUnlock() => Current = new UnlockViewModel(this, _vaultService);
+    public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryStore);
+    public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService, _vaultRegistryStore);
+    public void GoUnlock() => Current = new UnlockViewModel(this, _vaultService, _vaultRegistryStore);
 
     public void OnUnlocked(byte[] vaultKey)
     {
         _state.VaultKey = vaultKey;
+
+        if (!string.IsNullOrWhiteSpace(_state.VaultPath))
+            _vaultRegistryStore.MarkOpened(_state.VaultPath);
+
         Current = new ShellViewModel(this, _itemRepo);
         RestartAutoLockTimer();
     }

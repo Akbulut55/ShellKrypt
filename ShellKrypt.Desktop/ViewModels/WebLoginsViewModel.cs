@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Crypto;
+using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -24,6 +25,11 @@ public sealed partial class WebLoginRowVm : ObservableObject
     [ObservableProperty] private string url;
     [ObservableProperty] private string notes;
     [ObservableProperty] private string twoFaNote;
+    [ObservableProperty] private string totpSecret;
+    [ObservableProperty] private string totpCode = "";
+    [ObservableProperty] private string totpCountdown = "";
+    [ObservableProperty] private string totpStatus = "No TOTP configured";
+    [ObservableProperty] private bool isFavorite;
 
     [ObservableProperty] private bool isEditing;
     [ObservableProperty] private bool isPasswordVisible;
@@ -34,6 +40,8 @@ public sealed partial class WebLoginRowVm : ObservableObject
     private string _origUrl = "";
     private string _origNotes = "";
     private string _origTwoFaNote = "";
+    private string _origTotpSecret = "";
+    private bool _origFavorite;
 
     public WebLoginRowVm(
         string id,
@@ -43,6 +51,8 @@ public sealed partial class WebLoginRowVm : ObservableObject
         string url,
         string notes,
         string twoFaNote,
+        string totpSecret,
+        bool favorite,
         string createdAtUtc,
         string updatedAtUtc,
         bool isNew)
@@ -54,6 +64,8 @@ public sealed partial class WebLoginRowVm : ObservableObject
         Url = url ?? "";
         Notes = notes ?? "";
         TwoFaNote = twoFaNote ?? "";
+        TotpSecret = totpSecret ?? "";
+        IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         IsNew = isNew;
@@ -64,6 +76,9 @@ public sealed partial class WebLoginRowVm : ObservableObject
     public string UrlDisplay => DisplayOrPlaceholder("URL", Url);
     public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
     public string TwoFaNoteDisplay => DisplayOrPlaceholder("2FA", TwoFaNote);
+    public string FavoriteGlyph => IsFavorite ? "*" : "";
+    public bool HasTotp => !string.IsNullOrWhiteSpace(TotpSecret);
+    public bool CanCopyTotp => !string.IsNullOrWhiteSpace(TotpCode);
 
     public bool IsViewing => !IsEditing;
 
@@ -73,6 +88,18 @@ public sealed partial class WebLoginRowVm : ObservableObject
     partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlDisplay));
     partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
     partial void OnTwoFaNoteChanged(string value) => OnPropertyChanged(nameof(TwoFaNoteDisplay));
+    partial void OnTotpSecretChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasTotp));
+        OnPropertyChanged(nameof(CanCopyTotp));
+    }
+    partial void OnTotpCodeChanged(string value)
+    {
+        OnPropertyChanged(nameof(CanCopyTotp));
+        OnPropertyChanged(nameof(TotpStatus));
+    }
+    partial void OnTotpCountdownChanged(string value) => OnPropertyChanged(nameof(TotpStatus));
+    partial void OnIsFavoriteChanged(bool value) => OnPropertyChanged(nameof(FavoriteGlyph));
     partial void OnIsPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(PasswordDisplay));
 
     public void BeginEdit()
@@ -83,6 +110,8 @@ public sealed partial class WebLoginRowVm : ObservableObject
         _origUrl = Url;
         _origNotes = Notes;
         _origTwoFaNote = TwoFaNote;
+        _origTotpSecret = TotpSecret;
+        _origFavorite = IsFavorite;
         IsEditing = true;
     }
 
@@ -100,6 +129,8 @@ public sealed partial class WebLoginRowVm : ObservableObject
         Url = _origUrl;
         Notes = _origNotes;
         TwoFaNote = _origTwoFaNote;
+        TotpSecret = _origTotpSecret;
+        IsFavorite = _origFavorite;
         IsEditing = false;
     }
 
@@ -108,6 +139,29 @@ public sealed partial class WebLoginRowVm : ObservableObject
         IsNew = false;
         IsEditing = false;
         UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+    }
+
+    public void RefreshTotpState(DateTimeOffset now)
+    {
+        if (!HasTotp)
+        {
+            TotpCode = "";
+            TotpCountdown = "";
+            TotpStatus = "No TOTP configured";
+            return;
+        }
+
+        if (TotpToolkit.TryGenerateCode(TotpSecret, now, out var code, out var secondsRemaining, out var error))
+        {
+            TotpCode = code;
+            TotpCountdown = $"{secondsRemaining:00}s";
+            TotpStatus = $"OTP: {code} ({secondsRemaining:00}s)";
+            return;
+        }
+
+        TotpCode = "";
+        TotpCountdown = "";
+        TotpStatus = string.IsNullOrWhiteSpace(error) ? "Invalid TOTP secret" : error;
     }
 
     private static string DisplayOrPlaceholder(string label, string? value)
@@ -121,6 +175,7 @@ public partial class WebLoginsViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
     private readonly IItemRepository _repo;
+    private readonly DispatcherTimer _totpTimer = new();
 
     private readonly List<WebLoginRowVm> _all = new();
 
@@ -138,6 +193,9 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         _root = root;
         _repo = repo;
+        _totpTimer.Interval = TimeSpan.FromSeconds(1);
+        _totpTimer.Tick += (_, _) => RefreshTotpRows();
+        _totpTimer.Start();
         _ = LoadAsync();
     }
 
@@ -157,6 +215,8 @@ public partial class WebLoginsViewModel : ViewModelBase
             url: "",
             notes: "",
             twoFaNote: "",
+            totpSecret: "",
+            favorite: false,
             createdAtUtc: now,
             updatedAtUtc: now,
             isNew: true
@@ -183,6 +243,14 @@ public partial class WebLoginsViewModel : ViewModelBase
         if (_root.VaultPath is null) { Error = "No vault selected."; return; }
         if (string.IsNullOrWhiteSpace(row.Title)) { Error = "Title is required."; return; }
 
+        var totpSecret = row.TotpSecret?.Trim() ?? "";
+        if (!string.IsNullOrWhiteSpace(totpSecret) &&
+            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
+        {
+            Error = $"TOTP secret is invalid: {totpError}";
+            return;
+        }
+
         try
         {
             var now = DateTimeOffset.UtcNow.ToString("O");
@@ -192,7 +260,8 @@ public partial class WebLoginsViewModel : ViewModelBase
                 Username: row.Username,
                 Password: row.Password,
                 Notes: row.Notes ?? "",
-                TwoFaNote: row.TwoFaNote ?? ""
+                TwoFaNote: row.TwoFaNote ?? "",
+                TotpSecret: totpSecret
             );
 
             var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
@@ -201,7 +270,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             var header = new VaultItemHeader(
                 Id: row.Id,
                 Type: ItemType.Web,
-                Favorite: false,
+                Favorite: row.IsFavorite,
                 CreatedAtUtc: row.CreatedAtUtc,
                 UpdatedAtUtc: now
             );
@@ -212,6 +281,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
 
             row.MarkSaved();
+            row.RefreshTotpState(DateTimeOffset.UtcNow);
             ApplyFilter();
         }
         catch (Exception ex)
@@ -251,6 +321,32 @@ public partial class WebLoginsViewModel : ViewModelBase
         row.IsPasswordVisible = !row.IsPasswordVisible;
     }
 
+    [RelayCommand]
+    private async Task ToggleFavoriteAsync(WebLoginRowVm row)
+    {
+        Error = "";
+        var previous = row.IsFavorite;
+        row.IsFavorite = !row.IsFavorite;
+        await SaveAsync(row);
+
+        if (!string.IsNullOrWhiteSpace(Error))
+            row.IsFavorite = previous;
+    }
+
+    [RelayCommand]
+    private async Task CopyTotpAsync(WebLoginRowVm row)
+    {
+        Error = "";
+
+        if (string.IsNullOrWhiteSpace(row.TotpCode))
+        {
+            Error = "No TOTP code available.";
+            return;
+        }
+
+        await _root.CopyToClipboardAsync(row.TotpCode);
+    }
+
     private void RemoveRow(WebLoginRowVm row)
     {
         _all.Remove(row);
@@ -284,6 +380,8 @@ public partial class WebLoginsViewModel : ViewModelBase
                     payload.Url,
                     payload.Notes,
                     payload.TwoFaNote,
+                    payload.TotpSecret,
+                    r.Header.Favorite,
                     r.Header.CreatedAtUtc,
                     r.Header.UpdatedAtUtc,
                     isNew: false
@@ -291,6 +389,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             }
 
             ApplyFilter();
+            RefreshTotpRows();
         }
         catch (Exception ex)
         {
@@ -312,10 +411,20 @@ public partial class WebLoginsViewModel : ViewModelBase
                 r.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Url.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.TwoFaNote.Contains(q, StringComparison.OrdinalIgnoreCase));
+                r.TwoFaNote.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.TotpSecret.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                (r.IsFavorite && "favorite".Contains(q, StringComparison.OrdinalIgnoreCase)));
         }
 
         foreach (var r in filtered)
             Rows.Add(r);
+    }
+
+    private void RefreshTotpRows()
+    {
+        var now = DateTimeOffset.UtcNow;
+
+        foreach (var row in _all)
+            row.RefreshTotpState(now);
     }
 }

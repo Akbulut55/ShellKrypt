@@ -1,10 +1,12 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.UnlockView"
              x:DataType="vm:UnlockViewModel">
-  <StackPanel Margin="24" Spacing="12" Width="420">
-    <TextBlock Text="Unlock Vault" FontSize="22" FontWeight="Bold"/>
+  <StackPanel Margin="24" Spacing="12" Width="460">
+    <TextBlock Text="{Binding VaultTitle}" FontSize="22" FontWeight="Bold"/>
+    <TextBlock Text="{Binding VaultDescription}" Opacity="0.75" TextWrapping="Wrap"/>
+    <TextBlock Text="{Binding VaultPath}" Opacity="0.55" TextWrapping="Wrap" FontSize="11"/>
 
     <TextBox Watermark="Master password"
              PasswordChar="●"

@@ -4,11 +4,19 @@
              x:Class="ShellKrypt.Desktop.Views.CreateVaultView"
              x:DataType="vm:CreateVaultViewModel">
 
-  <StackPanel Margin="24" Spacing="12" Width="520">
+  <StackPanel Margin="24" Spacing="12" Width="560">
     <TextBlock Text="Create Vault" FontSize="22" FontWeight="Bold"/>
+    <TextBlock Text="Set a display name, confirm the file path, and choose whether this vault should become your default."
+               Opacity="0.75"
+               TextWrapping="Wrap"/>
 
-    <TextBlock Text="Vault location (default AppData):" Opacity="0.75"/>
+    <TextBox Watermark="Display name" Text="{Binding DisplayName}"/>
+    <TextBox Watermark="Description" Text="{Binding Description}" AcceptsReturn="True" MinHeight="72" TextWrapping="Wrap"/>
+
+    <TextBlock Text="Vault location:" Opacity="0.75"/>
     <TextBox Text="{Binding VaultPath}" IsReadOnly="True"/>
+
+    <CheckBox Content="Make this the default vault" IsChecked="{Binding IsDefaultVault}"/>
 
     <TextBox Watermark="Master password" PasswordChar="●" Text="{Binding MasterPassword}"/>
     <TextBox Watermark="Confirm password" PasswordChar="●" Text="{Binding ConfirmPassword}"/>

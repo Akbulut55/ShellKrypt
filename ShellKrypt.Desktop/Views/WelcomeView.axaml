@@ -2,16 +2,122 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.WelcomeView"
+             x:CompileBindings="False"
              x:DataType="vm:WelcomeViewModel">
-  <StackPanel Margin="24" Spacing="12" Width="420">
-    <TextBlock Text="ShellKrypt" FontSize="28" FontWeight="Bold"/>
-    <TextBlock Text="Local-first password management platform (v1)" Opacity="0.75"/>
 
-    <Button Content="Create Vault" Command="{Binding CreateVaultCommand}"/>
-    <Button Content="Open Vault" Command="{Binding OpenVaultCommand}"/>
+  <Grid Margin="24" RowDefinitions="Auto,Auto,*,Auto" RowSpacing="16">
+    <Border CornerRadius="18" Padding="20" BorderThickness="1">
+      <StackPanel Spacing="10">
+        <TextBlock Text="Vault Manager" FontSize="28" FontWeight="Bold"/>
+        <TextBlock Text="Choose a vault, mark a default, or create a new one. Your recent vaults stay right here for quick switching."
+                   Opacity="0.75"
+                   TextWrapping="Wrap"/>
 
-    <Border Margin="0,8,0,0" Padding="12" CornerRadius="8" BorderThickness="1">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Create Vault" Command="{Binding CreateVaultCommand}"/>
+          <Button Content="Open Selected" Command="{Binding OpenSelectedVaultCommand}"/>
+          <Button Content="Open Default" Command="{Binding OpenDefaultVaultCommand}"/>
+          <Button Content="Refresh" Command="{Binding RefreshCommand}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <StackPanel Grid.Row="1" Spacing="8">
+      <TextBlock Text="Recent Vaults" FontSize="18" FontWeight="SemiBold"/>
+      <ItemsControl ItemsSource="{Binding RecentVaults}">
+        <ItemsControl.ItemsPanel>
+          <ItemsPanelTemplate>
+            <StackPanel Orientation="Horizontal" Spacing="10"/>
+          </ItemsPanelTemplate>
+        </ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="vm:VaultRecordVm">
+            <Button Width="240"
+                    HorizontalAlignment="Left"
+                    Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                    CommandParameter="{Binding}"
+                    Padding="12">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding DescriptionDisplay}" Opacity="0.72" TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding PathDisplay}" Opacity="0.55" FontSize="11" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Button>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+
+    <Grid Grid.Row="2" ColumnDefinitions="1.2*,1*" ColumnSpacing="16">
+      <Border CornerRadius="16" Padding="16" BorderThickness="1">
+        <DockPanel LastChildFill="True">
+          <StackPanel DockPanel.Dock="Top" Spacing="8" Margin="0,0,0,12">
+            <TextBlock Text="All Vaults" FontSize="18" FontWeight="SemiBold"/>
+            <TextBlock Text="{Binding Status}" Opacity="0.72" TextWrapping="Wrap"/>
+          </StackPanel>
+
+          <ListBox ItemsSource="{Binding Vaults}"
+                   SelectedItem="{Binding SelectedVault}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:VaultRecordVm">
+                <Border CornerRadius="12" Padding="12" Margin="0,0,0,8" BorderThickness="1">
+                  <StackPanel Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
+                      <Border Padding="6,2" CornerRadius="10" BorderThickness="1">
+                        <TextBlock Text="{Binding DefaultBadge}" FontSize="11"/>
+                      </Border>
+                      <TextBlock Text="{Binding StatusDisplay}" Opacity="0.7" FontSize="11"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding DescriptionDisplay}" Opacity="0.74" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding PathDisplay}" Opacity="0.55" FontSize="11" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding LastOpenedDisplay}" Opacity="0.55" FontSize="11"/>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </DockPanel>
+      </Border>
+
+      <Border Grid.Column="1" CornerRadius="16" Padding="16" BorderThickness="1">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Selected Vault" FontSize="18" FontWeight="SemiBold"/>
+          <TextBlock Text="Edit the vault metadata here. The vault path remains tied to the file you created."
+                     Opacity="0.72"
+                     TextWrapping="Wrap"/>
+
+          <TextBox Watermark="Display name" Text="{Binding SelectedVault.DisplayName}"/>
+          <TextBox Watermark="Description"
+                   Text="{Binding SelectedVault.Description}"
+                   AcceptsReturn="True"
+                   MinHeight="72"
+                   TextWrapping="Wrap"/>
+          <TextBox Watermark="Accent color (optional)" Text="{Binding SelectedVault.AccentColor}"/>
+          <TextBox Watermark="Icon key (optional)" Text="{Binding SelectedVault.IconKey}"/>
+          <CheckBox Content="Use as default vault" IsChecked="{Binding SelectedVault.IsDefault}"/>
+
+          <Border Padding="12" CornerRadius="12" BorderThickness="1">
+            <StackPanel Spacing="6">
+              <TextBlock Text="Vault Path" FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding SelectedVault.PathDisplay}" TextWrapping="Wrap" Opacity="0.8"/>
+              <TextBlock Text="{Binding SelectedVault.CreatedDisplay}" Opacity="0.65" FontSize="11"/>
+              <TextBlock Text="{Binding SelectedVault.LastOpenedDisplay}" Opacity="0.65" FontSize="11"/>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <Button Content="Save Metadata" Command="{Binding SaveSelectedMetadataCommand}"/>
+            <Button Content="Make Default" Command="{Binding MakeDefaultCommand}"/>
+          </StackPanel>
+
+          <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Border Grid.Row="3" Padding="12" CornerRadius="12" BorderThickness="1">
       <TextBlock Text="{Binding Status}" TextWrapping="Wrap"/>
     </Border>
-  </StackPanel>
+  </Grid>
 </UserControl>

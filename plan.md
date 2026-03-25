@@ -1,175 +1,205 @@
-# ShellKrypt Delivery Plan
+# ShellKrypt Core v2 Delivery Plan
 
 ## Goal
 
-Deliver the remaining `v1` scope for ShellKrypt as a local-first desktop password manager with a secure vault lifecycle, feature-complete item management, useful tooling, and enough validation to keep the codebase stable while we build.
+Turn ShellKrypt from a solid local-first encrypted vault into a more complete desktop password manager product by delivering the `core v2` scope only:
+
+- multi-vault management
+- import / export / backup workflows
+- integrated authenticator / TOTP support
+- richer item modeling and detail UX
+- stronger desktop polish around startup, empty states, and favorites
+
+Stretch v2 is intentionally out of scope for this pass.
 
 ## Current Baseline
 
-Already working:
+Already working from v1:
 
 - local vault creation
-- vault unlock and manual lock flow
+- unlock / manual lock flow
 - encrypted SQLite persistence
 - encrypted CRUD for web logins, cards, and secure notes
-- shell navigation between major sections
+- all-items navigation
+- labels / filters
+- tools / health / settings
+- auto-lock and clipboard timeout
 
-Current gaps visible in code:
+Current gaps relative to v2:
 
-- `All Items` is still a placeholder
-- `Settings` is still a placeholder
-- labels / filters are not wired
-- tools page is not built
-- health page is not built
-- auto-lock and clipboard timeout are not built
-- some payload fields exist but are not exposed in UI
-- there is no visible test project yet
+- startup still assumes a single default vault
+- vaults are not managed as first-class user-facing records
+- no recent vault list or vault metadata UX
+- no import / export / restore workflow
+- no CSV import
+- web items do not support integrated TOTP generation
+- richer favorites / pinned workflows are incomplete
+- item detail experience is still relatively lightweight
+- there is still no automated test project in the solution
+
+## Scope For This Pass
+
+### In scope
+
+- multiple vault support
+- startup vault manager / selector
+- recent vaults
+- vault metadata:
+  - display name
+  - description
+  - accent color or icon if practical
+  - created date
+  - optional default vault
+- native encrypted ShellKrypt export
+- native encrypted ShellKrypt restore / import
+- plaintext JSON export with warnings
+- CSV import with preview and duplicate strategy
+- TOTP secret support on Web items
+- current OTP code generation and countdown
+- copy TOTP code action
+- richer Web / Card / Note detail experience
+- favorite / pinned UI surfacing if practical within existing model
+- startup / empty / error state polish
+- tests for import / export and TOTP logic
+
+### Explicitly deferred
+
+- attachments
+- Bitwarden / 1Password importers
+- identity item type
+- passkey features
+- biometrics / Windows Hello
+- sync / browser / cloud / team features
 
 ## Delivery Principles
 
 - Keep the app local-only.
-- Keep encryption/decryption centralized.
-- Decrypt only after unlock and clear sensitive session state on lock.
-- Prefer shared services and reusable view models over duplicating item logic.
-- Keep worker ownership disjoint to reduce merge conflicts.
-
-## v1 Target Features
-
-### Must have
-
-- `All Items` page with counts, search, type filter, and navigation into the right section/item
-- labels and filters
-- settings page with at least auto-lock and clipboard timeout settings
-- clipboard copy helpers with timed clearing
-- auto-lock on idle and/or app deactivation
-- tools page with password generator and hashing/base64 helpers
-- health page with weak / reused / old password analysis
-- fuller payload editing surface for existing item types
-- test coverage for core crypto/repository/view-model flows
-
-### Nice to have if time allows
-
-- favorites surfaced in UI
-- better empty states and error states
-- more polished filtering and sort behavior
+- Keep encryption centralized and reusable.
+- Treat vaults as first-class records, not hardcoded paths.
+- Preserve the secure unlock lifecycle and clear sensitive in-memory data on lock.
+- Prefer shared services and data models over duplicated feature logic.
+- Keep worker ownership disjoint and use the main thread for integration.
 
 ## Ownership Model
 
-Three worker agents will build in parallel. Each worker must stay inside its owned area unless a dependency makes a tiny edit unavoidable. If a worker must touch a shared file, keep the change minimal and note it clearly.
+Three worker agents will implement core v2 in parallel. Each worker owns its slice and should avoid broad edits outside it. If a shared file must be touched, keep the change minimal and clearly note it.
 
-### Worker 1: Core Security + Settings
+### Worker 1: Vault Management + Startup UX
 
 Primary responsibility:
 
-- vault session lifecycle and security-sensitive desktop behavior
+- make vaults user-facing, discoverable, and switchable
 
 Owned files and areas:
 
-- `ShellKrypt.Desktop/Services/*`
+- `ShellKrypt.Desktop/Services/*` related to vault registry, recent vaults, metadata, and default vault selection
 - `ShellKrypt.Desktop/ViewModels/MainWindowViewModel.cs`
+- `ShellKrypt.Desktop/ViewModels/WelcomeViewModel.cs`
 - `ShellKrypt.Desktop/ViewModels/UnlockViewModel.cs`
 - `ShellKrypt.Desktop/ViewModels/CreateVaultViewModel.cs`
-- new settings view / viewmodel files
-- app-level wiring needed for settings, auto-lock, and clipboard timeout
+- new startup / vault manager viewmodels and views
+- minimal app-shell wiring needed for vault switching
 
 Target outcomes:
 
-- settings page replaces placeholder
-- auto-lock timeout configurable
-- minimize/deactivate lock behavior implemented if practical in current Avalonia shell
-- clipboard copy service with timed clearing
-- better clearing of sensitive session data on lock
-- add or update tests in this slice if a test project exists or is created by main thread
+- startup page becomes a vault manager / selector
+- user can create, open, and switch between multiple vaults
+- recent vaults list exists
+- vault metadata can be viewed and edited
+- one vault can be marked as default
+- better startup / empty / error states
 
-### Worker 2: All Items + Labels + Search
+### Worker 2: Import / Export / Backup + Tests
 
 Primary responsibility:
 
-- unified item index, labels, filters, and cross-item search/navigation
+- portable vault data flows and validation coverage
+
+Owned files and areas:
+
+- `ShellKrypt.Core/Vaulting/*`
+- `ShellKrypt.Infrastructure/Vaulting/*`
+- import / export / backup service models and implementations
+- CSV import mapping logic
+- any new import / export viewmodels and views
+- test project creation and tests for import / export flows if needed
+
+Target outcomes:
+
+- encrypted ShellKrypt-native export
+- encrypted ShellKrypt restore / import
+- plaintext JSON export with strong warning messaging
+- CSV import with preview and duplicate handling
+- tests for import / export parsing and round-tripping
+
+### Worker 3: TOTP + Richer Items + Detail UX
+
+Primary responsibility:
+
+- make credential items feel product-like rather than minimal
 
 Owned files and areas:
 
 - `ShellKrypt.Core/Items/*`
-- `ShellKrypt.Infrastructure/Items/*`
-- new shared item-query/index models if needed
-- new `All Items` view / viewmodel files
-- `ShellKrypt.Desktop/ViewModels/ShellViewModel.cs` for replacing the placeholder page
-- related XAML view registration for `All Items`
-
-Target outcomes:
-
-- `All Items` page replaces placeholder
-- top summary counts for web/cards/notes
-- unified search across loaded decrypted items
-- type filter and label filter
-- row click routes user into the proper page and selects or focuses the item if practical
-- repository support for labels and item-label assignment
-
-### Worker 3: Tools + Health + Item Form Completion
-
-Primary responsibility:
-
-- user-facing productivity features and completion of existing item forms
-
-Owned files and areas:
-
+- `ShellKrypt.Infrastructure/Items/*` only where item storage shape must evolve
 - `ShellKrypt.Desktop/ViewModels/WebLoginsViewModel.cs`
 - `ShellKrypt.Desktop/ViewModels/CardsViewModel.cs`
 - `ShellKrypt.Desktop/ViewModels/SecureNotesViewModel.cs`
-- related `Views/*.axaml` for those sections
-- new tools view / viewmodel files
-- new health view / viewmodel files
-- `ShellKrypt.Desktop/ViewModels/ShellViewModel.cs` only for nav additions if unavoidable
+- `ShellKrypt.Desktop/ViewModels/AllItemsViewModel.cs`
+- related item views
+- new TOTP helper logic and any tests in this slice if test scaffolding exists
 
 Target outcomes:
 
-- tools page added with password generator, SHA-256, SHA-512, base64 encode/decode
-- health page added with reused / weak / old password checks
-- web login form exposes `Url`, `Notes`, `TwoFaNote`
-- card form exposes `Notes`
-- note form reviewed and improved if needed for parity and usability
-- tests in this slice if test scaffolding exists
+- Web items support TOTP secret storage
+- current OTP code and countdown display exist
+- copy TOTP action exists
+- Web / Card / Note details feel richer and more complete
+- favorites / pinned state is surfaced where practical
+- tests for TOTP parsing / generation
 
 ## Main Thread Responsibilities
 
-The main thread will coordinate and may touch shared integration files when needed:
+The main thread coordinates and integrates:
 
-- create and adjust `plan.md`
-- create test project scaffolding if needed
-- integrate worker results
-- run builds/tests
-- resolve conflicts in shared shell/navigation areas
+- maintain `plan.md`
+- resolve shared shell / navigation overlaps
+- review worker outputs
+- fix integration compile issues
+- run `dotnet build` and `dotnet test`
+- patch solution wiring for any new test projects
 
-## Suggested Build Order
+## Suggested Execution Order
 
-1. Worker 2 builds the shared item index shape and `All Items` page scaffold.
-2. Worker 1 builds settings/session services in parallel.
-3. Worker 3 builds tools/health and expands item forms in parallel.
-4. Main thread integrates shell navigation overlaps.
-5. Main thread adds or finalizes tests and verification if workers have not already done so.
+1. Worker 1 upgrades startup into a vault manager and introduces vault metadata / recents.
+2. Worker 2 builds portable data services and test scaffolding in parallel.
+3. Worker 3 upgrades Web item modeling with TOTP and improves item detail UX in parallel.
+4. Main thread integrates shell overlaps, fixes compile issues, and verifies build / tests.
 
 ## Acceptance Criteria
 
-The project is considered complete for this pass when:
+This pass is complete when:
 
 - the app builds successfully
-- `All Items`, `Settings`, `Tools`, and `Health` are no longer placeholders
-- labels can be created/assigned and used for filtering
-- search works across the unlocked in-memory item set
-- auto-lock and clipboard timeout function in at least one clear, testable desktop scenario
-- existing CRUD flows still work for web logins, cards, and notes
-- fuller item payload fields are editable and persist correctly
-- at least one automated test project exists with meaningful coverage of critical paths
+- startup is multi-vault aware
+- recent vaults and default vault behavior work
+- native encrypted export and restore work
+- plaintext JSON export and CSV import work with clear warnings / preview behavior
+- Web logins support TOTP secret storage and current code generation
+- richer item details are visible and persist correctly
+- favorites / pinned behavior is surfaced if implemented in this pass
+- at least one automated test project exists
+- import / export and TOTP logic have meaningful automated coverage
 
 ## Working Rules For All Workers
 
 - Read this file before coding.
 - You are not alone in the codebase; other workers are making changes in parallel.
 - Do not revert or overwrite another worker's edits.
-- If you encounter another worker's changes in a shared file, adapt to them.
+- If shared files change, adapt rather than reverting.
 - Keep comments concise.
-- Prefer adding small reusable types/services instead of large monolithic view models.
-- Report changed file paths in your final response.
+- Prefer reusable services / models over one-off feature code.
+- Report changed file paths in the final response.
 
 ## Verification
 

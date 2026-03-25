@@ -18,14 +18,23 @@ public sealed partial class NoteItemVm : ObservableObject
 
     [ObservableProperty] private string title;
     [ObservableProperty] private string content;
+    [ObservableProperty] private bool isFavorite;
 
-    public NoteItemVm(string id, string title, string content, string createdAtUtc, string updatedAtUtc)
+    public NoteItemVm(string id, string title, string content, bool favorite, string createdAtUtc, string updatedAtUtc)
     {
         Id = id;
         Title = title;
         Content = content;
+        IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
+    }
+
+    public string FavoriteGlyph => IsFavorite ? "*" : "";
+
+    partial void OnIsFavoriteChanged(bool value)
+    {
+        OnPropertyChanged(nameof(FavoriteGlyph));
     }
 
     public void TouchUpdated()
@@ -66,7 +75,7 @@ public partial class SecureNotesViewModel : ViewModelBase
     public string NotesHeader => $"Notes ({NoteCount})";
     public string SelectedStatus => SelectedNote is null
         ? "Select a note or create a new one."
-        : $"Created {SelectedNote.CreatedAtUtc} | Updated {SelectedNote.UpdatedAtUtc}";
+        : $"Created {SelectedNote.CreatedAtUtc} | Updated {SelectedNote.UpdatedAtUtc}" + (SelectedNote.IsFavorite ? " | Favorite" : "");
     public string EditorStats
         => $"Characters: {EditorContent.Length} | Words: {CountWords(EditorContent)}";
 
@@ -105,6 +114,27 @@ public partial class SecureNotesViewModel : ViewModelBase
     [RelayCommand] private void Lock() => _root.Lock();
 
     [RelayCommand]
+    private async Task ToggleFavoriteAsync()
+    {
+        if (SelectedNote is null)
+        {
+            Error = "Select a note first.";
+            return;
+        }
+
+        var previous = SelectedNote.IsFavorite;
+        SelectedNote.IsFavorite = !SelectedNote.IsFavorite;
+        OnPropertyChanged(nameof(SelectedStatus));
+        await SaveAsync();
+
+        if (!string.IsNullOrWhiteSpace(Error))
+        {
+            SelectedNote.IsFavorite = previous;
+            OnPropertyChanged(nameof(SelectedStatus));
+        }
+    }
+
+    [RelayCommand]
     private void NewNote()
     {
         SelectedNote = null;
@@ -137,7 +167,7 @@ public partial class SecureNotesViewModel : ViewModelBase
                 var header = new VaultItemHeader(id, ItemType.Note, false, now, now);
                 await _repo.InsertAsync(_root.VaultPath, header, enc);
 
-                var vm = new NoteItemVm(id, EditorTitle, EditorContent, now, now);
+                var vm = new NoteItemVm(id, EditorTitle, EditorContent, false, now, now);
                 Notes.Insert(0, vm);
                 SelectedNote = vm;
             }
@@ -152,7 +182,7 @@ public partial class SecureNotesViewModel : ViewModelBase
                 SelectedNote.TouchUpdated();
 
                 var header = new VaultItemHeader(
-                    SelectedNote.Id, ItemType.Note, false,
+                    SelectedNote.Id, ItemType.Note, SelectedNote.IsFavorite,
                     SelectedNote.CreatedAtUtc, DateTimeOffset.UtcNow.ToString("O")
                 );
 
@@ -243,6 +273,7 @@ public partial class SecureNotesViewModel : ViewModelBase
                     row.Header.Id,
                     payload.Title,
                     payload.Content,
+                    row.Header.Favorite,
                     row.Header.CreatedAtUtc,
                     row.Header.UpdatedAtUtc
                 ));

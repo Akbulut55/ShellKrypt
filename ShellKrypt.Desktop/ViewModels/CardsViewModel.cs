@@ -25,6 +25,7 @@ public sealed partial class CardRowVm : ObservableObject
     [ObservableProperty] private string expiryYear;
     [ObservableProperty] private string cvc;
     [ObservableProperty] private string notes;
+    [ObservableProperty] private bool isFavorite;
 
     [ObservableProperty] private bool isEditing;
     [ObservableProperty] private bool isSecretsVisible;
@@ -36,6 +37,7 @@ public sealed partial class CardRowVm : ObservableObject
     private string _origExpiryYear = "";
     private string _origCvc = "";
     private string _origNotes = "";
+    private bool _origFavorite;
 
     public CardRowVm(
         string id,
@@ -46,6 +48,7 @@ public sealed partial class CardRowVm : ObservableObject
         string expiryYear,
         string cvc,
         string notes,
+        bool favorite,
         string createdAtUtc,
         string updatedAtUtc,
         bool isNew)
@@ -58,6 +61,7 @@ public sealed partial class CardRowVm : ObservableObject
         ExpiryYear = expiryYear ?? "";
         Cvc = cvc ?? "";
         Notes = notes ?? "";
+        IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         IsNew = isNew;
@@ -79,6 +83,7 @@ public sealed partial class CardRowVm : ObservableObject
         => $"{(string.IsNullOrWhiteSpace(ExpiryMonth) ? "MM" : ExpiryMonth)}/{(string.IsNullOrWhiteSpace(ExpiryYear) ? "YYYY" : ExpiryYear)}";
 
     public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
+    public string FavoriteGlyph => IsFavorite ? "*" : "";
 
     partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
@@ -87,6 +92,7 @@ public sealed partial class CardRowVm : ObservableObject
     partial void OnExpiryMonthChanged(string value) => OnPropertyChanged(nameof(ExpiryDisplay));
     partial void OnExpiryYearChanged(string value) => OnPropertyChanged(nameof(ExpiryDisplay));
     partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
+    partial void OnIsFavoriteChanged(bool value) => OnPropertyChanged(nameof(FavoriteGlyph));
     partial void OnIsSecretsVisibleChanged(bool value)
     {
         OnPropertyChanged(nameof(NumberDisplay));
@@ -102,6 +108,7 @@ public sealed partial class CardRowVm : ObservableObject
         _origExpiryYear = ExpiryYear;
         _origCvc = Cvc;
         _origNotes = Notes;
+        _origFavorite = IsFavorite;
         IsEditing = true;
     }
 
@@ -120,6 +127,7 @@ public sealed partial class CardRowVm : ObservableObject
         ExpiryYear = _origExpiryYear;
         Cvc = _origCvc;
         Notes = _origNotes;
+        IsFavorite = _origFavorite;
         IsEditing = false;
     }
 
@@ -191,6 +199,7 @@ public partial class CardsViewModel : ViewModelBase
             expiryYear: "",
             cvc: "",
             notes: "",
+            favorite: false,
             createdAtUtc: now,
             updatedAtUtc: now,
             isNew: true
@@ -219,6 +228,18 @@ public partial class CardsViewModel : ViewModelBase
     [RelayCommand]
     private void ToggleSecrets(CardRowVm row)
         => row.IsSecretsVisible = !row.IsSecretsVisible;
+
+    [RelayCommand]
+    private async Task ToggleFavoriteAsync(CardRowVm row)
+    {
+        Error = "";
+        var previous = row.IsFavorite;
+        row.IsFavorite = !row.IsFavorite;
+        await SaveAsync(row);
+
+        if (!string.IsNullOrWhiteSpace(Error))
+            row.IsFavorite = previous;
+    }
 
     [RelayCommand]
     private async Task SaveAsync(CardRowVm row)
@@ -270,7 +291,7 @@ public partial class CardsViewModel : ViewModelBase
             var header = new VaultItemHeader(
                 Id: row.Id,
                 Type: ItemType.Card,
-                Favorite: false,
+                Favorite: row.IsFavorite,
                 CreatedAtUtc: row.CreatedAtUtc,
                 UpdatedAtUtc: now
             );
@@ -344,6 +365,7 @@ public partial class CardsViewModel : ViewModelBase
                     payload.ExpiryYear.ToString(),
                     payload.Cvc,
                     payload.Notes,
+                    r.Header.Favorite,
                     r.Header.CreatedAtUtc,
                     r.Header.UpdatedAtUtc,
                     isNew: false
@@ -371,7 +393,8 @@ public partial class CardsViewModel : ViewModelBase
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 (r.Cardholder ?? "").Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.NumberDisplay.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase));
+                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                (r.IsFavorite && "favorite".Contains(q, StringComparison.OrdinalIgnoreCase)));
         }
 
         foreach (var r in filtered)
