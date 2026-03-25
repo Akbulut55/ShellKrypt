@@ -8,6 +8,8 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class UnlockViewModel : ViewModelBase
 {
+    private const string LegacyDescription = "Legacy default vault";
+    private const string DefaultUnlockDescription = "Unlock this local vault to continue securely.";
     private readonly MainWindowViewModel _root;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryStore _vaultRegistry;
@@ -17,7 +19,20 @@ public partial class UnlockViewModel : ViewModelBase
 
     public string VaultTitle => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.DisplayName ?? "Unlock Vault";
     public string VaultPath => _root.VaultPath ?? "(no vault selected)";
-    public string VaultDescription => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.Description ?? "";
+    public string VaultDescription
+    {
+        get
+        {
+            var description = _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.Description?.Trim() ?? "";
+            if (string.IsNullOrWhiteSpace(description) ||
+                string.Equals(description, LegacyDescription, System.StringComparison.OrdinalIgnoreCase))
+            {
+                return DefaultUnlockDescription;
+            }
+
+            return description;
+        }
+    }
 
     public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryStore vaultRegistry)
     {

@@ -2,30 +2,66 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.CreateVaultView"
+             x:CompileBindings="False"
              x:DataType="vm:CreateVaultViewModel">
 
-  <StackPanel Margin="24" Spacing="12" Width="560">
-    <TextBlock Text="Create Vault" FontSize="22" FontWeight="Bold"/>
-    <TextBlock Text="Set a display name, confirm the file path, and choose whether this vault should become your default."
-               Opacity="0.75"
-               TextWrapping="Wrap"/>
+  <Grid Margin="28" ColumnDefinitions="1.15*,0.9*" ColumnSpacing="22">
+    <Border Classes="panel-raised" Padding="24">
+      <StackPanel Spacing="14">
+        <TextBlock Text="Create Vault" Classes="page-title"/>
+        <TextBlock Text="Set a name, confirm where the encrypted vault file should live, and establish the master password for this workspace."
+                   Classes="page-subtitle"
+                   TextWrapping="Wrap"/>
 
-    <TextBox Watermark="Display name" Text="{Binding DisplayName}"/>
-    <TextBox Watermark="Description" Text="{Binding Description}" AcceptsReturn="True" MinHeight="72" TextWrapping="Wrap"/>
+        <TextBox Watermark="Display name" Text="{Binding DisplayName}"/>
+        <TextBox Watermark="Description"
+                 Text="{Binding Description}"
+                 AcceptsReturn="True"
+                 MinHeight="96"
+                 TextWrapping="Wrap"/>
 
-    <TextBlock Text="Vault location:" Opacity="0.75"/>
-    <TextBox Text="{Binding VaultPath}" IsReadOnly="True"/>
+        <StackPanel Spacing="6">
+          <TextBlock Text="Vault location" Classes="caption"/>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <TextBox Text="{Binding VaultPath}" Grid.Column="0"/>
+            <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseVaultPathCommand}"/>
+          </Grid>
+        </StackPanel>
 
-    <CheckBox Content="Make this the default vault" IsChecked="{Binding IsDefaultVault}"/>
+        <TextBox Watermark="Master password" PasswordChar="*" Text="{Binding MasterPassword}"/>
+        <TextBox Watermark="Confirm password" PasswordChar="*" Text="{Binding ConfirmPassword}"/>
+        <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
 
-    <TextBox Watermark="Master password" PasswordChar="●" Text="{Binding MasterPassword}"/>
-    <TextBox Watermark="Confirm password" PasswordChar="●" Text="{Binding ConfirmPassword}"/>
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Back" Classes="subtle" Command="{Binding BackCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Create Vault" Classes="primary" Command="{Binding CreateCommand}" IsEnabled="{Binding !IsBusy}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
 
-    <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
+    <Border Grid.Column="1" Classes="panel-raised" Padding="24">
+      <StackPanel Spacing="12">
+        <TextBlock Text="What happens next" Classes="section-title"/>
+        <TextBlock Text="ShellKrypt creates a local SQLite-backed vault file, derives the unlock key from your master password, and stores the vault record in the local manager."
+                   Classes="page-subtitle"
+                   TextWrapping="Wrap"/>
 
-    <StackPanel Orientation="Horizontal" Spacing="8">
-      <Button Content="Back" Command="{Binding BackCommand}" IsEnabled="{Binding !IsBusy}"/>
-      <Button Content="Create" Command="{Binding CreateCommand}" IsEnabled="{Binding !IsBusy}"/>
-    </StackPanel>
-  </StackPanel>
+        <Border Classes="panel" Padding="14">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Security notes" Classes="caption"/>
+            <TextBlock Text="Your master password is never used directly to encrypt every record." TextWrapping="Wrap"/>
+            <TextBlock Text="A derived key unlocks the vault key, which then encrypts item payloads." Classes="page-subtitle" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+
+        <Border Classes="panel" Padding="14">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Desktop workflow" Classes="caption"/>
+            <TextBlock Text="After creation, you return to the unlock step with the new vault selected." TextWrapping="Wrap"/>
+            <TextBlock Text="This keeps startup and vault switching consistent with the rest of the product." Classes="page-subtitle" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </Border>
+  </Grid>
 </UserControl>

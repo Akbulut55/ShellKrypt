@@ -1,6 +1,11 @@
 using System;
+using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+using Avalonia;
 using Avalonia.Input.Platform;
+using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Items;
@@ -8,6 +13,7 @@ using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
+using ShellKrypt.Desktop.Views;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -20,6 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly DispatcherTimer _autoLockTimer = new();
+    private readonly DispatcherTimer _focusLossLockTimer = new() { Interval = TimeSpan.FromSeconds(20) };
 
     [ObservableProperty]
     private ViewModelBase current = null!;
@@ -28,6 +35,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int autoLockMinutes;
     [ObservableProperty] private bool lockOnDeactivate;
     [ObservableProperty] private int clipboardClearSeconds;
+    [ObservableProperty] private AppThemeMode themeMode;
 
     public MainWindowViewModel()
     {
@@ -36,6 +44,7 @@ public partial class MainWindowViewModel : ViewModelBase
         AutoLockMinutes = Math.Max(1, settings.AutoLockMinutes);
         LockOnDeactivate = settings.LockOnDeactivate;
         ClipboardClearSeconds = Math.Max(1, settings.ClipboardClearSeconds);
+        themeMode = settings.ThemeMode;
 
         _autoLockTimer.Tick += (_, _) =>
         {
@@ -43,7 +52,15 @@ public partial class MainWindowViewModel : ViewModelBase
                 Lock();
         };
 
+        _focusLossLockTimer.Tick += (_, _) =>
+        {
+            StopFocusLossTimer();
+            if (IsUnlocked && LockOnDeactivate)
+                Lock();
+        };
+
         Current = new WelcomeViewModel(this, _vaultRegistryStore);
+        ApplyTheme(themeMode);
     }
 
     public string? VaultPath => _state.VaultPath;
@@ -56,18 +73,24 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void RecordActivity()
     {
+        StopFocusLossTimer();
+
         if (!IsUnlocked || !AutoLockEnabled)
             return;
 
         RestartAutoLockTimer();
     }
 
-    public void HandleWindowActivated() => RecordActivity();
+    public void HandleWindowActivated()
+    {
+        StopFocusLossTimer();
+        RecordActivity();
+    }
 
     public void HandleWindowDeactivated()
     {
         if (IsUnlocked && LockOnDeactivate)
-            Lock();
+            RestartFocusLossTimer();
     }
 
     public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryStore);
@@ -88,9 +111,19 @@ public partial class MainWindowViewModel : ViewModelBase
     public void Lock()
     {
         StopAutoLockTimer();
+        StopFocusLossTimer();
         _ = _clipboardService.ClearAsync();
         _state.ClearSensitive();
         GoWelcome();
+    }
+
+    public void ReloadShell()
+    {
+        if (!IsUnlocked)
+            return;
+
+        Current = new ShellViewModel(this, _itemRepo);
+        RestartAutoLockTimer();
     }
 
     public async Task CopyToClipboardAsync(string text)
@@ -99,10 +132,77 @@ public partial class MainWindowViewModel : ViewModelBase
         await _clipboardService.CopyAsync(text, delay);
     }
 
+    public async Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
+            return null;
+
+        var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
+        {
+            Title = title,
+            AllowMultiple = false,
+            FileTypeFilter =
+            [
+                new FilePickerFileType(fileTypeName)
+                {
+                    Patterns = extensions.Select(ToPattern).ToArray()
+                }
+            ]
+        });
+
+        return files.FirstOrDefault()?.TryGetLocalPath();
+    }
+
+    public async Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
+            return null;
+
+        var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
+        {
+            Title = title,
+            SuggestedFileName = string.IsNullOrWhiteSpace(suggestedName) ? "file" : suggestedName,
+            DefaultExtension = defaultExtension.TrimStart('.'),
+            ShowOverwritePrompt = true,
+            FileTypeChoices =
+            [
+                new FilePickerFileType(fileTypeName)
+                {
+                    Patterns = extensions.Select(ToPattern).ToArray()
+                }
+            ]
+        });
+
+        return file?.TryGetLocalPath();
+    }
+
+    public async Task<bool> ConfirmDangerousActionAsync(string title, string message, string detail, string confirmText)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            return false;
+
+        var dialog = new ConfirmActionWindow(title, message, detail, confirmText);
+        return await dialog.ShowDialog<bool>(mainWindow);
+    }
+
+    public async Task<string?> PromptPasswordAsync(string title, string message, string detail, string confirmText)
+    {
+        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            return null;
+
+        var dialog = new PasswordPromptWindow(title, message, detail, confirmText);
+        return await dialog.ShowDialog<string?>(mainWindow);
+    }
+
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndUpdateTimer();
     partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndUpdateTimer();
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndUpdateTimer();
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndUpdateTimer();
+    partial void OnThemeModeChanged(AppThemeMode value)
+    {
+        ApplyTheme(value);
+        SaveSettingsAndUpdateTimer();
+    }
 
     private void SaveSettingsAndUpdateTimer()
     {
@@ -114,6 +214,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 AutoLockMinutes = Math.Max(1, AutoLockMinutes),
                 LockOnDeactivate = LockOnDeactivate,
                 ClipboardClearSeconds = Math.Max(1, ClipboardClearSeconds),
+                ThemeMode = ThemeMode,
             });
         }
         catch
@@ -136,4 +237,27 @@ public partial class MainWindowViewModel : ViewModelBase
     }
 
     private void StopAutoLockTimer() => _autoLockTimer.Stop();
+
+    private void RestartFocusLossTimer()
+    {
+        StopFocusLossTimer();
+        _focusLossLockTimer.Start();
+    }
+
+    private void StopFocusLossTimer() => _focusLossLockTimer.Stop();
+
+    private static void ApplyTheme(AppThemeMode mode)
+    {
+        if (Application.Current is App app)
+            app.ApplyTheme(mode);
+    }
+
+    private static string ToPattern(string extension)
+    {
+        var normalized = extension?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(normalized))
+            return "*.*";
+
+        return normalized.StartsWith(".", StringComparison.Ordinal) ? $"*{normalized}" : $"*.{normalized.TrimStart('*')}";
+    }
 }

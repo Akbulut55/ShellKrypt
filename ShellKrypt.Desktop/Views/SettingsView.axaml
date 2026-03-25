@@ -1,45 +1,177 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             xmlns:vault="using:ShellKrypt.Core.Vaulting"
              x:Class="ShellKrypt.Desktop.Views.SettingsView"
+             x:CompileBindings="False"
              x:DataType="vm:SettingsViewModel">
 
-  <StackPanel Margin="24" Spacing="14" Width="560">
-    <TextBlock Text="Settings" FontSize="22" FontWeight="Bold"/>
-    <TextBlock Text="{Binding Status}" Opacity="0.75" TextWrapping="Wrap"/>
+  <ScrollViewer>
+    <StackPanel Margin="24" Spacing="18">
+      <Border Classes="panel-raised" Padding="18">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Security &amp; Preferences" Classes="page-title"/>
+          <TextBlock Text="{Binding Status}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
 
-    <Border Padding="16" CornerRadius="10" BorderThickness="1">
-      <StackPanel Spacing="10">
-        <TextBlock Text="Session" FontSize="16" FontWeight="SemiBold"/>
-        <TextBlock Text="{Binding SessionState}" Opacity="0.8"/>
-        <TextBlock Text="{Binding VaultPath}" Opacity="0.8" TextWrapping="Wrap"/>
-        <Button Content="Copy Vault Path"
-                Command="{Binding CopyVaultPathCommand}"
-                HorizontalAlignment="Left"/>
-      </StackPanel>
-    </Border>
+      <Grid ColumnDefinitions="1.05*,1.2*" ColumnSpacing="18">
+        <StackPanel Spacing="18">
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Session" Classes="section-title"/>
+              <Border Classes="panel" Padding="12">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="Vault state" Classes="caption"/>
+                  <TextBlock Text="{Binding SessionState}" FontWeight="SemiBold"/>
+                  <TextBlock Text="{Binding VaultPath}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+              <Button Content="Copy Vault Path"
+                      Classes="subtle"
+                      Command="{Binding CopyVaultPathCommand}"
+                      HorizontalAlignment="Left"/>
+            </StackPanel>
+          </Border>
 
-    <Border Padding="16" CornerRadius="10" BorderThickness="1">
-      <StackPanel Spacing="10">
-        <TextBlock Text="Security" FontSize="16" FontWeight="SemiBold"/>
-        <CheckBox Content="Enable auto-lock"
-                  IsChecked="{Binding AutoLockEnabled}"/>
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Appearance" Classes="section-title"/>
+              <Grid ColumnDefinitions="Auto,180" ColumnSpacing="10">
+                <TextBlock Text="Theme" VerticalAlignment="Center"/>
+                <ComboBox Grid.Column="1"
+                          ItemsSource="{Binding ThemeModes}"
+                          SelectedItem="{Binding SelectedThemeMode}"/>
+              </Grid>
+              <TextBlock Text="Dark stays the default security-focused workspace, and Light is available when you want a brighter desktop layout."
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
 
-        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <TextBlock Text="Auto-lock after" VerticalAlignment="Center"/>
-          <TextBox Width="120" Text="{Binding AutoLockMinutesText}"/>
-          <TextBlock Text="minutes" VerticalAlignment="Center" Opacity="0.8"/>
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Security Controls" Classes="section-title"/>
+              <CheckBox Content="Enable auto-lock" IsChecked="{Binding AutoLockEnabled}"/>
+
+              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
+                <TextBlock Text="Auto-lock after" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding AutoLockMinutesText}"/>
+                <TextBlock Grid.Column="2" Text="minutes" VerticalAlignment="Center" Classes="page-subtitle"/>
+              </Grid>
+
+              <CheckBox Content="Lock after the app stays out of focus" IsChecked="{Binding LockOnDeactivate}"/>
+              <TextBlock Text="{Binding FocusLockSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
+
+              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
+                <TextBlock Text="Clipboard clear timeout" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" Text="{Binding ClipboardClearSecondsText}"/>
+                <TextBlock Grid.Column="2" Text="seconds" VerticalAlignment="Center" Classes="page-subtitle"/>
+              </Grid>
+            </StackPanel>
+          </Border>
         </StackPanel>
 
-        <CheckBox Content="Lock when the window is deactivated"
-                  IsChecked="{Binding LockOnDeactivate}"/>
+        <StackPanel Grid.Column="1" Spacing="18">
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="14">
+              <TextBlock Text="Vault Transfer" Classes="section-title"/>
+              <TextBlock Text="{Binding TransferStatus}" Classes="page-subtitle" TextWrapping="Wrap"/>
 
-        <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-          <TextBlock Text="Clear copied clipboard items after" VerticalAlignment="Center"/>
-          <TextBox Width="120" Text="{Binding ClipboardClearSecondsText}"/>
-          <TextBlock Text="seconds" VerticalAlignment="Center" Opacity="0.8"/>
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <Border Classes="panel" Padding="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="Encrypted Backup" FontWeight="SemiBold"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <TextBox Grid.Column="0" Watermark="Encrypted backup path" Text="{Binding EncryptedExportPath}"/>
+                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseEncryptedExportPathCommand}"/>
+                    </Grid>
+                    <TextBox Watermark="Export passphrase" PasswordChar="*" Text="{Binding ExportPassphrase}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Button Content="Preview" Classes="subtle" Command="{Binding PreviewExportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                      <Button Content="Export" Classes="primary" Command="{Binding ExportEncryptedCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding ExportSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Classes="panel" Padding="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="Plaintext JSON Export" FontWeight="SemiBold"/>
+                    <TextBlock Text="This export is not encrypted. Only write it to a trusted location."
+                               Foreground="{StaticResource DangerBrush}"
+                               TextWrapping="Wrap"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <TextBox Grid.Column="0" Watermark="Plaintext export path" Text="{Binding PlaintextExportPath}"/>
+                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowsePlaintextExportPathCommand}"/>
+                    </Grid>
+                    <CheckBox Content="I understand this export is plaintext" IsChecked="{Binding ConfirmPlaintextExport}"/>
+                    <Button Content="Export Plaintext"
+                            Classes="danger"
+                            Command="{Binding ExportPlaintextCommand}"
+                            HorizontalAlignment="Left"
+                            IsEnabled="{Binding !IsTransferBusy}"/>
+                  </StackPanel>
+                </Border>
+              </Grid>
+
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
+                <Border Classes="panel" Padding="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="Restore Encrypted Backup" FontWeight="SemiBold"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <TextBox Grid.Column="0" Watermark="Encrypted backup path" Text="{Binding EncryptedImportPath}"/>
+                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseEncryptedImportPathCommand}"/>
+                    </Grid>
+                    <TextBox Watermark="Backup passphrase" PasswordChar="*" Text="{Binding EncryptedImportPassphrase}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Button Content="Preview Restore" Classes="subtle" Command="{Binding PreviewEncryptedImportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                      <Button Content="Restore Backup" Classes="primary" Command="{Binding ImportEncryptedCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding EncryptedImportSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+
+                <Border Grid.Column="1" Classes="panel" Padding="14">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="CSV Import" FontWeight="SemiBold"/>
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <TextBox Grid.Column="0" Watermark="CSV file path" Text="{Binding CsvImportPath}"/>
+                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseCsvImportPathCommand}"/>
+                    </Grid>
+                    <ComboBox ItemsSource="{Binding CsvDuplicateStrategies}" SelectedItem="{Binding SelectedCsvDuplicateStrategy}"/>
+                    <StackPanel Orientation="Horizontal" Spacing="8">
+                      <Button Content="Preview CSV" Classes="subtle" Command="{Binding PreviewCsvImportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                      <Button Content="Import CSV" Classes="primary" Command="{Binding ImportCsvCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding CsvPreviewSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+              </Grid>
+
+              <Border Classes="panel" Padding="14" IsVisible="{Binding HasCsvPreview}">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="CSV Preview Rows" FontWeight="SemiBold"/>
+                  <ItemsControl ItemsSource="{Binding CsvPreviewRows}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vault:VaultCsvImportRowPreview">
+                        <Border Classes="panel-raised" Padding="12" Margin="0,0,0,8">
+                          <StackPanel Spacing="3">
+                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                            <TextBlock Text="{Binding SecondaryText}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Status}" Classes="page-subtitle"/>
+                            <TextBlock Text="{Binding Message}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+                          </StackPanel>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </Border>
         </StackPanel>
-      </StackPanel>
-    </Border>
-  </StackPanel>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
 </UserControl>

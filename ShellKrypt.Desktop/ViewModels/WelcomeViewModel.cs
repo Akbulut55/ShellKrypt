@@ -1,9 +1,14 @@
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Data.Sqlite;
+using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -11,6 +16,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
     private readonly VaultRegistryStore _vaultRegistry;
+    private readonly IVaultService _vaultService = new SqliteVaultService();
 
     public ObservableCollection<VaultRecordVm> Vaults { get; } = new();
     public ObservableCollection<VaultRecordVm> RecentVaults { get; } = new();
@@ -19,6 +25,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private string status = "Select a vault to unlock, or create a new one.";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private string existingVaultPath = "";
+    [ObservableProperty] private string existingVaultDisplayName = "";
 
     public WelcomeViewModel(MainWindowViewModel root, VaultRegistryStore vaultRegistry)
     {
@@ -59,6 +67,131 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void RegisterExistingVault()
+    {
+        Error = "";
+
+        var path = ExistingVaultPath?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(path))
+        {
+            Error = "Enter a vault path first.";
+            return;
+        }
+
+        if (!File.Exists(path))
+        {
+            Error = "That vault file does not exist.";
+            return;
+        }
+
+        try
+        {
+            var displayName = string.IsNullOrWhiteSpace(ExistingVaultDisplayName)
+                ? Path.GetFileNameWithoutExtension(path)
+                : ExistingVaultDisplayName.Trim();
+
+            var entry = _vaultRegistry.UpsertVault(
+                path,
+                displayName,
+                "",
+                isDefault: !_vaultRegistry.ListVaults().Any(),
+                markOpened: false);
+
+            ExistingVaultPath = "";
+            ExistingVaultDisplayName = "";
+            ReloadVaults(entry.VaultPath);
+            Status = "Existing vault added.";
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void DuplicateSelectedVault()
+    {
+        Error = "";
+
+        if (SelectedVault is null)
+        {
+            Error = "Select a vault first.";
+            return;
+        }
+
+        if (!SelectedVault.Exists)
+        {
+            Error = "The selected vault file could not be found.";
+            return;
+        }
+
+        try
+        {
+            var targetPath = DefaultPaths.GetSuggestedVaultPath($"{SelectedVault.DisplayLabel} Copy");
+            File.Copy(SelectedVault.VaultPath, targetPath, overwrite: false);
+            CopySidecarIfExists(SelectedVault.VaultPath, targetPath, "-wal");
+            CopySidecarIfExists(SelectedVault.VaultPath, targetPath, "-shm");
+
+            _vaultRegistry.UpsertVault(
+                targetPath,
+                $"{SelectedVault.DisplayLabel} Copy",
+                SelectedVault.Description,
+                isDefault: false,
+                markOpened: false);
+
+            ReloadVaults(targetPath);
+            Status = "Vault duplicated.";
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task RemoveSelectedVaultAsync()
+    {
+        Error = "";
+
+        if (SelectedVault is null)
+        {
+            Error = "Select a vault first.";
+            return;
+        }
+
+        var confirmed = await _root.ConfirmDangerousActionAsync(
+            "Remove Vault From List",
+            $"Remove {SelectedVault.DisplayLabel} from the local vault list?",
+            "This only removes the vault from ShellKrypt's local manager. The vault file stays on disk and can be added again later.",
+            "Remove From List");
+
+        if (!confirmed)
+            return;
+
+        try
+        {
+            var displayName = SelectedVault.DisplayLabel;
+            var path = SelectedVault.VaultPath;
+
+            if (!_vaultRegistry.RemoveVault(path))
+            {
+                Error = "That vault is no longer registered.";
+                return;
+            }
+
+            if (string.Equals(_root.VaultPath, path, StringComparison.OrdinalIgnoreCase))
+                _root.SetVaultPath("");
+
+            ReloadVaults();
+            Status = $"{displayName} was removed from the local vault list.";
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
     private void OpenVault(VaultRecordVm? vault)
     {
         if (vault is null)
@@ -79,6 +212,83 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task DeleteVaultAsync(VaultRecordVm? vault)
+    {
+        Error = "";
+
+        if (vault is null)
+        {
+            Error = "Select a vault first.";
+            return;
+        }
+
+        if (!vault.Exists)
+        {
+            Error = "The selected vault file could not be found.";
+            return;
+        }
+
+        var confirmed = await _root.ConfirmDangerousActionAsync(
+            "Delete Vault",
+            $"Delete {vault.DisplayLabel} permanently?",
+            "This removes the vault file from disk and cannot be undone.",
+            "Yes, delete it");
+
+        if (!confirmed)
+            return;
+
+        var password = await _root.PromptPasswordAsync(
+            "Confirm Master Password",
+            "Enter the master password to permanently delete this vault.",
+            vault.VaultPath,
+            "Delete Vault");
+
+        if (password is null)
+            return;
+
+        IsBusy = true;
+        try
+        {
+            var unlockResult = await _vaultService.UnlockAsync(vault.VaultPath, password);
+            if (!unlockResult.Success)
+            {
+                Error = unlockResult.Error ?? "Wrong master password.";
+                return;
+            }
+
+            if (unlockResult.VaultKey is { Length: > 0 } vaultKey)
+                Array.Clear(vaultKey, 0, vaultKey.Length);
+
+            SqliteConnection.ClearAllPools();
+
+            DeleteSidecarIfExists(vault.VaultPath, "-wal");
+            DeleteSidecarIfExists(vault.VaultPath, "-shm");
+            DeleteSidecarIfExists(vault.VaultPath, "-journal");
+            File.Delete(vault.VaultPath);
+
+            if (!_vaultRegistry.RemoveVault(vault.VaultPath))
+            {
+                Error = "That vault is no longer registered.";
+                return;
+            }
+
+            if (string.Equals(_root.VaultPath, vault.VaultPath, StringComparison.OrdinalIgnoreCase))
+                _root.SetVaultPath("");
+
+            ReloadVaults();
+            Status = $"{vault.DisplayLabel} was deleted permanently.";
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    [RelayCommand]
     private void SaveSelectedMetadata()
     {
         Error = "";
@@ -95,8 +305,6 @@ public sealed partial class WelcomeViewModel : ViewModelBase
                 SelectedVault.VaultPath,
                 SelectedVault.DisplayName,
                 SelectedVault.Description,
-                SelectedVault.AccentColor,
-                SelectedVault.IconKey,
                 SelectedVault.IsDefault);
 
             ReloadVaults(SelectedVault.VaultPath);
@@ -129,6 +337,23 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         {
             Error = ex.Message;
         }
+    }
+
+    [RelayCommand]
+    private async Task BrowseExistingVaultAsync()
+    {
+        Error = "";
+        var path = await _root.PickOpenFileAsync(
+            "Select existing vault",
+            [".skvault"],
+            "ShellKrypt Vault");
+
+        if (string.IsNullOrWhiteSpace(path))
+            return;
+
+        ExistingVaultPath = path;
+        if (string.IsNullOrWhiteSpace(ExistingVaultDisplayName))
+            ExistingVaultDisplayName = Path.GetFileNameWithoutExtension(path);
     }
 
     partial void OnSelectedVaultChanged(VaultRecordVm? value)
@@ -194,4 +419,20 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
     private static string NormalizePath(string? path)
         => string.IsNullOrWhiteSpace(path) ? "" : System.IO.Path.GetFullPath(path);
+
+    private static void CopySidecarIfExists(string sourcePath, string targetPath, string suffix)
+    {
+        var source = sourcePath + suffix;
+        if (!File.Exists(source))
+            return;
+
+        File.Copy(source, targetPath + suffix, overwrite: false);
+    }
+
+    private static void DeleteSidecarIfExists(string vaultPath, string suffix)
+    {
+        var sidecar = vaultPath + suffix;
+        if (File.Exists(sidecar))
+            File.Delete(sidecar);
+    }
 }

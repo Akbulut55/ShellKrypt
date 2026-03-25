@@ -1,4 +1,5 @@
-﻿using System.Collections.ObjectModel;
+using System.Collections.ObjectModel;
+using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
@@ -29,7 +30,6 @@ public partial class ShellViewModel : ViewModelBase
         _root = root;
         _repo = repo;
 
-        // Pages
         AllItems = new AllItemsViewModel(_root, this, _repo);
         WebLogins = new WebLoginsViewModel(_root, _repo);
         SecureNotes = new SecureNotesViewModel(_root, _repo);
@@ -38,7 +38,7 @@ public partial class ShellViewModel : ViewModelBase
         Health = new HealthViewModel(_root, _repo);
         Settings = new SettingsViewModel(_root);
 
-        SelectedNav = NavItems[1]; // default: Web Logins
+        SelectedNav = NavItems[1];
     }
 
     public WebLoginsViewModel WebLogins { get; }
@@ -48,10 +48,27 @@ public partial class ShellViewModel : ViewModelBase
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
+    public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
+        ? "Vault"
+        : Path.GetFileNameWithoutExtension(_root.VaultPath);
+    public string VaultSubtitle => "Local-first encrypted workspace";
+    public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
+    public string CurrentSectionSubtitle => SelectedNav?.Key switch
+    {
+        "all" => "Unified inventory across the active vault.",
+        "web" => "Credentials, authenticator secrets, and account details.",
+        "cards" => "Sensitive payment details protected in the vault.",
+        "notes" => "Secure notes in a calm master-detail workspace.",
+        "tools" => "Local utilities for password, hash, and Base64 workflows.",
+        "health" => "Credential hygiene, reuse, and age analysis.",
+        "settings" => "Security, transfer, and vault preferences.",
+        _ => "Protected desktop password manager."
+    };
 
     partial void OnSelectedNavChanged(NavItemVm? value)
     {
-        if (value is null) return;
+        if (value is null)
+            return;
 
         CurrentPage = value.Key switch
         {
@@ -64,6 +81,9 @@ public partial class ShellViewModel : ViewModelBase
             "settings" => Settings,
             _ => WebLogins
         };
+
+        OnPropertyChanged(nameof(CurrentSectionTitle));
+        OnPropertyChanged(nameof(CurrentSectionSubtitle));
     }
 
     [RelayCommand]

@@ -1,4 +1,5 @@
 using System;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -14,26 +15,34 @@ public partial class CreateVaultViewModel : ViewModelBase
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryStore _vaultRegistry;
 
-    [ObservableProperty] private string displayName = "My Vault";
+    [ObservableProperty] private string displayName = "MyVault";
     [ObservableProperty] private string description = "";
-    [ObservableProperty] private string vaultPath = DefaultPaths.GetSuggestedVaultPath("My Vault");
+    [ObservableProperty] private string vaultPath = DefaultPaths.GetSuggestedVaultPath("MyVault");
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private string confirmPassword = "";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
-    [ObservableProperty] private bool isDefaultVault;
+
+    private bool _hasCustomVaultPath;
+    private bool _isUpdatingSuggestedPath;
 
     public CreateVaultViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryStore vaultRegistry)
     {
         _root = root;
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
-
-        IsDefaultVault = !_vaultRegistry.ListVaults().Any();
         UpdateSuggestedPath();
     }
 
     partial void OnDisplayNameChanged(string value) => UpdateSuggestedPath();
+
+    partial void OnVaultPathChanged(string value)
+    {
+        if (_isUpdatingSuggestedPath)
+            return;
+
+        _hasCustomVaultPath = !string.Equals(value, DefaultPaths.GetSuggestedVaultPath(DisplayName), StringComparison.OrdinalIgnoreCase);
+    }
 
     [RelayCommand]
     private async Task CreateAsync()
@@ -60,7 +69,7 @@ public partial class CreateVaultViewModel : ViewModelBase
                 VaultPath,
                 DisplayName,
                 Description,
-                isDefault: IsDefaultVault,
+                isDefault: !_vaultRegistry.ListVaults().Any(),
                 markOpened: true);
 
             _root.SetVaultPath(VaultPath);
@@ -81,8 +90,38 @@ public partial class CreateVaultViewModel : ViewModelBase
     [RelayCommand]
     private void Back() => _root.GoWelcome();
 
+    [RelayCommand]
+    private async Task BrowseVaultPathAsync()
+    {
+        Error = "";
+        var suggestedPath = string.IsNullOrWhiteSpace(VaultPath) ? DefaultPaths.GetSuggestedVaultPath(DisplayName) : VaultPath;
+        var selectedPath = await _root.PickSaveFileAsync(
+            "Choose vault location",
+            Path.GetFileNameWithoutExtension(suggestedPath),
+            ".skvault",
+            [".skvault"],
+            "ShellKrypt Vault");
+
+        if (string.IsNullOrWhiteSpace(selectedPath))
+            return;
+
+        _hasCustomVaultPath = true;
+        VaultPath = selectedPath;
+    }
+
     private void UpdateSuggestedPath()
     {
-        VaultPath = DefaultPaths.GetSuggestedVaultPath(DisplayName);
+        if (_hasCustomVaultPath)
+            return;
+
+        _isUpdatingSuggestedPath = true;
+        try
+        {
+            VaultPath = DefaultPaths.GetSuggestedVaultPath(DisplayName);
+        }
+        finally
+        {
+            _isUpdatingSuggestedPath = false;
+        }
     }
 }

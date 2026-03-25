@@ -205,16 +205,26 @@ public sealed class SqliteItemRepository : IItemRepository
 
     private static async Task<SqliteConnection> OpenConnectionAsync(string vaultPath, CancellationToken ct)
     {
-        var conn = new SqliteConnection($"Data Source={vaultPath};Mode=ReadWrite;");
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = vaultPath,
+            Mode = SqliteOpenMode.ReadWrite,
+            Pooling = false
+        };
+
+        var conn = new SqliteConnection(builder.ToString());
         await conn.OpenAsync(ct);
-        await EnableForeignKeysAsync(conn, ct);
+        await ConfigureConnectionAsync(conn, ct);
         return conn;
     }
 
-    private static async Task EnableForeignKeysAsync(SqliteConnection conn, CancellationToken ct)
+    private static async Task ConfigureConnectionAsync(SqliteConnection conn, CancellationToken ct)
     {
         var cmd = conn.CreateCommand();
-        cmd.CommandText = "PRAGMA foreign_keys = ON;";
+        cmd.CommandText = """
+        PRAGMA foreign_keys = ON;
+        PRAGMA journal_mode=DELETE;
+        """;
         await cmd.ExecuteNonQueryAsync(ct);
     }
 

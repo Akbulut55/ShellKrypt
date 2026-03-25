@@ -12,6 +12,7 @@ public static class DefaultPaths
             "ShellKrypt");
 
     public static string VaultsRoot => Path.Combine(AppRoot, "Vaults");
+    public static string ExportsRoot => Path.Combine(AppRoot, "Exports");
 
     public static string DefaultVaultPath => Path.Combine(VaultsRoot, "ShellKrypt.skvault");
 
@@ -41,6 +42,29 @@ public static class DefaultPaths
         return Path.Combine(VaultsRoot, $"{baseName}-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}.skvault");
     }
 
+    public static string GetSuggestedExportPath(string? displayName, string extension)
+    {
+        Directory.CreateDirectory(ExportsRoot);
+
+        var baseName = NormalizeFileName(string.IsNullOrWhiteSpace(displayName) ? "Vault Backup" : displayName);
+        if (string.IsNullOrWhiteSpace(baseName))
+            baseName = "Vault Backup";
+
+        var normalizedExtension = NormalizeExtension(extension);
+        var candidate = Path.Combine(ExportsRoot, $"{baseName}{normalizedExtension}");
+        if (!File.Exists(candidate))
+            return candidate;
+
+        for (var i = 2; i < 1000; i++)
+        {
+            candidate = Path.Combine(ExportsRoot, $"{baseName} ({i}){normalizedExtension}");
+            if (!File.Exists(candidate))
+                return candidate;
+        }
+
+        return Path.Combine(ExportsRoot, $"{baseName}-{DateTimeOffset.UtcNow:yyyyMMddHHmmss}{normalizedExtension}");
+    }
+
     private static string NormalizeFileName(string value)
     {
         var invalid = new HashSet<char>(Path.GetInvalidFileNameChars());
@@ -53,5 +77,14 @@ public static class DefaultPaths
         }
 
         return new string(buffer[..index]).Trim();
+    }
+
+    private static string NormalizeExtension(string extension)
+    {
+        var trimmed = extension?.Trim() ?? "";
+        if (string.IsNullOrWhiteSpace(trimmed))
+            return ".dat";
+
+        return trimmed.StartsWith(".", StringComparison.Ordinal) ? trimmed : $".{trimmed}";
     }
 }

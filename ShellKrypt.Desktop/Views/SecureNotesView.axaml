@@ -2,56 +2,92 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.SecureNotesView"
+             x:CompileBindings="False"
              x:DataType="vm:SecureNotesViewModel">
 
-  <Grid ColumnDefinitions="320,*">
-    <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
-      <StackPanel Spacing="10">
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Content="New Note" Command="{Binding NewNoteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Delete" Command="{Binding DeleteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Fav" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Lock" Command="{Binding LockCommand}" IsEnabled="{Binding !IsBusy}"/>
+  <Grid ColumnDefinitions="320,*" ColumnSpacing="18" Margin="24">
+    <Border Classes="panel-raised" Padding="16">
+      <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="12">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Note Library" Classes="section-title"/>
+          <TextBlock Text="{Binding NotesHeader}" Classes="page-subtitle"/>
         </StackPanel>
 
-        <TextBlock Text="{Binding NotesHeader}" FontSize="18" FontWeight="Bold"/>
-        <TextBlock Text="{Binding SelectedStatus}" Opacity="0.7" TextWrapping="Wrap"/>
+        <WrapPanel Grid.Row="1" ItemSpacing="8" LineSpacing="8">
+          <Button Content="New Note" Classes="primary" Command="{Binding NewNoteCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Favorite" Classes="subtle" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Delete" Classes="danger" Command="{Binding DeleteCommand}" IsEnabled="{Binding !IsBusy}"/>
+          <Button Content="Lock" Classes="subtle" Command="{Binding LockCommand}" IsEnabled="{Binding !IsBusy}"/>
+        </WrapPanel>
 
-        <ListBox ItemsSource="{Binding Notes}"
+        <ListBox Grid.Row="2"
+                 ItemsSource="{Binding Notes}"
                  SelectedItem="{Binding SelectedNote}">
           <ListBox.ItemTemplate>
             <DataTemplate>
-              <StackPanel Margin="0,4">
-                <StackPanel Orientation="Horizontal" Spacing="6">
-                  <TextBlock Text="{Binding FavoriteGlyph}" FontWeight="Bold"/>
-                  <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+              <Border Classes="panel" Padding="12">
+                <StackPanel Spacing="4">
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                    <Border Classes="badge" Padding="8,3" IsVisible="{Binding IsFavorite}">
+                      <TextBlock Text="Favorite" FontSize="11" FontWeight="SemiBold"/>
+                    </Border>
+                  </StackPanel>
+                  <TextBlock Text="{Binding UpdatedAtUtc}" Classes="page-subtitle"/>
                 </StackPanel>
-                <TextBlock Text="{Binding UpdatedAtUtc}" Opacity="0.55" FontSize="11"/>
-              </StackPanel>
+              </Border>
             </DataTemplate>
           </ListBox.ItemTemplate>
         </ListBox>
 
-        <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
-      </StackPanel>
+        <TextBlock Grid.Row="3" Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+      </Grid>
     </Border>
 
-    <Border Grid.Column="1" Padding="12">
-      <StackPanel Spacing="10">
-        <TextBlock Text="Editor" FontSize="18" FontWeight="Bold"/>
-        <TextBlock Text="{Binding EditorStats}" Opacity="0.7"/>
+    <Border Grid.Column="1" Classes="panel-raised" Padding="18">
+      <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="14">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Secure Note Editor" Classes="section-title"/>
+          <TextBlock Text="{Binding SelectedStatus}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        </StackPanel>
 
-        <TextBox Watermark="Title" Text="{Binding EditorTitle}" IsEnabled="{Binding !IsBusy}"/>
-        <TextBox Watermark="Content"
-                 Text="{Binding EditorContent}"
-                 AcceptsReturn="True"
-                 TextWrapping="Wrap"
-                 MinHeight="300"
-                 IsEnabled="{Binding !IsBusy}"/>
+        <Border Grid.Row="1" Classes="panel" Padding="12">
+          <TextBlock Text="{Binding EditorStats}" Classes="page-subtitle"/>
+        </Border>
 
-        <Button Content="Save" Command="{Binding SaveCommand}" IsEnabled="{Binding !IsBusy}"/>
-      </StackPanel>
+        <StackPanel Grid.Row="2" Spacing="6">
+          <TextBlock Text="Title" Classes="caption"/>
+          <TextBox Text="{Binding EditorTitle}"
+                   Watermark="Title"
+                   IsEnabled="{Binding !IsBusy}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Spacing="6">
+          <TextBlock Text="Content" Classes="caption"/>
+          <TextBox Text="{Binding EditorContent}"
+                   Watermark="Write the note content here"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   VerticalAlignment="Stretch"
+                   HorizontalAlignment="Stretch"
+                   ScrollViewer.VerticalScrollBarVisibility="Auto"
+                   MinHeight="320"
+                   IsEnabled="{Binding !IsBusy}"/>
+        </StackPanel>
+
+        <DockPanel Grid.Row="4" LastChildFill="False">
+          <Button Content="Save Note"
+                  Classes="primary"
+                  Command="{Binding SaveCommand}"
+                  IsEnabled="{Binding !IsBusy}"
+                  HorizontalAlignment="Left"/>
+          <TextBlock Text="{Binding Error}"
+                     Foreground="{StaticResource DangerBrush}"
+                     TextWrapping="Wrap"
+                     VerticalAlignment="Center"
+                     Margin="12,0,0,0"/>
+        </DockPanel>
+      </Grid>
     </Border>
   </Grid>
-
 </UserControl>

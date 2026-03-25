@@ -3,16 +3,21 @@
         xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        mc:Ignorable="d" d:DesignWidth="1100" d:DesignHeight="720"
+        mc:Ignorable="d"
+        d:DesignWidth="1360"
+        d:DesignHeight="860"
         x:Class="ShellKrypt.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/avalonia-logo.ico"
-        Title="ShellKrypt">
+        Title="ShellKrypt"
+        MinWidth="1180"
+        MinHeight="760">
 
     <Design.DataContext>
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <ContentControl Content="{Binding Current}"/>
-
+    <Border Padding="12" Background="{StaticResource AppBackgroundBrush}">
+        <ContentControl Content="{Binding Current}"/>
+    </Border>
 </Window>

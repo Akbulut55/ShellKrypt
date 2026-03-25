@@ -35,9 +35,10 @@ public sealed class SqliteVaultService : IVaultService
 
         Directory.CreateDirectory(Path.GetDirectoryName(vaultPath)!);
 
-        await using var conn = new SqliteConnection($"Data Source={vaultPath};Mode=ReadWriteCreate;");
+        await using var conn = CreateConnection(vaultPath, SqliteOpenMode.ReadWriteCreate);
         await conn.OpenAsync(ct);
 
+        await ConfigureConnectionAsync(conn, ct);
         await CreateSchemaAsync(conn, ct);
 
         var kdf = DefaultKdf();
@@ -67,8 +68,9 @@ public sealed class SqliteVaultService : IVaultService
         if (string.IsNullOrWhiteSpace(masterPassword))
             return UnlockResult.Fail("Enter master password.");
 
-        await using var conn = new SqliteConnection($"Data Source={vaultPath};Mode=ReadWrite;");
+        await using var conn = CreateConnection(vaultPath, SqliteOpenMode.ReadWrite);
         await conn.OpenAsync(ct);
+        await ConfigureConnectionAsync(conn, ct);
 
         var meta = await ReadVaultMetaAsync(conn, ct);
         if (meta is null)
@@ -98,8 +100,6 @@ public sealed class SqliteVaultService : IVaultService
         var cmd = conn.CreateCommand();
         cmd.CommandText = """
         PRAGMA foreign_keys = ON;
-        PRAGMA journal_mode=WAL;
-
         CREATE TABLE IF NOT EXISTS vault_meta (
             id INTEGER PRIMARY KEY CHECK (id = 1),
             version INTEGER NOT NULL,
@@ -138,6 +138,28 @@ public sealed class SqliteVaultService : IVaultService
         CREATE UNIQUE INDEX IF NOT EXISTS idx_labels_name ON labels(name COLLATE NOCASE);
         CREATE INDEX IF NOT EXISTS idx_item_labels_itemId ON item_labels(itemId);
         CREATE INDEX IF NOT EXISTS idx_item_labels_labelId ON item_labels(labelId);
+        """;
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    private static SqliteConnection CreateConnection(string vaultPath, SqliteOpenMode mode)
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = vaultPath,
+            Mode = mode,
+            Pooling = false
+        };
+
+        return new SqliteConnection(builder.ToString());
+    }
+
+    private static async Task ConfigureConnectionAsync(SqliteConnection conn, CancellationToken ct)
+    {
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+        PRAGMA foreign_keys = ON;
+        PRAGMA journal_mode=DELETE;
         """;
         await cmd.ExecuteNonQueryAsync(ct);
     }

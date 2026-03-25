@@ -2,63 +2,82 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.HealthView"
+             x:CompileBindings="False"
              x:DataType="vm:HealthViewModel">
   <ScrollViewer>
-    <StackPanel Margin="16" Spacing="16">
-      <Grid ColumnDefinitions="*,Auto">
-        <StackPanel Spacing="4">
-          <TextBlock Text="Health" FontSize="24" FontWeight="Bold"/>
-          <TextBlock Text="{Binding SummaryText}" Opacity="0.7"/>
-          <TextBlock Text="{Binding LastCheckedDisplay}" Opacity="0.55"/>
-        </StackPanel>
-
-        <Button Grid.Column="1"
-                Content="Refresh"
-                Command="{Binding RefreshCommand}"
-                VerticalAlignment="Top"
-                Height="34"
-                Padding="16,0"/>
-      </Grid>
-
-      <Border Padding="16" CornerRadius="12" BorderThickness="1">
-        <UniformGrid Columns="4" Rows="1" HorizontalAlignment="Stretch">
+    <StackPanel Margin="24" Spacing="18">
+      <Border Classes="panel-raised" Padding="18">
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
           <StackPanel Spacing="4">
-            <TextBlock Text="Analyzed" Opacity="0.7"/>
-            <TextBlock Text="{Binding AnalyzedCount}" FontSize="20" FontWeight="SemiBold"/>
+            <TextBlock Text="Credential Health" Classes="page-title"/>
+            <TextBlock Text="{Binding SummaryText}" Classes="page-subtitle"/>
+            <TextBlock Text="{Binding LastCheckedDisplay}" Classes="page-subtitle"/>
           </StackPanel>
 
-          <StackPanel Spacing="4">
-            <TextBlock Text="Reused" Opacity="0.7"/>
-            <TextBlock Text="{Binding ReusedCount}" FontSize="20" FontWeight="SemiBold"/>
-          </StackPanel>
-
-          <StackPanel Spacing="4">
-            <TextBlock Text="Weak" Opacity="0.7"/>
-            <TextBlock Text="{Binding WeakCount}" FontSize="20" FontWeight="SemiBold"/>
-          </StackPanel>
-
-          <StackPanel Spacing="4">
-            <TextBlock Text="Old" Opacity="0.7"/>
-            <TextBlock Text="{Binding OldCount}" FontSize="20" FontWeight="SemiBold"/>
-          </StackPanel>
-        </UniformGrid>
+          <Button Grid.Column="1"
+                  Classes="primary"
+                  Content="Refresh Analysis"
+                  Command="{Binding RefreshCommand}"
+                  VerticalAlignment="Top"/>
+        </Grid>
       </Border>
 
-      <Border Padding="16" CornerRadius="12" BorderThickness="1">
+      <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
+        <Border Classes="metric-card" Padding="18">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Analyzed" Classes="caption"/>
+            <TextBlock Text="{Binding AnalyzedCount}" Classes="metric-value"/>
+            <TextBlock Text="Web login records reviewed." Classes="page-subtitle"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1" Classes="metric-card" Padding="18">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Reused" Classes="caption"/>
+            <TextBlock Text="{Binding ReusedCount}" Classes="metric-value"/>
+            <TextBlock Text="Credentials sharing a password." Classes="page-subtitle"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="2" Classes="metric-card" Padding="18">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Weak" Classes="caption"/>
+            <TextBlock Text="{Binding WeakCount}" Classes="metric-value"/>
+            <TextBlock Text="Records missing strength or length." Classes="page-subtitle"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="3" Classes="metric-card" Padding="18">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Old" Classes="caption"/>
+            <TextBlock Text="{Binding OldCount}" Classes="metric-value"/>
+            <TextBlock Text="Entries that need rotation soon." Classes="page-subtitle"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Classes="panel-raised" Padding="18">
         <StackPanel Spacing="12">
-          <TextBlock Text="Issues" FontSize="18" FontWeight="SemiBold"/>
+          <TextBlock Text="Security Findings" Classes="section-title"/>
+          <TextBlock Text="Grouped findings help you focus on the riskiest credentials first."
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"/>
 
           <ItemsControl ItemsSource="{Binding Issues}">
             <ItemsControl.ItemTemplate>
               <DataTemplate>
-                <Border Margin="0,4" Padding="12" CornerRadius="10" BorderThickness="1">
-                  <StackPanel Spacing="6">
+                <Border Classes="panel" Padding="14" Margin="0,0,0,10">
+                  <StackPanel Spacing="8">
                     <StackPanel Orientation="Horizontal" Spacing="8">
-                      <TextBlock Text="{Binding Severity}" FontWeight="SemiBold"/>
-                      <TextBlock Text="{Binding Category}" Opacity="0.7"/>
+                      <Border Classes="badge" Padding="10,6">
+                        <TextBlock Text="{Binding Severity}" FontWeight="SemiBold"/>
+                      </Border>
+                      <Border Classes="badge" Padding="10,6">
+                        <TextBlock Text="{Binding Category}" FontWeight="SemiBold"/>
+                      </Border>
                     </StackPanel>
-                    <TextBlock Text="{Binding Title}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding Details}" Opacity="0.8" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Title}" FontSize="16" FontWeight="SemiBold" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Details}" Classes="page-subtitle" TextWrapping="Wrap"/>
                   </StackPanel>
                 </Border>
               </DataTemplate>
@@ -67,7 +86,7 @@
         </StackPanel>
       </Border>
 
-      <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
+      <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

@@ -71,8 +71,6 @@ public sealed class VaultRegistryStore
         string vaultPath,
         string displayName,
         string description,
-        string? accentColor = null,
-        string? iconKey = null,
         bool isDefault = false,
         bool markOpened = false)
     {
@@ -94,8 +92,6 @@ public sealed class VaultRegistryStore
         entry.VaultPath = path;
         entry.DisplayName = NormalizeLabel(displayName, Path.GetFileNameWithoutExtension(path));
         entry.Description = description?.Trim() ?? "";
-        entry.AccentColor = string.IsNullOrWhiteSpace(accentColor) ? null : accentColor.Trim();
-        entry.IconKey = string.IsNullOrWhiteSpace(iconKey) ? null : iconKey.Trim();
 
         if (markOpened)
             entry.LastOpenedAtUtc = DateTimeOffset.UtcNow.ToString("O");
@@ -145,6 +141,20 @@ public sealed class VaultRegistryStore
         return Clone(entry);
     }
 
+    public bool RemoveVault(string vaultPath)
+    {
+        var path = NormalizePath(vaultPath);
+        var registry = Load();
+        var removed = registry.Vaults.RemoveAll(x =>
+            string.Equals(NormalizePath(x.VaultPath), path, StringComparison.OrdinalIgnoreCase));
+
+        if (removed == 0)
+            return false;
+
+        Save(registry);
+        return true;
+    }
+
     private static void SetDefaultInternal(VaultRegistry registry, string vaultPath)
     {
         foreach (var vault in registry.Vaults)
@@ -167,9 +177,7 @@ public sealed class VaultRegistryStore
                 Id = string.IsNullOrWhiteSpace(vault.Id) ? Guid.NewGuid().ToString("N") : vault.Id,
                 VaultPath = path,
                 DisplayName = NormalizeLabel(vault.DisplayName, Path.GetFileNameWithoutExtension(path)),
-                Description = vault.Description?.Trim() ?? "",
-                AccentColor = string.IsNullOrWhiteSpace(vault.AccentColor) ? null : vault.AccentColor.Trim(),
-                IconKey = string.IsNullOrWhiteSpace(vault.IconKey) ? null : vault.IconKey.Trim(),
+                Description = NormalizeDescription(vault.Description),
                 CreatedAtUtc = string.IsNullOrWhiteSpace(vault.CreatedAtUtc) ? DateTimeOffset.UtcNow.ToString("O") : vault.CreatedAtUtc,
                 LastOpenedAtUtc = string.IsNullOrWhiteSpace(vault.LastOpenedAtUtc) ? null : vault.LastOpenedAtUtc,
                 IsDefault = vault.IsDefault
@@ -198,7 +206,7 @@ public sealed class VaultRegistryStore
         {
             VaultPath = legacyPath,
             DisplayName = Path.GetFileNameWithoutExtension(legacyPath),
-            Description = "Legacy default vault",
+            Description = "",
             CreatedAtUtc = DateTimeOffset.UtcNow.ToString("O"),
             LastOpenedAtUtc = DateTimeOffset.UtcNow.ToString("O"),
             IsDefault = true
@@ -214,6 +222,12 @@ public sealed class VaultRegistryStore
         return string.IsNullOrWhiteSpace(trimmed) ? fallback : trimmed;
     }
 
+    private static string NormalizeDescription(string? value)
+    {
+        var trimmed = value?.Trim() ?? "";
+        return string.Equals(trimmed, "Legacy default vault", StringComparison.OrdinalIgnoreCase) ? "" : trimmed;
+    }
+
     private static VaultRegistryEntry Clone(VaultRegistryEntry entry)
         => new()
         {
@@ -221,8 +235,6 @@ public sealed class VaultRegistryStore
             VaultPath = entry.VaultPath,
             DisplayName = entry.DisplayName,
             Description = entry.Description,
-            AccentColor = entry.AccentColor,
-            IconKey = entry.IconKey,
             CreatedAtUtc = entry.CreatedAtUtc,
             LastOpenedAtUtc = entry.LastOpenedAtUtc,
             IsDefault = entry.IsDefault

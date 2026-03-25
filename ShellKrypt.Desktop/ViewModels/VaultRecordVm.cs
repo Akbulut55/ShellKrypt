@@ -13,8 +13,6 @@ public sealed partial class VaultRecordVm : ObservableObject
 
     [ObservableProperty] private string displayName;
     [ObservableProperty] private string description;
-    [ObservableProperty] private string? accentColor;
-    [ObservableProperty] private string? iconKey;
     [ObservableProperty] private string? lastOpenedAtUtc;
     [ObservableProperty] private bool isDefault;
 
@@ -25,8 +23,6 @@ public sealed partial class VaultRecordVm : ObservableObject
         CreatedAtUtc = entry.CreatedAtUtc;
         DisplayName = entry.DisplayName;
         Description = entry.Description;
-        AccentColor = entry.AccentColor;
-        IconKey = entry.IconKey;
         LastOpenedAtUtc = entry.LastOpenedAtUtc;
         IsDefault = entry.IsDefault;
     }
@@ -53,8 +49,6 @@ public sealed partial class VaultRecordVm : ObservableObject
             VaultPath = VaultPath,
             DisplayName = DisplayName,
             Description = Description,
-            AccentColor = AccentColor,
-            IconKey = IconKey,
             CreatedAtUtc = CreatedAtUtc,
             LastOpenedAtUtc = LastOpenedAtUtc,
             IsDefault = IsDefault
@@ -64,8 +58,6 @@ public sealed partial class VaultRecordVm : ObservableObject
     {
         DisplayName = entry.DisplayName;
         Description = entry.Description;
-        AccentColor = entry.AccentColor;
-        IconKey = entry.IconKey;
         LastOpenedAtUtc = entry.LastOpenedAtUtc;
         IsDefault = entry.IsDefault;
     }

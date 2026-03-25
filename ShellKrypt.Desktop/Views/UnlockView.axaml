@@ -2,21 +2,38 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.UnlockView"
+             x:CompileBindings="False"
              x:DataType="vm:UnlockViewModel">
-  <StackPanel Margin="24" Spacing="12" Width="460">
-    <TextBlock Text="{Binding VaultTitle}" FontSize="22" FontWeight="Bold"/>
-    <TextBlock Text="{Binding VaultDescription}" Opacity="0.75" TextWrapping="Wrap"/>
-    <TextBlock Text="{Binding VaultPath}" Opacity="0.55" TextWrapping="Wrap" FontSize="11"/>
+  <Grid Margin="28"
+        HorizontalAlignment="Center"
+        VerticalAlignment="Center"
+        MaxWidth="720">
+    <Border Classes="panel-raised" Padding="24">
+      <StackPanel Spacing="14">
+        <TextBlock Text="Unlock Vault" Classes="page-title"/>
+        <TextBlock Text="{Binding VaultTitle}" FontSize="20" FontWeight="SemiBold"/>
+        <TextBlock Text="{Binding VaultDescription}"
+                   Classes="page-subtitle"
+                   TextWrapping="Wrap"/>
 
-    <TextBox Watermark="Master password"
-             PasswordChar="●"
-             Text="{Binding MasterPassword}"/>
+        <Border Classes="panel" Padding="12">
+          <StackPanel Spacing="4">
+            <TextBlock Text="Vault file" Classes="caption"/>
+            <TextBlock Text="{Binding VaultPath}" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
 
-    <TextBlock Text="{Binding Error}" Foreground="Tomato" TextWrapping="Wrap"/>
+        <TextBox Watermark="Master password"
+                 PasswordChar="*"
+                 Text="{Binding MasterPassword}"/>
 
-    <StackPanel Orientation="Horizontal" Spacing="8">
-      <Button Content="Back" Command="{Binding BackCommand}"/>
-      <Button Content="Unlock" Command="{Binding UnlockCommand}"/>
-    </StackPanel>
-  </StackPanel>
+        <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <Button Content="Back" Classes="subtle" Command="{Binding BackCommand}"/>
+          <Button Content="Unlock" Classes="primary" Command="{Binding UnlockCommand}" IsDefault="True"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </Grid>
 </UserControl>

@@ -2,93 +2,100 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.ToolsView"
+             x:CompileBindings="False"
              x:DataType="vm:ToolsViewModel">
   <ScrollViewer>
-    <StackPanel Margin="16" Spacing="16">
-      <StackPanel Spacing="4">
-        <TextBlock Text="Tools" FontSize="24" FontWeight="Bold"/>
-        <TextBlock Text="Generate passwords, hash text, and convert Base64 locally." Opacity="0.7"/>
-      </StackPanel>
+    <StackPanel Margin="24" Spacing="18">
+      <Border Classes="panel-raised" Padding="18">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Tools Workspace" Classes="page-title"/>
+          <TextBlock Text="Generate passwords, hash text, and convert Base64 locally without leaving the vault."
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
 
-      <Border Padding="16" CornerRadius="12" BorderThickness="1">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Password Generator" FontSize="18" FontWeight="SemiBold"/>
+      <Grid ColumnDefinitions="1.25*,1*" ColumnSpacing="18">
+        <Border Classes="panel-raised" Padding="18">
+          <StackPanel Spacing="14">
+            <TextBlock Text="Password Generator" Classes="section-title"/>
+            <TextBlock Text="Create dense, production-ready passwords with explicit character controls."
+                       Classes="page-subtitle"
+                       TextWrapping="Wrap"/>
 
-          <Grid ColumnDefinitions="Auto,140,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="10">
-            <TextBlock Text="Length" VerticalAlignment="Center"/>
-            <TextBox Grid.Column="1" Text="{Binding PasswordLengthText}" Watermark="20" Height="34"/>
+            <Grid ColumnDefinitions="Auto,140,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
+              <TextBlock Text="Length" VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1" Text="{Binding PasswordLengthText}" Watermark="20"/>
+              <Button Grid.Column="2"
+                      Classes="primary"
+                      Content="Generate Password"
+                      HorizontalAlignment="Right"
+                      Command="{Binding GeneratePasswordCommand}"/>
 
-            <StackPanel Grid.Row="1" Grid.ColumnSpan="4" Orientation="Horizontal" Spacing="12">
-              <CheckBox Content="Lowercase" IsChecked="{Binding IncludeLowercase}"/>
-              <CheckBox Content="Uppercase" IsChecked="{Binding IncludeUppercase}"/>
-              <CheckBox Content="Numbers" IsChecked="{Binding IncludeNumbers}"/>
-              <CheckBox Content="Symbols" IsChecked="{Binding IncludeSymbols}"/>
+              <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" ItemHeight="32" ItemWidth="150">
+                <CheckBox Content="Lowercase" IsChecked="{Binding IncludeLowercase}"/>
+                <CheckBox Content="Uppercase" IsChecked="{Binding IncludeUppercase}"/>
+                <CheckBox Content="Numbers" IsChecked="{Binding IncludeNumbers}"/>
+                <CheckBox Content="Symbols" IsChecked="{Binding IncludeSymbols}"/>
+              </WrapPanel>
+
+              <TextBox Grid.Row="2"
+                       Grid.ColumnSpan="3"
+                       Text="{Binding GeneratedPassword}"
+                       Watermark="Generated password"
+                       IsReadOnly="True"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+
+        <StackPanel Grid.Column="1" Spacing="18">
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Hashes" Classes="section-title"/>
+              <TextBox Text="{Binding HashInput}"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="120"
+                       Watermark="Text to hash"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="SHA-256" Classes="subtle" Command="{Binding Sha256Command}"/>
+                <Button Content="SHA-512" Classes="subtle" Command="{Binding Sha512Command}"/>
+              </StackPanel>
+              <TextBox Text="{Binding HashOutput}"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="120"
+                       Watermark="Hash output"
+                       IsReadOnly="True"/>
             </StackPanel>
+          </Border>
 
-            <Button Grid.Row="0" Grid.Column="3"
-                    Content="Generate Password"
-                    Command="{Binding GeneratePasswordCommand}"
-                    Height="34"
-                    Padding="16,0"/>
-
-            <TextBox Grid.Row="2" Grid.ColumnSpan="4"
-                     Text="{Binding GeneratedPassword}"
-                     Watermark="Generated password"
-                     IsReadOnly="True"
-                     Height="42"/>
-          </Grid>
+          <Border Classes="panel-raised" Padding="18">
+            <StackPanel Spacing="12">
+              <TextBlock Text="Base64" Classes="section-title"/>
+              <TextBox Text="{Binding Base64Input}"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="120"
+                       Watermark="Input text or Base64"/>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Encode" Classes="subtle" Command="{Binding Base64EncodeCommand}"/>
+                <Button Content="Decode" Classes="subtle" Command="{Binding Base64DecodeCommand}"/>
+              </StackPanel>
+              <TextBox Text="{Binding Base64Output}"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="120"
+                       Watermark="Encoded or decoded output"
+                       IsReadOnly="True"/>
+            </StackPanel>
+          </Border>
         </StackPanel>
+      </Grid>
+
+      <Border Classes="panel" Padding="14">
+        <TextBlock Text="{Binding StatusMessage}" Classes="page-subtitle"/>
       </Border>
-
-      <Border Padding="16" CornerRadius="12" BorderThickness="1">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Hashes" FontSize="18" FontWeight="SemiBold"/>
-
-          <TextBox Text="{Binding HashInput}"
-                   AcceptsReturn="True"
-                   TextWrapping="Wrap"
-                   MinHeight="110"
-                   Watermark="Text to hash"/>
-
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <Button Content="SHA-256" Command="{Binding Sha256Command}"/>
-            <Button Content="SHA-512" Command="{Binding Sha512Command}"/>
-          </StackPanel>
-
-          <TextBox Text="{Binding HashOutput}"
-                   AcceptsReturn="True"
-                   TextWrapping="Wrap"
-                   MinHeight="110"
-                   Watermark="Hash output"
-                   IsReadOnly="True"/>
-        </StackPanel>
-      </Border>
-
-      <Border Padding="16" CornerRadius="12" BorderThickness="1">
-        <StackPanel Spacing="12">
-          <TextBlock Text="Base64" FontSize="18" FontWeight="SemiBold"/>
-
-          <TextBox Text="{Binding Base64Input}"
-                   AcceptsReturn="True"
-                   TextWrapping="Wrap"
-                   MinHeight="110"
-                   Watermark="Input text or Base64"/>
-
-          <StackPanel Orientation="Horizontal" Spacing="8">
-            <Button Content="Encode" Command="{Binding Base64EncodeCommand}"/>
-            <Button Content="Decode" Command="{Binding Base64DecodeCommand}"/>
-          </StackPanel>
-
-          <TextBox Text="{Binding Base64Output}"
-                   AcceptsReturn="True"
-                   TextWrapping="Wrap"
-                   MinHeight="110"
-                   Watermark="Encoded or decoded output"
-                   IsReadOnly="True"/>
-        </StackPanel>
-      </Border>
-
-      <TextBlock Text="{Binding StatusMessage}" Opacity="0.75"/>
     </StackPanel>
   </ScrollViewer>
 </UserControl>
