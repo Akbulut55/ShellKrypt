@@ -1,0 +1,150 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.AllItemsView"
+             x:CompileBindings="False"
+             x:DataType="vm:AllItemsViewModel">
+
+  <Grid Margin="16" RowDefinitions="Auto,Auto,*" RowSpacing="12">
+
+    <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="12">
+      <Border CornerRadius="14" Padding="14" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Total" Opacity="0.7"/>
+          <TextBlock Text="{Binding TotalCount}" FontSize="28" FontWeight="Bold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="1" CornerRadius="14" Padding="14" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Web" Opacity="0.7"/>
+          <TextBlock Text="{Binding WebCount}" FontSize="28" FontWeight="Bold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="2" CornerRadius="14" Padding="14" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Cards" Opacity="0.7"/>
+          <TextBlock Text="{Binding CardCount}" FontSize="28" FontWeight="Bold"/>
+        </StackPanel>
+      </Border>
+      <Border Grid.Column="3" CornerRadius="14" Padding="14" BorderThickness="1">
+        <StackPanel Spacing="4">
+          <TextBlock Text="Notes" Opacity="0.7"/>
+          <TextBlock Text="{Binding NoteCount}" FontSize="28" FontWeight="Bold"/>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+    <Grid Grid.Row="1" ColumnDefinitions="2*,Auto,Auto,Auto" ColumnSpacing="10">
+      <TextBox Watermark="Search titles, usernames, notes, labels..."
+               Text="{Binding SearchText}"
+               Height="38"/>
+
+      <ComboBox Grid.Column="1"
+                ItemsSource="{Binding TypeFilters}"
+                SelectedItem="{Binding SelectedTypeFilter}"
+                Width="140"
+                Height="38"/>
+
+      <ComboBox Grid.Column="2"
+                ItemsSource="{Binding LabelFilters}"
+                SelectedItem="{Binding SelectedLabelFilter}"
+                Width="180"
+                Height="38"/>
+
+      <TextBlock Grid.Column="3"
+                 Text="{Binding FilteredCount, StringFormat=Showing {0} items}"
+                 VerticalAlignment="Center"
+                 Opacity="0.7"/>
+    </Grid>
+
+    <Grid Grid.Row="2" ColumnDefinitions="2.2*,1*" ColumnSpacing="12">
+      <Border CornerRadius="14" BorderThickness="1" Padding="12">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <Grid ColumnDefinitions="80,2*,2*,1*,Auto" Margin="4,0,4,10">
+            <TextBlock Text="TYPE" Opacity="0.7"/>
+            <TextBlock Grid.Column="1" Text="TITLE / SECONDARY" Opacity="0.7"/>
+            <TextBlock Grid.Column="2" Text="SNIPPET" Opacity="0.7"/>
+            <TextBlock Grid.Column="3" Text="LABELS" Opacity="0.7"/>
+            <TextBlock Grid.Column="4" Text="" Opacity="0.7"/>
+          </Grid>
+
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding Rows}"
+                   SelectedItem="{Binding SelectedRow}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:AllItemEntry">
+                <Border CornerRadius="10" BorderThickness="1" Padding="10" Margin="0,4">
+                  <Grid ColumnDefinitions="80,2*,2*,1*,Auto" ColumnSpacing="8">
+                    <Border Width="40" Height="40" CornerRadius="20" HorizontalAlignment="Center" VerticalAlignment="Center" BorderThickness="1">
+                      <TextBlock Text="{Binding IconLetter}" HorizontalAlignment="Center" VerticalAlignment="Center" FontWeight="Bold"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" Spacing="2">
+                      <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                      <TextBlock Text="{Binding SecondaryText}" Opacity="0.72" TextWrapping="Wrap"/>
+                    </StackPanel>
+
+                    <TextBlock Grid.Column="2" Text="{Binding Snippet}" Opacity="0.72" TextWrapping="Wrap" VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="3" Text="{Binding LabelsDisplay}" Opacity="0.72" TextWrapping="Wrap" VerticalAlignment="Center"/>
+
+                    <Button Grid.Column="4"
+                            Content="Open"
+                            Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+
+          <TextBlock Grid.Row="2"
+                     Text="{Binding Error}"
+                     Foreground="Tomato"
+                     Margin="4,10,4,0"
+                     TextWrapping="Wrap"/>
+        </Grid>
+      </Border>
+
+      <Border Grid.Column="1" CornerRadius="14" BorderThickness="1" Padding="14">
+        <StackPanel Spacing="10">
+          <TextBlock Text="Details" FontSize="18" FontWeight="Bold"/>
+          <TextBlock Text="Select an item to edit labels or jump into its section."
+                     Opacity="0.7"
+                     TextWrapping="Wrap"/>
+
+          <ContentControl Content="{Binding SelectedRow}">
+            <ContentControl.ContentTemplate>
+              <DataTemplate x:DataType="vm:AllItemEntry">
+                <StackPanel Spacing="10">
+                  <TextBlock Text="{Binding Title}" FontSize="20" FontWeight="SemiBold"/>
+                  <TextBlock Text="{Binding TypeLabel}" Opacity="0.7"/>
+                  <TextBlock Text="{Binding SecondaryText}" TextWrapping="Wrap"/>
+                  <TextBlock Text="{Binding Snippet}" TextWrapping="Wrap" Opacity="0.8"/>
+                  <TextBlock Text="{Binding LabelsDisplay}" TextWrapping="Wrap" Opacity="0.8"/>
+
+                  <TextBlock Text="Labels" FontWeight="SemiBold" Margin="0,8,0,0"/>
+                  <TextBox Watermark="Label1, Label2"
+                           Text="{Binding DataContext.SelectedLabelsText, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                           AcceptsReturn="False"
+                           Height="34"/>
+
+                  <StackPanel Orientation="Horizontal" Spacing="8">
+                    <Button Content="Save Labels" Command="{Binding DataContext.SaveLabelsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    <Button Content="Open Item" Command="{Binding DataContext.OpenSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    <Button Content="Refresh" Command="{Binding DataContext.RefreshCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                  </StackPanel>
+
+                  <TextBlock Text="{Binding CreatedAtUtc}" Opacity="0.6"/>
+                  <TextBlock Text="{Binding UpdatedAtUtc}" Opacity="0.6"/>
+                </StackPanel>
+              </DataTemplate>
+            </ContentControl.ContentTemplate>
+          </ContentControl>
+        </StackPanel>
+      </Border>
+    </Grid>
+
+  </Grid>
+</UserControl>

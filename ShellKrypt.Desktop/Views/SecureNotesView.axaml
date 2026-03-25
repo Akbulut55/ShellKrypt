@@ -5,17 +5,16 @@
              x:DataType="vm:SecureNotesViewModel">
 
   <Grid ColumnDefinitions="320,*">
-    <!-- Left: Notes list -->
     <Border Grid.Column="0" BorderThickness="0,0,1,0" Padding="12">
       <StackPanel Spacing="10">
         <StackPanel Orientation="Horizontal" Spacing="8">
           <Button Content="New Note" Command="{Binding NewNoteCommand}" IsEnabled="{Binding !IsBusy}"/>
           <Button Content="Delete" Command="{Binding DeleteCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <!-- Optional: remove this later, lock should be in sidebar -->
           <Button Content="Lock" Command="{Binding LockCommand}" IsEnabled="{Binding !IsBusy}"/>
         </StackPanel>
 
-        <TextBlock Text="Notes" FontSize="18" FontWeight="Bold"/>
+        <TextBlock Text="{Binding NotesHeader}" FontSize="18" FontWeight="Bold"/>
+        <TextBlock Text="{Binding SelectedStatus}" Opacity="0.7" TextWrapping="Wrap"/>
 
         <ListBox ItemsSource="{Binding Notes}"
                  SelectedItem="{Binding SelectedNote}">
@@ -23,6 +22,7 @@
             <DataTemplate>
               <StackPanel Margin="0,4">
                 <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding UpdatedAtUtc}" Opacity="0.55" FontSize="11"/>
               </StackPanel>
             </DataTemplate>
           </ListBox.ItemTemplate>
@@ -32,10 +32,10 @@
       </StackPanel>
     </Border>
 
-    <!-- Right: Editor -->
     <Border Grid.Column="1" Padding="12">
       <StackPanel Spacing="10">
         <TextBlock Text="Editor" FontSize="18" FontWeight="Bold"/>
+        <TextBlock Text="{Binding EditorStats}" Opacity="0.7"/>
 
         <TextBox Watermark="Title" Text="{Binding EditorTitle}" IsEnabled="{Binding !IsBusy}"/>
         <TextBox Watermark="Content"

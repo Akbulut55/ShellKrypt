@@ -24,23 +24,29 @@ public partial class UnlockViewModel : ViewModelBase
     [RelayCommand]
     private async Task UnlockAsync()
     {
-        Error = "";
-
-        if (_root.VaultPath is null)
+        try
         {
-            Error = "No vault selected. Go back and Create/Open a vault.";
-            return;
-        }
+            Error = "";
 
-        var result = await _vaultService.UnlockAsync(_root.VaultPath, MasterPassword);
-        if (!result.Success)
+            if (_root.VaultPath is null)
+            {
+                Error = "No vault selected. Go back and Create/Open a vault.";
+                return;
+            }
+
+            var result = await _vaultService.UnlockAsync(_root.VaultPath, MasterPassword);
+            if (!result.Success)
+            {
+                Error = result.Error ?? "Unlock failed.";
+                return;
+            }
+
+            _root.OnUnlocked(result.VaultKey!);
+        }
+        finally
         {
-            Error = result.Error ?? "Unlock failed.";
-            return;
+            MasterPassword = "";
         }
-
-        MasterPassword = "";
-        _root.OnUnlocked(result.VaultKey!);
     }
 
     [RelayCommand]

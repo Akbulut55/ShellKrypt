@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Crypto;
@@ -21,34 +21,58 @@ public sealed partial class WebLoginRowVm : ObservableObject
     [ObservableProperty] private string title;
     [ObservableProperty] private string username;
     [ObservableProperty] private string password;
+    [ObservableProperty] private string url;
+    [ObservableProperty] private string notes;
+    [ObservableProperty] private string twoFaNote;
 
     [ObservableProperty] private bool isEditing;
     [ObservableProperty] private bool isPasswordVisible;
 
-    // for cancel revert
     private string _origTitle = "";
     private string _origUsername = "";
     private string _origPassword = "";
+    private string _origUrl = "";
+    private string _origNotes = "";
+    private string _origTwoFaNote = "";
 
-    public WebLoginRowVm(string id, string title, string username, string password, string createdAtUtc, string updatedAtUtc, bool isNew)
+    public WebLoginRowVm(
+        string id,
+        string title,
+        string username,
+        string password,
+        string url,
+        string notes,
+        string twoFaNote,
+        string createdAtUtc,
+        string updatedAtUtc,
+        bool isNew)
     {
         Id = id;
-        Title = title;
-        Username = username;
-        Password = password;
+        Title = title ?? "";
+        Username = username ?? "";
+        Password = password ?? "";
+        Url = url ?? "";
+        Notes = notes ?? "";
+        TwoFaNote = twoFaNote ?? "";
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         IsNew = isNew;
     }
 
     public string IconLetter => string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim()[0].ToString().ToUpperInvariant();
-    public string PasswordDisplay => IsPasswordVisible ? Password : "••••••••••";
+    public string PasswordDisplay => IsPasswordVisible ? Password : "**********";
+    public string UrlDisplay => DisplayOrPlaceholder("URL", Url);
+    public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
+    public string TwoFaNoteDisplay => DisplayOrPlaceholder("2FA", TwoFaNote);
 
     public bool IsViewing => !IsEditing;
 
     partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
     partial void OnPasswordChanged(string value) => OnPropertyChanged(nameof(PasswordDisplay));
+    partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlDisplay));
+    partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
+    partial void OnTwoFaNoteChanged(string value) => OnPropertyChanged(nameof(TwoFaNoteDisplay));
     partial void OnIsPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(PasswordDisplay));
 
     public void BeginEdit()
@@ -56,6 +80,9 @@ public sealed partial class WebLoginRowVm : ObservableObject
         _origTitle = Title;
         _origUsername = Username;
         _origPassword = Password;
+        _origUrl = Url;
+        _origNotes = Notes;
+        _origTwoFaNote = TwoFaNote;
         IsEditing = true;
     }
 
@@ -70,6 +97,9 @@ public sealed partial class WebLoginRowVm : ObservableObject
         Title = _origTitle;
         Username = _origUsername;
         Password = _origPassword;
+        Url = _origUrl;
+        Notes = _origNotes;
+        TwoFaNote = _origTwoFaNote;
         IsEditing = false;
     }
 
@@ -78,6 +108,12 @@ public sealed partial class WebLoginRowVm : ObservableObject
         IsNew = false;
         IsEditing = false;
         UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+    }
+
+    private static string DisplayOrPlaceholder(string label, string? value)
+    {
+        var text = string.IsNullOrWhiteSpace(value) ? "(none)" : value.Trim();
+        return text.Length > 120 ? $"{label}: {text[..117]}..." : $"{label}: {text}";
     }
 }
 
@@ -118,6 +154,9 @@ public partial class WebLoginsViewModel : ViewModelBase
             title: "",
             username: "",
             password: "",
+            url: "",
+            notes: "",
+            twoFaNote: "",
             createdAtUtc: now,
             updatedAtUtc: now,
             isNew: true
@@ -134,7 +173,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Error = "";
         row.BeginEdit();
-        
     }
 
     [RelayCommand]
@@ -150,11 +188,11 @@ public partial class WebLoginsViewModel : ViewModelBase
             var now = DateTimeOffset.UtcNow.ToString("O");
             var payload = new WebPayload(
                 Title: row.Title,
-                Url: "",
+                Url: row.Url ?? "",
                 Username: row.Username,
                 Password: row.Password,
-                Notes: "",
-                TwoFaNote: ""
+                Notes: row.Notes ?? "",
+                TwoFaNote: row.TwoFaNote ?? ""
             );
 
             var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
@@ -174,7 +212,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
 
             row.MarkSaved();
-            
+            ApplyFilter();
         }
         catch (Exception ex)
         {
@@ -187,7 +225,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Error = "";
         row.CancelEdit(removeIfNew: true, removeRow: RemoveRow);
-        
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -211,7 +249,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void TogglePassword(WebLoginRowVm row)
     {
         row.IsPasswordVisible = !row.IsPasswordVisible;
-        
     }
 
     private void RemoveRow(WebLoginRowVm row)
@@ -244,6 +281,9 @@ public partial class WebLoginsViewModel : ViewModelBase
                     payload.Title,
                     payload.Username,
                     payload.Password,
+                    payload.Url,
+                    payload.Notes,
+                    payload.TwoFaNote,
                     r.Header.CreatedAtUtc,
                     r.Header.UpdatedAtUtc,
                     isNew: false
@@ -269,7 +309,10 @@ public partial class WebLoginsViewModel : ViewModelBase
         {
             filtered = filtered.Where(r =>
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Username.Contains(q, StringComparison.OrdinalIgnoreCase));
+                r.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.Url.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.TwoFaNote.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
         foreach (var r in filtered)

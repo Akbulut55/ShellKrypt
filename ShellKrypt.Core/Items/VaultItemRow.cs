@@ -2,5 +2,6 @@
 
 public sealed record VaultItemRow(
     VaultItemHeader Header,
-    byte[] EncryptedPayload
+    byte[] EncryptedPayload,
+    IReadOnlyList<VaultLabelRow> Labels
 );

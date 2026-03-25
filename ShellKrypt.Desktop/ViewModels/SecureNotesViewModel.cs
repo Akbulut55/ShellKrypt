@@ -1,9 +1,10 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Crypto;
 using System;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -27,7 +28,11 @@ public sealed partial class NoteItemVm : ObservableObject
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    public void TouchUpdated() => UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+    public void TouchUpdated()
+    {
+        UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        OnPropertyChanged(nameof(UpdatedAtUtc));
+    }
 }
 
 public partial class SecureNotesViewModel : ViewModelBase
@@ -47,13 +52,23 @@ public partial class SecureNotesViewModel : ViewModelBase
     [ObservableProperty] private string editorContent = "";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private int noteCount;
 
     public SecureNotesViewModel(MainWindowViewModel root, IItemRepository repo)
     {
         _root = root;
         _repo = repo;
+        Notes.CollectionChanged += (_, __) => UpdateNoteCount();
+        UpdateNoteCount();
         _ = LoadAsync();
     }
+
+    public string NotesHeader => $"Notes ({NoteCount})";
+    public string SelectedStatus => SelectedNote is null
+        ? "Select a note or create a new one."
+        : $"Created {SelectedNote.CreatedAtUtc} | Updated {SelectedNote.UpdatedAtUtc}";
+    public string EditorStats
+        => $"Characters: {EditorContent.Length} | Words: {CountWords(EditorContent)}";
 
     partial void OnSelectedNoteChanged(NoteItemVm? value)
     {
@@ -61,11 +76,30 @@ public partial class SecureNotesViewModel : ViewModelBase
         {
             EditorTitle = "";
             EditorContent = "";
-            return;
+        }
+        else
+        {
+            EditorTitle = value.Title;
+            EditorContent = value.Content;
         }
 
-        EditorTitle = value.Title;
-        EditorContent = value.Content;
+        OnPropertyChanged(nameof(SelectedStatus));
+        OnPropertyChanged(nameof(EditorStats));
+    }
+
+    partial void OnEditorTitleChanged(string value)
+    {
+        OnPropertyChanged(nameof(EditorStats));
+    }
+
+    partial void OnEditorContentChanged(string value)
+    {
+        OnPropertyChanged(nameof(EditorStats));
+    }
+
+    partial void OnNoteCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(NotesHeader));
     }
 
     [RelayCommand] private void Lock() => _root.Lock();
@@ -76,6 +110,7 @@ public partial class SecureNotesViewModel : ViewModelBase
         SelectedNote = null;
         EditorTitle = "";
         EditorContent = "";
+        OnPropertyChanged(nameof(SelectedStatus));
     }
 
     [RelayCommand]
@@ -122,6 +157,7 @@ public partial class SecureNotesViewModel : ViewModelBase
                 );
 
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
+                OnPropertyChanged(nameof(SelectedStatus));
             }
         }
         catch (Exception ex)
@@ -154,6 +190,8 @@ public partial class SecureNotesViewModel : ViewModelBase
             SelectedNote = Notes.Count > 0
                 ? Notes[Math.Clamp(idx, 0, Notes.Count - 1)]
                 : null;
+
+            OnPropertyChanged(nameof(SelectedStatus));
         }
         catch (Exception ex)
         {
@@ -163,6 +201,19 @@ public partial class SecureNotesViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    private void UpdateNoteCount()
+    {
+        NoteCount = Notes.Count;
+    }
+
+    private static int CountWords(string text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            return 0;
+
+        return text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
     }
 
     private async Task LoadAsync()
@@ -199,6 +250,10 @@ public partial class SecureNotesViewModel : ViewModelBase
 
             if (Notes.Count > 0)
                 SelectedNote = Notes[0];
+
+            UpdateNoteCount();
+            OnPropertyChanged(nameof(SelectedStatus));
+            OnPropertyChanged(nameof(EditorStats));
         }
         catch (Exception ex)
         {

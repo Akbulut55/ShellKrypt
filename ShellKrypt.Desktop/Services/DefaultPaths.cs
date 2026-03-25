@@ -11,4 +11,11 @@ public static class DefaultPaths
             "Vaults",
             "ShellKrypt.skvault"
         );
+
+    public static string SettingsPath =>
+        System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ShellKrypt",
+            "settings.json"
+        );
 }

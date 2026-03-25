@@ -16,6 +16,8 @@ public partial class ShellViewModel : ViewModelBase
         new NavItemVm("web", "Web Logins"),
         new NavItemVm("cards", "Credit Cards"),
         new NavItemVm("notes", "Secure Notes"),
+        new NavItemVm("tools", "Tools"),
+        new NavItemVm("health", "Health"),
         new NavItemVm("settings", "Settings"),
     };
 
@@ -28,9 +30,13 @@ public partial class ShellViewModel : ViewModelBase
         _repo = repo;
 
         // Pages
+        AllItems = new AllItemsViewModel(_root, this, _repo);
         WebLogins = new WebLoginsViewModel(_root, _repo);
         SecureNotes = new SecureNotesViewModel(_root, _repo);
         Cards = new CardsViewModel(_root, _repo);
+        Tools = new ToolsViewModel();
+        Health = new HealthViewModel(_root, _repo);
+        Settings = new SettingsViewModel(_root);
 
         SelectedNav = NavItems[1]; // default: Web Logins
     }
@@ -38,10 +44,10 @@ public partial class ShellViewModel : ViewModelBase
     public WebLoginsViewModel WebLogins { get; }
     public SecureNotesViewModel SecureNotes { get; }
     public CardsViewModel Cards { get; }
-    public PlaceholderPageViewModel AllItems { get; } =
-        new("All Items", "Coming soon: combined list of Web + Cards + Notes.");
-    public PlaceholderPageViewModel Settings { get; } =
-        new("Settings", "Coming soon.");
+    public ToolsViewModel Tools { get; }
+    public HealthViewModel Health { get; }
+    public AllItemsViewModel AllItems { get; }
+    public SettingsViewModel Settings { get; }
 
     partial void OnSelectedNavChanged(NavItemVm? value)
     {
@@ -49,11 +55,12 @@ public partial class ShellViewModel : ViewModelBase
 
         CurrentPage = value.Key switch
         {
+            "all" => AllItems,
             "web" => WebLogins,
             "notes" => SecureNotes,
             "cards" => Cards,
-            // placeholders for now:
-            "all" => AllItems,
+            "tools" => Tools,
+            "health" => Health,
             "settings" => Settings,
             _ => WebLogins
         };
@@ -61,4 +68,9 @@ public partial class ShellViewModel : ViewModelBase
 
     [RelayCommand]
     private void Lock() => _root.Lock();
+
+    public void ShowAllItems() => SelectedNav = NavItems[0];
+    public void ShowWebLogins() => SelectedNav = NavItems[1];
+    public void ShowCards() => SelectedNav = NavItems[2];
+    public void ShowSecureNotes() => SelectedNav = NavItems[3];
 }

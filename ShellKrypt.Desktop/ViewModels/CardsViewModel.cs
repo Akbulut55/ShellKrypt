@@ -1,4 +1,4 @@
-﻿using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Crypto;
@@ -8,7 +8,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -22,12 +21,13 @@ public sealed partial class CardRowVm : ObservableObject
     [ObservableProperty] private string title;
     [ObservableProperty] private string cardholder;
     [ObservableProperty] private string number;
-    [ObservableProperty] private string expiryMonth; // "01".."12"
-    [ObservableProperty] private string expiryYear;  // "2026"
+    [ObservableProperty] private string expiryMonth;
+    [ObservableProperty] private string expiryYear;
     [ObservableProperty] private string cvc;
+    [ObservableProperty] private string notes;
 
     [ObservableProperty] private bool isEditing;
-    [ObservableProperty] private bool isSecretsVisible; // show number + cvc
+    [ObservableProperty] private bool isSecretsVisible;
 
     private string _origTitle = "";
     private string _origCardholder = "";
@@ -35,6 +35,7 @@ public sealed partial class CardRowVm : ObservableObject
     private string _origExpiryMonth = "";
     private string _origExpiryYear = "";
     private string _origCvc = "";
+    private string _origNotes = "";
 
     public CardRowVm(
         string id,
@@ -44,17 +45,19 @@ public sealed partial class CardRowVm : ObservableObject
         string expiryMonth,
         string expiryYear,
         string cvc,
+        string notes,
         string createdAtUtc,
         string updatedAtUtc,
         bool isNew)
     {
         Id = id;
-        Title = title;
-        Cardholder = cardholder;
-        Number = number;
-        ExpiryMonth = expiryMonth;
-        ExpiryYear = expiryYear;
-        Cvc = cvc;
+        Title = title ?? "";
+        Cardholder = cardholder ?? "";
+        Number = number ?? "";
+        ExpiryMonth = expiryMonth ?? "";
+        ExpiryYear = expiryYear ?? "";
+        Cvc = cvc ?? "";
+        Notes = notes ?? "";
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         IsNew = isNew;
@@ -70,10 +73,12 @@ public sealed partial class CardRowVm : ObservableObject
         => IsSecretsVisible ? Number : MaskCardNumber(Number);
 
     public string CvcDisplay
-        => IsSecretsVisible ? Cvc : (string.IsNullOrWhiteSpace(Cvc) ? "" : "•••");
+        => IsSecretsVisible ? Cvc : (string.IsNullOrWhiteSpace(Cvc) ? "" : "***");
 
     public string ExpiryDisplay
         => $"{(string.IsNullOrWhiteSpace(ExpiryMonth) ? "MM" : ExpiryMonth)}/{(string.IsNullOrWhiteSpace(ExpiryYear) ? "YYYY" : ExpiryYear)}";
+
+    public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
 
     partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
@@ -81,6 +86,7 @@ public sealed partial class CardRowVm : ObservableObject
     partial void OnCvcChanged(string value) => OnPropertyChanged(nameof(CvcDisplay));
     partial void OnExpiryMonthChanged(string value) => OnPropertyChanged(nameof(ExpiryDisplay));
     partial void OnExpiryYearChanged(string value) => OnPropertyChanged(nameof(ExpiryDisplay));
+    partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
     partial void OnIsSecretsVisibleChanged(bool value)
     {
         OnPropertyChanged(nameof(NumberDisplay));
@@ -95,6 +101,7 @@ public sealed partial class CardRowVm : ObservableObject
         _origExpiryMonth = ExpiryMonth;
         _origExpiryYear = ExpiryYear;
         _origCvc = Cvc;
+        _origNotes = Notes;
         IsEditing = true;
     }
 
@@ -112,6 +119,7 @@ public sealed partial class CardRowVm : ObservableObject
         ExpiryMonth = _origExpiryMonth;
         ExpiryYear = _origExpiryYear;
         Cvc = _origCvc;
+        Notes = _origNotes;
         IsEditing = false;
     }
 
@@ -129,10 +137,16 @@ public sealed partial class CardRowVm : ObservableObject
 
         var digits = new string(n.Where(char.IsDigit).ToArray());
         if (digits.Length <= 4)
-            return "••••";
+            return "****";
 
         var last4 = digits[^4..];
-        return $"•••• •••• •••• {last4}";
+        return $"**** **** **** {last4}";
+    }
+
+    private static string DisplayOrPlaceholder(string label, string? value)
+    {
+        var text = string.IsNullOrWhiteSpace(value) ? "(none)" : value.Trim();
+        return text.Length > 120 ? $"{label}: {text[..117]}..." : $"{label}: {text}";
     }
 }
 
@@ -176,6 +190,7 @@ public partial class CardsViewModel : ViewModelBase
             expiryMonth: "",
             expiryYear: "",
             cvc: "",
+            notes: "",
             createdAtUtc: now,
             updatedAtUtc: now,
             isNew: true
@@ -198,6 +213,7 @@ public partial class CardsViewModel : ViewModelBase
     {
         Error = "";
         row.CancelEdit(removeIfNew: true, removeRow: RemoveRow);
+        ApplyFilter();
     }
 
     [RelayCommand]
@@ -212,7 +228,6 @@ public partial class CardsViewModel : ViewModelBase
         if (_root.VaultPath is null) { Error = "No vault selected."; return; }
         if (string.IsNullOrWhiteSpace(row.Title)) { Error = "Title is required."; return; }
 
-        // Basic validation
         var digits = new string((row.Number ?? "").Where(char.IsDigit).ToArray());
         if (digits.Length < 12) { Error = "Card number looks too short."; return; }
 
@@ -246,7 +261,7 @@ public partial class CardsViewModel : ViewModelBase
                 ExpiryMonth: mm,
                 ExpiryYear: yy,
                 Cvc: cvcDigits,
-                Notes: ""
+                Notes: row.Notes ?? ""
             );
 
             var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
@@ -265,14 +280,12 @@ public partial class CardsViewModel : ViewModelBase
             else
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
 
-            row.Number = digits;         // normalize
-            row.Cvc = cvcDigits;         // normalize
+            row.Number = digits;
+            row.Cvc = cvcDigits;
             row.ExpiryMonth = mm.ToString("00");
             row.ExpiryYear = yy.ToString();
-
             row.MarkSaved();
 
-            // optional: keep filtered view consistent after save
             ApplyFilter();
         }
         catch (Exception ex)
@@ -330,6 +343,7 @@ public partial class CardsViewModel : ViewModelBase
                     payload.ExpiryMonth.ToString("00"),
                     payload.ExpiryYear.ToString(),
                     payload.Cvc,
+                    payload.Notes,
                     r.Header.CreatedAtUtc,
                     r.Header.UpdatedAtUtc,
                     isNew: false
@@ -356,7 +370,8 @@ public partial class CardsViewModel : ViewModelBase
             filtered = filtered.Where(r =>
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 (r.Cardholder ?? "").Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.NumberDisplay.Contains(q, StringComparison.OrdinalIgnoreCase));
+                r.NumberDisplay.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
         foreach (var r in filtered)

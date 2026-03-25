@@ -97,6 +97,7 @@ public sealed class SqliteVaultService : IVaultService
     {
         var cmd = conn.CreateCommand();
         cmd.CommandText = """
+        PRAGMA foreign_keys = ON;
         PRAGMA journal_mode=WAL;
 
         CREATE TABLE IF NOT EXISTS vault_meta (
@@ -133,6 +134,10 @@ public sealed class SqliteVaultService : IVaultService
             FOREIGN KEY (itemId) REFERENCES items(id) ON DELETE CASCADE,
             FOREIGN KEY (labelId) REFERENCES labels(id) ON DELETE CASCADE
         );
+
+        CREATE UNIQUE INDEX IF NOT EXISTS idx_labels_name ON labels(name COLLATE NOCASE);
+        CREATE INDEX IF NOT EXISTS idx_item_labels_itemId ON item_labels(itemId);
+        CREATE INDEX IF NOT EXISTS idx_item_labels_labelId ON item_labels(labelId);
         """;
         await cmd.ExecuteNonQueryAsync(ct);
     }
