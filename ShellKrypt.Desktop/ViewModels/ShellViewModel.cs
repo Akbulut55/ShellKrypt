@@ -13,6 +13,7 @@ public partial class ShellViewModel : ViewModelBase
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new()
     {
+        new NavItemVm("vault", "Vault"),
         new NavItemVm("web", "Web Logins"),
         new NavItemVm("notes", "Secure Notes"),
         new NavItemVm("cards", "Credit Cards"),
@@ -37,11 +38,14 @@ public partial class ShellViewModel : ViewModelBase
         Tools = new ToolsViewModel();
         Health = new HealthViewModel(_root, _repo);
         Settings = new SettingsViewModel(_root);
+        Vault = new PlaceholderPageViewModel(
+            "Vault",
+            "Vault overview placeholder. This top-level tab can hold the Stitch vault dashboard when that screen is ready.");
         Activity = new PlaceholderPageViewModel(
             "Activity",
             "Activity timeline placeholder. The Stitch activity log screen can land here when this section is implemented.");
 
-        SelectedNav = NavItems[0];
+        SelectNav("generator");
     }
 
     public WebLoginsViewModel WebLogins { get; }
@@ -51,6 +55,7 @@ public partial class ShellViewModel : ViewModelBase
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
+    public PlaceholderPageViewModel Vault { get; }
     public PlaceholderPageViewModel Activity { get; }
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
@@ -59,6 +64,7 @@ public partial class ShellViewModel : ViewModelBase
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
+        "vault" => "Vault dashboard placeholder for the active encrypted workspace.",
         "web" => "Credentials, account URLs, and one-time code details.",
         "notes" => "Encrypted private notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
@@ -73,6 +79,7 @@ public partial class ShellViewModel : ViewModelBase
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
         "settings" => "Search settings...",
+        "vault" => "Search vault...",
         "web" => "Search web logins...",
         "notes" => "Search secure notes...",
         "cards" => "Search credit cards...",
@@ -89,6 +96,7 @@ public partial class ShellViewModel : ViewModelBase
 
         CurrentPage = value.Key switch
         {
+            "vault" => Vault,
             "web" => WebLogins,
             "notes" => SecureNotes,
             "cards" => Cards,

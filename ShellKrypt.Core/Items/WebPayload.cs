@@ -8,4 +8,7 @@ public sealed record WebPayload(
     string Notes,
     string TwoFaNote,
     string TotpSecret
-);
+)
+{
+    public string Email { get; init; } = "";
+}

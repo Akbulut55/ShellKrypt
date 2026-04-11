@@ -94,12 +94,12 @@
                       Orientation="Horizontal"
                       Spacing="28"
                       VerticalAlignment="Center">
-            <TextBlock Text="All Items"
+            <TextBlock Text="{Binding CurrentSectionTitle}"
                        Foreground="{StaticResource AccentBrush}"
                        FontSize="13"
                        FontWeight="SemiBold"
                        IsVisible="{Binding !IsSettingsSelected}"/>
-            <TextBlock Text="All Items"
+            <TextBlock Text="{Binding CurrentSectionTitle}"
                        Classes="page-subtitle"
                        FontWeight="SemiBold"
                        IsVisible="{Binding IsSettingsSelected}"/>

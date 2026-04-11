@@ -5,169 +5,777 @@
              x:CompileBindings="False"
              x:DataType="vm:WebLoginsViewModel">
 
-  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="24" Spacing="18">
-      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-        <StackPanel Spacing="4">
-          <TextBlock Text="Web Logins" Classes="page-title"/>
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="32"
+                  MaxWidth="1500"
+                  HorizontalAlignment="Stretch"
+                  Spacing="22">
+      <Grid Margin="0,10,0,8">
+        <StackPanel Spacing="9">
+          <TextBlock Text="Web Logins"
+                     FontSize="28"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-0.8"/>
           <TextBlock Text="Manage your secure credentials for web platforms."
-                     Classes="page-subtitle"/>
-        </StackPanel>
+                     Classes="page-subtitle"
+                     FontSize="13"/>
 
-        <Border Classes="badge" Padding="12,8" VerticalAlignment="Top">
-          <TextBlock Text="AES-256 Encrypted"
-                     FontSize="10"
-                     FontWeight="Bold"
-                     Foreground="{StaticResource SuccessBrush}"/>
-        </Border>
+          <Grid ColumnDefinitions="440,Auto,*,Auto"
+                ColumnSpacing="12"
+                Margin="0,10,0,0"
+                HorizontalAlignment="Stretch">
+            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Classes="web-search"
+                     PlaceholderText="Search logins..."/>
+            <Button Grid.Column="1"
+                    Content="FILTER"
+                    Classes="web-filter-button"
+                    Command="{Binding ApplyFilterCommand}"/>
+            <Button Grid.Column="3"
+                    Content="+ Add Website Login"
+                    Classes="web-add-login-button"
+                    Command="{Binding AddNewCommand}"/>
+          </Grid>
+        </StackPanel>
       </Grid>
 
-      <Border Classes="panel" Padding="0">
-        <Grid RowDefinitions="Auto,*">
-          <Border Background="{StaticResource SurfaceRaisedBrush}"
-                  BorderBrush="{StaticResource BorderBrushSoft}"
-                  BorderThickness="0,0,0,1"
-                  Padding="18,14">
-            <Grid ColumnDefinitions="1.4*,1.25*,1.15*,1.05*,Auto" ColumnSpacing="12">
-              <TextBlock Text="Title" Classes="caption"/>
-              <TextBlock Grid.Column="1" Text="Username" Classes="caption"/>
-              <TextBlock Grid.Column="2" Text="Password" Classes="caption"/>
-              <TextBlock Grid.Column="3" Text="URL" Classes="caption"/>
-              <TextBlock Grid.Column="4" Text="Actions" Classes="caption"/>
+      <Border Classes="web-table-shell"
+              ClipToBounds="True">
+        <Grid RowDefinitions="Auto,*,Auto">
+          <Border Background="#26353534"
+                  Padding="22,14">
+            <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,320"
+                  ColumnSpacing="24">
+              <TextBlock Text="TITLE" Classes="web-table-header"/>
+              <TextBlock Grid.Column="1" Text="USERNAME" Classes="web-table-header"/>
+              <TextBlock Grid.Column="2" Text="PASSWORD" Classes="web-table-header"/>
+              <TextBlock Grid.Column="3" Text="URL" Classes="web-table-header"/>
+              <TextBlock Grid.Column="4"
+                         Text="ACTIONS"
+                         Classes="web-table-header"
+                         HorizontalAlignment="Right"/>
             </Grid>
           </Border>
 
-          <ItemsControl Grid.Row="1" ItemsSource="{Binding Rows}">
+          <ItemsControl Grid.Row="1"
+                        ItemsSource="{Binding Rows}">
             <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:WebLoginRowVm">
-                <Border BorderBrush="{StaticResource BorderBrushSoft}"
-                        BorderThickness="0,0,0,1">
-                  <Border Padding="16,14">
-                    <Grid ColumnDefinitions="1.4*,1.25*,1.15*,1.05*,Auto"
-                          ColumnSpacing="12">
-                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                        <Border Width="32"
-                                Height="32"
-                                CornerRadius="8"
-                                Background="{StaticResource AppBackgroundSoftBrush}">
+                <Border Classes="web-login-row">
+                  <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,320"
+                        ColumnSpacing="24"
+                        MinHeight="78"
+                        Margin="22,0">
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="12"
+                          VerticalAlignment="Center">
+                      <Border Width="34"
+                              Height="34"
+                              CornerRadius="4"
+                              Background="{StaticResource SurfaceElevatedBrush}">
+                        <Grid>
+                          <Border Width="24"
+                                  Height="24"
+                                  CornerRadius="2"
+                                  Background="{StaticResource AppBackgroundSoftBrush}"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"/>
                           <TextBlock Text="{Binding IconLetter}"
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
                                      FontSize="12"
-                                     FontWeight="Bold"
+                                     FontWeight="Black"
                                      Foreground="{StaticResource AccentBrush}"/>
-                        </Border>
+                        </Grid>
+                      </Border>
 
-                        <StackPanel Grid.Column="1" Spacing="3">
-                          <TextBlock Text="{Binding Title}"
-                                     FontWeight="SemiBold"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Text="{Binding Url}"
-                                     Classes="caption"
-                                     TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                      </Grid>
-
-                      <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Username}"
-                                   FontWeight="Medium"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="Copy on hover"
-                                   Classes="caption"/>
-                      </StackPanel>
-
-                      <Grid Grid.Column="2"
-                            ColumnDefinitions="*,Auto"
-                            ColumnSpacing="8"
-                            VerticalAlignment="Center">
-                        <TextBlock Text="{Binding PasswordDisplay}"
-                                   FontWeight="Medium"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <Button Grid.Column="1"
-                                Classes="icon subtle"
-                                Content="◔"
-                                ToolTip.Tip="Reveal password"/>
-                      </Grid>
-
-                      <TextBlock Grid.Column="3"
-                                 Text="{Binding Url}"
-                                 Classes="page-subtitle"
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Title}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"
+                                 TextWrapping="Wrap"
                                  TextTrimming="CharacterEllipsis"
                                  VerticalAlignment="Center"/>
-
-                      <StackPanel Grid.Column="4"
-                                  Classes="row-actions"
-                                  Orientation="Horizontal"
-                                  HorizontalAlignment="Right"
-                                  Spacing="4"
-                                  VerticalAlignment="Center">
-                        <Button Classes="icon subtle"
-                                Content="↗"
-                                ToolTip.Tip="Open"/>
-                        <Button Classes="icon subtle"
-                                Content="⧉"
-                                ToolTip.Tip="Copy username"/>
-                        <Button Classes="icon subtle"
-                                Content="⌘"
-                                ToolTip.Tip="Copy password"/>
-                      </StackPanel>
                     </Grid>
-                  </Border>
+
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding UsernameDisplay}"
+                               Classes="web-row-muted"
+                               TextWrapping="Wrap"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+
+                    <Grid Grid.Column="2"
+                          ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8"
+                          VerticalAlignment="Center">
+                      <TextBlock Text="{Binding PasswordDisplay}"
+                                 Classes="web-password"
+                                 TextTrimming="CharacterEllipsis"
+                                 VerticalAlignment="Center"/>
+                      <Button Grid.Column="1"
+                              Classes="web-inline-icon"
+                              Content="E"
+                              Command="{Binding DataContext.TogglePasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip.Tip="Reveal password"/>
+                    </Grid>
+
+                    <TextBlock Grid.Column="3"
+                               Text="{Binding UrlHost}"
+                               Classes="web-url"
+                               TextTrimming="CharacterEllipsis"
+                               VerticalAlignment="Center"/>
+
+                    <StackPanel Grid.Column="4"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center"
+                                Spacing="8">
+                      <Button Classes="web-action"
+                              Content="Details"
+                              Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip.Tip="View login details"/>
+                      <Button Classes="web-action"
+                              Content="Copy Password"
+                              Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip.Tip="Copy password"/>
+                    </StackPanel>
+                  </Grid>
                 </Border>
               </DataTemplate>
             </ItemsControl.ItemTemplate>
           </ItemsControl>
+
+          <Border Grid.Row="2"
+                  Background="#26353534"
+                  Padding="22,14">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                  ColumnSpacing="10">
+              <TextBlock Text="{Binding ItemsSummary}"
+                         Classes="web-footer-text"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="Previous"
+                      Classes="web-page-button"
+                      Command="{Binding PreviousPageCommand}"
+                      IsEnabled="{Binding CanGoPreviousPage}"/>
+              <TextBlock Grid.Column="2"
+                         Text="{Binding PageSummary}"
+                         Classes="web-footer-text"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="3"
+                      Content="Next"
+                      Classes="web-page-button"
+                      Command="{Binding NextPageCommand}"
+                      IsEnabled="{Binding CanGoNextPage}"/>
+            </Grid>
+          </Border>
         </Grid>
       </Border>
 
-      <Grid ColumnDefinitions="1.2*,0.8*" ColumnSpacing="18">
-        <Border Classes="panel-raised" Padding="18">
-          <StackPanel Spacing="10">
-            <TextBlock Text="Password Health Check" Classes="section-title"/>
-            <TextBlock Text="We analyzed your vault. 2 passwords are reused across multiple sites and 1 is considered weak. We recommend updating these to generated high-entropy strings."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-            <Button Content="START AUDIT" Classes="subtle inline" HorizontalAlignment="Left"/>
-          </StackPanel>
+      <Grid ColumnDefinitions="2*,*"
+            ColumnSpacing="28">
+        <Border Classes="web-bento-card"
+                MinHeight="300"
+                Padding="34,30">
+          <Grid>
+            <TextBlock Text="***"
+                       FontSize="58"
+                       FontWeight="Black"
+                       LetterSpacing="10"
+                       Foreground="{StaticResource SurfaceElevatedBrush}"
+                       HorizontalAlignment="Right"
+                       VerticalAlignment="Center"
+                       Opacity="0.55"/>
+
+            <StackPanel Spacing="18"
+                        MaxWidth="640"
+                        VerticalAlignment="Top">
+              <TextBlock Text="Password Health Check"
+                         FontSize="24"
+                         FontWeight="Bold"/>
+              <TextBlock Text="We've analyzed your vault. 2 passwords are reused across multiple sites and 1 is considered weak. We recommend updating these to generated high-entropy strings."
+                         Classes="page-subtitle"
+                         FontSize="17"
+                         LineHeight="26"
+                         TextWrapping="Wrap"/>
+              <Button Content="START AUDIT ->"
+                      Classes="web-link-action"
+                      HorizontalAlignment="Left"
+                      Margin="0,18,0,0"/>
+            </StackPanel>
+          </Grid>
         </Border>
 
-        <Border Grid.Column="1" Classes="panel-raised" Padding="18">
-          <StackPanel Spacing="10">
-            <TextBlock Text="Quick Generate" Classes="section-title"/>
-            <TextBlock Text="Create a secure 32-character string instantly."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-            <Border Classes="panel" Padding="12">
-              <StackPanel Spacing="6">
-                <TextBlock Text="Generated password" Classes="caption"/>
-                <TextBlock Text="xy_3b9nY6e_qLJ..."
+        <Border Grid.Column="1"
+                Classes="web-bento-card"
+                MinHeight="300"
+                Padding="34,30">
+          <StackPanel Spacing="24">
+            <Border Width="54"
+                    Height="54"
+                    CornerRadius="8"
+                    Background="{StaticResource AccentGradientBrush}"
+                    HorizontalAlignment="Left">
+              <TextBlock Text="Z"
+                         Foreground="{StaticResource AccentForegroundBrush}"
+                         FontSize="24"
+                         FontWeight="Black"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="Quick Generate"
+                         FontSize="24"
+                         FontWeight="Bold"/>
+              <TextBlock Text="Create a secure 32-character string instantly."
+                         Classes="page-subtitle"
+                         FontSize="17"
+                         LineHeight="24"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border Classes="web-quick-output"
+                    Padding="18,14">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="8Xy_!pZ29#vR5_qLm8..."
+                           FontFamily="Consolas"
+                           FontSize="14"
                            Foreground="{StaticResource AccentBrush}"
-                           FontWeight="SemiBold"/>
-              </StackPanel>
+                           TextTrimming="CharacterEllipsis"
+                           VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="1"
+                           Text="C"
+                           FontSize="12"
+                           FontWeight="Black"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           VerticalAlignment="Center"/>
+              </Grid>
             </Border>
           </StackPanel>
         </Border>
       </Grid>
+      </StackPanel>
+    </ScrollViewer>
 
-      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-        <TextBlock Text="3 total items stored in your vault"
-                   Classes="caption"
-                   VerticalAlignment="Center"/>
-        <TextBlock Grid.Column="1"
-                   Text="Page 1 of 1"
-                   Classes="caption"
-                   VerticalAlignment="Center"/>
+    <Border Background="#b0000000"
+            IsVisible="{Binding IsAddWebLoginModalOpen}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+      <Grid>
+        <Border Classes="web-modal-card"
+                Width="720"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="28">
+          <StackPanel Spacing="22">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="18">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding AddModalTitle}"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource AccentBrush}"
+                           LetterSpacing="-0.4"/>
+                <TextBlock Text="{Binding AddModalSubtitle}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+
+              <Button Grid.Column="1"
+                      Content="X"
+                      Classes="web-modal-close-button"
+                      Command="{Binding CancelAddCommand}"
+                      ToolTip.Tip="Close"/>
+            </Grid>
+
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+                  ColumnDefinitions="*,*"
+                  RowSpacing="14"
+                  ColumnSpacing="16">
+              <StackPanel Spacing="7">
+                <TextBlock Text="TITLE"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         PlaceholderText="ShellKrypt"/>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1"
+                          Spacing="7">
+                <TextBlock Text="WEBSITE URL"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         PlaceholderText="https://example.com"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Spacing="7">
+                <TextBlock Text="USERNAME"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         PlaceholderText="shellkrypt-user"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Grid.Column="1"
+                          Spacing="7">
+                <TextBlock Text="EMAIL"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         PlaceholderText="dev@shellkrypt.local"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="2"
+                          Grid.ColumnSpan="2"
+                          Spacing="7">
+                <TextBlock Text="TOTP SECRET (OPTIONAL)"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddTotpSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         PlaceholderText="JBSWY3DPEHPK3PXP"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="3"
+                          Grid.ColumnSpan="2"
+                          Spacing="7">
+                <TextBlock Text="PASSWORD"
+                           Classes="web-modal-label"/>
+                <Border Classes="web-modal-input-shell">
+                  <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                        ColumnSpacing="8">
+                    <TextBox Text="{Binding AddPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="web-modal-input borderless"
+                             PasswordChar="*"
+                             IsReadOnly="{Binding IsAddFormReadOnly}"
+                             IsVisible="{Binding !IsAddPasswordVisible}"
+                             PlaceholderText="Use Generate or enter a password"/>
+                    <TextBox Text="{Binding AddPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="web-modal-input borderless"
+                             IsReadOnly="{Binding IsAddFormReadOnly}"
+                             IsVisible="{Binding IsAddPasswordVisible}"
+                             PlaceholderText="Use Generate or enter a password"/>
+                    <Button Grid.Column="1"
+                            Content="{Binding AddPasswordVisibilityLabel}"
+                            Classes="web-modal-field-action"
+                            Command="{Binding ToggleAddPasswordVisibilityCommand}"/>
+                    <Button Grid.Column="2"
+                            Content="Copy"
+                            Classes="web-modal-field-action"
+                            Command="{Binding CopyAddPasswordCommand}"/>
+                    <Button Grid.Column="3"
+                            Content="Generate"
+                            Classes="web-modal-field-action primary"
+                            IsVisible="{Binding CanGenerateModalPassword}"
+                            Command="{Binding GenerateAddPasswordCommand}"/>
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <StackPanel Grid.Row="4"
+                          Grid.ColumnSpan="2"
+                          Spacing="7">
+                <TextBlock Text="NOTES"
+                           Classes="web-modal-label"/>
+                <TextBox Text="{Binding AddNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="web-modal-input"
+                         IsReadOnly="{Binding IsAddFormReadOnly}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="110"
+                         PlaceholderText="Recovery hints, account context, or internal notes..."/>
+              </StackPanel>
+            </Grid>
+
+            <TextBlock Text="{Binding Error}"
+                       Foreground="{StaticResource DangerBrush}"
+                       FontSize="12"
+                       TextWrapping="Wrap"/>
+
+            <Border Background="{StaticResource SurfaceRaisedBrush}"
+                    CornerRadius="8"
+                    Padding="16,14"
+                    Margin="-8,0,-8,-8">
+              <Grid ColumnDefinitions="*,Auto,Auto"
+                    ColumnSpacing="12">
+                <TextBlock Text="Fields are encrypted locally before being stored."
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        Content="Cancel"
+                        Classes="web-modal-secondary-button"
+                        IsVisible="{Binding IsAddWebLoginMode}"
+                        Command="{Binding CancelAddCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Add Web Login"
+                        Classes="web-modal-primary-button"
+                        IsVisible="{Binding IsAddWebLoginMode}"
+                        Command="{Binding SaveAddCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Edit"
+                        Classes="web-modal-primary-button"
+                        IsVisible="{Binding IsDetailsViewMode}"
+                        Command="{Binding BeginDetailsEditCommand}"/>
+                <Button Grid.Column="1"
+                        Content="Cancel"
+                        Classes="web-modal-secondary-button"
+                        IsVisible="{Binding IsDetailsEditMode}"
+                        Command="{Binding CancelDetailsEditCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Save"
+                        Classes="web-modal-primary-button"
+                        IsVisible="{Binding IsDetailsEditMode}"
+                        Command="{Binding SaveDetailsCommand}"/>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Border>
       </Grid>
-    </StackPanel>
-  </ScrollViewer>
+    </Border>
+  </Grid>
 
   <UserControl.Styles>
-    <Style Selector="StackPanel.row-actions">
-      <Setter Property="Opacity" Value="0"/>
+    <Style Selector="Border.web-encryption-badge">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="CornerRadius" Value="999"/>
     </Style>
 
-    <Style Selector="ListBoxItem:pointerover StackPanel.row-actions">
-      <Setter Property="Opacity" Value="1"/>
+    <Style Selector="Border.web-table-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.web-search">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="14,8"/>
+    </Style>
+
+    <Style Selector="Button.web-filter-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-filter-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-add-login-button">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="20,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-add-login-button:pointerover">
+      <Setter Property="Background" Value="#63f5e1"/>
+      <Setter Property="BorderBrush" Value="#63f5e1"/>
+    </Style>
+
+    <Style Selector="Border.web-login-row">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#1a3c4a46"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+
+    <Style Selector="Border.web-login-row:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    </Style>
+
+    <Style Selector="Border.web-bento-card">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Border.web-quick-output">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#1a3c4a46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="4"/>
+    </Style>
+
+    <Style Selector="Border.web-modal-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+    </Style>
+
+    <Style Selector="Border.web-modal-input-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-modal-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.1"/>
+    </Style>
+
+    <Style Selector="TextBox.web-modal-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="14,10"/>
+    </Style>
+
+    <Style Selector="TextBox.web-modal-input:focus">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.web-modal-input.borderless">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-close-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinWidth" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-close-button:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-field-action">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-field-action:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-field-action.primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-field-action.primary:pointerover">
+      <Setter Property="Background" Value="#63f5e1"/>
+      <Setter Property="BorderBrush" Value="#63f5e1"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="22,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-secondary-button:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-modal-primary-button:pointerover">
+      <Setter Property="Background" Value="#63f5e1"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-kicker">
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-table-header">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.6"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-row-muted">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="LetterSpacing" Value="0.4"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-password">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="LetterSpacing" Value="2.4"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-url">
+      <Setter Property="Foreground" Value="{StaticResource BorderBrushStrong}"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="LetterSpacing" Value="0.6"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-footer-text">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.web-page-button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Height" Value="28"/>
+      <Setter Property="MinHeight" Value="28"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-page-button:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-action">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="4"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="MinWidth" Value="64"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-action:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-inline-icon">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="Width" Value="24"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.web-inline-icon:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.web-link-action">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="3"/>
+      <Setter Property="Padding" Value="0"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

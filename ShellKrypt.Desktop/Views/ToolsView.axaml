@@ -4,98 +4,386 @@
              x:Class="ShellKrypt.Desktop.Views.ToolsView"
              x:CompileBindings="False"
              x:DataType="vm:ToolsViewModel">
-  <ScrollViewer>
-    <StackPanel Margin="24" Spacing="18">
-      <Border Classes="panel-raised" Padding="18">
-        <StackPanel Spacing="4">
-          <TextBlock Text="Tools Workspace" Classes="page-title"/>
-          <TextBlock Text="Generate passwords, hash text, and convert Base64 locally without leaving the vault."
-                     Classes="page-subtitle"
-                     TextWrapping="Wrap"/>
-        </StackPanel>
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="32"
+                MaxWidth="1024"
+                HorizontalAlignment="Stretch"
+                Spacing="24">
+      <StackPanel Spacing="8"
+                  HorizontalAlignment="Left">
+        <TextBlock Text="Password Generator"
+                   FontSize="30"
+                   FontWeight="SemiBold"
+                   LetterSpacing="-0.6"/>
+        <TextBlock Text="Create strong local passwords with entropy controls."
+                   Classes="page-subtitle"
+                   MaxWidth="620"
+                   HorizontalAlignment="Left"
+                   TextAlignment="Left"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <Border Classes="stitch-hero-card"
+              ClipToBounds="True"
+              Padding="24">
+        <Grid ColumnDefinitions="*,48"
+              ColumnSpacing="24">
+          <StackPanel Spacing="16">
+            <Border Classes="stitch-output"
+                    ClipToBounds="True"
+                    Height="96"
+                    Padding="18,12">
+              <SelectableTextBlock Text="{Binding GeneratedPasswordDisplay}"
+                                   Classes="stitch-password-output"
+                                   TextWrapping="NoWrap"
+                                   VerticalAlignment="Top"/>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="14"
+                  VerticalAlignment="Center">
+              <ProgressBar Minimum="0"
+                           Maximum="100"
+                           Value="80"
+                           Height="6"
+                           Foreground="{StaticResource AccentBrush}"
+                           Background="{StaticResource SurfaceBrush}"
+                           VerticalAlignment="Center"/>
+              <TextBlock Grid.Column="1"
+                         Text="STRONG / SECURE"
+                         Classes="stitch-kicker"
+                         Foreground="{StaticResource AccentBrush}"
+                         VerticalAlignment="Center"/>
+            </Grid>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="12"
+                      VerticalAlignment="Center">
+            <Button Content="C"
+                    Width="48"
+                    Height="48"
+                    Padding="0"
+                    Classes="primary"
+                    ToolTip.Tip="Copy password"/>
+            <Button Content="R"
+                    Width="48"
+                    Height="48"
+                    Padding="0"
+                    Background="{StaticResource SurfaceElevatedBrush}"
+                    Foreground="{StaticResource AccentBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    Command="{Binding GeneratePasswordCommand}"
+                    ToolTip.Tip="Generate new password"/>
+          </StackPanel>
+        </Grid>
       </Border>
 
-      <Grid ColumnDefinitions="1.25*,1*" ColumnSpacing="18">
-        <Border Classes="panel-raised" Padding="18">
-          <StackPanel Spacing="14">
-            <TextBlock Text="Password Generator" Classes="section-title"/>
-            <TextBlock Text="Create dense, production-ready passwords with explicit character controls."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
+      <Grid ColumnDefinitions="2*,*"
+            ColumnSpacing="24">
+        <Border Classes="stitch-card"
+                Padding="24">
+          <StackPanel Spacing="22">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="16">
+              <TextBlock Text="Password Length"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         VerticalAlignment="Center"/>
+              <Border Grid.Column="1"
+                      Background="{StaticResource AppBackgroundSoftBrush}"
+                      BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="1"
+                      CornerRadius="4"
+                      Padding="12,5">
+                <TextBlock Text="{Binding PasswordLengthDisplay}"
+                           FontFamily="Consolas"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource AccentBrush}"/>
+              </Border>
+            </Grid>
 
-            <Grid ColumnDefinitions="Auto,140,*" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="12" RowSpacing="12">
-              <TextBlock Text="Length" VerticalAlignment="Center"/>
-              <TextBox Grid.Column="1" Text="{Binding PasswordLengthText}" Watermark="20"/>
-              <Button Grid.Column="2"
-                      Classes="primary"
-                      Content="Generate Password"
-                      HorizontalAlignment="Right"
-                      Command="{Binding GeneratePasswordCommand}"/>
+            <Slider Minimum="1"
+                    Maximum="100"
+                    Value="{Binding PasswordLength}"/>
 
-              <WrapPanel Grid.Row="1" Grid.ColumnSpan="3" Orientation="Horizontal" ItemHeight="32" ItemWidth="150">
-                <CheckBox Content="Lowercase" IsChecked="{Binding IncludeLowercase}"/>
-                <CheckBox Content="Uppercase" IsChecked="{Binding IncludeUppercase}"/>
-                <CheckBox Content="Numbers" IsChecked="{Binding IncludeNumbers}"/>
-                <CheckBox Content="Symbols" IsChecked="{Binding IncludeSymbols}"/>
-              </WrapPanel>
-
-              <TextBox Grid.Row="2"
-                       Grid.ColumnSpan="3"
-                       Text="{Binding GeneratedPassword}"
-                       Watermark="Generated password"
-                       IsReadOnly="True"/>
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="MIN (1)"
+                         Classes="stitch-kicker"
+                         Opacity="0.55"/>
+              <TextBlock Grid.Column="1"
+                         Text="MAX (100)"
+                         Classes="stitch-kicker"
+                         Opacity="0.55"/>
             </Grid>
           </StackPanel>
         </Border>
 
-        <StackPanel Grid.Column="1" Spacing="18">
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="12">
-              <TextBlock Text="Hashes" Classes="section-title"/>
-              <TextBox Text="{Binding HashInput}"
-                       AcceptsReturn="True"
-                       TextWrapping="Wrap"
-                       MinHeight="120"
-                       Watermark="Text to hash"/>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="SHA-256" Classes="subtle" Command="{Binding Sha256Command}"/>
-                <Button Content="SHA-512" Classes="subtle" Command="{Binding Sha512Command}"/>
-              </StackPanel>
-              <TextBox Text="{Binding HashOutput}"
-                       AcceptsReturn="True"
-                       TextWrapping="Wrap"
-                       MinHeight="120"
-                       Watermark="Hash output"
-                       IsReadOnly="True"/>
-            </StackPanel>
-          </Border>
+        <Border Grid.Column="1"
+                Classes="stitch-card"
+                Padding="24">
+          <StackPanel Spacing="16">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Uppercase (A-Z)"
+                         FontSize="14"
+                         FontWeight="Medium"
+                         VerticalAlignment="Center"/>
+              <ToggleSwitch Grid.Column="1"
+                            IsChecked="{Binding IncludeUppercase}"/>
+            </Grid>
 
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="12">
-              <TextBlock Text="Base64" Classes="section-title"/>
-              <TextBox Text="{Binding Base64Input}"
-                       AcceptsReturn="True"
-                       TextWrapping="Wrap"
-                       MinHeight="120"
-                       Watermark="Input text or Base64"/>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <Button Content="Encode" Classes="subtle" Command="{Binding Base64EncodeCommand}"/>
-                <Button Content="Decode" Classes="subtle" Command="{Binding Base64DecodeCommand}"/>
-              </StackPanel>
-              <TextBox Text="{Binding Base64Output}"
-                       AcceptsReturn="True"
-                       TextWrapping="Wrap"
-                       MinHeight="120"
-                       Watermark="Encoded or decoded output"
-                       IsReadOnly="True"/>
-            </StackPanel>
-          </Border>
-        </StackPanel>
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Lowercase (a-z)"
+                         FontSize="14"
+                         FontWeight="Medium"
+                         VerticalAlignment="Center"/>
+              <ToggleSwitch Grid.Column="1"
+                            IsChecked="{Binding IncludeLowercase}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Numbers (0-9)"
+                         FontSize="14"
+                         FontWeight="Medium"
+                         VerticalAlignment="Center"/>
+              <ToggleSwitch Grid.Column="1"
+                            IsChecked="{Binding IncludeNumbers}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="Symbols (!@#$)"
+                         FontSize="14"
+                         FontWeight="Medium"
+                         VerticalAlignment="Center"/>
+              <ToggleSwitch Grid.Column="1"
+                            IsChecked="{Binding IncludeSymbols}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
       </Grid>
 
-      <Border Classes="panel" Padding="14">
-        <TextBlock Text="{Binding StatusMessage}" Classes="page-subtitle"/>
-      </Border>
+      <Grid ColumnDefinitions="Auto,*"
+            ColumnSpacing="16"
+            VerticalAlignment="Center"
+            Margin="0,12,0,0">
+        <TextBlock Text="Cryptographic Workbench"
+                   FontSize="20"
+                   FontWeight="SemiBold"/>
+        <Border Grid.Column="1"
+                Height="1"
+                Background="{StaticResource BorderBrushSoft}"
+                VerticalAlignment="Center"/>
+      </Grid>
+
+      <Grid ColumnDefinitions="*,*"
+            ColumnSpacing="24">
+        <Border Classes="stitch-card"
+                Padding="24">
+          <StackPanel Spacing="16">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="12">
+              <TextBlock Text="F"
+                         FontSize="16"
+                         FontWeight="Black"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <TextBlock Text="HASH UTILITY"
+                         Classes="stitch-section-label"/>
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="INPUT TEXT"
+                         Classes="stitch-kicker"/>
+              <TextBox Text="{Binding HashInput}"
+                       Classes="stitch-input"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="80"
+                       PlaceholderText="Paste text here..."
+                       FontFamily="Consolas"/>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="10">
+              <Button Content="SHA-256"
+                      Classes="stitch-action"
+                      Command="{Binding Sha256Command}"/>
+              <Button Grid.Column="1"
+                      Content="SHA-512"
+                      Classes="stitch-action"
+                      Command="{Binding Sha512Command}"/>
+            </Grid>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="HASH RESULT"
+                         Classes="stitch-kicker"/>
+              <Border Classes="stitch-output"
+                      ClipToBounds="True"
+                      Height="68"
+                      Padding="12">
+                <SelectableTextBlock Text="{Binding HashOutputDisplay}"
+                                     Classes="stitch-utility-output"
+                                     ClipToBounds="True"
+                                     HorizontalAlignment="Stretch"
+                                     TextWrapping="NoWrap"/>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Column="1"
+                Classes="stitch-card"
+                Padding="24">
+          <StackPanel Spacing="16">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="12">
+              <TextBlock Text="C"
+                         FontSize="16"
+                         FontWeight="Black"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <TextBlock Text="BASE64 ENCODER / DECODER"
+                         Classes="stitch-section-label"/>
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="ORIGINAL CONTENT"
+                         Classes="stitch-kicker"/>
+              <TextBox Text="{Binding Base64Input}"
+                       Classes="stitch-input"
+                       AcceptsReturn="True"
+                       TextWrapping="Wrap"
+                       MinHeight="80"
+                       PlaceholderText="Input string..."
+                       FontFamily="Consolas"/>
+            </StackPanel>
+
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="16">
+              <Button Content="ENCODE"
+                      Classes="stitch-action stitch-action-primary"
+                      Command="{Binding Base64EncodeCommand}"/>
+              <Button Grid.Column="1"
+                      Content="DECODE"
+                      Classes="stitch-action"
+                      Command="{Binding Base64DecodeCommand}"/>
+            </Grid>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="OUTPUT STRING"
+                         Classes="stitch-kicker"/>
+              <Border Classes="stitch-output"
+                      ClipToBounds="True"
+                      Height="68"
+                      Padding="12">
+                <SelectableTextBlock Text="{Binding Base64OutputDisplay}"
+                                     Classes="stitch-utility-output"
+                                     ClipToBounds="True"
+                                     HorizontalAlignment="Stretch"
+                                     TextWrapping="NoWrap"/>
+              </Border>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+
     </StackPanel>
   </ScrollViewer>
+
+  <UserControl.Styles>
+    <Style Selector="Border.stitch-hero-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Border.stitch-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="BorderBrush" Value="#143c4a46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="Border.stitch-output">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.stitch-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style Selector="Button.stitch-action">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="3"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Padding" Value="12,0"/>
+    </Style>
+
+    <Style Selector="Button.stitch-action:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.stitch-action-primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.stitch-action-primary:pointerover">
+      <Setter Property="Background" Value="#63f5e1"/>
+      <Setter Property="BorderBrush" Value="#63f5e1"/>
+    </Style>
+
+    <Style Selector="SelectableTextBlock.stitch-password-output">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="LineHeight" Value="30"/>
+      <Setter Property="LetterSpacing" Value="0.7"/>
+      <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <Style Selector="SelectableTextBlock.stitch-utility-output">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="LineHeight" Value="18"/>
+      <Setter Property="LetterSpacing" Value="0.2"/>
+      <Setter Property="TextWrapping" Value="NoWrap"/>
+    </Style>
+
+    <Style Selector="TextBlock.stitch-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="1.6"/>
+    </Style>
+
+    <Style Selector="TextBlock.stitch-section-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="1.4"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

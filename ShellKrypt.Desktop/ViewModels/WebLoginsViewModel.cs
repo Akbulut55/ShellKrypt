@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -21,6 +22,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
 
     [ObservableProperty] private string title;
     [ObservableProperty] private string username;
+    [ObservableProperty] private string email;
     [ObservableProperty] private string password;
     [ObservableProperty] private string url;
     [ObservableProperty] private string notes;
@@ -36,6 +38,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
 
     private string _origTitle = "";
     private string _origUsername = "";
+    private string _origEmail = "";
     private string _origPassword = "";
     private string _origUrl = "";
     private string _origNotes = "";
@@ -55,11 +58,13 @@ public sealed partial class WebLoginRowVm : ObservableObject
         bool favorite,
         string createdAtUtc,
         string updatedAtUtc,
-        bool isNew)
+        bool isNew,
+        string email = "")
     {
         Id = id;
         Title = title ?? "";
         Username = username ?? "";
+        Email = email ?? "";
         Password = password ?? "";
         Url = url ?? "";
         Notes = notes ?? "";
@@ -72,7 +77,9 @@ public sealed partial class WebLoginRowVm : ObservableObject
     }
 
     public string IconLetter => string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim()[0].ToString().ToUpperInvariant();
+    public string UsernameDisplay => string.IsNullOrWhiteSpace(Username) ? Email : Username;
     public string PasswordDisplay => IsPasswordVisible ? Password : "**********";
+    public string UrlHost => FormatUrlHost(Url);
     public string UrlDisplay => DisplayOrPlaceholder("URL", Url);
     public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
     public string TwoFaNoteDisplay => DisplayOrPlaceholder("2FA", TwoFaNote);
@@ -84,8 +91,14 @@ public sealed partial class WebLoginRowVm : ObservableObject
 
     partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
+    partial void OnUsernameChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
+    partial void OnEmailChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
     partial void OnPasswordChanged(string value) => OnPropertyChanged(nameof(PasswordDisplay));
-    partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlDisplay));
+    partial void OnUrlChanged(string value)
+    {
+        OnPropertyChanged(nameof(UrlHost));
+        OnPropertyChanged(nameof(UrlDisplay));
+    }
     partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
     partial void OnTwoFaNoteChanged(string value) => OnPropertyChanged(nameof(TwoFaNoteDisplay));
     partial void OnTotpSecretChanged(string value)
@@ -106,6 +119,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
     {
         _origTitle = Title;
         _origUsername = Username;
+        _origEmail = Email;
         _origPassword = Password;
         _origUrl = Url;
         _origNotes = Notes;
@@ -125,6 +139,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
 
         Title = _origTitle;
         Username = _origUsername;
+        Email = _origEmail;
         Password = _origPassword;
         Url = _origUrl;
         Notes = _origNotes;
@@ -169,25 +184,88 @@ public sealed partial class WebLoginRowVm : ObservableObject
         var text = string.IsNullOrWhiteSpace(value) ? "(none)" : value.Trim();
         return text.Length > 120 ? $"{label}: {text[..117]}..." : $"{label}: {text}";
     }
+
+    private static string FormatUrlHost(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "no url";
+
+        var text = value.Trim();
+        if (Uri.TryCreate(text, UriKind.Absolute, out var absolute) && !string.IsNullOrWhiteSpace(absolute.Host))
+            return absolute.Host;
+
+        var withoutScheme = text
+            .Replace("https://", "", StringComparison.OrdinalIgnoreCase)
+            .Replace("http://", "", StringComparison.OrdinalIgnoreCase);
+
+        var slash = withoutScheme.IndexOf('/');
+        return slash < 0 ? withoutScheme : withoutScheme[..slash];
+    }
 }
 
 public partial class WebLoginsViewModel : ViewModelBase
 {
+    private const int PageSize = 5;
+    private const int GeneratedLoginPasswordLength = 32;
+
     private readonly MainWindowViewModel _root;
     private readonly IItemRepository _repo;
     private readonly DispatcherTimer _totpTimer = new();
 
     private readonly List<WebLoginRowVm> _all = new();
+    private readonly List<WebLoginRowVm> _filtered = new();
+    private WebLoginRowVm? _selectedDetailsRow;
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase
     };
+    private static readonly char[] LoginPasswordChars =
+        "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
 
     public ObservableCollection<WebLoginRowVm> Rows { get; } = new();
 
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private string error = "";
+    [ObservableProperty] private int currentPage = 1;
+    [ObservableProperty] private bool isAddWebLoginModalOpen;
+    [ObservableProperty] private bool isAddWebLoginMode = true;
+    [ObservableProperty] private bool isLoginDetailsEditing;
+    [ObservableProperty] private bool isAddPasswordVisible;
+    [ObservableProperty] private string addTitle = "";
+    [ObservableProperty] private string addUrl = "";
+    [ObservableProperty] private string addUsername = "";
+    [ObservableProperty] private string addEmail = "";
+    [ObservableProperty] private string addPassword = "";
+    [ObservableProperty] private string addTotpSecret = "";
+    [ObservableProperty] private string addNotes = "";
+
+    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
+    public string ItemsSummary
+    {
+        get
+        {
+            var count = string.IsNullOrWhiteSpace(SearchText) ? _all.Count : _filtered.Count;
+            var label = count == 1 ? "item" : "items";
+            return string.IsNullOrWhiteSpace(SearchText)
+                ? $"{count} total {label} stored in your vault"
+                : $"{count} matching {label} found";
+        }
+    }
+    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public bool CanGoPreviousPage => CurrentPage > 1;
+    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string AddModalTitle => IsAddWebLoginMode ? "Add Web Login" : IsLoginDetailsEditing ? "Edit Login" : "Login Details";
+    public string AddModalSubtitle => IsAddWebLoginMode
+        ? "Store a new website credential in your encrypted vault."
+        : IsLoginDetailsEditing
+            ? "Update the saved credential stored in this encrypted vault."
+            : "Review the saved credential stored in this encrypted vault.";
+    public bool IsDetailsViewMode => !IsAddWebLoginMode && !IsLoginDetailsEditing;
+    public bool IsDetailsEditMode => !IsAddWebLoginMode && IsLoginDetailsEditing;
+    public bool IsAddFormReadOnly => !IsAddWebLoginMode && !IsLoginDetailsEditing;
+    public bool CanGenerateModalPassword => IsAddWebLoginMode || IsLoginDetailsEditing;
+    public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? "Hide" : "Reveal";
 
     public WebLoginsViewModel(MainWindowViewModel root, IItemRepository repo)
     {
@@ -200,32 +278,38 @@ public partial class WebLoginsViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnCurrentPageChanged(int value)
+    {
+        OnPropertyChanged(nameof(PageSummary));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+    }
+    partial void OnIsAddPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(AddPasswordVisibilityLabel));
+    partial void OnIsAddWebLoginModeChanged(bool value)
+        => NotifyModalModeChanged();
+
+    partial void OnIsLoginDetailsEditingChanged(bool value)
+        => NotifyModalModeChanged();
+
+    private void NotifyModalModeChanged()
+    {
+        OnPropertyChanged(nameof(AddModalTitle));
+        OnPropertyChanged(nameof(AddModalSubtitle));
+        OnPropertyChanged(nameof(IsDetailsViewMode));
+        OnPropertyChanged(nameof(IsDetailsEditMode));
+        OnPropertyChanged(nameof(IsAddFormReadOnly));
+        OnPropertyChanged(nameof(CanGenerateModalPassword));
+    }
 
     [RelayCommand]
     private void AddNew()
     {
         Error = "";
-
-        var now = DateTimeOffset.UtcNow.ToString("O");
-        var row = new WebLoginRowVm(
-            id: Guid.NewGuid().ToString("N"),
-            title: "",
-            username: "",
-            password: "",
-            url: "",
-            notes: "",
-            twoFaNote: "",
-            totpSecret: "",
-            favorite: false,
-            createdAtUtc: now,
-            updatedAtUtc: now,
-            isNew: true
-        );
-
-        row.IsEditing = true;
-
-        _all.Insert(0, row);
-        Rows.Insert(0, row);
+        _selectedDetailsRow = null;
+        IsLoginDetailsEditing = false;
+        IsAddWebLoginMode = true;
+        ClearAddForm();
+        IsAddWebLoginModalOpen = true;
     }
 
     [RelayCommand]
@@ -233,6 +317,40 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Error = "";
         row.BeginEdit();
+    }
+
+    [RelayCommand]
+    private void ShowDetails(WebLoginRowVm row)
+    {
+        Error = "";
+        _selectedDetailsRow = row;
+        IsAddWebLoginMode = false;
+        IsLoginDetailsEditing = false;
+        PopulateModalFromRow(row);
+        IsAddPasswordVisible = false;
+        IsAddWebLoginModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void BeginDetailsEdit()
+    {
+        if (_selectedDetailsRow is null)
+            return;
+
+        Error = "";
+        IsLoginDetailsEditing = true;
+    }
+
+    [RelayCommand]
+    private void CancelDetailsEdit()
+    {
+        Error = "";
+
+        if (_selectedDetailsRow is not null)
+            PopulateModalFromRow(_selectedDetailsRow);
+
+        IsLoginDetailsEditing = false;
+        IsAddPasswordVisible = false;
     }
 
     [RelayCommand]
@@ -262,7 +380,10 @@ public partial class WebLoginsViewModel : ViewModelBase
                 Notes: row.Notes ?? "",
                 TwoFaNote: row.TwoFaNote ?? "",
                 TotpSecret: totpSecret
-            );
+            )
+            {
+                Email = row.Email.Trim()
+            };
 
             var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
             var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
@@ -347,10 +468,229 @@ public partial class WebLoginsViewModel : ViewModelBase
         await _root.CopyToClipboardAsync(row.TotpCode);
     }
 
+    [RelayCommand]
+    private async Task CopyPasswordAsync(WebLoginRowVm row)
+    {
+        Error = "";
+
+        if (string.IsNullOrWhiteSpace(row.Password))
+        {
+            Error = "No password available.";
+            return;
+        }
+
+        await _root.CopyToClipboardAsync(row.Password);
+    }
+
+    [RelayCommand]
+    private void CancelAdd()
+    {
+        Error = "";
+        ClearAddForm();
+        _selectedDetailsRow = null;
+        IsLoginDetailsEditing = false;
+        IsAddWebLoginModalOpen = false;
+    }
+
+    [RelayCommand]
+    private void ToggleAddPasswordVisibility()
+    {
+        IsAddPasswordVisible = !IsAddPasswordVisible;
+    }
+
+    [RelayCommand]
+    private void GenerateAddPassword()
+    {
+        var chars = new char[GeneratedLoginPasswordLength];
+
+        for (var i = 0; i < chars.Length; i++)
+            chars[i] = LoginPasswordChars[RandomNumberGenerator.GetInt32(LoginPasswordChars.Length)];
+
+        AddPassword = new string(chars);
+        IsAddPasswordVisible = true;
+        Error = "";
+    }
+
+    [RelayCommand]
+    private async Task CopyAddPasswordAsync()
+    {
+        Error = "";
+
+        if (string.IsNullOrWhiteSpace(AddPassword))
+        {
+            Error = "No generated password available.";
+            return;
+        }
+
+        await _root.CopyToClipboardAsync(AddPassword);
+    }
+
+    [RelayCommand]
+    private async Task SaveAddAsync()
+    {
+        Error = "";
+
+        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+
+        var totpSecret = AddTotpSecret.Trim();
+        if (!string.IsNullOrWhiteSpace(totpSecret) &&
+            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
+        {
+            Error = $"TOTP secret is invalid: {totpError}";
+            return;
+        }
+
+        try
+        {
+            var now = DateTimeOffset.UtcNow.ToString("O");
+            var id = Guid.NewGuid().ToString("N");
+            var payload = new WebPayload(
+                Title: AddTitle.Trim(),
+                Url: AddUrl.Trim(),
+                Username: AddUsername.Trim(),
+                Password: AddPassword,
+                Notes: AddNotes.Trim(),
+                TwoFaNote: "",
+                TotpSecret: totpSecret
+            )
+            {
+                Email = AddEmail.Trim()
+            };
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
+            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
+            var header = new VaultItemHeader(
+                Id: id,
+                Type: ItemType.Web,
+                Favorite: false,
+                CreatedAtUtc: now,
+                UpdatedAtUtc: now
+            );
+
+            await _repo.InsertAsync(_root.VaultPath, header, enc);
+
+            var row = new WebLoginRowVm(
+                id,
+                payload.Title,
+                payload.Username,
+                payload.Password,
+                payload.Url,
+                payload.Notes,
+                payload.TwoFaNote,
+                payload.TotpSecret,
+                favorite: false,
+                createdAtUtc: now,
+                updatedAtUtc: now,
+                isNew: false,
+                email: payload.Email
+            );
+
+            row.RefreshTotpState(DateTimeOffset.UtcNow);
+            _all.Insert(0, row);
+            ClearAddForm();
+            IsAddWebLoginModalOpen = false;
+            ApplyFilter();
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task SaveDetailsAsync()
+    {
+        Error = "";
+
+        if (_selectedDetailsRow is null) { Error = "No login selected."; return; }
+        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+
+        var totpSecret = AddTotpSecret.Trim();
+        if (!string.IsNullOrWhiteSpace(totpSecret) &&
+            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
+        {
+            Error = $"TOTP secret is invalid: {totpError}";
+            return;
+        }
+
+        try
+        {
+            var row = _selectedDetailsRow;
+            var now = DateTimeOffset.UtcNow.ToString("O");
+            var payload = new WebPayload(
+                Title: AddTitle.Trim(),
+                Url: AddUrl.Trim(),
+                Username: AddUsername.Trim(),
+                Password: AddPassword,
+                Notes: AddNotes.Trim(),
+                TwoFaNote: row.TwoFaNote ?? "",
+                TotpSecret: totpSecret
+            )
+            {
+                Email = AddEmail.Trim()
+            };
+
+            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
+            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
+            var header = new VaultItemHeader(
+                Id: row.Id,
+                Type: ItemType.Web,
+                Favorite: row.IsFavorite,
+                CreatedAtUtc: row.CreatedAtUtc,
+                UpdatedAtUtc: now
+            );
+
+            await _repo.UpdateAsync(_root.VaultPath, header, enc);
+
+            row.Title = payload.Title;
+            row.Url = payload.Url;
+            row.Username = payload.Username;
+            row.Email = payload.Email;
+            row.Password = payload.Password;
+            row.Notes = payload.Notes;
+            row.TwoFaNote = payload.TwoFaNote;
+            row.TotpSecret = payload.TotpSecret;
+            row.MarkSaved();
+            row.RefreshTotpState(DateTimeOffset.UtcNow);
+
+            IsLoginDetailsEditing = false;
+            ApplyFilter(resetPage: false);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
     private void RemoveRow(WebLoginRowVm row)
     {
         _all.Remove(row);
-        Rows.Remove(row);
+        ApplyFilter(resetPage: false);
+    }
+
+    private void ClearAddForm()
+    {
+        AddTitle = "";
+        AddUrl = "";
+        AddUsername = "";
+        AddEmail = "";
+        AddPassword = "";
+        AddTotpSecret = "";
+        AddNotes = "";
+        IsAddPasswordVisible = false;
+    }
+
+    private void PopulateModalFromRow(WebLoginRowVm row)
+    {
+        AddTitle = row.Title;
+        AddUrl = row.Url;
+        AddUsername = row.Username;
+        AddEmail = row.Email;
+        AddPassword = row.Password;
+        AddTotpSecret = row.TotpSecret;
+        AddNotes = row.Notes;
     }
 
     private async Task LoadAsync()
@@ -384,7 +724,8 @@ public partial class WebLoginsViewModel : ViewModelBase
                     r.Header.Favorite,
                     r.Header.CreatedAtUtc,
                     r.Header.UpdatedAtUtc,
-                    isNew: false
+                    isNew: false,
+                    email: payload.Email
                 ));
             }
 
@@ -397,10 +738,12 @@ public partial class WebLoginsViewModel : ViewModelBase
         }
     }
 
+    [RelayCommand]
     private void ApplyFilter()
-    {
-        Rows.Clear();
+        => ApplyFilter(resetPage: true);
 
+    private void ApplyFilter(bool resetPage)
+    {
         IEnumerable<WebLoginRowVm> filtered = _all;
 
         var q = SearchText?.Trim();
@@ -409,6 +752,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             filtered = filtered.Where(r =>
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
+                r.Email.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Url.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.TwoFaNote.Contains(q, StringComparison.OrdinalIgnoreCase) ||
@@ -416,8 +760,51 @@ public partial class WebLoginsViewModel : ViewModelBase
                 (r.IsFavorite && "favorite".Contains(q, StringComparison.OrdinalIgnoreCase)));
         }
 
-        foreach (var r in filtered)
+        _filtered.Clear();
+        _filtered.AddRange(filtered);
+
+        if (resetPage)
+            CurrentPage = 1;
+        else
+            CurrentPage = Math.Clamp(CurrentPage, 1, TotalPages);
+
+        RenderPage();
+    }
+
+    private void RenderPage()
+    {
+        Rows.Clear();
+
+        foreach (var r in _filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Rows.Add(r);
+
+        OnPropertyChanged(nameof(ItemsSummary));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(PageSummary));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
+    private void PreviousPage()
+    {
+        if (!CanGoPreviousPage)
+            return;
+
+        CurrentPage--;
+        RenderPage();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
+    private void NextPage()
+    {
+        if (!CanGoNextPage)
+            return;
+
+        CurrentPage++;
+        RenderPage();
     }
 
     private void RefreshTotpRows()
