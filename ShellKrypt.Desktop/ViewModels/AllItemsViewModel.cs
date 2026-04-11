@@ -25,10 +25,29 @@ public sealed record AllItemEntry(
     string UpdatedAtUtc)
 {
     public string TypeLabel => Type.ToString();
+    public string DisplayTypeLabel => Type switch
+    {
+        ItemType.Web => "LOGIN",
+        ItemType.Card => "CARD",
+        ItemType.Note => "SECURE NOTE",
+        _ => TypeLabel
+    };
     public string IconLetter => string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim()[0].ToString().ToUpperInvariant();
     public string LabelsDisplay => Labels.Count == 0 ? "No labels" : string.Join(", ", Labels);
     public string FavoriteGlyph => Favorite ? "*" : "";
     public string SecurityBadge => HasTotp ? "TOTP" : "";
+    public string CreatedDisplay => FormatDate(CreatedAtUtc);
+    public string UpdatedDisplay => FormatDate(UpdatedAtUtc);
+
+    private static string FormatDate(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "Unknown";
+
+        return DateTimeOffset.TryParse(value, out var dto)
+            ? dto.LocalDateTime.ToString("g")
+            : value;
+    }
 }
 
 public sealed partial class AllItemsViewModel : ViewModelBase
@@ -37,6 +56,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     private readonly ShellViewModel _shell;
     private readonly IItemRepository _repo;
     private readonly List<AllItemEntry> _allItems = new();
+    private readonly List<string> _webPasswords = new();
 
     private static readonly JsonSerializerOptions JsonOpts = new()
     {
@@ -69,6 +89,8 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     [ObservableProperty] private int cardCount;
     [ObservableProperty] private int noteCount;
     [ObservableProperty] private int filteredCount;
+    [ObservableProperty] private int weakPasswordCount;
+    [ObservableProperty] private int reusedPasswordCount;
 
     public AllItemsViewModel(MainWindowViewModel root, ShellViewModel shell, IItemRepository repo)
     {
@@ -178,6 +200,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
         try
         {
             _allItems.Clear();
+            _webPasswords.Clear();
             Rows.Clear();
             LabelFilters.Clear();
             LabelFilters.Add("All labels");
@@ -197,6 +220,8 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             WebCount = _allItems.Count(x => x.Type == ItemType.Web);
             CardCount = _allItems.Count(x => x.Type == ItemType.Card);
             NoteCount = _allItems.Count(x => x.Type == ItemType.Note);
+            WeakPasswordCount = _webPasswords.Count(IsWeakPassword);
+            ReusedPasswordCount = CountReusedPasswords(_webPasswords);
 
             if (!string.IsNullOrWhiteSpace(SelectedLabelFilter) &&
                 SelectedLabelFilter != "All labels" &&
@@ -291,6 +316,8 @@ public sealed partial class AllItemsViewModel : ViewModelBase
         var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts)
             ?? new WebPayload("", "", "", "", "", "", "");
+
+        _webPasswords.Add(payload.Password ?? "");
 
         var secondary = string.IsNullOrWhiteSpace(payload.Username)
             ? payload.Url
@@ -403,5 +430,29 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             .Where(x => !string.IsNullOrWhiteSpace(x))
             .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToArray();
+    }
+
+    private static bool IsWeakPassword(string? password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            return true;
+
+        var value = password.Trim();
+        if (value.Length < 12)
+            return true;
+
+        var hasLetter = value.Any(char.IsLetter);
+        var hasDigit = value.Any(char.IsDigit);
+        var hasSymbol = value.Any(ch => !char.IsLetterOrDigit(ch));
+        return !(hasLetter && hasDigit && hasSymbol);
+    }
+
+    private static int CountReusedPasswords(IEnumerable<string> passwords)
+    {
+        return passwords
+            .Where(password => !string.IsNullOrWhiteSpace(password))
+            .GroupBy(password => password, StringComparer.Ordinal)
+            .Where(group => group.Count() > 1)
+            .Sum(group => group.Count());
     }
 }

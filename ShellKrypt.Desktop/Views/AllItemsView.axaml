@@ -5,201 +5,208 @@
              x:CompileBindings="False"
              x:DataType="vm:AllItemsViewModel">
 
-  <ScrollViewer>
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
     <StackPanel Margin="24" Spacing="18">
-      <Grid ColumnDefinitions="*,*,*,*" ColumnSpacing="14">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+        <StackPanel Spacing="4">
+          <TextBlock Text="All Items" Classes="page-title"/>
+          <TextBlock Text="Monitor every encrypted record inside the active vault."
+                     Classes="page-subtitle"/>
+        </StackPanel>
+      </Grid>
+
+      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="14">
         <Border Classes="metric-card" Padding="18">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Vault total" Classes="caption"/>
+          <StackPanel Spacing="8">
+            <TextBlock Text="TOTAL ITEMS" Classes="caption"/>
             <TextBlock Text="{Binding TotalCount}" Classes="metric-value"/>
-            <TextBlock Text="Encrypted records in the active vault." Classes="page-subtitle"/>
+            <TextBlock Text="Encrypted records in the active vault."
+                       Classes="page-subtitle"/>
           </StackPanel>
         </Border>
 
         <Border Grid.Column="1" Classes="metric-card" Padding="18">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Web logins" Classes="caption"/>
-            <TextBlock Text="{Binding WebCount}" Classes="metric-value"/>
-            <TextBlock Text="Credentials, usernames, and TOTP-capable entries." Classes="page-subtitle" TextWrapping="Wrap"/>
+          <StackPanel Spacing="8">
+            <TextBlock Text="WEAK PASSWORDS" Classes="caption"/>
+            <TextBlock Text="{Binding WeakPasswordCount}" Classes="metric-value"/>
+            <TextBlock Text="Logins that should be rotated soon."
+                       Classes="page-subtitle"
+                       TextWrapping="Wrap"/>
           </StackPanel>
         </Border>
 
         <Border Grid.Column="2" Classes="metric-card" Padding="18">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Credit cards" Classes="caption"/>
-            <TextBlock Text="{Binding CardCount}" Classes="metric-value"/>
-            <TextBlock Text="Masked financial records kept separate from notes." Classes="page-subtitle" TextWrapping="Wrap"/>
-          </StackPanel>
-        </Border>
-
-        <Border Grid.Column="3" Classes="metric-card" Padding="18">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Secure notes" Classes="caption"/>
-            <TextBlock Text="{Binding NoteCount}" Classes="metric-value"/>
-            <TextBlock Text="Structured freeform entries in the same vault." Classes="page-subtitle" TextWrapping="Wrap"/>
+          <StackPanel Spacing="8">
+            <TextBlock Text="REUSED PASSWORDS" Classes="caption"/>
+            <TextBlock Text="{Binding ReusedPasswordCount}" Classes="metric-value"/>
+            <TextBlock Text="Entries sharing a password with another login."
+                       Classes="page-subtitle"
+                       TextWrapping="Wrap"/>
           </StackPanel>
         </Border>
       </Grid>
 
       <Border Classes="panel-raised" Padding="16">
-        <Grid ColumnDefinitions="2.2*,Auto,Auto,Auto" ColumnSpacing="12">
-          <TextBox Classes="search"
-                   Watermark="Search titles, usernames, notes, labels, favorites..."
-                   Text="{Binding SearchText}"/>
+        <StackPanel Spacing="12">
+          <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="12">
+            <Button Classes="subtle inline" Content="Filter"/>
+            <Button Grid.Column="1" Classes="subtle inline" Content="Sort"/>
 
-          <ComboBox Grid.Column="1"
-                    Width="150"
-                    ItemsSource="{Binding TypeFilters}"
-                    SelectedItem="{Binding SelectedTypeFilter}"/>
-
-          <ComboBox Grid.Column="2"
-                    Width="190"
-                    ItemsSource="{Binding LabelFilters}"
-                    SelectedItem="{Binding SelectedLabelFilter}"/>
-
-          <Border Grid.Column="3" Classes="badge" Padding="12,8" VerticalAlignment="Center">
-            <TextBlock Text="{Binding FilteredCount, StringFormat={}{0} visible}" FontWeight="SemiBold"/>
-          </Border>
-        </Grid>
+            <WrapPanel Grid.Column="3"
+                       HorizontalAlignment="Right"
+                       ItemSpacing="8"
+                       LineSpacing="8">
+              <Border Classes="badge" Padding="10,6">
+                <TextBlock Text="{Binding WebCount, StringFormat={}{0} Logins}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource SuccessBrush}"/>
+              </Border>
+              <Border Classes="badge" Padding="10,6">
+                <TextBlock Text="{Binding CardCount, StringFormat={}{0} Cards}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource WarningBrush}"/>
+              </Border>
+              <Border Classes="badge" Padding="10,6">
+                <TextBlock Text="{Binding NoteCount, StringFormat={}{0} Secure Notes}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource TextMutedBrush}"/>
+              </Border>
+            </WrapPanel>
+          </Grid>
+        </StackPanel>
       </Border>
 
-      <Grid ColumnDefinitions="2.35*,1*" ColumnSpacing="18">
-        <Border Classes="panel-raised" Padding="16">
-          <Grid RowDefinitions="Auto,*">
-            <Grid ColumnDefinitions="92,2.2*,1.1*,1.2*,Auto" Margin="0,0,0,12">
-              <TextBlock Text="Item" Classes="caption"/>
-              <TextBlock Grid.Column="1" Text="Record" Classes="caption"/>
-              <TextBlock Grid.Column="2" Text="Category" Classes="caption"/>
-              <TextBlock Grid.Column="3" Text="Details" Classes="caption"/>
+      <Border Classes="panel" Padding="0">
+        <Grid RowDefinitions="Auto,*">
+          <Border Background="{StaticResource SurfaceRaisedBrush}"
+                  BorderBrush="{StaticResource BorderBrushSoft}"
+                  BorderThickness="0,0,0,1"
+                  Padding="18,14">
+            <Grid ColumnDefinitions="2.1*,1.05*,1.2*,1.1*,Auto" ColumnSpacing="12">
+              <TextBlock Text="Name" Classes="caption"/>
+              <TextBlock Grid.Column="1" Text="Type" Classes="caption"/>
+              <TextBlock Grid.Column="2" Text="Username / ID" Classes="caption"/>
+              <TextBlock Grid.Column="3" Text="Last Modified" Classes="caption"/>
               <TextBlock Grid.Column="4" Text="" Classes="caption"/>
             </Grid>
+          </Border>
 
-            <ListBox Grid.Row="1"
-                     ItemsSource="{Binding Rows}"
-                     SelectedItem="{Binding SelectedRow}">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:AllItemEntry">
-                  <Border Classes="panel" Padding="14">
-                    <Grid ColumnDefinitions="92,2.2*,1.1*,1.2*,Auto" ColumnSpacing="12">
-                      <Border Width="54"
-                              Height="54"
-                              CornerRadius="16"
-                              Background="{StaticResource AccentMutedBrush}"
-                              BorderBrush="{StaticResource BorderBrushStrong}"
-                              BorderThickness="1">
+          <ListBox Grid.Row="1"
+                   ItemsSource="{Binding Rows}"
+                   SelectedItem="{Binding SelectedRow}">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:AllItemEntry">
+                <Border BorderBrush="{StaticResource BorderBrushSoft}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,14">
+                  <Grid ColumnDefinitions="2.1*,1.05*,1.2*,1.1*,Auto" ColumnSpacing="12">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                      <Border Width="32"
+                              Height="32"
+                              CornerRadius="8"
+                              Background="{StaticResource AppBackgroundSoftBrush}">
                         <TextBlock Text="{Binding IconLetter}"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
+                                   FontSize="12"
                                    FontWeight="Bold"
-                                   FontSize="18"/>
+                                   Foreground="{StaticResource AccentBrush}"/>
                       </Border>
 
-                      <StackPanel Grid.Column="1" Spacing="4">
+                      <StackPanel Grid.Column="1" Spacing="3">
                         <StackPanel Orientation="Horizontal" Spacing="8">
-                          <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
+                          <TextBlock Text="{Binding Title}"
+                                     FontWeight="SemiBold"
+                                     TextTrimming="CharacterEllipsis"/>
                           <Border Classes="badge" Padding="8,3" IsVisible="{Binding Favorite}">
-                            <TextBlock Text="Favorite" FontSize="11" FontWeight="SemiBold"/>
-                          </Border>
-                          <Border Classes="badge" Padding="8,3" IsVisible="{Binding HasTotp}">
-                            <TextBlock Text="TOTP" FontSize="11" FontWeight="SemiBold"/>
+                            <TextBlock Text="Favorite"
+                                       FontSize="10"
+                                       FontWeight="Bold"
+                                       Foreground="{StaticResource SuccessBrush}"/>
                           </Border>
                         </StackPanel>
-                        <TextBlock Text="{Binding SecondaryText}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding LabelsDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding Snippet}"
+                                   Classes="caption"
+                                   TextWrapping="Wrap"/>
                       </StackPanel>
-
-                      <Border Grid.Column="2" Classes="badge" Padding="10,6" HorizontalAlignment="Left" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding TypeLabel}" FontWeight="SemiBold"/>
-                      </Border>
-
-                      <TextBlock Grid.Column="3"
-                                 Text="{Binding Snippet}"
-                                 Classes="page-subtitle"
-                                 TextWrapping="Wrap"
-                                 VerticalAlignment="Center"/>
-
-                      <Button Grid.Column="4"
-                              Classes="subtle"
-                              Content="Open"
-                              Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              VerticalAlignment="Center"/>
                     </Grid>
-                  </Border>
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-          </Grid>
-        </Border>
 
-        <Border Grid.Column="1" Classes="panel-raised" Padding="18">
-          <StackPanel Spacing="12">
-            <TextBlock Text="Selected Record" Classes="section-title"/>
-            <TextBlock Text="Use this panel to review metadata, adjust labels, or jump into the item’s home section."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-
-            <ContentControl Content="{Binding SelectedRow}">
-              <ContentControl.ContentTemplate>
-                <DataTemplate x:DataType="vm:AllItemEntry">
-                  <StackPanel Spacing="12">
-                    <Border Width="60"
-                            Height="60"
-                            CornerRadius="18"
-                            Background="{StaticResource AccentMutedBrush}"
-                            BorderBrush="{StaticResource BorderBrushStrong}"
-                            BorderThickness="1">
-                      <TextBlock Text="{Binding IconLetter}"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
+                    <Border Grid.Column="1"
+                            Classes="badge"
+                            Padding="8,4"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Left">
+                      <TextBlock Text="{Binding DisplayTypeLabel}"
+                                 FontSize="10"
                                  FontWeight="Bold"
-                                 FontSize="20"/>
+                                 Foreground="{StaticResource SuccessBrush}"/>
                     </Border>
 
-                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding SecondaryText}" Classes="page-subtitle" TextWrapping="Wrap"/>
-
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <Border Classes="badge" Padding="10,6">
-                        <TextBlock Text="{Binding TypeLabel}" FontWeight="SemiBold"/>
-                      </Border>
-                      <Border Classes="badge" Padding="10,6" IsVisible="{Binding Favorite}">
-                        <TextBlock Text="Favorite" FontWeight="SemiBold"/>
-                      </Border>
-                      <Border Classes="badge" Padding="10,6" IsVisible="{Binding HasTotp}">
-                        <TextBlock Text="TOTP enabled" FontWeight="SemiBold"/>
-                      </Border>
+                    <StackPanel Grid.Column="2" Spacing="3" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding SecondaryText}"
+                                 FontWeight="Medium"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Text="{Binding LabelsDisplay}"
+                                 Classes="caption"
+                                 TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
 
-                    <Border Classes="panel" Padding="12">
-                      <StackPanel Spacing="6">
-                        <TextBlock Text="Details" Classes="caption"/>
-                        <TextBlock Text="{Binding Snippet}" TextWrapping="Wrap"/>
-                        <TextBlock Text="{Binding LabelsDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                      </StackPanel>
-                    </Border>
-
-                    <TextBlock Text="Labels" Classes="caption"/>
-                    <TextBox Watermark="Comma-separated labels"
-                             Text="{Binding DataContext.SelectedLabelsText, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <Button Classes="primary" Content="Save Labels" Command="{Binding DataContext.SaveLabelsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                      <Button Classes="subtle" Content="Open Item" Command="{Binding DataContext.OpenSelectedCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
-                      <Button Classes="subtle" Content="Refresh" Command="{Binding DataContext.RefreshCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                    <StackPanel Grid.Column="3" Spacing="3" VerticalAlignment="Center">
+                      <TextBlock Text="{Binding UpdatedDisplay}" FontWeight="Medium"/>
+                      <TextBlock Text="{Binding CreatedDisplay}" Classes="caption"/>
                     </StackPanel>
 
-                    <TextBlock Text="{Binding CreatedAtUtc}" Classes="page-subtitle"/>
-                    <TextBlock Text="{Binding UpdatedAtUtc}" Classes="page-subtitle"/>
-                  </StackPanel>
-                </DataTemplate>
-              </ContentControl.ContentTemplate>
-            </ContentControl>
+                    <StackPanel Grid.Column="4"
+                                Classes="row-actions"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Right"
+                                Spacing="4"
+                                VerticalAlignment="Center">
+                      <Button Classes="icon subtle"
+                              Content="⧉"
+                              ToolTip.Tip="Copy"/>
+                      <Button Classes="icon subtle"
+                              Content="⋮"
+                              ToolTip.Tip="More"/>
+                    </StackPanel>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </Grid>
+      </Border>
 
-            <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
-          </StackPanel>
-        </Border>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
+          <TextBlock Text="Showing" Classes="page-subtitle"/>
+          <TextBlock Text="{Binding FilteredCount}" Classes="page-subtitle"/>
+          <TextBlock Text="of" Classes="page-subtitle"/>
+          <TextBlock Text="{Binding TotalCount}" Classes="page-subtitle"/>
+          <TextBlock Text="items" Classes="page-subtitle"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
+          <Button Classes="subtle inline" Content="Previous" IsEnabled="False"/>
+          <Button Classes="primary inline" Content="1"/>
+          <Button Classes="subtle inline" Content="2"/>
+          <Button Classes="subtle inline" Content="3"/>
+          <Button Classes="subtle inline" Content="Next" IsEnabled="False"/>
+        </StackPanel>
       </Grid>
     </StackPanel>
   </ScrollViewer>
+
+  <UserControl.Styles>
+    <Style Selector="StackPanel.row-actions">
+      <Setter Property="Opacity" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBoxItem:pointerover StackPanel.row-actions">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

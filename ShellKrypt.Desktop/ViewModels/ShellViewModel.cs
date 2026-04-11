@@ -13,13 +13,13 @@ public partial class ShellViewModel : ViewModelBase
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new()
     {
-        new NavItemVm("all", "All Items"),
         new NavItemVm("web", "Web Logins"),
-        new NavItemVm("cards", "Credit Cards"),
         new NavItemVm("notes", "Secure Notes"),
-        new NavItemVm("tools", "Tools"),
-        new NavItemVm("health", "Health"),
+        new NavItemVm("cards", "Credit Cards"),
+        new NavItemVm("audit", "Security Audit"),
+        new NavItemVm("generator", "Generator"),
         new NavItemVm("settings", "Settings"),
+        new NavItemVm("activity", "Activity"),
     };
 
     [ObservableProperty] private NavItemVm? selectedNav;
@@ -37,8 +37,11 @@ public partial class ShellViewModel : ViewModelBase
         Tools = new ToolsViewModel();
         Health = new HealthViewModel(_root, _repo);
         Settings = new SettingsViewModel(_root);
+        Activity = new PlaceholderPageViewModel(
+            "Activity",
+            "Activity timeline placeholder. The Stitch activity log screen can land here when this section is implemented.");
 
-        SelectedNav = NavItems[1];
+        SelectedNav = NavItems[0];
     }
 
     public WebLoginsViewModel WebLogins { get; }
@@ -48,6 +51,7 @@ public partial class ShellViewModel : ViewModelBase
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
+    public PlaceholderPageViewModel Activity { get; }
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
@@ -55,14 +59,27 @@ public partial class ShellViewModel : ViewModelBase
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
-        "all" => "Unified inventory across the active vault.",
-        "web" => "Credentials, authenticator secrets, and account details.",
+        "web" => "Credentials, account URLs, and one-time code details.",
+        "notes" => "Encrypted private notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
-        "notes" => "Secure notes in a calm master-detail workspace.",
-        "tools" => "Local utilities for password, hash, and Base64 workflows.",
-        "health" => "Credential hygiene, reuse, and age analysis.",
-        "settings" => "Security, transfer, and vault preferences.",
-        _ => "Protected desktop password manager."
+        "audit" => "Audit reuse, age, and password risk across the repository.",
+        "generator" => "Generate and transform local secrets without leaving the vault.",
+        "settings" => "Manage security posture, import/export, and desktop behavior.",
+        "activity" => "Activity log placeholder for future vault events.",
+        _ => "Military-grade local-first vault workspace."
+    };
+    public bool IsSettingsSelected => SelectedNav?.Key == "settings";
+    public bool ShowAddItemAction => !IsSettingsSelected;
+    public string SearchPlaceholder => SelectedNav?.Key switch
+    {
+        "settings" => "Search settings...",
+        "web" => "Search web logins...",
+        "notes" => "Search secure notes...",
+        "cards" => "Search credit cards...",
+        "audit" => "Search security audit...",
+        "generator" => "Search generator tools...",
+        "activity" => "Search activity...",
+        _ => "Search vault..."
     };
 
     partial void OnSelectedNavChanged(NavItemVm? value)
@@ -72,25 +89,44 @@ public partial class ShellViewModel : ViewModelBase
 
         CurrentPage = value.Key switch
         {
-            "all" => AllItems,
             "web" => WebLogins,
             "notes" => SecureNotes,
             "cards" => Cards,
-            "tools" => Tools,
-            "health" => Health,
+            "generator" => Tools,
+            "audit" => Health,
             "settings" => Settings,
-            _ => WebLogins
+            "activity" => Activity,
+            _ => AllItems
         };
 
         OnPropertyChanged(nameof(CurrentSectionTitle));
         OnPropertyChanged(nameof(CurrentSectionSubtitle));
+        OnPropertyChanged(nameof(IsSettingsSelected));
+        OnPropertyChanged(nameof(ShowAddItemAction));
+        OnPropertyChanged(nameof(SearchPlaceholder));
     }
 
     [RelayCommand]
     private void Lock() => _root.Lock();
 
-    public void ShowAllItems() => SelectedNav = NavItems[0];
-    public void ShowWebLogins() => SelectedNav = NavItems[1];
-    public void ShowCards() => SelectedNav = NavItems[2];
-    public void ShowSecureNotes() => SelectedNav = NavItems[3];
+    public void ShowAllItems()
+    {
+        CurrentPage = AllItems;
+    }
+
+    public void ShowWebLogins() => SelectNav("web");
+    public void ShowCards() => SelectNav("cards");
+    public void ShowSecureNotes() => SelectNav("notes");
+
+    private void SelectNav(string key)
+    {
+        foreach (var item in NavItems)
+        {
+            if (item.Key == key)
+            {
+                SelectedNav = item;
+                return;
+            }
+        }
+    }
 }

@@ -4,36 +4,164 @@
              x:Class="ShellKrypt.Desktop.Views.UnlockView"
              x:CompileBindings="False"
              x:DataType="vm:UnlockViewModel">
-  <Grid Margin="28"
-        HorizontalAlignment="Center"
-        VerticalAlignment="Center"
-        MaxWidth="720">
-    <Border Classes="panel-raised" Padding="24">
-      <StackPanel Spacing="14">
-        <TextBlock Text="Unlock Vault" Classes="page-title"/>
-        <TextBlock Text="{Binding VaultTitle}" FontSize="20" FontWeight="SemiBold"/>
-        <TextBlock Text="{Binding VaultDescription}"
-                   Classes="page-subtitle"
-                   TextWrapping="Wrap"/>
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Ellipse Width="340"
+             Height="340"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Bottom"
+             Margin="-90,0,0,90"
+             Fill="#0e3a35"
+             Opacity="0.18"/>
+    <Ellipse Width="340"
+             Height="340"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Top"
+             Margin="0,90,-90,0"
+             Fill="#153933"
+             Opacity="0.16"/>
 
-        <Border Classes="panel" Padding="12">
-          <StackPanel Spacing="4">
-            <TextBlock Text="Vault file" Classes="caption"/>
-            <TextBlock Text="{Binding VaultPath}" TextWrapping="Wrap"/>
+    <StackPanel Width="318"
+                Margin="24"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="18">
+      <StackPanel Spacing="8" HorizontalAlignment="Center">
+        <Border Width="32"
+                Height="32"
+                CornerRadius="8"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1">
+          <TextBlock Text="&#x1F6E1;"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     FontSize="14"
+                     FontFamily="Segoe UI Symbol"
+                     Foreground="{StaticResource AccentBrush}"/>
+        </Border>
+        <TextBlock Text="ShellKrypt"
+                   HorizontalAlignment="Center"
+                   FontSize="18"
+                   FontWeight="Black"/>
+        <TextBlock Text="Military Grade Encryption"
+                   HorizontalAlignment="Center"
+                   Classes="caption"/>
+      </StackPanel>
+
+      <Border Background="{StaticResource SurfaceBrush}"
+              BorderBrush="{StaticResource BorderBrushSoft}"
+              BorderThickness="1"
+              CornerRadius="8">
+        <Border Padding="16">
+          <StackPanel Spacing="16">
+            <StackPanel Spacing="4">
+              <TextBlock Text="{Binding VaultTitle}" FontSize="18" FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding VaultDescription}"
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel Spacing="6">
+              <TextBlock Text="MASTER PASSWORD"
+                         Classes="caption"
+                         FontSize="10"
+                         FontWeight="Bold"/>
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <TextBox PlaceholderText="Enter your decryption key"
+                         PasswordChar="*"
+                         Text="{Binding MasterPassword}"/>
+                <Button Grid.Column="1"
+                        Classes="icon"
+                        Background="{StaticResource AppBackgroundSoftBrush}"
+                        BorderBrush="{StaticResource BorderBrushSoft}">
+                  <TextBlock Text="&#x1F441;"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              FontSize="11"
+                              FontWeight="Bold"
+                              FontFamily="Segoe UI Symbol"
+                              Foreground="{StaticResource TextMutedBrush}"/>
+                </Button>
+              </Grid>
+            </StackPanel>
+
+            <Button Content="Unlock Vault"
+                    Classes="primary"
+                    Command="{Binding UnlockCommand}"
+                    IsDefault="True"/>
+
+            <TextBlock Text="{Binding Error}"
+                       Foreground="{StaticResource DangerBrush}"
+                       TextWrapping="Wrap"/>
+
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18" Margin="0,4,0,0">
+              <StackPanel Spacing="4">
+                <TextBlock Text="VAULT STATUS" Classes="caption"/>
+                <StackPanel Orientation="Horizontal" Spacing="6">
+                  <Border Width="6" Height="6" CornerRadius="3" Background="{StaticResource DangerBrush}" VerticalAlignment="Center"/>
+                  <TextBlock Text="Locked &amp; Encrypted"
+                             FontSize="12"
+                             FontWeight="SemiBold"/>
+                </StackPanel>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1" Spacing="4" HorizontalAlignment="Right">
+                <TextBlock Text="LAST UPDATED" Classes="caption" HorizontalAlignment="Right"/>
+                <TextBlock Text="2 hours ago"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Right"/>
+              </StackPanel>
+            </Grid>
           </StackPanel>
         </Border>
+      </Border>
 
-        <TextBox Watermark="Master password"
-                 PasswordChar="*"
-                 Text="{Binding MasterPassword}"/>
+      <Border Background="{StaticResource SurfaceRaisedBrush}"
+              BorderBrush="{StaticResource BorderBrushSoft}"
+              BorderThickness="1"
+              CornerRadius="8"
+              Padding="12,10">
+        <Grid ColumnDefinitions="Auto,*">
+          <StackPanel Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Border Width="14"
+                    Height="14"
+                    CornerRadius="7"
+                    Background="{StaticResource AccentBrush}"
+                    VerticalAlignment="Center"/>
+            <TextBlock Text="AES-256 GCM"
+                       Classes="caption"
+                       Foreground="{StaticResource TextPrimaryBrush}"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
 
-        <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+          <Button Grid.Column="1"
+                  Content="Forgot Master Password?"
+                  Classes="link"
+                  HorizontalAlignment="Right"
+                  VerticalAlignment="Center"/>
+        </Grid>
+      </Border>
 
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Content="Back" Classes="subtle" Command="{Binding BackCommand}"/>
-          <Button Content="Unlock" Classes="primary" Command="{Binding UnlockCommand}" IsDefault="True"/>
+      <StackPanel HorizontalAlignment="Center" Spacing="10">
+        <StackPanel Orientation="Horizontal"
+                    HorizontalAlignment="Center"
+                    Spacing="18">
+          <TextBlock Text="Settings" Classes="caption"/>
+          <TextBlock Text="Help Center" Classes="caption"/>
+          <TextBlock Text="Emergency Access" Classes="caption"/>
         </StackPanel>
       </StackPanel>
-    </Border>
+    </StackPanel>
+
+    <TextBlock Text="Session ID: SK-V4-9921-X90"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Bottom"
+               Margin="0,0,0,8"
+               FontSize="10"
+               Foreground="{StaticResource TextMutedBrush}"
+               Opacity="0.5"/>
   </Grid>
 </UserControl>

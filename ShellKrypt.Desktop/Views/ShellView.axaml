@@ -4,101 +4,131 @@
              x:Class="ShellKrypt.Desktop.Views.ShellView"
              x:DataType="vm:ShellViewModel">
 
-  <Grid ColumnDefinitions="256,*" Background="{StaticResource AppBackgroundBrush}">
+  <Grid Background="{StaticResource AppBackgroundBrush}"
+        ColumnDefinitions="256,*">
+    <Border Background="{StaticResource SidebarBrush}"
+            Padding="20,24"
+            BorderBrush="{StaticResource WindowOutlineBrush}"
+            BorderThickness="0,0,1,0">
+      <Grid RowDefinitions="Auto,*,Auto">
+        <StackPanel Spacing="28">
+          <StackPanel Spacing="8">
+            <TextBlock Text="ShellKrypt"
+                       FontSize="20"
+                       FontWeight="Black"
+                       Foreground="{StaticResource AccentBrush}"/>
+            <TextBlock Text="Secure Vault"
+                       FontSize="12"
+                       FontWeight="Medium"
+                       Foreground="{StaticResource TextMutedBrush}"/>
+          </StackPanel>
 
-    <Border Grid.Column="0"
-            Background="{StaticResource SidebarBrush}"
-            BorderBrush="{StaticResource BorderBrushSoft}"
-            BorderThickness="0,0,1,0"
-            Padding="16">
-      <Grid RowDefinitions="Auto,*" RowSpacing="16">
-        <Border Classes="panel" Padding="16">
-          <StackPanel Spacing="10">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-              <Border Width="42"
-                      Height="42"
-                      CornerRadius="12"
-                      Background="{StaticResource AccentBrush}">
-                <TextBlock Text="SK"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontWeight="Bold"
-                           Foreground="#051118"/>
-              </Border>
-              <StackPanel Grid.Column="1" Spacing="2" VerticalAlignment="Center">
-                <TextBlock Text="ShellKrypt" FontSize="18" FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding VaultSubtitle}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"
-                           MaxWidth="150"/>
-              </StackPanel>
-            </Grid>
+          <ListBox ItemsSource="{Binding NavItems}"
+                   SelectedItem="{Binding SelectedNav}"
+                   Background="Transparent"
+                   BorderThickness="0">
+            <ListBox.ItemTemplate>
+              <DataTemplate x:DataType="vm:NavItemVm">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="10,9">
+                  <Border Width="24"
+                          Height="24"
+                          CornerRadius="6"
+                          Background="{StaticResource SurfaceRaisedBrush}">
+                    <TextBlock Text="{Binding ShortCode}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="8"
+                               FontWeight="Black"
+                               Foreground="{StaticResource AccentBrush}"/>
+                  </Border>
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding Title}"
+                             FontSize="13"
+                             FontWeight="SemiBold"
+                             VerticalAlignment="Center"/>
+                </Grid>
+              </DataTemplate>
+            </ListBox.ItemTemplate>
+          </ListBox>
+        </StackPanel>
 
-            <Border Classes="badge" Padding="10,6">
-              <TextBlock Text="{Binding VaultName}" FontWeight="SemiBold"/>
+        <StackPanel Grid.Row="2" Spacing="18">
+          <Button Content="Lock Vault"
+                  Classes="primary"
+                  HorizontalAlignment="Stretch"
+                  Command="{Binding LockCommand}"/>
+
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+            <Border Width="32"
+                    Height="32"
+                    CornerRadius="999"
+                    Background="{StaticResource SurfaceRaisedBrush}">
+              <TextBlock Text="A"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontWeight="Bold"
+                         Foreground="{StaticResource AccentBrush}"/>
             </Border>
-
-            <Button Content="Lock Vault"
-                    Classes="primary"
-                    Command="{Binding LockCommand}"/>
-          </StackPanel>
-        </Border>
-
-        <ScrollViewer Grid.Row="1"
-                      HorizontalScrollBarVisibility="Disabled"
-                      VerticalScrollBarVisibility="Auto">
-          <StackPanel Spacing="10">
-            <TextBlock Text="Workspace" Classes="caption"/>
-
-            <ListBox ItemsSource="{Binding NavItems}"
-                     SelectedItem="{Binding SelectedNav}">
-              <ListBox.ItemTemplate>
-                <DataTemplate x:DataType="vm:NavItemVm">
-                  <Grid ColumnDefinitions="40,*" ColumnSpacing="12" Margin="2">
-                    <Border Width="34"
-                            Height="34"
-                            CornerRadius="11"
-                            Background="{StaticResource AccentMutedBrush}">
-                      <TextBlock Text="{Binding ShortCode}"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 FontSize="11"
-                                 FontWeight="Bold"/>
-                    </Border>
-
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding Title}"
-                               FontWeight="SemiBold"
-                               VerticalAlignment="Center"/>
-                  </Grid>
-                </DataTemplate>
-              </ListBox.ItemTemplate>
-            </ListBox>
-          </StackPanel>
-        </ScrollViewer>
+            <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+              <TextBlock Text="Admin Session" FontSize="12" FontWeight="Bold"/>
+              <TextBlock Text="0x9f...4a2b" Classes="caption"/>
+            </StackPanel>
+          </Grid>
+        </StackPanel>
       </Grid>
     </Border>
 
-    <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="18" Margin="18">
-      <Border Classes="panel" Padding="18">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-          <StackPanel Spacing="4">
-            <TextBlock Text="{Binding CurrentSectionTitle}" Classes="page-title"/>
-            <TextBlock Text="{Binding CurrentSectionSubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
+    <Grid Grid.Column="1"
+          RowDefinitions="Auto,*"
+          Background="{StaticResource AppBackgroundBrush}">
+      <Border Padding="24,16"
+              Background="{StaticResource AppBackgroundBrush}"
+              BorderBrush="{StaticResource WindowOutlineBrush}"
+              BorderThickness="0,0,0,1">
+        <Grid ColumnDefinitions="256,Auto,*,Auto" ColumnSpacing="32">
+          <TextBox Classes="search"
+                   PlaceholderText="{Binding SearchPlaceholder}"
+                   VerticalAlignment="Center"/>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="28"
+                      VerticalAlignment="Center">
+            <TextBlock Text="All Items"
+                       Foreground="{StaticResource AccentBrush}"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       IsVisible="{Binding !IsSettingsSelected}"/>
+            <TextBlock Text="All Items"
+                       Classes="page-subtitle"
+                       FontWeight="SemiBold"
+                       IsVisible="{Binding IsSettingsSelected}"/>
+            <TextBlock Text="Favorites"
+                       Classes="page-subtitle"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="Recent"
+                       Classes="page-subtitle"
+                       FontWeight="SemiBold"/>
           </StackPanel>
 
-          <StackPanel Grid.Column="1" HorizontalAlignment="Right" Spacing="6">
-            <TextBlock Text="Active vault" Classes="caption" HorizontalAlignment="Right"/>
-            <Border Classes="badge" Padding="12,8">
-              <TextBlock Text="{Binding VaultName}" FontWeight="SemiBold"/>
-            </Border>
+          <StackPanel Grid.Column="3"
+                      Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Spacing="12">
+            <Button Classes="icon" Content="S"/>
+            <Button Classes="icon" Content="N"/>
+            <Button Content="+ Add Item"
+                    Classes="primary inline"
+                    IsVisible="{Binding ShowAddItemAction}"/>
+            <Button Classes="icon" Content="A"/>
           </StackPanel>
         </Grid>
       </Border>
 
-      <Border Grid.Row="1" Classes="panel" Padding="0" ClipToBounds="True">
-        <ContentControl Content="{Binding CurrentPage}"/>
-      </Border>
+      <ContentControl Grid.Row="1"
+                      Margin="0"
+                      Content="{Binding CurrentPage}"/>
     </Grid>
   </Grid>
 </UserControl>

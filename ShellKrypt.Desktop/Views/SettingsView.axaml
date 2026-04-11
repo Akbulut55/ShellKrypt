@@ -1,175 +1,455 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
-             xmlns:vault="using:ShellKrypt.Core.Vaulting"
              x:Class="ShellKrypt.Desktop.Views.SettingsView"
              x:CompileBindings="False"
              x:DataType="vm:SettingsViewModel">
 
-  <ScrollViewer>
-    <StackPanel Margin="24" Spacing="18">
-      <Border Classes="panel-raised" Padding="18">
-        <StackPanel Spacing="4">
-          <TextBlock Text="Security &amp; Preferences" Classes="page-title"/>
-          <TextBlock Text="{Binding Status}" Classes="page-subtitle" TextWrapping="Wrap"/>
-        </StackPanel>
-      </Border>
-
-      <Grid ColumnDefinitions="1.05*,1.2*" ColumnSpacing="18">
-        <StackPanel Spacing="18">
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="12">
-              <TextBlock Text="Appearance" Classes="section-title"/>
-              <Grid ColumnDefinitions="Auto,180" ColumnSpacing="10">
-                <TextBlock Text="Theme" VerticalAlignment="Center"/>
-                <ComboBox Grid.Column="1"
-                          ItemsSource="{Binding ThemeModes}"
-                          SelectedItem="{Binding SelectedThemeMode}"/>
-              </Grid>
-              <TextBlock Text="Dark stays the default security-focused workspace, and Light is available when you want a brighter desktop layout."
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"/>
-            </StackPanel>
-          </Border>
-
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="12">
-              <TextBlock Text="Security Controls" Classes="section-title"/>
-              <CheckBox Content="Enable auto-lock" IsChecked="{Binding AutoLockEnabled}"/>
-              <TextBlock Text="Choose how long ShellKrypt can stay idle before it locks itself."
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"/>
-
-              <Grid ColumnDefinitions="Auto,180" ColumnSpacing="10">
-                <TextBlock Text="Auto-lock after" VerticalAlignment="Center"/>
-                <ComboBox Grid.Column="1"
-                          ItemsSource="{Binding AutoLockDurations}"
-                          SelectedItem="{Binding SelectedAutoLockDuration}">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Label}"/>
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
-                </ComboBox>
-              </Grid>
-
-              <CheckBox Content="Lock after the app stays out of focus" IsChecked="{Binding LockOnDeactivate}"/>
-              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
-                <TextBlock Text="Out-of-focus lock delay" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Text="{Binding LockOnDeactivateSecondsText}"/>
-                <TextBlock Grid.Column="2" Text="seconds" VerticalAlignment="Center" Classes="page-subtitle"/>
-              </Grid>
-              <TextBlock Text="{Binding FocusLockSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
-
-              <Grid ColumnDefinitions="Auto,120,Auto" ColumnSpacing="10">
-                <TextBlock Text="Clipboard clear timeout" VerticalAlignment="Center"/>
-                <TextBox Grid.Column="1" Text="{Binding ClipboardClearSecondsText}"/>
-                <TextBlock Grid.Column="2" Text="seconds" VerticalAlignment="Center" Classes="page-subtitle"/>
-              </Grid>
-            </StackPanel>
-          </Border>
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+    <StackPanel MaxWidth="1152"
+                Margin="32,40,32,56"
+                HorizontalAlignment="Center"
+                Spacing="40">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="24">
+        <StackPanel Spacing="6">
+          <TextBlock Text="Vault Configuration"
+                     FontSize="30"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-1"/>
+          <TextBlock Text="Manage security protocols and system preferences."
+                     Classes="page-subtitle"
+                     FontSize="14"/>
         </StackPanel>
 
-        <StackPanel Grid.Column="1" Spacing="18">
-          <Border Classes="panel-raised" Padding="18">
-            <StackPanel Spacing="14">
-              <TextBlock Text="Vault Transfer" Classes="section-title"/>
-              <TextBlock Text="{Binding TransferStatus}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="12"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Bottom">
+          <Button Content="Discard"
+                  Background="{StaticResource SurfaceRaisedBrush}"
+                  Foreground="{StaticResource TextMutedBrush}"
+                  BorderBrush="Transparent"
+                  Padding="18,10"
+                  FontWeight="SemiBold"/>
+          <Button Content="Save Changes"
+                  Classes="primary"
+                  Padding="26,10"
+                  FontWeight="Bold"/>
+        </StackPanel>
+      </Grid>
 
-              <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                <Border Classes="panel" Padding="14">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="Encrypted Backup" FontWeight="SemiBold"/>
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                      <TextBox Grid.Column="0" Watermark="Encrypted backup path" Text="{Binding EncryptedExportPath}"/>
-                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseEncryptedExportPathCommand}"/>
-                    </Grid>
-                    <TextBox Watermark="Export passphrase" PasswordChar="*" Text="{Binding ExportPassphrase}"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <Button Content="Preview" Classes="subtle" Command="{Binding PreviewExportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                      <Button Content="Export" Classes="primary" Command="{Binding ExportEncryptedCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding ExportSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                  </StackPanel>
+      <Grid ColumnDefinitions="7*,5*" ColumnSpacing="32">
+        <StackPanel Spacing="32">
+          <Border Background="{StaticResource SidebarBrush}"
+                  CornerRadius="12"
+                  Padding="24">
+            <StackPanel Spacing="24">
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <Border Width="56"
+                        Height="56"
+                        CornerRadius="8"
+                        Background="{StaticResource AccentMutedBrush}">
+                  <TextBlock Text="S"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             FontSize="24"
+                             FontWeight="Black"
+                             Foreground="{StaticResource SuccessBrush}"/>
                 </Border>
+                <TextBlock Text="Security"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
 
-                <Border Grid.Column="1" Classes="panel" Padding="14">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="Plaintext JSON Export" FontWeight="SemiBold"/>
-                    <TextBlock Text="This export is not encrypted. Only write it to a trusted location."
-                               Foreground="{StaticResource DangerBrush}"
+              <Border Background="{StaticResource SurfaceBrush}"
+                      CornerRadius="8"
+                      Padding="16">
+                <Grid ColumnDefinitions="*,216" ColumnSpacing="18">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="Auto-lock vault after X mins"
+                               FontSize="14"
+                               FontWeight="SemiBold"/>
+                    <TextBlock Text="Locks vault session automatically after inactivity."
+                               Classes="page-subtitle"
+                               FontSize="12"
                                TextWrapping="Wrap"/>
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                      <TextBox Grid.Column="0" Watermark="Plaintext export path" Text="{Binding PlaintextExportPath}"/>
-                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowsePlaintextExportPathCommand}"/>
-                    </Grid>
-                    <CheckBox Content="I understand this export is plaintext" IsChecked="{Binding ConfirmPlaintextExport}"/>
-                    <Button Content="Export Plaintext"
-                            Classes="danger"
-                            Command="{Binding ExportPlaintextCommand}"
-                            HorizontalAlignment="Left"
-                            IsEnabled="{Binding !IsTransferBusy}"/>
                   </StackPanel>
-                </Border>
-              </Grid>
-
-              <Grid ColumnDefinitions="*,*" ColumnSpacing="14">
-                <Border Classes="panel" Padding="14">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="Restore Encrypted Backup" FontWeight="SemiBold"/>
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                      <TextBox Grid.Column="0" Watermark="Encrypted backup path" Text="{Binding EncryptedImportPath}"/>
-                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseEncryptedImportPathCommand}"/>
-                    </Grid>
-                    <TextBox Watermark="Backup passphrase" PasswordChar="*" Text="{Binding EncryptedImportPassphrase}"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <Button Content="Preview Restore" Classes="subtle" Command="{Binding PreviewEncryptedImportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                      <Button Content="Restore Backup" Classes="primary" Command="{Binding ImportEncryptedCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding EncryptedImportSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                  </StackPanel>
-                </Border>
-
-                <Border Grid.Column="1" Classes="panel" Padding="14">
-                  <StackPanel Spacing="8">
-                    <TextBlock Text="CSV Import" FontWeight="SemiBold"/>
-                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-                      <TextBox Grid.Column="0" Watermark="CSV file path" Text="{Binding CsvImportPath}"/>
-                      <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseCsvImportPathCommand}"/>
-                    </Grid>
-                    <ComboBox ItemsSource="{Binding CsvDuplicateStrategies}" SelectedItem="{Binding SelectedCsvDuplicateStrategy}"/>
-                    <StackPanel Orientation="Horizontal" Spacing="8">
-                      <Button Content="Preview CSV" Classes="subtle" Command="{Binding PreviewCsvImportCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                      <Button Content="Import CSV" Classes="primary" Command="{Binding ImportCsvCommand}" IsEnabled="{Binding !IsTransferBusy}"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding CsvPreviewSummary}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                  </StackPanel>
-                </Border>
-              </Grid>
-
-              <Border Classes="panel" Padding="14" IsVisible="{Binding HasCsvPreview}">
-                <StackPanel Spacing="10">
-                  <TextBlock Text="CSV Preview Rows" FontWeight="SemiBold"/>
-                  <ItemsControl ItemsSource="{Binding CsvPreviewRows}">
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vault:VaultCsvImportRowPreview">
-                        <Border Classes="panel-raised" Padding="12" Margin="0,0,0,8">
-                          <StackPanel Spacing="3">
-                            <TextBlock Text="{Binding Title}" FontWeight="SemiBold"/>
-                            <TextBlock Text="{Binding SecondaryText}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                            <TextBlock Text="{Binding Status}" Classes="page-subtitle"/>
-                            <TextBlock Text="{Binding Message}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
-                          </StackPanel>
-                        </Border>
+                  <ComboBox Grid.Column="1"
+                            Background="{StaticResource AppBackgroundSoftBrush}"
+                            Foreground="{StaticResource AccentBrush}"
+                            BorderBrush="Transparent"
+                            FontWeight="SemiBold"
+                            ItemsSource="{Binding AutoLockDurations}"
+                            SelectedItem="{Binding SelectedAutoLockDuration}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Label}"/>
                       </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </Grid>
+              </Border>
+
+              <Border Background="{StaticResource SurfaceBrush}"
+                      CornerRadius="8"
+                      Padding="16">
+                <StackPanel Spacing="22">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <StackPanel Spacing="6">
+                      <TextBlock Text="Clear clipboard after X seconds"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"/>
+                      <TextBlock Text="Automatically purges copied secrets from OS clipboard."
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding ClipboardClearSecondsDisplay}"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource AccentBrush}"
+                               VerticalAlignment="Top"/>
+                  </Grid>
+
+                  <Slider Minimum="5"
+                          Maximum="120"
+                          Value="{Binding ClipboardClearSecondsValue}"/>
+
+                  <Grid ColumnDefinitions="*,Auto">
+                    <TextBlock Text="5s"
+                               Classes="caption"
+                               FontSize="10"
+                               FontWeight="Black"
+                               Foreground="{StaticResource BorderBrushStrong}"/>
+                    <TextBlock Grid.Column="1"
+                               Text="120s"
+                               Classes="caption"
+                               FontSize="10"
+                               FontWeight="Black"
+                               Foreground="{StaticResource BorderBrushStrong}"/>
+                  </Grid>
                 </StackPanel>
               </Border>
             </StackPanel>
           </Border>
+
+          <Border Background="{StaticResource SidebarBrush}"
+                  CornerRadius="12"
+                  Padding="24">
+            <StackPanel Spacing="24">
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <Border Width="56"
+                        Height="56"
+                        CornerRadius="8"
+                        Background="{StaticResource SurfaceRaisedBrush}">
+                  <TextBlock Text="T"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             FontSize="22"
+                             FontWeight="Black"
+                             Foreground="{StaticResource TextMutedBrush}"/>
+                </Border>
+                <TextBlock Text="General"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="16">
+                <Border Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="8"
+                        Padding="16">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <TextBlock Text="Biometric Login"
+                               FontSize="14"
+                               FontWeight="Medium"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               VerticalAlignment="Center"/>
+                    <Border Grid.Column="1"
+                            Width="40"
+                            Height="20"
+                            CornerRadius="999"
+                            Background="{StaticResource AccentMutedBrush}">
+                      <Border Width="12"
+                              Height="12"
+                              Margin="0,0,4,0"
+                              CornerRadius="999"
+                              Background="{StaticResource AccentBrush}"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"/>
+                    </Border>
+                  </Grid>
+                </Border>
+
+                <Border Grid.Column="1"
+                        Background="{StaticResource SurfaceBrush}"
+                        CornerRadius="8"
+                        Padding="16">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                    <TextBlock Text="Sync on Startup"
+                               FontSize="14"
+                               FontWeight="Medium"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               VerticalAlignment="Center"/>
+                    <Border Grid.Column="1"
+                            Width="40"
+                            Height="20"
+                            CornerRadius="999"
+                            Background="{StaticResource AppBackgroundSoftBrush}">
+                      <Border Width="12"
+                              Height="12"
+                              Margin="4,0,0,0"
+                              CornerRadius="999"
+                              Background="{StaticResource BorderBrushStrong}"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"/>
+                    </Border>
+                  </Grid>
+                </Border>
+              </Grid>
+            </StackPanel>
+          </Border>
         </StackPanel>
+
+        <Border Grid.Column="1"
+                Background="{StaticResource SidebarBrush}"
+                CornerRadius="12"
+                Padding="24">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <StackPanel Spacing="24">
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <Border Width="56"
+                        Height="56"
+                        CornerRadius="8"
+                        Background="{StaticResource SurfaceRaisedBrush}">
+                  <TextBlock Text="F"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             FontSize="22"
+                             FontWeight="Black"
+                             Foreground="{StaticResource TextMutedBrush}"/>
+                </Border>
+                <TextBlock Text="Vault Management"
+                           FontSize="20"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"/>
+              </StackPanel>
+
+              <Border Background="{StaticResource SurfaceBrush}"
+                      BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="1"
+                      CornerRadius="12"
+                      Padding="16">
+                <StackPanel Spacing="16">
+                  <Grid ColumnDefinitions="64,*" ColumnSpacing="16">
+                    <Border Width="64"
+                            Height="64"
+                            CornerRadius="8"
+                            Background="{StaticResource AppBackgroundSoftBrush}">
+                      <TextBlock Text="DB"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 FontSize="17"
+                                 FontWeight="Black"
+                                 Foreground="{StaticResource AccentBrush}"/>
+                    </Border>
+                    <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                      <TextBlock Text="PRIMARY DATABASE"
+                                 Classes="caption"
+                                 FontSize="11"
+                                 FontWeight="Black"
+                                 LetterSpacing="1.6"
+                                 Foreground="{StaticResource BorderBrushStrong}"/>
+                      <TextBlock Text="{Binding ActiveVaultDisplay}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </Grid>
+
+                  <WrapPanel ItemSpacing="8" LineSpacing="8">
+                    <Border Background="{StaticResource AccentMutedBrush}"
+                            CornerRadius="3"
+                            Padding="8,3">
+                      <TextBlock Text="ENCRYPTED"
+                                 FontSize="10"
+                                 FontWeight="Bold"
+                                 Foreground="{StaticResource SuccessBrush}"/>
+                    </Border>
+                    <Border Background="{StaticResource SurfaceRaisedBrush}"
+                            CornerRadius="3"
+                            Padding="8,3">
+                      <TextBlock Text="AES-256"
+                                 FontSize="10"
+                                 FontWeight="Bold"
+                                 Foreground="{StaticResource TextMutedBrush}"/>
+                    </Border>
+                  </WrapPanel>
+
+                  <ProgressBar Minimum="0"
+                               Maximum="100"
+                               Value="{Binding VaultStoragePercent}"
+                               Height="6"
+                               Foreground="{StaticResource AccentBrush}"
+                               Background="{StaticResource AppBackgroundSoftBrush}"/>
+                  <TextBlock Text="{Binding VaultStorageDisplay}"
+                             Classes="page-subtitle"
+                             FontSize="12"/>
+                </StackPanel>
+              </Border>
+
+              <Grid ColumnDefinitions="*,*" ColumnSpacing="16" Margin="0,16,0,0">
+                <StackPanel Spacing="12">
+                  <TextBlock Text="IMPORT"
+                             Classes="caption"
+                             FontSize="11"
+                             FontWeight="Black"
+                             LetterSpacing="2"
+                             Foreground="{StaticResource BorderBrushStrong}"/>
+                  <Button Command="{Binding BrowseEncryptedImportPathCommand}"
+                          Background="{StaticResource SurfaceBrush}"
+                          BorderBrush="Transparent"
+                          Padding="14"
+                          MinHeight="68"
+                          HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="UP"
+                                 Classes="caption"
+                                 FontWeight="Bold"/>
+                      <TextBlock Text="From File"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </Button>
+                  <Button Background="{StaticResource SurfaceBrush}"
+                          BorderBrush="Transparent"
+                          Padding="14"
+                          MinHeight="68"
+                          HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="CL"
+                                 Classes="caption"
+                                 FontWeight="Bold"/>
+                      <TextBlock Text="From Cloud"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Spacing="12">
+                  <TextBlock Text="EXPORT"
+                             Classes="caption"
+                             FontSize="11"
+                             FontWeight="Black"
+                             LetterSpacing="2"
+                             Foreground="{StaticResource BorderBrushStrong}"/>
+                  <Button Background="{StaticResource SurfaceBrush}"
+                          BorderBrush="Transparent"
+                          Padding="14"
+                          MinHeight="68"
+                          HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="DL"
+                                 Classes="caption"
+                                 FontWeight="Bold"/>
+                      <TextBlock Text="Export .JSON"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </Button>
+                  <Button Background="{StaticResource SurfaceBrush}"
+                          BorderBrush="Transparent"
+                          Padding="14"
+                          MinHeight="68"
+                          HorizontalContentAlignment="Stretch">
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="OUT"
+                                 Classes="caption"
+                                 FontWeight="Bold"/>
+                      <TextBlock Text="Export .CSV"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"/>
+                    </StackPanel>
+                  </Button>
+                </StackPanel>
+              </Grid>
+            </StackPanel>
+
+            <Border Grid.Row="2"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="0,1,0,0"
+                    Padding="0,24,0,0">
+              <Grid ColumnDefinitions="*,Auto">
+                <TextBlock Text="Destroy All Vault Data"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontSize="14"
+                           FontWeight="Medium"/>
+                <TextBlock Grid.Column="1"
+                           Text="X"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontSize="16"
+                           FontWeight="Black"/>
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
       </Grid>
+
+      <Border Background="{StaticResource SurfaceBrush}"
+              CornerRadius="16"
+              Padding="32">
+        <Grid ColumnDefinitions="128,*,Auto" ColumnSpacing="32" VerticalAlignment="Center">
+          <Border Width="128"
+                  Height="128"
+                  CornerRadius="12"
+                  ClipToBounds="True"
+                  BorderBrush="{StaticResource AccentMutedBrush}"
+                  BorderThickness="1">
+            <Image Source="avares://ShellKrypt.Desktop/Assets/settings-integrity-chip.png"
+                   Stretch="UniformToFill"/>
+          </Border>
+
+          <StackPanel Grid.Column="1" Spacing="14" VerticalAlignment="Center">
+            <TextBlock Text="Architectural Integrity"
+                       FontSize="20"
+                       FontWeight="Bold"/>
+            <TextBlock Text="ShellKrypt uses zero-knowledge architecture. Your encryption keys never leave your device. All settings modified here are stored in an encrypted local configuration file, ensuring your metadata is as secure as your secrets."
+                       Classes="page-subtitle"
+                       FontSize="14"
+                       LineHeight="24"
+                       MaxWidth="650"
+                       TextWrapping="Wrap"/>
+            <WrapPanel ItemSpacing="24" LineSpacing="8">
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Border Width="6" Height="6" CornerRadius="999" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="E2E READY"
+                           Classes="caption"
+                           FontWeight="Black"
+                           LetterSpacing="2"/>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <Border Width="6" Height="6" CornerRadius="999" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+                <TextBlock Text="LOCAL-FIRST"
+                           Classes="caption"
+                           FontWeight="Black"
+                           LetterSpacing="2"/>
+              </StackPanel>
+            </WrapPanel>
+          </StackPanel>
+
+          <Button Grid.Column="2"
+                  Content="VIEW AUDIT LOG"
+                  Background="{StaticResource SurfaceBrush}"
+                  BorderBrush="{StaticResource BorderBrushSoft}"
+                  Padding="28,14"
+                  FontWeight="Black"
+                  LetterSpacing="2"
+                  VerticalAlignment="Center"/>
+        </Grid>
+      </Border>
     </StackPanel>
   </ScrollViewer>
 </UserControl>

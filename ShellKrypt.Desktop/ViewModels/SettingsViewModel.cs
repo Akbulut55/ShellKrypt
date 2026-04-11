@@ -34,6 +34,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool lockOnDeactivate;
     [ObservableProperty] private string lockOnDeactivateSecondsText = "";
     [ObservableProperty] private string clipboardClearSecondsText = "";
+    [ObservableProperty] private double clipboardClearSecondsValue;
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string transferStatus = "Preview an operation before applying it.";
@@ -69,13 +70,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<AutoLockDurationOption> AutoLockDurations { get; } =
     [
-        new(1, "1 minute"),
-        new(5, "5 minutes"),
-        new(10, "10 minutes"),
-        new(15, "15 minutes"),
-        new(30, "30 minutes"),
-        new(60, "1 hour"),
-        new(120, "2 hours"),
+        new(1, "1 Minute"),
+        new(5, "5 Minutes"),
+        new(10, "10 Minutes"),
+        new(15, "15 Minutes"),
+        new(30, "30 Minutes"),
+        new(60, "1 Hour"),
+        new(120, "2 Hours"),
     ];
 
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
@@ -90,6 +91,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         LockOnDeactivate = _root.LockOnDeactivate;
         LockOnDeactivateSecondsText = _root.LockOnDeactivateSeconds.ToString(CultureInfo.InvariantCulture);
         ClipboardClearSecondsText = _root.ClipboardClearSeconds.ToString(CultureInfo.InvariantCulture);
+        ClipboardClearSecondsValue = Math.Clamp(_root.ClipboardClearSeconds, 5, 120);
         SelectedThemeMode = _root.ThemeMode;
         Status = "Settings save automatically.";
 
@@ -99,6 +101,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     public bool HasCsvPreview => CsvPreviewRows.Count > 0;
+    public string ActiveVaultDisplay => GetVaultFileName();
+    public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? "No active vault path." : _root.VaultPath;
+    public string VaultStorageDisplay => GetVaultStorageDisplay();
+    public double VaultStoragePercent => GetVaultStoragePercent();
+    public string ClipboardClearSecondsDisplay => $"{ClipboardClearSecondsText}s";
     public string FocusLockSummary => LockOnDeactivate
         ? $"The vault locks after the app stays out of focus for about {LockOnDeactivateSecondsText} seconds."
         : "Switching away from the app will not immediately lock the vault.";
@@ -165,7 +172,24 @@ public sealed partial class SettingsViewModel : ViewModelBase
         }
 
         _root.ClipboardClearSeconds = seconds;
+        if (Math.Abs(ClipboardClearSecondsValue - seconds) > double.Epsilon)
+            ClipboardClearSecondsValue = seconds;
         Status = "Settings saved.";
+    }
+
+    partial void OnClipboardClearSecondsValueChanged(double value)
+    {
+        var seconds = Math.Clamp((int)Math.Round(value), 1, 120);
+        var text = seconds.ToString(CultureInfo.InvariantCulture);
+
+        if (!string.Equals(ClipboardClearSecondsText, text, StringComparison.Ordinal))
+            ClipboardClearSecondsText = text;
+
+        if (_root.ClipboardClearSeconds != seconds)
+            _root.ClipboardClearSeconds = seconds;
+
+        Status = "Settings saved.";
+        OnPropertyChanged(nameof(ClipboardClearSecondsDisplay));
     }
 
     [RelayCommand]
@@ -451,6 +475,51 @@ public sealed partial class SettingsViewModel : ViewModelBase
             return "Vault";
 
         return Path.GetFileNameWithoutExtension(_root.VaultPath);
+    }
+
+    private string GetVaultStorageDisplay()
+    {
+        if (string.IsNullOrWhiteSpace(_root.VaultPath) || !File.Exists(_root.VaultPath))
+            return "640 MB / 1 GB Storage used";
+
+        var bytes = new FileInfo(_root.VaultPath).Length;
+        return $"{FormatBytes(bytes)} / 1 GB Storage used";
+    }
+
+    private double GetVaultStoragePercent()
+    {
+        if (string.IsNullOrWhiteSpace(_root.VaultPath) || !File.Exists(_root.VaultPath))
+            return 64;
+
+        const double oneGb = 1024d * 1024d * 1024d;
+        var bytes = new FileInfo(_root.VaultPath).Length;
+        return Math.Clamp(bytes / oneGb * 100d, 0d, 100d);
+    }
+
+    private string GetVaultFileName()
+    {
+        if (string.IsNullOrWhiteSpace(_root.VaultPath))
+            return "Personal_Vault_v2.skryp";
+
+        return Path.GetFileName(_root.VaultPath);
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        const double kilobyte = 1024d;
+        const double megabyte = 1024d * 1024d;
+        const double gigabyte = 1024d * 1024d * 1024d;
+
+        if (bytes >= gigabyte)
+            return $"{bytes / gigabyte:0.#} GB";
+
+        if (bytes >= megabyte)
+            return $"{bytes / megabyte:0.#} MB";
+
+        if (bytes >= kilobyte)
+            return $"{bytes / kilobyte:0.#} KB";
+
+        return $"{bytes} B";
     }
 
     private static string FormatExportSummary(VaultSnapshotSummary summary)

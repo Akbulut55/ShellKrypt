@@ -5,141 +5,293 @@
              x:CompileBindings="False"
              x:DataType="vm:WelcomeViewModel">
 
-  <ScrollViewer>
-    <StackPanel Margin="28" Spacing="18">
-      <Border Classes="panel-raised" Padding="24">
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18">
-          <StackPanel Spacing="8">
-            <StackPanel Orientation="Horizontal" Spacing="14">
-              <Border Width="56"
-                      Height="56"
-                      CornerRadius="18"
-                      Background="{StaticResource AccentBrush}">
-                <TextBlock Text="SK"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontWeight="Bold"
-                           FontSize="18"
-                           Foreground="#06131a"/>
-              </Border>
-              <StackPanel Spacing="4" VerticalAlignment="Center">
-                <TextBlock Text="ShellKrypt" Classes="page-title"/>
-                <TextBlock Text="Professional local-first vault management with secure desktop workflows."
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-            </StackPanel>
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Ellipse Width="360"
+             Height="360"
+             HorizontalAlignment="Left"
+             VerticalAlignment="Top"
+             Margin="-90,90,0,0"
+             Fill="#0e3a35"
+             Opacity="0.24"/>
+    <Ellipse Width="360"
+             Height="360"
+             HorizontalAlignment="Right"
+             VerticalAlignment="Bottom"
+             Margin="0,0,-80,120"
+             Fill="#153933"
+             Opacity="0.20"/>
 
-            <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,10,0,0">
-              <Button Content="Create Vault" Classes="primary" Command="{Binding CreateVaultCommand}"/>
-              <Button Content="Import Vault" Classes="subtle" Command="{Binding ImportVaultCommand}"/>
-              <Button Content="Open Default" Classes="subtle" Command="{Binding OpenDefaultVaultCommand}"/>
-              <Button Content="Remove Selected" Classes="danger" Command="{Binding RemoveSelectedVaultCommand}"/>
-              <Button Content="Refresh" Classes="subtle" Command="{Binding RefreshCommand}"/>
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="24,22,24,106" Spacing="28">
+        <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+            <Border Width="32"
+                    Height="32"
+                    CornerRadius="8"
+                    Background="{StaticResource AccentGradientBrush}">
+              <TextBlock Text="S"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontSize="15"
+                         FontWeight="Black"
+                         FontFamily="Segoe UI Symbol"
+                         Foreground="{StaticResource AccentForegroundBrush}"/>
+            </Border>
+            <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
+              <TextBlock Text="ShellKrypt" FontSize="18" FontWeight="Black"/>
+              <TextBlock Text="Vault Manager" Classes="caption"/>
             </StackPanel>
-          </StackPanel>
+          </Grid>
 
-          <Border Grid.Column="1" Classes="panel" Padding="16" Width="240">
-            <StackPanel Spacing="8">
-              <TextBlock Text="Status" Classes="caption"/>
-              <TextBlock Text="{Binding Status}" FontWeight="SemiBold" TextWrapping="Wrap"/>
-              <TextBlock Text="Use the vault manager below to review vaults, switch workspaces, or import an existing vault file."
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"/>
-            </StackPanel>
-          </Border>
-        </Grid>
-      </Border>
-
-      <StackPanel Spacing="10">
-        <TextBlock Text="Recent Vaults" Classes="section-title"/>
-        <ItemsControl ItemsSource="{Binding RecentVaults}">
-          <ItemsControl.ItemsPanel>
-            <ItemsPanelTemplate>
-              <StackPanel Orientation="Horizontal" Spacing="12"/>
-            </ItemsPanelTemplate>
-          </ItemsControl.ItemsPanel>
-          <ItemsControl.ItemTemplate>
-            <DataTemplate x:DataType="vm:VaultRecordVm">
-              <Button Width="260"
-                      Classes="subtle"
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
                       HorizontalAlignment="Left"
-                      Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                      CommandParameter="{Binding}"
-                      Padding="0">
-                <Border Classes="panel" Padding="14">
-                  <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
-                    <TextBlock Text="{Binding DescriptionDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                    <TextBlock Text="{Binding LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
-                  </StackPanel>
-                </Border>
-              </Button>
-            </DataTemplate>
-          </ItemsControl.ItemTemplate>
-        </ItemsControl>
-      </StackPanel>
-
-      <Border Classes="panel-raised" Padding="18">
-        <Grid RowDefinitions="Auto,*" RowSpacing="12">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Vault Inventory" Classes="section-title"/>
-            <TextBlock Text="Registered vaults available on this machine." Classes="page-subtitle"/>
+                      VerticalAlignment="Center"
+                      Spacing="24">
+            <StackPanel Spacing="2">
+              <TextBlock Text="Vaults"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <Border Height="2"
+                      CornerRadius="1"
+                      Background="{StaticResource AccentBrush}"/>
+            </StackPanel>
+            <TextBlock Text="Security Audit"
+                       Classes="caption"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+            <TextBlock Text="Settings"
+                       Classes="caption"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
           </StackPanel>
 
-          <ListBox Grid.Row="1"
-                   ItemsSource="{Binding Vaults}"
-                   SelectedItem="{Binding SelectedVault}">
-            <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="vm:VaultRecordVm">
-                <Border Classes="panel" Padding="14">
-                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
-                    <StackPanel Spacing="6">
-                      <StackPanel Orientation="Horizontal" Spacing="8">
-                        <TextBlock Text="{Binding DisplayLabel}" FontWeight="SemiBold"/>
-                        <Border Classes="badge" Padding="8,3">
-                          <TextBlock Text="{Binding DefaultBadge}" FontSize="11" FontWeight="SemiBold"/>
-                        </Border>
-                        <Border Classes="badge" Padding="8,3">
-                          <TextBlock Text="{Binding StatusDisplay}" FontSize="11" FontWeight="SemiBold"/>
-                        </Border>
-                      </StackPanel>
-                      <TextBlock Text="{Binding DescriptionDisplay}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                      <TextBlock Text="{Binding LastOpenedDisplay}" Classes="page-subtitle" FontSize="11"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="1"
-                                Orientation="Horizontal"
-                                Spacing="8"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                IsVisible="{Binding IsSelected, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
-                      <Button Content="Open"
-                              Classes="primary"
-                              Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"/>
-                      <Button Content="Edit"
-                              Classes="subtle"
-                              Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"/>
-                      <Button Content="Make Default"
-                              Classes="subtle"
-                              Command="{Binding DataContext.MakeDefaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              IsEnabled="{Binding !IsDefault}"/>
-                      <Button Content="Delete"
-                              Classes="danger"
-                              Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"/>
-                    </StackPanel>
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
+          <StackPanel Grid.Column="2"
+                      Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Spacing="10">
+            <Button Content="Import Existing Vault"
+                    Classes="subtle"
+                    Command="{Binding ImportVaultCommand}"/>
+            <Button Content="Create New Vault"
+                    Classes="primary"
+                    Command="{Binding CreateVaultCommand}"/>
+            <Border Width="32"
+                    Height="32"
+                    CornerRadius="8"
+                    Background="{StaticResource SurfaceElevatedBrush}">
+              <TextBlock Text="&#x27F3;"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontSize="12"
+                         FontFamily="Segoe UI Symbol"
+                         Foreground="{StaticResource TextMutedBrush}"/>
+            </Border>
+            <Border Width="32"
+                    Height="32"
+                    CornerRadius="8"
+                    Background="{StaticResource SurfaceElevatedBrush}">
+              <TextBlock Text="&#x1F514;"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontSize="11"
+                         FontFamily="Segoe UI Symbol"
+                         Foreground="{StaticResource TextMutedBrush}"/>
+            </Border>
+            <Border Width="32"
+                    Height="32"
+                    CornerRadius="999"
+                    Background="{StaticResource SurfaceElevatedBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1">
+              <TextBlock Text="S"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontWeight="Bold"
+                         FontSize="11"
+                         FontFamily="Segoe UI Symbol"
+                         Foreground="{StaticResource AccentBrush}"/>
+            </Border>
+          </StackPanel>
         </Grid>
-      </Border>
-      <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
-    </StackPanel>
-  </ScrollViewer>
+
+        <StackPanel HorizontalAlignment="Center" Spacing="6" Margin="0,6,0,0">
+          <TextBlock Text="Welcome to your"
+                     Classes="hero-title"
+                     HorizontalAlignment="Center"/>
+          <TextBlock Text="Sanctum"
+                     Classes="hero-highlight"
+                     HorizontalAlignment="Center"/>
+          <TextBlock Text="Your high-security data repositories are ready. Select a vault to begin decryption or manage your secure architecture."
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"
+                     TextAlignment="Center"
+                     MaxWidth="520"/>
+        </StackPanel>
+
+        <Grid ColumnDefinitions="360,*,Auto" ColumnSpacing="18">
+          <Grid ColumnDefinitions="Auto,*" VerticalAlignment="Center">
+            <TextBox Classes="search"
+                     Width="360"
+                     PlaceholderText="Search your vaults..."/>
+          </Grid>
+
+          <StackPanel Grid.Column="2"
+                      Orientation="Horizontal"
+                      HorizontalAlignment="Right"
+                      VerticalAlignment="Center"
+                      Spacing="8">
+            <TextBlock Text="SORT BY"
+                       Classes="caption"
+                       FontSize="10"
+                       FontWeight="Bold"
+                       VerticalAlignment="Center"
+                       Margin="0,0,6,0"/>
+            <Button Content="Recent" Classes="subtle"/>
+            <Button Content="Name" Background="Transparent" BorderBrush="Transparent"/>
+          </StackPanel>
+        </Grid>
+
+        <ListBox ItemsSource="{Binding Vaults}"
+                 SelectedItem="{Binding SelectedVault}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:VaultRecordVm">
+              <Border Classes="vault-row" Padding="18" Margin="0">
+                <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                  <Border Width="42"
+                          Height="42"
+                          CornerRadius="8"
+                          Background="{StaticResource SurfaceRaisedBrush}"
+                          VerticalAlignment="Top">
+                    <TextBlock Text="&#x1F6E1;"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               FontFamily="Segoe UI Symbol"
+                               Foreground="{StaticResource AccentBrush}"/>
+                  </Border>
+
+                  <StackPanel Grid.Column="1" Spacing="4">
+                    <StackPanel Orientation="Horizontal" Spacing="10">
+                      <TextBlock Text="{Binding DisplayLabel}"
+                                 FontSize="16"
+                                 FontWeight="Bold"/>
+                      <Border Classes="badge" Padding="8,3" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding DefaultBadge}"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentBrush}"/>
+                      </Border>
+                    </StackPanel>
+                    <TextBlock Text="{Binding DescriptionDisplay}"
+                               Classes="page-subtitle"
+                               TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Spacing="12">
+                      <TextBlock Text="{Binding LastOpenedDisplay}" Classes="caption"/>
+                      <TextBlock Text="1.4 GB" Classes="caption"/>
+                    </StackPanel>
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="2"
+                              Orientation="Horizontal"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center"
+                              Spacing="8"
+                              IsVisible="{Binding IsPointerOver, RelativeSource={RelativeSource AncestorType=ListBoxItem}}">
+                    <Button Content="Open"
+                            Classes="primary"
+                            Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"/>
+                    <Button Content="&#x270E;"
+                            Classes="subtle"
+                            Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"/>
+                    <Button Content="&#x2605;"
+                            Classes="subtle"
+                            Command="{Binding DataContext.MakeDefaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding !IsDefault}"/>
+                    <Button Content="&#x2715;"
+                            Classes="danger"
+                            Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"/>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+
+        <TextBlock Text="{Binding Status}"
+                   Classes="caption"
+                   TextWrapping="Wrap"/>
+        <TextBlock Text="{Binding Error}"
+                   Foreground="{StaticResource DangerBrush}"
+                   TextWrapping="Wrap"/>
+
+        <Grid ColumnDefinitions="Auto,Auto,*" Margin="0,10,0,0">
+          <StackPanel Spacing="2">
+            <TextBlock Text="TOTAL STORAGE" Classes="caption"/>
+            <TextBlock Text="10.72 GB Used" FontSize="13" FontWeight="SemiBold"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Spacing="2" Margin="32,0,0,0">
+            <TextBlock Text="ACTIVE SESSIONS" Classes="caption"/>
+            <TextBlock Text="3 Devices" FontSize="13" FontWeight="SemiBold"/>
+          </StackPanel>
+          <StackPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+            <Border Width="6" Height="6" CornerRadius="3" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
+            <TextBlock Text="System Secure: AES-256-GCM Active"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"/>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Classes="status-card"
+            Width="170"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="0,0,24,20"
+            Padding="14,12">
+      <StackPanel Orientation="Horizontal" Spacing="12">
+        <Border Width="28"
+                Height="28"
+                CornerRadius="14"
+                Background="{StaticResource AccentGradientBrush}"
+                VerticalAlignment="Center">
+          <TextBlock Text="&#x1F6E1;"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     FontWeight="Black"
+                     FontSize="12"
+                     FontFamily="Segoe UI Symbol"
+                     Foreground="{StaticResource AccentForegroundBrush}"/>
+        </Border>
+        <StackPanel Spacing="2">
+          <TextBlock Text="Protection Status" FontSize="11" FontWeight="Bold"/>
+          <TextBlock Text="SHIELD ENABLED"
+                     Classes="caption"
+                     Foreground="{StaticResource AccentBrush}"
+                     FontSize="10"
+                     FontWeight="Bold"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+
+    <TextBlock Text="Session ID: SK-V4-9921-X90"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Bottom"
+               Margin="0,0,0,8"
+               FontSize="10"
+               Foreground="{StaticResource TextMutedBrush}"
+               Opacity="0.5"/>
+  </Grid>
 </UserControl>
