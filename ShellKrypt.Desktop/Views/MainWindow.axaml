@@ -8,7 +8,7 @@
         d:DesignHeight="860"
         x:Class="ShellKrypt.Desktop.Views.MainWindow"
         x:DataType="vm:MainWindowViewModel"
-        Icon="/Assets/avalonia-logo.ico"
+        Icon="/Assets/main-logo.ico"
         Title="ShellKrypt"
         MinWidth="1200"
         MinHeight="780"

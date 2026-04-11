@@ -7,5 +7,7 @@ public sealed record CardPayload(
     int ExpiryMonth,
     int ExpiryYear,
     string Cvc,
-    string Notes
+    string Notes,
+    string Issuer = "",
+    string? Bank = null
 );
