@@ -203,6 +203,18 @@ public sealed partial class WebLoginRowVm : ObservableObject
     }
 }
 
+public sealed class EmailFilterOptionVm
+{
+    public EmailFilterOptionVm(string email, IRelayCommand<string> selectCommand)
+    {
+        Email = email;
+        SelectCommand = selectCommand;
+    }
+
+    public string Email { get; }
+    public IRelayCommand<string> SelectCommand { get; }
+}
+
 public partial class WebLoginsViewModel : ViewModelBase
 {
     private const int PageSize = 5;
@@ -224,13 +236,17 @@ public partial class WebLoginsViewModel : ViewModelBase
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
 
     public ObservableCollection<WebLoginRowVm> Rows { get; } = new();
+    public ObservableCollection<EmailFilterOptionVm> EmailFilterOptions { get; } = new();
 
     [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private string selectedEmailFilter = "";
+    [ObservableProperty] private bool isEmailFilterPopupOpen;
     [ObservableProperty] private string error = "";
     [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isAddWebLoginModalOpen;
     [ObservableProperty] private bool isAddWebLoginMode = true;
     [ObservableProperty] private bool isLoginDetailsEditing;
+    [ObservableProperty] private bool isLoginDeleteConfirming;
     [ObservableProperty] private bool isAddPasswordVisible;
     [ObservableProperty] private string addTitle = "";
     [ObservableProperty] private string addUrl = "";
@@ -245,8 +261,14 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         get
         {
-            var count = string.IsNullOrWhiteSpace(SearchText) ? _all.Count : _filtered.Count;
+            var hasActiveFilter =
+                !string.IsNullOrWhiteSpace(SearchText) ||
+                !string.IsNullOrWhiteSpace(SelectedEmailFilter);
+            var count = hasActiveFilter ? _filtered.Count : _all.Count;
             var label = count == 1 ? "item" : "items";
+            if (!string.IsNullOrWhiteSpace(SelectedEmailFilter))
+                return $"{count} {label} for {SelectedEmailFilter}";
+
             return string.IsNullOrWhiteSpace(SearchText)
                 ? $"{count} total {label} stored in your vault"
                 : $"{count} matching {label} found";
@@ -255,16 +277,34 @@ public partial class WebLoginsViewModel : ViewModelBase
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
-    public string AddModalTitle => IsAddWebLoginMode ? "Add Web Login" : IsLoginDetailsEditing ? "Edit Login" : "Login Details";
+    public bool HasEmailFilterOptions => EmailFilterOptions.Count > 0;
+    public bool HasSelectedEmailFilter => !string.IsNullOrWhiteSpace(SelectedEmailFilter);
+    public string EmailFilterButtonText => HasSelectedEmailFilter ? "FILTERED" : "FILTER";
+    public string EmailFilterSummary => HasSelectedEmailFilter
+        ? $"Showing logins for {SelectedEmailFilter}"
+        : "Choose an email to filter logins";
+    public string AddModalTitle => IsAddWebLoginMode
+        ? "Add Web Login"
+        : IsLoginDeleteConfirming
+            ? "Delete Login?"
+            : IsLoginDetailsEditing
+                ? "Edit Login"
+                : "Login Details";
     public string AddModalSubtitle => IsAddWebLoginMode
         ? "Store a new website credential in your encrypted vault."
-        : IsLoginDetailsEditing
-            ? "Update the saved credential stored in this encrypted vault."
-            : "Review the saved credential stored in this encrypted vault.";
-    public bool IsDetailsViewMode => !IsAddWebLoginMode && !IsLoginDetailsEditing;
-    public bool IsDetailsEditMode => !IsAddWebLoginMode && IsLoginDetailsEditing;
+        : IsLoginDeleteConfirming
+            ? "Are you sure you want to delete this login? This action cannot be undone."
+            : IsLoginDetailsEditing
+                ? "Update the saved credential stored in this encrypted vault."
+                : "Review the saved credential stored in this encrypted vault.";
+    public bool IsDetailsViewMode => !IsAddWebLoginMode && !IsLoginDetailsEditing && !IsLoginDeleteConfirming;
+    public bool IsDetailsEditMode => !IsAddWebLoginMode && IsLoginDetailsEditing && !IsLoginDeleteConfirming;
+    public bool IsDetailsDeleteConfirmMode => !IsAddWebLoginMode && IsLoginDeleteConfirming;
     public bool IsAddFormReadOnly => !IsAddWebLoginMode && !IsLoginDetailsEditing;
-    public bool CanGenerateModalPassword => IsAddWebLoginMode || IsLoginDetailsEditing;
+    public bool CanGenerateModalPassword => IsAddWebLoginMode || IsDetailsEditMode;
+    public string AddModalFooterText => IsDetailsDeleteConfirmMode
+        ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddTitle) ? "this login" : AddTitle)}\"?"
+        : "Fields are encrypted locally before being stored.";
     public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? "Hide" : "Reveal";
 
     public WebLoginsViewModel(MainWindowViewModel root, IItemRepository repo)
@@ -278,6 +318,14 @@ public partial class WebLoginsViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnSelectedEmailFilterChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasSelectedEmailFilter));
+        OnPropertyChanged(nameof(EmailFilterButtonText));
+        OnPropertyChanged(nameof(EmailFilterSummary));
+        ApplyFilter();
+    }
+
     partial void OnCurrentPageChanged(int value)
     {
         OnPropertyChanged(nameof(PageSummary));
@@ -291,22 +339,32 @@ public partial class WebLoginsViewModel : ViewModelBase
     partial void OnIsLoginDetailsEditingChanged(bool value)
         => NotifyModalModeChanged();
 
+    partial void OnIsLoginDeleteConfirmingChanged(bool value)
+        => NotifyModalModeChanged();
+
+    partial void OnAddTitleChanged(string value)
+        => OnPropertyChanged(nameof(AddModalFooterText));
+
     private void NotifyModalModeChanged()
     {
         OnPropertyChanged(nameof(AddModalTitle));
         OnPropertyChanged(nameof(AddModalSubtitle));
         OnPropertyChanged(nameof(IsDetailsViewMode));
         OnPropertyChanged(nameof(IsDetailsEditMode));
+        OnPropertyChanged(nameof(IsDetailsDeleteConfirmMode));
         OnPropertyChanged(nameof(IsAddFormReadOnly));
         OnPropertyChanged(nameof(CanGenerateModalPassword));
+        OnPropertyChanged(nameof(AddModalFooterText));
     }
 
     [RelayCommand]
     private void AddNew()
     {
         Error = "";
+        IsEmailFilterPopupOpen = false;
         _selectedDetailsRow = null;
         IsLoginDetailsEditing = false;
+        IsLoginDeleteConfirming = false;
         IsAddWebLoginMode = true;
         ClearAddForm();
         IsAddWebLoginModalOpen = true;
@@ -323,9 +381,11 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void ShowDetails(WebLoginRowVm row)
     {
         Error = "";
+        IsEmailFilterPopupOpen = false;
         _selectedDetailsRow = row;
         IsAddWebLoginMode = false;
         IsLoginDetailsEditing = false;
+        IsLoginDeleteConfirming = false;
         PopulateModalFromRow(row);
         IsAddPasswordVisible = false;
         IsAddWebLoginModalOpen = true;
@@ -338,6 +398,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             return;
 
         Error = "";
+        IsLoginDeleteConfirming = false;
         IsLoginDetailsEditing = true;
     }
 
@@ -350,7 +411,27 @@ public partial class WebLoginsViewModel : ViewModelBase
             PopulateModalFromRow(_selectedDetailsRow);
 
         IsLoginDetailsEditing = false;
+        IsLoginDeleteConfirming = false;
         IsAddPasswordVisible = false;
+    }
+
+    [RelayCommand]
+    private void BeginDetailsDelete()
+    {
+        if (_selectedDetailsRow is null)
+            return;
+
+        Error = "";
+        IsLoginDetailsEditing = false;
+        IsLoginDeleteConfirming = true;
+        IsAddPasswordVisible = false;
+    }
+
+    [RelayCommand]
+    private void CancelDetailsDelete()
+    {
+        Error = "";
+        IsLoginDeleteConfirming = false;
     }
 
     [RelayCommand]
@@ -489,6 +570,7 @@ public partial class WebLoginsViewModel : ViewModelBase
         ClearAddForm();
         _selectedDetailsRow = null;
         IsLoginDetailsEditing = false;
+        IsLoginDeleteConfirming = false;
         IsAddWebLoginModalOpen = false;
     }
 
@@ -588,6 +670,7 @@ public partial class WebLoginsViewModel : ViewModelBase
 
             row.RefreshTotpState(DateTimeOffset.UtcNow);
             _all.Insert(0, row);
+            RefreshEmailFilterOptions();
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
             ApplyFilter();
@@ -656,7 +739,34 @@ public partial class WebLoginsViewModel : ViewModelBase
             row.RefreshTotpState(DateTimeOffset.UtcNow);
 
             IsLoginDetailsEditing = false;
+            IsLoginDeleteConfirming = false;
+            RefreshEmailFilterOptions();
             ApplyFilter(resetPage: false);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private async Task ConfirmDetailsDeleteAsync()
+    {
+        Error = "";
+
+        if (_selectedDetailsRow is null) { Error = "No login selected."; return; }
+        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+
+        try
+        {
+            var row = _selectedDetailsRow;
+            await _repo.DeleteAsync(_root.VaultPath, row.Id);
+            RemoveRow(row);
+            _selectedDetailsRow = null;
+            IsLoginDeleteConfirming = false;
+            IsLoginDetailsEditing = false;
+            ClearAddForm();
+            IsAddWebLoginModalOpen = false;
         }
         catch (Exception ex)
         {
@@ -667,7 +777,30 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void RemoveRow(WebLoginRowVm row)
     {
         _all.Remove(row);
+        RefreshEmailFilterOptions();
         ApplyFilter(resetPage: false);
+    }
+
+    [RelayCommand]
+    private void ToggleEmailFilter()
+    {
+        Error = "";
+        RefreshEmailFilterOptions();
+        IsEmailFilterPopupOpen = !IsEmailFilterPopupOpen;
+    }
+
+    [RelayCommand]
+    private void SelectEmailFilter(string email)
+    {
+        SelectedEmailFilter = email?.Trim() ?? "";
+        IsEmailFilterPopupOpen = false;
+    }
+
+    [RelayCommand]
+    private void ClearEmailFilter()
+    {
+        SelectedEmailFilter = "";
+        IsEmailFilterPopupOpen = false;
     }
 
     private void ClearAddForm()
@@ -729,6 +862,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 ));
             }
 
+            RefreshEmailFilterOptions();
             ApplyFilter();
             RefreshTotpRows();
         }
@@ -747,6 +881,13 @@ public partial class WebLoginsViewModel : ViewModelBase
         IEnumerable<WebLoginRowVm> filtered = _all;
 
         var q = SearchText?.Trim();
+        var selectedEmail = SelectedEmailFilter?.Trim();
+        if (!string.IsNullOrWhiteSpace(selectedEmail))
+        {
+            filtered = filtered.Where(r =>
+                string.Equals(r.Email?.Trim(), selectedEmail, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (!string.IsNullOrWhiteSpace(q))
         {
             filtered = filtered.Where(r =>
@@ -785,6 +926,31 @@ public partial class WebLoginsViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanGoNextPage));
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
+    }
+
+    private void RefreshEmailFilterOptions()
+    {
+        var selected = SelectedEmailFilter;
+        EmailFilterOptions.Clear();
+
+        foreach (var email in _all
+                     .Select(row => row.Email?.Trim())
+                     .Where(email => !string.IsNullOrWhiteSpace(email))
+                     .Cast<string>()
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(email => email, StringComparer.OrdinalIgnoreCase))
+        {
+            EmailFilterOptions.Add(new EmailFilterOptionVm(email, SelectEmailFilterCommand));
+        }
+
+        if (!string.IsNullOrWhiteSpace(selected) &&
+            !EmailFilterOptions.Any(option => string.Equals(option.Email, selected, StringComparison.OrdinalIgnoreCase)))
+        {
+            SelectedEmailFilter = "";
+        }
+
+        OnPropertyChanged(nameof(HasEmailFilterOptions));
+        OnPropertyChanged(nameof(EmailFilterSummary));
     }
 
     [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]

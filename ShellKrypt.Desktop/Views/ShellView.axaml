@@ -79,55 +79,8 @@
     </Border>
 
     <Grid Grid.Column="1"
-          RowDefinitions="Auto,*"
           Background="{StaticResource AppBackgroundBrush}">
-      <Border Padding="24,16"
-              Background="{StaticResource AppBackgroundBrush}"
-              BorderBrush="{StaticResource WindowOutlineBrush}"
-              BorderThickness="0,0,0,1">
-        <Grid ColumnDefinitions="256,Auto,*,Auto" ColumnSpacing="32">
-          <TextBox Classes="search"
-                   PlaceholderText="{Binding SearchPlaceholder}"
-                   VerticalAlignment="Center"/>
-
-          <StackPanel Grid.Column="1"
-                      Orientation="Horizontal"
-                      Spacing="28"
-                      VerticalAlignment="Center">
-            <TextBlock Text="{Binding CurrentSectionTitle}"
-                       Foreground="{StaticResource AccentBrush}"
-                       FontSize="13"
-                       FontWeight="SemiBold"
-                       IsVisible="{Binding !IsSettingsSelected}"/>
-            <TextBlock Text="{Binding CurrentSectionTitle}"
-                       Classes="page-subtitle"
-                       FontWeight="SemiBold"
-                       IsVisible="{Binding IsSettingsSelected}"/>
-            <TextBlock Text="Favorites"
-                       Classes="page-subtitle"
-                       FontWeight="SemiBold"/>
-            <TextBlock Text="Recent"
-                       Classes="page-subtitle"
-                       FontWeight="SemiBold"/>
-          </StackPanel>
-
-          <StackPanel Grid.Column="3"
-                      Orientation="Horizontal"
-                      HorizontalAlignment="Right"
-                      VerticalAlignment="Center"
-                      Spacing="12">
-            <Button Classes="icon" Content="S"/>
-            <Button Classes="icon" Content="N"/>
-            <Button Content="+ Add Item"
-                    Classes="primary inline"
-                    IsVisible="{Binding ShowAddItemAction}"/>
-            <Button Classes="icon" Content="A"/>
-          </StackPanel>
-        </Grid>
-      </Border>
-
-      <ContentControl Grid.Row="1"
-                      Margin="0"
+      <ContentControl Margin="0"
                       Content="{Binding CurrentPage}"/>
     </Grid>
   </Grid>
