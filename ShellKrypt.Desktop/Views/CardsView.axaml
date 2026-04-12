@@ -36,10 +36,12 @@
                          FontWeight="SemiBold"/>
               <StackPanel Orientation="Horizontal"
                           Spacing="8">
-                <TextBlock Text="^"
-                           Foreground="{StaticResource AccentBrush}"
-                           FontWeight="Black"/>
-                <TextBlock Text="+ 2 added this month"
+                <Image Source="avares://ShellKrypt.Desktop/Assets/trend-up.png"
+                       Width="18"
+                       Height="12"
+                       Stretch="Uniform"
+                       VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding ActiveCardsSummary}"
                            Classes="cards-accent-note"/>
               </StackPanel>
             </StackPanel>
@@ -59,34 +61,29 @@
                 <TextBlock Text="!"
                            Foreground="{StaticResource DangerBrush}"
                            FontWeight="Black"/>
-                <TextBlock Text="Requires immediate action"
+                <TextBlock Text="{Binding ExpiringSoonSummary}"
                            Classes="cards-danger-note"/>
               </StackPanel>
             </StackPanel>
           </Border>
 
           <Border Grid.Column="2"
-                  Classes="cards-stat secondary"
+                  Classes="cards-stat danger"
                   Padding="24,20">
             <StackPanel Spacing="8">
-              <TextBlock Text="PRIMARY CARD"
+              <TextBlock Text="EXPIRED CARDS"
                          Classes="cards-kicker"/>
-              <Grid ColumnDefinitions="32,*"
-                    ColumnSpacing="12">
-                <Border Width="32"
-                        Height="20"
-                        CornerRadius="2"
-                        Background="{StaticResource SurfaceElevatedBrush}"
-                        VerticalAlignment="Center"/>
-                <TextBlock Grid.Column="1"
-                           Text="{Binding PrimaryCardTitle}"
-                           FontSize="15"
-                           FontWeight="SemiBold"
-                           TextTrimming="CharacterEllipsis"/>
-              </Grid>
-              <TextBlock Text="{Binding PrimaryCardNote}"
-                         Classes="cards-muted"
-                         FontSize="12"/>
+              <TextBlock Text="{Binding ExpiredCardsCount}"
+                         FontSize="22"
+                         FontWeight="SemiBold"/>
+              <StackPanel Orientation="Horizontal"
+                          Spacing="8">
+                <TextBlock Text="!"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontWeight="Black"/>
+                <TextBlock Text="{Binding ExpiredCardsSummary}"
+                           Classes="cards-danger-note"/>
+              </StackPanel>
             </StackPanel>
           </Border>
         </Grid>
@@ -123,14 +120,14 @@
           <Grid RowDefinitions="Auto,*,Auto">
             <Border Background="#26353534"
                     Padding="22,14">
-              <Grid ColumnDefinitions="1.45*,1.2*,1.35*,0.75*,0.8*,280"
-                    ColumnSpacing="24">
+              <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
+                    ColumnSpacing="18">
                 <TextBlock Text="CARD IDENTITY" Classes="cards-table-header"/>
                 <TextBlock Grid.Column="1" Text="BANK" Classes="cards-table-header"/>
                 <TextBlock Grid.Column="2" Text="NUMBER" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="3" Text="EXPIRY" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="4" Text="ISSUER" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="5"
+                <TextBlock Grid.Column="4" Text="EXPIRY" Classes="cards-table-header"/>
+                <TextBlock Grid.Column="5" Text="ISSUER" Classes="cards-table-header"/>
+                <TextBlock Grid.Column="6"
                            Text="ACTIONS"
                            Classes="cards-table-header"
                            HorizontalAlignment="Right"/>
@@ -145,8 +142,8 @@
                     <Grid RowDefinitions="Auto,Auto"
                           Margin="22,0"
                           MinHeight="78">
-                      <Grid ColumnDefinitions="1.45*,1.2*,1.35*,0.75*,0.8*,280"
-                            ColumnSpacing="24"
+                      <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
+                            ColumnSpacing="18"
                             MinHeight="78">
                         <Grid ColumnDefinitions="Auto,*"
                               ColumnSpacing="12"
@@ -218,7 +215,17 @@
                                    IsVisible="{Binding IsEditing}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="3"
+                        <Button Grid.Column="3"
+                                Content="E"
+                                Classes="cards-reveal-button"
+                                IsVisible="{Binding IsViewing}"
+                                Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="{Binding SecretsActionLabel}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="4"
                                     Spacing="6"
                                     VerticalAlignment="Center">
                           <Grid ColumnDefinitions="Auto,Auto"
@@ -234,19 +241,21 @@
                           </Grid>
                           <StackPanel Orientation="Horizontal"
                                       Spacing="8"
-                                      IsVisible="{Binding IsEditing}">
+                            IsVisible="{Binding IsEditing}">
                             <TextBox Width="58"
                                      Text="{Binding ExpiryMonth}"
                                      Classes="cards-inline-input"
+                                     MaxLength="2"
                                      PlaceholderText="MM"/>
                             <TextBox Width="70"
                                      Text="{Binding ExpiryYear}"
                                      Classes="cards-inline-input"
+                                     MaxLength="4"
                                      PlaceholderText="YYYY"/>
                           </StackPanel>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="4"
+                        <StackPanel Grid.Column="5"
                                     Spacing="6"
                                     VerticalAlignment="Center">
                           <Border Classes="cards-issuer-chip"
@@ -261,29 +270,25 @@
                           </Border>
                           <TextBox Text="{Binding Cvc}"
                                    Classes="cards-inline-input"
+                                   MaxLength="4"
                                    PlaceholderText="CVC"
                                    IsVisible="{Binding IsEditing}"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="5"
+                        <StackPanel Grid.Column="6"
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
                                     Spacing="8">
-                          <Button Content="{Binding SecretsActionLabel}"
+                          <Button Content="Details"
                                   Classes="cards-action"
                                   IsVisible="{Binding IsViewing}"
-                                  Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
-                          <Button Content="Edit"
+                          <Button Content="Copy Card Number"
                                   Classes="cards-action"
                                   IsVisible="{Binding IsViewing}"
-                                  Command="{Binding DataContext.BeginEditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
-                          <Button Content="Delete"
-                                  Classes="cards-action danger"
-                                  IsVisible="{Binding IsViewing}"
-                                  Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                           <Button Content="Save"
                                   Classes="cards-action primary"
@@ -354,12 +359,12 @@
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="18">
               <StackPanel Spacing="6">
-                <TextBlock Text="Add Credit Card"
+                <TextBlock Text="{Binding CardModalTitle}"
                            FontSize="24"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource AccentBrush}"
                            LetterSpacing="-0.4"/>
-                <TextBlock Text="Store a new payment card in your encrypted vault."
+                <TextBlock Text="{Binding CardModalSubtitle}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
               </StackPanel>
@@ -371,60 +376,77 @@
                       ToolTip.Tip="Close"/>
             </Grid>
 
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+            <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
                   ColumnDefinitions="*,*,*"
                   RowSpacing="14"
                   ColumnSpacing="16">
-              <StackPanel Spacing="7">
+              <StackPanel Grid.ColumnSpan="2"
+                          Spacing="7">
                 <TextBlock Text="CARD TITLE"
                            Classes="cards-modal-label"/>
                 <TextBox Text="{Binding AddTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="cards-modal-input"
+                         IsReadOnly="{Binding IsCardFormReadOnly}"
                          PlaceholderText="Titanium Business"/>
               </StackPanel>
 
-              <StackPanel Grid.Column="1"
+              <StackPanel Grid.Column="2"
+                          Spacing="7">
+                <TextBlock Text="CARD TYPE"
+                           Classes="cards-modal-label"/>
+                <ComboBox ItemsSource="{Binding CardTypeOptions}"
+                          SelectedItem="{Binding AddCardType, Mode=TwoWay}"
+                          IsEnabled="{Binding IsCardFormEditable}"
+                          Classes="cards-modal-input"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
                           Spacing="7">
                 <TextBlock Text="BANK"
                            Classes="cards-modal-label"/>
                 <TextBox Text="{Binding AddBank, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="cards-modal-input"
+                         IsReadOnly="{Binding IsCardFormReadOnly}"
                          PlaceholderText="Chase"/>
               </StackPanel>
 
-              <StackPanel Grid.Column="2"
+              <StackPanel Grid.Row="1"
+                          Grid.Column="1"
                           Spacing="7">
                 <TextBlock Text="CARDHOLDER"
                            Classes="cards-modal-label"/>
                 <TextBox Text="{Binding AddCardholder, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="cards-modal-input"
+                         IsReadOnly="{Binding IsCardFormReadOnly}"
                          PlaceholderText="Alex Morgan"/>
               </StackPanel>
 
               <StackPanel Grid.Row="1"
+                          Grid.Column="2"
                           Spacing="7">
                 <TextBlock Text="ISSUER"
                            Classes="cards-modal-label"/>
                 <ComboBox ItemsSource="{Binding IssuerOptions}"
                           SelectedItem="{Binding AddIssuer, Mode=TwoWay}"
+                          IsEnabled="{Binding IsCardFormEditable}"
                           Classes="cards-modal-input"/>
               </StackPanel>
 
-              <StackPanel Grid.Row="1"
-                          Grid.Column="1"
-                          Grid.ColumnSpan="2"
+              <StackPanel Grid.Row="2"
+                          Grid.ColumnSpan="3"
                           Spacing="7">
                 <TextBlock Text="CARD NUMBER"
                            Classes="cards-modal-label"/>
                 <TextBox x:Name="AddCardNumberTextBox"
                          Text="{Binding AddNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="cards-modal-input"
-                         MaxLength="23"
+                         IsReadOnly="{Binding IsCardFormReadOnly}"
+                         MaxLength="19"
                          TextChanged="AddCardNumberTextBox_OnTextChanged"
                          PlaceholderText="4242 4242 4242 4242"/>
               </StackPanel>
 
-              <Grid Grid.Row="2"
+              <Grid Grid.Row="3"
                     Grid.ColumnSpan="3"
                     ColumnDefinitions="*,*,*"
                     ColumnSpacing="16">
@@ -433,6 +455,8 @@
                              Classes="cards-modal-label"/>
                   <TextBox Text="{Binding AddExpiryMonth, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            Classes="cards-modal-input"
+                           IsReadOnly="{Binding IsCardFormReadOnly}"
+                           MaxLength="2"
                            PlaceholderText="09"/>
                 </StackPanel>
 
@@ -442,6 +466,8 @@
                              Classes="cards-modal-label"/>
                   <TextBox Text="{Binding AddExpiryYear, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            Classes="cards-modal-input"
+                           IsReadOnly="{Binding IsCardFormReadOnly}"
+                           MaxLength="4"
                            PlaceholderText="2028"/>
                 </StackPanel>
 
@@ -449,14 +475,32 @@
                             Spacing="7">
                   <TextBlock Text="CVC"
                              Classes="cards-modal-label"/>
-                  <TextBox Text="{Binding AddCvc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           Classes="cards-modal-input"
-                           PasswordChar="*"
-                           PlaceholderText="123"/>
+                  <Border Classes="cards-modal-input-shell">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8">
+                      <TextBox Text="{Binding AddCvc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               Classes="cards-modal-input borderless"
+                               IsReadOnly="{Binding IsCardFormReadOnly}"
+                               IsVisible="{Binding !IsAddCvcVisible}"
+                               PasswordChar="*"
+                               MaxLength="4"
+                               PlaceholderText="123"/>
+                      <TextBox Text="{Binding AddCvc, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               Classes="cards-modal-input borderless"
+                               IsReadOnly="{Binding IsCardFormReadOnly}"
+                               IsVisible="{Binding IsAddCvcVisible}"
+                               MaxLength="4"
+                               PlaceholderText="123"/>
+                      <Button Grid.Column="1"
+                              Content="{Binding AddCvcVisibilityLabel}"
+                              Classes="cards-modal-field-action"
+                              Command="{Binding ToggleAddCvcVisibilityCommand}"/>
+                    </Grid>
+                  </Border>
                 </StackPanel>
               </Grid>
 
-              <StackPanel Grid.Row="3"
+              <StackPanel Grid.Row="4"
                           Grid.ColumnSpan="3"
                           Spacing="12">
                 <StackPanel Spacing="7">
@@ -464,14 +508,12 @@
                              Classes="cards-modal-label"/>
                   <TextBox Text="{Binding AddNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            Classes="cards-modal-input"
+                           IsReadOnly="{Binding IsCardFormReadOnly}"
                            AcceptsReturn="True"
                            TextWrapping="Wrap"
                            MinHeight="98"
                            PlaceholderText="Rewards category, usage notes, or card context..."/>
                 </StackPanel>
-
-                <CheckBox Content="Mark as favorite"
-                          IsChecked="{Binding AddFavorite, Mode=TwoWay}"/>
               </StackPanel>
             </Grid>
 
@@ -486,7 +528,7 @@
                     Margin="-8,0,-8,-8">
               <Grid ColumnDefinitions="*,Auto,Auto"
                     ColumnSpacing="12">
-                <TextBlock Text="Fields are encrypted locally before being stored."
+                <TextBlock Text="{Binding CardModalFooterText}"
                            Classes="page-subtitle"
                            FontSize="12"
                            TextWrapping="Wrap"
@@ -494,11 +536,43 @@
                 <Button Grid.Column="1"
                         Content="Cancel"
                         Classes="cards-modal-secondary-button"
+                        IsVisible="{Binding IsAddCardMode}"
                         Command="{Binding CancelAddCardCommand}"/>
                 <Button Grid.Column="2"
                         Content="Add Credit Card"
                         Classes="cards-modal-primary-button"
+                        IsVisible="{Binding IsAddCardMode}"
                         Command="{Binding SaveAddCardCommand}"/>
+                <Button Grid.Column="1"
+                        Content="Delete"
+                        Classes="cards-modal-danger-button"
+                        IsVisible="{Binding IsCardDetailsViewMode}"
+                        Command="{Binding BeginDetailsDeleteCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Edit"
+                        Classes="cards-modal-primary-button"
+                        IsVisible="{Binding IsCardDetailsViewMode}"
+                        Command="{Binding BeginDetailsEditCommand}"/>
+                <Button Grid.Column="1"
+                        Content="Cancel"
+                        Classes="cards-modal-secondary-button"
+                        IsVisible="{Binding IsCardDetailsEditMode}"
+                        Command="{Binding CancelDetailsEditCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Save"
+                        Classes="cards-modal-primary-button"
+                        IsVisible="{Binding IsCardDetailsEditMode}"
+                        Command="{Binding SaveDetailsCommand}"/>
+                <Button Grid.Column="1"
+                        Content="Cancel"
+                        Classes="cards-modal-secondary-button"
+                        IsVisible="{Binding IsCardDetailsDeleteConfirmMode}"
+                        Command="{Binding CancelDetailsDeleteCommand}"/>
+                <Button Grid.Column="2"
+                        Content="Delete"
+                        Classes="cards-modal-danger-button"
+                        IsVisible="{Binding IsCardDetailsDeleteConfirmMode}"
+                        Command="{Binding ConfirmDetailsDeleteCommand}"/>
               </Grid>
             </Border>
           </StackPanel>
@@ -682,6 +756,12 @@
       <Setter Property="Padding" Value="14,10"/>
     </Style>
 
+    <Style Selector="TextBox.cards-modal-input:pointerover">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
     <Style Selector="ComboBox.cards-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="#333c4a46"/>
@@ -689,6 +769,8 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
       <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Width" Value="210"/>
+      <Setter Property="MinWidth" Value="210"/>
       <Setter Property="Height" Value="42"/>
       <Setter Property="MinHeight" Value="42"/>
       <Setter Property="Padding" Value="12,0"/>
@@ -696,13 +778,38 @@
 
     <Style Selector="TextBox.cards-modal-input:focus">
       <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
     </Style>
 
     <Style Selector="TextBox.cards-modal-input.borderless">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.cards-modal-input.borderless:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.cards-modal-input.borderless:focus">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.cards-inline-input:pointerover">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="CornerRadius" Value="6"/>
+    </Style>
+
+    <Style Selector="TextBox.cards-inline-input:focus">
+      <Setter Property="CornerRadius" Value="6"/>
     </Style>
 
     <Style Selector="Button.cards-modal-close-button">
@@ -763,6 +870,25 @@
 
     <Style Selector="Button.cards-modal-secondary-button:pointerover">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.cards-modal-danger-button">
+      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.cards-modal-danger-button:pointerover">
+      <Setter Property="Background" Value="#ff8f8f"/>
     </Style>
 
     <Style Selector="Button.cards-modal-primary-button">
@@ -871,6 +997,28 @@
     <Style Selector="Button.cards-action.primary">
       <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.cards-reveal-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="4"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinWidth" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.cards-reveal-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Button.cards-page-button">

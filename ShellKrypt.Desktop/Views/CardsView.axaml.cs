@@ -21,7 +21,10 @@ public partial class CardsView : UserControl
             return;
 
         var text = textBox.Text ?? "";
-        var formatted = CardRowVm.FormatCardNumber(text, includeTrailingSeparator: true);
+        var formatted = CardRowVm.FormatCardNumber(
+            text,
+            maxDigits: CardRowVm.StandardCardNumberMaxDigits,
+            includeTrailingSeparator: true);
         if (text == formatted)
             return;
 

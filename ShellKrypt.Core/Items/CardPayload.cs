@@ -9,5 +9,6 @@ public sealed record CardPayload(
     string Cvc,
     string Notes,
     string Issuer = "",
-    string? Bank = null
+    string? Bank = null,
+    string CardType = ""
 );
