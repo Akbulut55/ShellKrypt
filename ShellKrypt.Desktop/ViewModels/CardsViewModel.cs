@@ -1,12 +1,10 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Infrastructure.Crypto;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -137,10 +135,12 @@ public sealed partial class CardRowVm : ObservableObject
         OnPropertyChanged(nameof(SecretsActionLabel));
     }
 
-    public void MarkSaved()
+    public void MarkSaved(string updatedAtUtc)
     {
         Issuer = string.IsNullOrWhiteSpace(Issuer) ? DetectIssuer(Number) : Issuer.Trim();
-        UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        UpdatedAtUtc = string.IsNullOrWhiteSpace(updatedAtUtc)
+            ? DateTimeOffset.UtcNow.ToString("O")
+            : updatedAtUtc;
     }
 
     internal static string FormatCardNumber(string? number, int maxDigits = 19, bool includeTrailingSeparator = false)
@@ -256,18 +256,13 @@ public partial class CardsViewModel : ViewModelBase
     private const string DefaultIssuer = "Card";
 
     private readonly MainWindowViewModel _root;
-    private readonly IItemRepository _repo;
+    private readonly ICardService _cardService;
 
     private readonly List<CardRowVm> _all = new();
     private readonly List<CardRowVm> _filtered = new();
     private CardRowVm? _selectedDetailsRow;
     private bool _formattingAddNumber;
     private string _lastAutoAddIssuer = DefaultIssuer;
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 
     public ObservableCollection<CardRowVm> Rows { get; } = new();
     public ObservableCollection<string> NetworkFilters { get; } = new()
@@ -371,10 +366,10 @@ public partial class CardsViewModel : ViewModelBase
         ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddTitle) ? "this card" : AddTitle)}\"?"
         : "Fields are encrypted locally before being stored.";
 
-    public CardsViewModel(MainWindowViewModel root, IItemRepository repo)
+    public CardsViewModel(MainWindowViewModel root, ICardService cardService)
     {
         _root = root;
-        _repo = repo;
+        _cardService = cardService;
         _ = LoadAsync();
     }
 
@@ -576,48 +571,12 @@ public partial class CardsViewModel : ViewModelBase
 
         try
         {
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var id = Guid.NewGuid().ToString("N");
-            var payload = new CardPayload(
-                Title: AddTitle.Trim(),
-                Cardholder: AddCardholder.Trim(),
-                Number: digits,
-                ExpiryMonth: mm,
-                ExpiryYear: yy,
-                Cvc: cvcDigits,
-                Notes: AddNotes.Trim(),
-                Issuer: string.IsNullOrWhiteSpace(AddIssuer) ? CardRowVm.DetectIssuer(digits) : AddIssuer.Trim(),
-                Bank: AddBank.Trim(),
-                CardType: string.IsNullOrWhiteSpace(AddCardType) ? CardRowVm.DefaultCardType : AddCardType.Trim()
-            );
+            var entry = await _cardService.AddAsync(
+                _root.VaultPath,
+                _root.VaultKey,
+                BuildInput(digits, mm, yy, cvcDigits));
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-            var header = new VaultItemHeader(
-                Id: id,
-                Type: ItemType.Card,
-                Favorite: false,
-                CreatedAtUtc: now,
-                UpdatedAtUtc: now
-            );
-
-            await _repo.InsertAsync(_root.VaultPath, header, enc);
-
-            _all.Insert(0, new CardRowVm(
-                id,
-                payload.Title,
-                payload.Bank ?? "",
-                payload.Cardholder,
-                payload.Number,
-                payload.ExpiryMonth.ToString("00"),
-                payload.ExpiryYear.ToString(),
-                payload.Cvc,
-                payload.Notes,
-                payload.Issuer,
-                payload.CardType,
-                now,
-                now
-            ));
+            _all.Insert(0, ToRow(entry));
 
             ClearAddCardForm();
             IsAddCardModalOpen = false;
@@ -666,43 +625,14 @@ public partial class CardsViewModel : ViewModelBase
         try
         {
             var row = _selectedDetailsRow;
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var payload = new CardPayload(
-                Title: AddTitle.Trim(),
-                Cardholder: AddCardholder.Trim(),
-                Number: digits,
-                ExpiryMonth: mm,
-                ExpiryYear: yy,
-                Cvc: cvcDigits,
-                Notes: AddNotes.Trim(),
-                Issuer: string.IsNullOrWhiteSpace(AddIssuer) ? CardRowVm.DetectIssuer(digits) : AddIssuer.Trim(),
-                Bank: AddBank.Trim(),
-                CardType: string.IsNullOrWhiteSpace(AddCardType) ? CardRowVm.DefaultCardType : AddCardType.Trim()
-            );
+            var entry = await _cardService.UpdateAsync(
+                _root.VaultPath,
+                _root.VaultKey,
+                row.Id,
+                row.CreatedAtUtc,
+                BuildInput(digits, mm, yy, cvcDigits));
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-            var header = new VaultItemHeader(
-                Id: row.Id,
-                Type: ItemType.Card,
-                Favorite: false,
-                CreatedAtUtc: row.CreatedAtUtc,
-                UpdatedAtUtc: now
-            );
-
-            await _repo.UpdateAsync(_root.VaultPath, header, enc);
-
-            row.Title = payload.Title;
-            row.Bank = payload.Bank ?? "";
-            row.Cardholder = payload.Cardholder;
-            row.Number = payload.Number;
-            row.ExpiryMonth = payload.ExpiryMonth.ToString("00");
-            row.ExpiryYear = payload.ExpiryYear.ToString();
-            row.Cvc = payload.Cvc;
-            row.Notes = payload.Notes;
-            row.Issuer = payload.Issuer;
-            row.CardType = payload.CardType;
-            row.MarkSaved();
+            ApplyEntry(row, entry);
 
             IsCardDetailsEditing = false;
             IsCardDeleteConfirming = false;
@@ -726,7 +656,7 @@ public partial class CardsViewModel : ViewModelBase
         try
         {
             var row = _selectedDetailsRow;
-            await _repo.DeleteAsync(_root.VaultPath, row.Id);
+            await _cardService.DeleteAsync(_root.VaultPath, row.Id);
             RemoveRow(row);
             _selectedDetailsRow = null;
             IsCardDeleteConfirming = false;
@@ -779,6 +709,50 @@ public partial class CardsViewModel : ViewModelBase
         _lastAutoAddIssuer = AddIssuer;
     }
 
+    private CardInput BuildInput(string digits, int expiryMonth, int expiryYear, string cvcDigits)
+        => new(
+            Title: AddTitle,
+            Bank: AddBank,
+            Cardholder: AddCardholder,
+            Number: digits,
+            ExpiryMonth: expiryMonth,
+            ExpiryYear: expiryYear,
+            Cvc: cvcDigits,
+            Notes: AddNotes,
+            Issuer: string.IsNullOrWhiteSpace(AddIssuer) ? CardRowVm.DetectIssuer(digits) : AddIssuer,
+            CardType: string.IsNullOrWhiteSpace(AddCardType) ? CardRowVm.DefaultCardType : AddCardType);
+
+    private static CardRowVm ToRow(CardEntry entry)
+        => new(
+            entry.Id,
+            entry.Title,
+            entry.Bank,
+            entry.Cardholder,
+            entry.Number,
+            entry.ExpiryMonth.ToString("00"),
+            entry.ExpiryYear.ToString(),
+            entry.Cvc,
+            entry.Notes,
+            entry.Issuer,
+            string.IsNullOrWhiteSpace(entry.CardType) ? CardRowVm.DefaultCardType : entry.CardType,
+            entry.CreatedAtUtc,
+            entry.UpdatedAtUtc);
+
+    private static void ApplyEntry(CardRowVm row, CardEntry entry)
+    {
+        row.Title = entry.Title;
+        row.Bank = entry.Bank;
+        row.Cardholder = entry.Cardholder;
+        row.Number = entry.Number;
+        row.ExpiryMonth = entry.ExpiryMonth.ToString("00");
+        row.ExpiryYear = entry.ExpiryYear.ToString();
+        row.Cvc = entry.Cvc;
+        row.Notes = entry.Notes;
+        row.Issuer = entry.Issuer;
+        row.CardType = string.IsNullOrWhiteSpace(entry.CardType) ? CardRowVm.DefaultCardType : entry.CardType;
+        row.MarkSaved(entry.UpdatedAtUtc);
+    }
+
     private void UpdateAddIssuerFromNumber(string number)
     {
         var detected = CardRowVm.DetectIssuer(number);
@@ -812,30 +786,8 @@ public partial class CardsViewModel : ViewModelBase
             _all.Clear();
             Rows.Clear();
 
-            var rows = await _repo.ListAsync(_root.VaultPath);
-
-            foreach (var r in rows.Where(x => x.Header.Type == ItemType.Card))
-            {
-                var json = AesGcmBlob.Decrypt(_root.VaultKey, r.EncryptedPayload);
-                var payload = JsonSerializer.Deserialize<CardPayload>(json, JsonOpts);
-                if (payload is null) continue;
-
-                _all.Add(new CardRowVm(
-                    r.Header.Id,
-                    payload.Title,
-                    payload.Bank ?? payload.Cardholder,
-                    payload.Cardholder,
-                    payload.Number,
-                    payload.ExpiryMonth.ToString("00"),
-                    payload.ExpiryYear.ToString(),
-                    payload.Cvc,
-                    payload.Notes,
-                    payload.Issuer,
-                    string.IsNullOrWhiteSpace(payload.CardType) ? CardRowVm.DefaultCardType : payload.CardType,
-                    r.Header.CreatedAtUtc,
-                    r.Header.UpdatedAtUtc
-                ));
-            }
+            var entries = await _cardService.ListAsync(_root.VaultPath, _root.VaultKey);
+            _all.AddRange(entries.Select(ToRow));
 
             ApplyFilter();
         }

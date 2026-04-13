@@ -25,14 +25,14 @@ public partial class ShellViewModel : ViewModelBase
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
 
-    public ShellViewModel(MainWindowViewModel root, IItemRepository repo, IWebLoginService webLoginService)
+    public ShellViewModel(MainWindowViewModel root, IItemRepository repo, IWebLoginService webLoginService, ICardService cardService)
     {
         _root = root;
 
         AllItems = new AllItemsViewModel(_root, this, repo);
         WebLogins = new WebLoginsViewModel(_root, webLoginService);
         SecureNotes = new SecureNotesViewModel(_root, repo);
-        Cards = new CardsViewModel(_root, repo);
+        Cards = new CardsViewModel(_root, cardService);
         Tools = new ToolsViewModel(_root);
         Health = new HealthViewModel(_root, repo);
         Settings = new SettingsViewModel(_root);

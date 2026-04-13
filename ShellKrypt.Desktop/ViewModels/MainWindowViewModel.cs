@@ -26,6 +26,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly IWebLoginService _webLoginService;
+    private readonly ICardService _cardService;
     private readonly DispatcherTimer _autoLockTimer = new();
     private readonly DispatcherTimer _focusLossLockTimer = new() { Interval = TimeSpan.FromSeconds(20) };
 
@@ -42,6 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _webLoginService = new WebLoginService(_itemRepo);
+        _cardService = new CardService(_itemRepo);
 
         var settings = _settingsStore.Load();
         AutoLockEnabled = settings.AutoLockEnabled;
@@ -109,7 +111,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(_state.VaultPath))
             _vaultRegistryStore.MarkOpened(_state.VaultPath);
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService);
         RestartAutoLockTimer();
     }
 
@@ -127,7 +129,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService);
         RestartAutoLockTimer();
     }
 
