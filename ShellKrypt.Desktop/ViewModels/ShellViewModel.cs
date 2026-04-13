@@ -3,6 +3,7 @@ using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Tools;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -25,7 +26,12 @@ public partial class ShellViewModel : ViewModelBase
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
 
-    public ShellViewModel(MainWindowViewModel root, IItemRepository repo, IWebLoginService webLoginService, ICardService cardService)
+    public ShellViewModel(
+        MainWindowViewModel root,
+        IItemRepository repo,
+        IWebLoginService webLoginService,
+        ICardService cardService,
+        ICryptoToolsService cryptoToolsService)
     {
         _root = root;
 
@@ -33,7 +39,7 @@ public partial class ShellViewModel : ViewModelBase
         WebLogins = new WebLoginsViewModel(_root, webLoginService);
         SecureNotes = new SecureNotesViewModel(_root, repo);
         Cards = new CardsViewModel(_root, cardService);
-        Tools = new ToolsViewModel(_root);
+        Tools = new ToolsViewModel(_root, cryptoToolsService);
         Health = new HealthViewModel(_root, repo);
         Settings = new SettingsViewModel(_root);
         Vault = new PlaceholderPageViewModel(

@@ -9,9 +9,11 @@ using Avalonia.Platform.Storage;
 using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Tools;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
+using ShellKrypt.Infrastructure.Tools;
 using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.Desktop.Views;
 
@@ -27,6 +29,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
+    private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
     private readonly DispatcherTimer _autoLockTimer = new();
     private readonly DispatcherTimer _focusLossLockTimer = new() { Interval = TimeSpan.FromSeconds(20) };
 
@@ -111,7 +114,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(_state.VaultPath))
             _vaultRegistryStore.MarkOpened(_state.VaultPath);
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _cryptoToolsService);
         RestartAutoLockTimer();
     }
 
@@ -129,7 +132,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _cryptoToolsService);
         RestartAutoLockTimer();
     }
 

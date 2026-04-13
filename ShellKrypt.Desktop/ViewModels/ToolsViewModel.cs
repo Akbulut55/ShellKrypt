@@ -1,11 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Core.Tools;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Security.Cryptography;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -16,11 +13,7 @@ public partial class ToolsViewModel : ViewModelBase
     private const int UtilityOutputDisplayRowLength = 48;
     private const int DisplayRows = 2;
     private readonly MainWindowViewModel _root;
-
-    private static readonly char[] Lowercase = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
-    private static readonly char[] Uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
-    private static readonly char[] Numbers = "0123456789".ToCharArray();
-    private static readonly char[] Symbols = "!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
+    private readonly ICryptoToolsService _cryptoToolsService;
 
     [ObservableProperty] private double passwordLength = 32;
     [ObservableProperty] private bool includeLowercase = true;
@@ -35,9 +28,10 @@ public partial class ToolsViewModel : ViewModelBase
     [ObservableProperty] private string base64Input = "";
     [ObservableProperty] private string base64Output = "";
 
-    public ToolsViewModel(MainWindowViewModel root)
+    public ToolsViewModel(MainWindowViewModel root, ICryptoToolsService cryptoToolsService)
     {
         _root = root;
+        _cryptoToolsService = cryptoToolsService;
         GeneratePassword();
     }
 
@@ -69,33 +63,15 @@ public partial class ToolsViewModel : ViewModelBase
     [RelayCommand]
     private void GeneratePassword()
     {
-        var length = NormalizePasswordLength(PasswordLength);
+        var generated = _cryptoToolsService.GeneratePassword(new PasswordGenerationOptions(
+            Length: NormalizePasswordLength(PasswordLength),
+            IncludeLowercase: IncludeLowercase,
+            IncludeUppercase: IncludeUppercase,
+            IncludeNumbers: IncludeNumbers,
+            IncludeSymbols: IncludeSymbols));
 
-        var pools = new List<char[]>();
-        if (IncludeLowercase) pools.Add(Lowercase);
-        if (IncludeUppercase) pools.Add(Uppercase);
-        if (IncludeNumbers) pools.Add(Numbers);
-        if (IncludeSymbols) pools.Add(Symbols);
-
-        if (pools.Count == 0)
-        {
-            return;
-        }
-
-        var chars = new List<char>(length);
-
-        if (length >= pools.Count)
-        {
-            foreach (var pool in pools)
-                chars.Add(pool[RandomNumberGenerator.GetInt32(pool.Length)]);
-        }
-
-        var all = pools.SelectMany(p => p).ToArray();
-        while (chars.Count < length)
-            chars.Add(all[RandomNumberGenerator.GetInt32(all.Length)]);
-
-        Shuffle(chars);
-        GeneratedPassword = new string(chars.ToArray());
+        if (generated is not null)
+            GeneratedPassword = generated;
     }
 
     [RelayCommand]
@@ -110,64 +86,25 @@ public partial class ToolsViewModel : ViewModelBase
     [RelayCommand]
     private void Sha256()
     {
-        if (HashInput.Length == 0)
-        {
-            HashOutput = "";
-            return;
-        }
-
-        HashOutput = ComputeHash(HashInput, SHA256.HashData);
+        HashOutput = _cryptoToolsService.ComputeSha256(HashInput);
     }
 
     [RelayCommand]
     private void Sha512()
     {
-        if (HashInput.Length == 0)
-        {
-            HashOutput = "";
-            return;
-        }
-
-        HashOutput = ComputeHash(HashInput, SHA512.HashData);
+        HashOutput = _cryptoToolsService.ComputeSha512(HashInput);
     }
 
     [RelayCommand]
     private void Base64Encode()
     {
-        if (Base64Input.Length == 0)
-        {
-            Base64Output = "";
-            return;
-        }
-
-        var bytes = Encoding.UTF8.GetBytes(Base64Input ?? "");
-        Base64Output = Convert.ToBase64String(bytes);
+        Base64Output = _cryptoToolsService.EncodeBase64(Base64Input);
     }
 
     [RelayCommand]
     private void Base64Decode()
     {
-        if (Base64Input.Trim().Length == 0)
-        {
-            Base64Output = "";
-            return;
-        }
-
-        try
-        {
-            var bytes = Convert.FromBase64String((Base64Input ?? "").Trim());
-            Base64Output = Encoding.UTF8.GetString(bytes);
-        }
-        catch (FormatException)
-        {
-            Base64Output = "";
-        }
-    }
-
-    private static string ComputeHash(string input, Func<byte[], byte[]> hash)
-    {
-        var bytes = Encoding.UTF8.GetBytes(input ?? "");
-        return Convert.ToHexString(hash(bytes)).ToLowerInvariant();
+        Base64Output = _cryptoToolsService.DecodeBase64(Base64Input);
     }
 
     private static int NormalizePasswordLength(double value)
@@ -195,12 +132,4 @@ public partial class ToolsViewModel : ViewModelBase
         return string.Join(Environment.NewLine, rows);
     }
 
-    private static void Shuffle(IList<char> chars)
-    {
-        for (var i = chars.Count - 1; i > 0; i--)
-        {
-            var j = RandomNumberGenerator.GetInt32(i + 1);
-            (chars[i], chars[j]) = (chars[j], chars[i]);
-        }
-    }
 }
