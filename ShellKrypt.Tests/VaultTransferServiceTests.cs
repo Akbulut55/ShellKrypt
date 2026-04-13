@@ -37,7 +37,7 @@ public sealed class VaultTransferServiceTests
         var noteId = Guid.NewGuid().ToString("N");
 
         var label = await repo.UpsertLabelAsync(sourceVault, "Work", "#0f0f0f");
-        await InsertWebAsync(repo, sourceVault, sourceKey, webId, "GitHub", "https://github.com", "octocat", "secret123", "repo access", "use app password", "JBSWY3DPEHPK3PXP", createdAt, updatedAt, favorite: true);
+        await InsertWebAsync(repo, sourceVault, sourceKey, webId, "GitHub", "https://github.com", "octocat", "secret123", "repo access", createdAt, updatedAt, favorite: true);
         await InsertNoteAsync(repo, sourceVault, sourceKey, noteId, "Travel", "Pack passport and charger", createdAt, updatedAt);
         await repo.SetItemLabelsAsync(sourceVault, webId, new[] { label.Id });
 
@@ -71,8 +71,6 @@ public sealed class VaultTransferServiceTests
         Assert.Equal("octocat", webPayload.Username);
         Assert.Equal("secret123", webPayload.Password);
         Assert.Equal("repo access", webPayload.Notes);
-        Assert.Equal("use app password", webPayload.TwoFaNote);
-        Assert.Equal("JBSWY3DPEHPK3PXP", webPayload.TotpSecret);
     }
 
     [Fact]
@@ -91,7 +89,7 @@ public sealed class VaultTransferServiceTests
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-5).ToString("O");
         var updatedAt = DateTimeOffset.UtcNow.ToString("O");
 
-        await InsertWebAsync(repo, vaultPath, vaultKey, itemId, "GitLab", "https://gitlab.com", "codex", "password!", "notes", "", "", createdAt, updatedAt, favorite: false);
+        await InsertWebAsync(repo, vaultPath, vaultKey, itemId, "GitLab", "https://gitlab.com", "codex", "password!", "notes", createdAt, updatedAt, favorite: false);
 
         await transfer.ExportPlaintextJsonAsync(vaultPath, vaultKey, exportPath);
 
@@ -119,7 +117,7 @@ public sealed class VaultTransferServiceTests
         var existingId = Guid.NewGuid().ToString("N");
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-15).ToString("O");
         var updatedAt = DateTimeOffset.UtcNow.ToString("O");
-        await InsertWebAsync(repo, vaultPath, vaultKey, existingId, "GitHub", "https://github.com", "octocat", "oldpass", "", "", "", createdAt, updatedAt, favorite: false);
+        await InsertWebAsync(repo, vaultPath, vaultKey, existingId, "GitHub", "https://github.com", "octocat", "oldpass", "", createdAt, updatedAt, favorite: false);
 
         await File.WriteAllTextAsync(csvPath, """
 Type,Title,Url,Username,Password,Notes,Content,Cardholder,Number,ExpiryMonth,ExpiryYear,Cvc
@@ -154,7 +152,7 @@ Card,Card,,,,,,Jane,12345,12,2030,123
         var itemId = Guid.NewGuid().ToString("N");
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-15).ToString("O");
         var updatedAt = DateTimeOffset.UtcNow.ToString("O");
-        await InsertWebAsync(repo, vaultPath, vaultKey, itemId, "GitHub", "https://github.com", "octocat", "oldpass", "", "", "", createdAt, updatedAt, favorite: false);
+        await InsertWebAsync(repo, vaultPath, vaultKey, itemId, "GitHub", "https://github.com", "octocat", "oldpass", "", createdAt, updatedAt, favorite: false);
 
         await File.WriteAllTextAsync(csvPath, """
 Type,Title,Url,Username,Password,Notes
@@ -196,13 +194,11 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
         string username,
         string password,
         string notes,
-        string twoFaNote,
-        string totpSecret,
         string createdAtUtc,
         string updatedAtUtc,
         bool favorite)
     {
-        var payload = new WebPayload(title, url, username, password, notes, twoFaNote, totpSecret);
+        var payload = new WebPayload(title, url, username, password, notes);
         var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOptions);
         var encrypted = AesGcmBlob.Encrypt(vaultKey, json);
         var header = new VaultItemHeader(id, ItemType.Web, favorite, createdAtUtc, updatedAtUtc);

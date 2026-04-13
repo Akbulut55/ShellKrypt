@@ -66,6 +66,7 @@
                     Height="48"
                     Padding="0"
                     Classes="primary"
+                    Command="{Binding CopyGeneratedPasswordCommand}"
                     ToolTip.Tip="Copy password"/>
             <Button Content="R"
                     Width="48"

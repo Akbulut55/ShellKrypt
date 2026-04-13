@@ -1,14 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Infrastructure.Crypto;
-using Avalonia.Threading;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -26,25 +23,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
     [ObservableProperty] private string password;
     [ObservableProperty] private string url;
     [ObservableProperty] private string notes;
-    [ObservableProperty] private string twoFaNote;
-    [ObservableProperty] private string totpSecret;
-    [ObservableProperty] private string totpCode = "";
-    [ObservableProperty] private string totpCountdown = "";
-    [ObservableProperty] private string totpStatus = "No TOTP configured";
-    [ObservableProperty] private bool isFavorite;
-
-    [ObservableProperty] private bool isEditing;
     [ObservableProperty] private bool isPasswordVisible;
-
-    private string _origTitle = "";
-    private string _origUsername = "";
-    private string _origEmail = "";
-    private string _origPassword = "";
-    private string _origUrl = "";
-    private string _origNotes = "";
-    private string _origTwoFaNote = "";
-    private string _origTotpSecret = "";
-    private bool _origFavorite;
 
     public WebLoginRowVm(
         string id,
@@ -53,9 +32,6 @@ public sealed partial class WebLoginRowVm : ObservableObject
         string password,
         string url,
         string notes,
-        string twoFaNote,
-        string totpSecret,
-        bool favorite,
         string createdAtUtc,
         string updatedAtUtc,
         bool isNew,
@@ -68,9 +44,6 @@ public sealed partial class WebLoginRowVm : ObservableObject
         Password = password ?? "";
         Url = url ?? "";
         Notes = notes ?? "";
-        TwoFaNote = twoFaNote ?? "";
-        TotpSecret = totpSecret ?? "";
-        IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         IsNew = isNew;
@@ -80,109 +53,20 @@ public sealed partial class WebLoginRowVm : ObservableObject
     public string UsernameDisplay => string.IsNullOrWhiteSpace(Username) ? Email : Username;
     public string PasswordDisplay => IsPasswordVisible ? Password : "**********";
     public string UrlHost => FormatUrlHost(Url);
-    public string UrlDisplay => DisplayOrPlaceholder("URL", Url);
-    public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
-    public string TwoFaNoteDisplay => DisplayOrPlaceholder("2FA", TwoFaNote);
-    public string FavoriteGlyph => IsFavorite ? "*" : "";
-    public bool HasTotp => !string.IsNullOrWhiteSpace(TotpSecret);
-    public bool CanCopyTotp => !string.IsNullOrWhiteSpace(TotpCode);
 
-    public bool IsViewing => !IsEditing;
-
-    partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
     partial void OnUsernameChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
     partial void OnEmailChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
     partial void OnPasswordChanged(string value) => OnPropertyChanged(nameof(PasswordDisplay));
-    partial void OnUrlChanged(string value)
-    {
-        OnPropertyChanged(nameof(UrlHost));
-        OnPropertyChanged(nameof(UrlDisplay));
-    }
-    partial void OnNotesChanged(string value) => OnPropertyChanged(nameof(NotesDisplay));
-    partial void OnTwoFaNoteChanged(string value) => OnPropertyChanged(nameof(TwoFaNoteDisplay));
-    partial void OnTotpSecretChanged(string value)
-    {
-        OnPropertyChanged(nameof(HasTotp));
-        OnPropertyChanged(nameof(CanCopyTotp));
-    }
-    partial void OnTotpCodeChanged(string value)
-    {
-        OnPropertyChanged(nameof(CanCopyTotp));
-        OnPropertyChanged(nameof(TotpStatus));
-    }
-    partial void OnTotpCountdownChanged(string value) => OnPropertyChanged(nameof(TotpStatus));
-    partial void OnIsFavoriteChanged(bool value) => OnPropertyChanged(nameof(FavoriteGlyph));
+    partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlHost));
     partial void OnIsPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(PasswordDisplay));
 
-    public void BeginEdit()
-    {
-        _origTitle = Title;
-        _origUsername = Username;
-        _origEmail = Email;
-        _origPassword = Password;
-        _origUrl = Url;
-        _origNotes = Notes;
-        _origTwoFaNote = TwoFaNote;
-        _origTotpSecret = TotpSecret;
-        _origFavorite = IsFavorite;
-        IsEditing = true;
-    }
-
-    public void CancelEdit(bool removeIfNew, Action<WebLoginRowVm> removeRow)
-    {
-        if (removeIfNew && IsNew)
-        {
-            removeRow(this);
-            return;
-        }
-
-        Title = _origTitle;
-        Username = _origUsername;
-        Email = _origEmail;
-        Password = _origPassword;
-        Url = _origUrl;
-        Notes = _origNotes;
-        TwoFaNote = _origTwoFaNote;
-        TotpSecret = _origTotpSecret;
-        IsFavorite = _origFavorite;
-        IsEditing = false;
-    }
-
-    public void MarkSaved()
+    public void MarkSaved(string updatedAtUtc)
     {
         IsNew = false;
-        IsEditing = false;
-        UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-    }
-
-    public void RefreshTotpState(DateTimeOffset now)
-    {
-        if (!HasTotp)
-        {
-            TotpCode = "";
-            TotpCountdown = "";
-            TotpStatus = "No TOTP configured";
-            return;
-        }
-
-        if (TotpToolkit.TryGenerateCode(TotpSecret, now, out var code, out var secondsRemaining, out var error))
-        {
-            TotpCode = code;
-            TotpCountdown = $"{secondsRemaining:00}s";
-            TotpStatus = $"OTP: {code} ({secondsRemaining:00}s)";
-            return;
-        }
-
-        TotpCode = "";
-        TotpCountdown = "";
-        TotpStatus = string.IsNullOrWhiteSpace(error) ? "Invalid TOTP secret" : error;
-    }
-
-    private static string DisplayOrPlaceholder(string label, string? value)
-    {
-        var text = string.IsNullOrWhiteSpace(value) ? "(none)" : value.Trim();
-        return text.Length > 120 ? $"{label}: {text[..117]}..." : $"{label}: {text}";
+        UpdatedAtUtc = string.IsNullOrWhiteSpace(updatedAtUtc)
+            ? DateTimeOffset.UtcNow.ToString("O")
+            : updatedAtUtc;
     }
 
     private static string FormatUrlHost(string? value)
@@ -221,17 +105,12 @@ public partial class WebLoginsViewModel : ViewModelBase
     private const int GeneratedLoginPasswordLength = 32;
 
     private readonly MainWindowViewModel _root;
-    private readonly IItemRepository _repo;
-    private readonly DispatcherTimer _totpTimer = new();
+    private readonly IWebLoginService _webLoginService;
 
     private readonly List<WebLoginRowVm> _all = new();
     private readonly List<WebLoginRowVm> _filtered = new();
     private WebLoginRowVm? _selectedDetailsRow;
 
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
     private static readonly char[] LoginPasswordChars =
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
 
@@ -253,7 +132,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     [ObservableProperty] private string addUsername = "";
     [ObservableProperty] private string addEmail = "";
     [ObservableProperty] private string addPassword = "";
-    [ObservableProperty] private string addTotpSecret = "";
     [ObservableProperty] private string addNotes = "";
 
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
@@ -307,13 +185,10 @@ public partial class WebLoginsViewModel : ViewModelBase
         : "Fields are encrypted locally before being stored.";
     public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? "Hide" : "Reveal";
 
-    public WebLoginsViewModel(MainWindowViewModel root, IItemRepository repo)
+    public WebLoginsViewModel(MainWindowViewModel root, IWebLoginService webLoginService)
     {
         _root = root;
-        _repo = repo;
-        _totpTimer.Interval = TimeSpan.FromSeconds(1);
-        _totpTimer.Tick += (_, _) => RefreshTotpRows();
-        _totpTimer.Start();
+        _webLoginService = webLoginService;
         _ = LoadAsync();
     }
 
@@ -368,13 +243,6 @@ public partial class WebLoginsViewModel : ViewModelBase
         IsAddWebLoginMode = true;
         ClearAddForm();
         IsAddWebLoginModalOpen = true;
-    }
-
-    [RelayCommand]
-    private void BeginEdit(WebLoginRowVm row)
-    {
-        Error = "";
-        row.BeginEdit();
     }
 
     [RelayCommand]
@@ -435,118 +303,9 @@ public partial class WebLoginsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task SaveAsync(WebLoginRowVm row)
-    {
-        Error = "";
-
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(row.Title)) { Error = "Title is required."; return; }
-
-        var totpSecret = row.TotpSecret?.Trim() ?? "";
-        if (!string.IsNullOrWhiteSpace(totpSecret) &&
-            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
-        {
-            Error = $"TOTP secret is invalid: {totpError}";
-            return;
-        }
-
-        try
-        {
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var payload = new WebPayload(
-                Title: row.Title,
-                Url: row.Url ?? "",
-                Username: row.Username,
-                Password: row.Password,
-                Notes: row.Notes ?? "",
-                TwoFaNote: row.TwoFaNote ?? "",
-                TotpSecret: totpSecret
-            )
-            {
-                Email = row.Email.Trim()
-            };
-
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-
-            var header = new VaultItemHeader(
-                Id: row.Id,
-                Type: ItemType.Web,
-                Favorite: row.IsFavorite,
-                CreatedAtUtc: row.CreatedAtUtc,
-                UpdatedAtUtc: now
-            );
-
-            if (row.IsNew)
-                await _repo.InsertAsync(_root.VaultPath, header, enc);
-            else
-                await _repo.UpdateAsync(_root.VaultPath, header, enc);
-
-            row.MarkSaved();
-            row.RefreshTotpState(DateTimeOffset.UtcNow);
-            ApplyFilter();
-        }
-        catch (Exception ex)
-        {
-            Error = ex.Message;
-        }
-    }
-
-    [RelayCommand]
-    private void Cancel(WebLoginRowVm row)
-    {
-        Error = "";
-        row.CancelEdit(removeIfNew: true, removeRow: RemoveRow);
-        ApplyFilter();
-    }
-
-    [RelayCommand]
-    private async Task DeleteAsync(WebLoginRowVm row)
-    {
-        Error = "";
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-
-        try
-        {
-            await _repo.DeleteAsync(_root.VaultPath, row.Id);
-            RemoveRow(row);
-        }
-        catch (Exception ex)
-        {
-            Error = ex.Message;
-        }
-    }
-
-    [RelayCommand]
     private void TogglePassword(WebLoginRowVm row)
     {
         row.IsPasswordVisible = !row.IsPasswordVisible;
-    }
-
-    [RelayCommand]
-    private async Task ToggleFavoriteAsync(WebLoginRowVm row)
-    {
-        Error = "";
-        var previous = row.IsFavorite;
-        row.IsFavorite = !row.IsFavorite;
-        await SaveAsync(row);
-
-        if (!string.IsNullOrWhiteSpace(Error))
-            row.IsFavorite = previous;
-    }
-
-    [RelayCommand]
-    private async Task CopyTotpAsync(WebLoginRowVm row)
-    {
-        Error = "";
-
-        if (string.IsNullOrWhiteSpace(row.TotpCode))
-        {
-            Error = "No TOTP code available.";
-            return;
-        }
-
-        await _root.CopyToClipboardAsync(row.TotpCode);
     }
 
     [RelayCommand]
@@ -615,61 +374,11 @@ public partial class WebLoginsViewModel : ViewModelBase
         if (_root.VaultPath is null) { Error = "No vault selected."; return; }
         if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
 
-        var totpSecret = AddTotpSecret.Trim();
-        if (!string.IsNullOrWhiteSpace(totpSecret) &&
-            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
-        {
-            Error = $"TOTP secret is invalid: {totpError}";
-            return;
-        }
-
         try
         {
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var id = Guid.NewGuid().ToString("N");
-            var payload = new WebPayload(
-                Title: AddTitle.Trim(),
-                Url: AddUrl.Trim(),
-                Username: AddUsername.Trim(),
-                Password: AddPassword,
-                Notes: AddNotes.Trim(),
-                TwoFaNote: "",
-                TotpSecret: totpSecret
-            )
-            {
-                Email = AddEmail.Trim()
-            };
+            var entry = await _webLoginService.AddAsync(_root.VaultPath, _root.VaultKey, BuildInput());
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-            var header = new VaultItemHeader(
-                Id: id,
-                Type: ItemType.Web,
-                Favorite: false,
-                CreatedAtUtc: now,
-                UpdatedAtUtc: now
-            );
-
-            await _repo.InsertAsync(_root.VaultPath, header, enc);
-
-            var row = new WebLoginRowVm(
-                id,
-                payload.Title,
-                payload.Username,
-                payload.Password,
-                payload.Url,
-                payload.Notes,
-                payload.TwoFaNote,
-                payload.TotpSecret,
-                favorite: false,
-                createdAtUtc: now,
-                updatedAtUtc: now,
-                isNew: false,
-                email: payload.Email
-            );
-
-            row.RefreshTotpState(DateTimeOffset.UtcNow);
-            _all.Insert(0, row);
+            _all.Insert(0, ToRow(entry));
             RefreshEmailFilterOptions();
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
@@ -690,53 +399,17 @@ public partial class WebLoginsViewModel : ViewModelBase
         if (_root.VaultPath is null) { Error = "No vault selected."; return; }
         if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
 
-        var totpSecret = AddTotpSecret.Trim();
-        if (!string.IsNullOrWhiteSpace(totpSecret) &&
-            !TotpToolkit.TryParse(totpSecret, out _, out var totpError))
-        {
-            Error = $"TOTP secret is invalid: {totpError}";
-            return;
-        }
-
         try
         {
             var row = _selectedDetailsRow;
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var payload = new WebPayload(
-                Title: AddTitle.Trim(),
-                Url: AddUrl.Trim(),
-                Username: AddUsername.Trim(),
-                Password: AddPassword,
-                Notes: AddNotes.Trim(),
-                TwoFaNote: row.TwoFaNote ?? "",
-                TotpSecret: totpSecret
-            )
-            {
-                Email = AddEmail.Trim()
-            };
+            var entry = await _webLoginService.UpdateAsync(
+                _root.VaultPath,
+                _root.VaultKey,
+                row.Id,
+                row.CreatedAtUtc,
+                BuildInput());
 
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-            var header = new VaultItemHeader(
-                Id: row.Id,
-                Type: ItemType.Web,
-                Favorite: row.IsFavorite,
-                CreatedAtUtc: row.CreatedAtUtc,
-                UpdatedAtUtc: now
-            );
-
-            await _repo.UpdateAsync(_root.VaultPath, header, enc);
-
-            row.Title = payload.Title;
-            row.Url = payload.Url;
-            row.Username = payload.Username;
-            row.Email = payload.Email;
-            row.Password = payload.Password;
-            row.Notes = payload.Notes;
-            row.TwoFaNote = payload.TwoFaNote;
-            row.TotpSecret = payload.TotpSecret;
-            row.MarkSaved();
-            row.RefreshTotpState(DateTimeOffset.UtcNow);
+            ApplyEntry(row, entry);
 
             IsLoginDetailsEditing = false;
             IsLoginDeleteConfirming = false;
@@ -760,7 +433,7 @@ public partial class WebLoginsViewModel : ViewModelBase
         try
         {
             var row = _selectedDetailsRow;
-            await _repo.DeleteAsync(_root.VaultPath, row.Id);
+            await _webLoginService.DeleteAsync(_root.VaultPath, row.Id);
             RemoveRow(row);
             _selectedDetailsRow = null;
             IsLoginDeleteConfirming = false;
@@ -810,7 +483,6 @@ public partial class WebLoginsViewModel : ViewModelBase
         AddUsername = "";
         AddEmail = "";
         AddPassword = "";
-        AddTotpSecret = "";
         AddNotes = "";
         IsAddPasswordVisible = false;
     }
@@ -822,8 +494,34 @@ public partial class WebLoginsViewModel : ViewModelBase
         AddUsername = row.Username;
         AddEmail = row.Email;
         AddPassword = row.Password;
-        AddTotpSecret = row.TotpSecret;
         AddNotes = row.Notes;
+    }
+
+    private WebLoginInput BuildInput()
+        => new(AddTitle, AddUrl, AddUsername, AddEmail, AddPassword, AddNotes);
+
+    private static WebLoginRowVm ToRow(WebLoginEntry entry)
+        => new(
+            entry.Id,
+            entry.Title,
+            entry.Username,
+            entry.Password,
+            entry.Url,
+            entry.Notes,
+            entry.CreatedAtUtc,
+            entry.UpdatedAtUtc,
+            isNew: false,
+            email: entry.Email);
+
+    private static void ApplyEntry(WebLoginRowVm row, WebLoginEntry entry)
+    {
+        row.Title = entry.Title;
+        row.Url = entry.Url;
+        row.Username = entry.Username;
+        row.Email = entry.Email;
+        row.Password = entry.Password;
+        row.Notes = entry.Notes;
+        row.MarkSaved(entry.UpdatedAtUtc);
     }
 
     private async Task LoadAsync()
@@ -837,34 +535,11 @@ public partial class WebLoginsViewModel : ViewModelBase
             _all.Clear();
             Rows.Clear();
 
-            var rows = await _repo.ListAsync(_root.VaultPath);
-
-            foreach (var r in rows.Where(x => x.Header.Type == ItemType.Web))
-            {
-                var json = AesGcmBlob.Decrypt(_root.VaultKey, r.EncryptedPayload);
-                var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts);
-                if (payload is null) continue;
-
-                _all.Add(new WebLoginRowVm(
-                    r.Header.Id,
-                    payload.Title,
-                    payload.Username,
-                    payload.Password,
-                    payload.Url,
-                    payload.Notes,
-                    payload.TwoFaNote,
-                    payload.TotpSecret,
-                    r.Header.Favorite,
-                    r.Header.CreatedAtUtc,
-                    r.Header.UpdatedAtUtc,
-                    isNew: false,
-                    email: payload.Email
-                ));
-            }
+            var entries = await _webLoginService.ListAsync(_root.VaultPath, _root.VaultKey);
+            _all.AddRange(entries.Select(ToRow));
 
             RefreshEmailFilterOptions();
             ApplyFilter();
-            RefreshTotpRows();
         }
         catch (Exception ex)
         {
@@ -895,10 +570,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 r.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Email.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Url.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.TwoFaNote.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.TotpSecret.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                (r.IsFavorite && "favorite".Contains(q, StringComparison.OrdinalIgnoreCase)));
+                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
         _filtered.Clear();
@@ -973,11 +645,4 @@ public partial class WebLoginsViewModel : ViewModelBase
         RenderPage();
     }
 
-    private void RefreshTotpRows()
-    {
-        var now = DateTimeOffset.UtcNow;
-
-        foreach (var row in _all)
-            row.RefreshTotpState(now);
-    }
 }

@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -14,6 +15,7 @@ public partial class ToolsViewModel : ViewModelBase
     private const int PasswordDisplayRowLength = 50;
     private const int UtilityOutputDisplayRowLength = 48;
     private const int DisplayRows = 2;
+    private readonly MainWindowViewModel _root;
 
     private static readonly char[] Lowercase = "abcdefghijklmnopqrstuvwxyz".ToCharArray();
     private static readonly char[] Uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ".ToCharArray();
@@ -21,7 +23,6 @@ public partial class ToolsViewModel : ViewModelBase
     private static readonly char[] Symbols = "!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
 
     [ObservableProperty] private double passwordLength = 32;
-    [ObservableProperty] private string passwordLengthText = "32";
     [ObservableProperty] private bool includeLowercase = true;
     [ObservableProperty] private bool includeUppercase = true;
     [ObservableProperty] private bool includeNumbers = true;
@@ -34,10 +35,9 @@ public partial class ToolsViewModel : ViewModelBase
     [ObservableProperty] private string base64Input = "";
     [ObservableProperty] private string base64Output = "";
 
-    [ObservableProperty] private string statusMessage = "Ready.";
-
-    public ToolsViewModel()
+    public ToolsViewModel(MainWindowViewModel root)
     {
+        _root = root;
         GeneratePassword();
     }
 
@@ -48,7 +48,6 @@ public partial class ToolsViewModel : ViewModelBase
 
     partial void OnPasswordLengthChanged(double value)
     {
-        PasswordLengthText = PasswordLengthDisplay;
         OnPropertyChanged(nameof(PasswordLengthDisplay));
     }
 
@@ -71,7 +70,6 @@ public partial class ToolsViewModel : ViewModelBase
     private void GeneratePassword()
     {
         var length = NormalizePasswordLength(PasswordLength);
-        PasswordLengthText = length.ToString(CultureInfo.InvariantCulture);
 
         var pools = new List<char[]>();
         if (IncludeLowercase) pools.Add(Lowercase);
@@ -81,7 +79,6 @@ public partial class ToolsViewModel : ViewModelBase
 
         if (pools.Count == 0)
         {
-            StatusMessage = "Select at least one character set.";
             return;
         }
 
@@ -99,7 +96,15 @@ public partial class ToolsViewModel : ViewModelBase
 
         Shuffle(chars);
         GeneratedPassword = new string(chars.ToArray());
-        StatusMessage = $"Generated a {length}-character password.";
+    }
+
+    [RelayCommand]
+    private async Task CopyGeneratedPasswordAsync()
+    {
+        if (string.IsNullOrWhiteSpace(GeneratedPassword))
+            return;
+
+        await _root.CopyToClipboardAsync(GeneratedPassword);
     }
 
     [RelayCommand]
@@ -108,12 +113,10 @@ public partial class ToolsViewModel : ViewModelBase
         if (HashInput.Length == 0)
         {
             HashOutput = "";
-            StatusMessage = "Enter text to hash.";
             return;
         }
 
         HashOutput = ComputeHash(HashInput, SHA256.HashData);
-        StatusMessage = "SHA-256 updated.";
     }
 
     [RelayCommand]
@@ -122,12 +125,10 @@ public partial class ToolsViewModel : ViewModelBase
         if (HashInput.Length == 0)
         {
             HashOutput = "";
-            StatusMessage = "Enter text to hash.";
             return;
         }
 
         HashOutput = ComputeHash(HashInput, SHA512.HashData);
-        StatusMessage = "SHA-512 updated.";
     }
 
     [RelayCommand]
@@ -136,13 +137,11 @@ public partial class ToolsViewModel : ViewModelBase
         if (Base64Input.Length == 0)
         {
             Base64Output = "";
-            StatusMessage = "Enter text to encode.";
             return;
         }
 
         var bytes = Encoding.UTF8.GetBytes(Base64Input ?? "");
         Base64Output = Convert.ToBase64String(bytes);
-        StatusMessage = "Base64 encoded.";
     }
 
     [RelayCommand]
@@ -151,7 +150,6 @@ public partial class ToolsViewModel : ViewModelBase
         if (Base64Input.Trim().Length == 0)
         {
             Base64Output = "";
-            StatusMessage = "Enter Base64 text to decode.";
             return;
         }
 
@@ -159,12 +157,10 @@ public partial class ToolsViewModel : ViewModelBase
         {
             var bytes = Convert.FromBase64String((Base64Input ?? "").Trim());
             Base64Output = Encoding.UTF8.GetString(bytes);
-            StatusMessage = "Base64 decoded.";
         }
         catch (FormatException)
         {
             Base64Output = "";
-            StatusMessage = "Input is not valid Base64.";
         }
     }
 

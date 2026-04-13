@@ -139,177 +139,116 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:CardRowVm">
                   <Border Classes="cards-row">
-                    <Grid RowDefinitions="Auto,Auto"
+                    <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
+                          ColumnSpacing="18"
                           Margin="22,0"
                           MinHeight="78">
-                      <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
-                            ColumnSpacing="18"
-                            MinHeight="78">
-                        <Grid ColumnDefinitions="Auto,*"
-                              ColumnSpacing="12"
-                              VerticalAlignment="Center">
-                          <Border Width="34"
-                                  Height="34"
-                                  CornerRadius="4"
-                                  Background="{StaticResource SurfaceElevatedBrush}">
-                            <Grid>
-                              <Border Width="24"
-                                      Height="24"
-                                      CornerRadius="2"
-                                      Background="{StaticResource AppBackgroundSoftBrush}"
-                                      HorizontalAlignment="Center"
-                                      VerticalAlignment="Center"/>
-                              <TextBlock Text="C"
-                                         HorizontalAlignment="Center"
-                                         VerticalAlignment="Center"
-                                         FontSize="12"
-                                         FontWeight="Black"
-                                         Foreground="{StaticResource AccentBrush}"/>
-                            </Grid>
-                          </Border>
-
-                          <StackPanel Grid.Column="1"
-                                      Spacing="4"
-                                      VerticalAlignment="Center">
-                            <TextBlock Text="{Binding Title}"
-                                       FontSize="14"
-                                       FontWeight="SemiBold"
-                                       TextWrapping="Wrap"
-                                       TextTrimming="CharacterEllipsis"
-                                       IsVisible="{Binding IsViewing}"/>
-                            <TextBox Text="{Binding Title}"
-                                     Classes="cards-inline-input"
-                                     PlaceholderText="Card title"
-                                     IsVisible="{Binding IsEditing}"/>
-                            <TextBlock Text="{Binding SubtitleDisplay}"
-                                       Classes="cards-row-subtitle"
-                                       TextTrimming="CharacterEllipsis"
-                                       IsVisible="{Binding IsViewing}"/>
-                          </StackPanel>
-                        </Grid>
+                      <Grid ColumnDefinitions="Auto,*"
+                            ColumnSpacing="12"
+                            VerticalAlignment="Center">
+                        <Border Width="34"
+                                Height="34"
+                                CornerRadius="4"
+                                Background="{StaticResource SurfaceElevatedBrush}">
+                          <Grid>
+                            <Border Width="24"
+                                    Height="24"
+                                    CornerRadius="2"
+                                    Background="{StaticResource AppBackgroundSoftBrush}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            <TextBlock Text="C"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="12"
+                                       FontWeight="Black"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                          </Grid>
+                        </Border>
 
                         <StackPanel Grid.Column="1"
-                                    Spacing="6"
+                                    Spacing="4"
                                     VerticalAlignment="Center">
-                          <TextBlock Text="{Binding BankDisplay}"
+                          <TextBlock Text="{Binding Title}"
                                      FontSize="14"
                                      FontWeight="SemiBold"
                                      TextWrapping="Wrap"
-                                     IsVisible="{Binding IsViewing}"/>
-                          <TextBox Text="{Binding Bank}"
-                                   Classes="cards-inline-input"
-                                   PlaceholderText="Bank"
-                                   IsVisible="{Binding IsEditing}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2"
-                                    Spacing="6"
-                                    VerticalAlignment="Center">
-                          <TextBlock Text="{Binding NumberDisplay}"
-                                     Classes="cards-number"
-                                     TextWrapping="Wrap"
-                                     IsVisible="{Binding IsViewing}"/>
-                          <TextBox Text="{Binding Number}"
-                                   Classes="cards-inline-input mono"
-                                   PlaceholderText="Card number"
-                                   IsVisible="{Binding IsEditing}"/>
-                        </StackPanel>
-
-                        <Button Grid.Column="3"
-                                Content="E"
-                                Classes="cards-reveal-button"
-                                IsVisible="{Binding IsViewing}"
-                                Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                ToolTip.Tip="{Binding SecretsActionLabel}"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"/>
-
-                        <StackPanel Grid.Column="4"
-                                    Spacing="6"
-                                    VerticalAlignment="Center">
-                          <Grid ColumnDefinitions="Auto,Auto"
-                                ColumnSpacing="6"
-                                IsVisible="{Binding IsViewing}">
-                            <TextBlock Text="{Binding ExpiryDisplay}"
-                                       Classes="cards-expiry"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="!"
-                                       Foreground="{StaticResource DangerBrush}"
-                                       FontWeight="Black"
-                                       IsVisible="{Binding IsExpiryUrgent}"/>
-                          </Grid>
-                          <StackPanel Orientation="Horizontal"
-                                      Spacing="8"
-                            IsVisible="{Binding IsEditing}">
-                            <TextBox Width="58"
-                                     Text="{Binding ExpiryMonth}"
-                                     Classes="cards-inline-input"
-                                     MaxLength="2"
-                                     PlaceholderText="MM"/>
-                            <TextBox Width="70"
-                                     Text="{Binding ExpiryYear}"
-                                     Classes="cards-inline-input"
-                                     MaxLength="4"
-                                     PlaceholderText="YYYY"/>
-                          </StackPanel>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="5"
-                                    Spacing="6"
-                                    VerticalAlignment="Center">
-                          <Border Classes="cards-issuer-chip"
-                                  Padding="9,3"
-                                  HorizontalAlignment="Left"
-                                  IsVisible="{Binding IsViewing}">
-                            <TextBlock Text="{Binding IssuerDisplay}"
-                                       FontSize="11"
-                                       FontWeight="Black"
-                                       Foreground="{StaticResource TextMutedBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                          </Border>
-                          <TextBox Text="{Binding Cvc}"
-                                   Classes="cards-inline-input"
-                                   MaxLength="4"
-                                   PlaceholderText="CVC"
-                                   IsVisible="{Binding IsEditing}"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="6"
-                                    Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Center"
-                                    Spacing="8">
-                          <Button Content="Details"
-                                  Classes="cards-action"
-                                  IsVisible="{Binding IsViewing}"
-                                  Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
-                          <Button Content="Copy Card Number"
-                                  Classes="cards-action"
-                                  IsVisible="{Binding IsViewing}"
-                                  Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
-                          <Button Content="Save"
-                                  Classes="cards-action primary"
-                                  IsVisible="{Binding IsEditing}"
-                                  Command="{Binding DataContext.SaveCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
-                          <Button Content="Cancel"
-                                  Classes="cards-action"
-                                  IsVisible="{Binding IsEditing}"
-                                  Command="{Binding DataContext.CancelCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Text="{Binding SubtitleDisplay}"
+                                     Classes="cards-row-subtitle"
+                                     TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
                       </Grid>
 
-                      <TextBox Grid.Row="1"
-                               Text="{Binding Notes}"
-                               Classes="cards-inline-input notes"
-                               PlaceholderText="Notes"
-                               AcceptsReturn="True"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding IsEditing}"/>
+                      <StackPanel Grid.Column="1"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <TextBlock Text="{Binding BankDisplay}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"/>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="2"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <TextBlock Text="{Binding NumberDisplay}"
+                                   Classes="cards-number"
+                                   TextWrapping="Wrap"/>
+                      </StackPanel>
+
+                      <Button Grid.Column="3"
+                              Content="E"
+                              Classes="cards-reveal-button"
+                              Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}"
+                              ToolTip.Tip="{Binding SecretsActionLabel}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+
+                      <StackPanel Grid.Column="4"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <Grid ColumnDefinitions="Auto,Auto"
+                              ColumnSpacing="6">
+                          <TextBlock Text="{Binding ExpiryDisplay}"
+                                     Classes="cards-expiry"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="!"
+                                     Foreground="{StaticResource DangerBrush}"
+                                     FontWeight="Black"
+                                     IsVisible="{Binding IsExpiryUrgent}"/>
+                        </Grid>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="5"
+                                  Spacing="6"
+                                  VerticalAlignment="Center">
+                        <Border Classes="cards-issuer-chip"
+                                Padding="9,3"
+                                HorizontalAlignment="Left">
+                          <TextBlock Text="{Binding IssuerDisplay}"
+                                     FontSize="11"
+                                     FontWeight="Black"
+                                     Foreground="{StaticResource TextMutedBrush}"
+                                     TextTrimming="CharacterEllipsis"/>
+                        </Border>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="6"
+                                  Orientation="Horizontal"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Spacing="8">
+                        <Button Content="Details"
+                                Classes="cards-action"
+                                Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
+                        <Button Content="Copy Card Number"
+                                Classes="cards-action"
+                                Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
+                      </StackPanel>
                     </Grid>
                   </Border>
                 </DataTemplate>
@@ -638,10 +577,6 @@
       <Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/>
     </Style>
 
-    <Style Selector="Border.cards-stat.secondary">
-      <Setter Property="BorderBrush" Value="{StaticResource SuccessBrush}"/>
-    </Style>
-
     <Style Selector="Border.cards-filter-shell">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="CornerRadius" Value="0"/>
@@ -671,27 +606,6 @@
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="Padding" Value="12,0"/>
-    </Style>
-
-    <Style Selector="Button.cards-filter-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.cards-filter-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Button.cards-add-button">
@@ -800,16 +714,6 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
-    </Style>
-
-    <Style Selector="TextBox.cards-inline-input:pointerover">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="CornerRadius" Value="6"/>
-    </Style>
-
-    <Style Selector="TextBox.cards-inline-input:focus">
-      <Setter Property="CornerRadius" Value="6"/>
     </Style>
 
     <Style Selector="Button.cards-modal-close-button">
@@ -949,26 +853,6 @@
       <Setter Property="CornerRadius" Value="4"/>
     </Style>
 
-    <Style Selector="TextBox.cards-inline-input">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="Padding" Value="10,7"/>
-    </Style>
-
-    <Style Selector="TextBox.cards-inline-input.mono">
-      <Setter Property="FontFamily" Value="Consolas"/>
-    </Style>
-
-    <Style Selector="TextBox.cards-inline-input.notes">
-      <Setter Property="Margin" Value="54,0,0,16"/>
-      <Setter Property="MinHeight" Value="68"/>
-    </Style>
-
     <Style Selector="Button.cards-action">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
@@ -988,15 +872,6 @@
     <Style Selector="Button.cards-action:pointerover">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.cards-action.danger:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-    </Style>
-
-    <Style Selector="Button.cards-action.primary">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
     </Style>
 
     <Style Selector="Button.cards-reveal-button">
@@ -1036,11 +911,6 @@
 
     <Style Selector="Button.cards-page-button:pointerover">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="TextBlock.cards-page-text">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
     </Style>
 
     <Style Selector="TextBlock.cards-footer-text">

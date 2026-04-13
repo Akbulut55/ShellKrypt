@@ -20,7 +20,6 @@ public sealed partial class CardRowVm : ObservableObject
     internal const int CvcMaxDigits = 4;
 
     public string Id { get; }
-    public bool IsNew { get; private set; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
 
@@ -34,22 +33,8 @@ public sealed partial class CardRowVm : ObservableObject
     [ObservableProperty] private string notes;
     [ObservableProperty] private string issuer;
     [ObservableProperty] private string cardType;
-    [ObservableProperty] private bool isFavorite;
 
-    [ObservableProperty] private bool isEditing;
     [ObservableProperty] private bool isSecretsVisible;
-
-    private string _origTitle = "";
-    private string _origBank = "";
-    private string _origCardholder = "";
-    private string _origNumber = "";
-    private string _origExpiryMonth = "";
-    private string _origExpiryYear = "";
-    private string _origCvc = "";
-    private string _origNotes = "";
-    private string _origIssuer = "";
-    private string _origCardType = "";
-    private bool _origFavorite;
 
     public CardRowVm(
         string id,
@@ -63,10 +48,8 @@ public sealed partial class CardRowVm : ObservableObject
         string notes,
         string issuer,
         string cardType,
-        bool favorite,
         string createdAtUtc,
-        string updatedAtUtc,
-        bool isNew)
+        string updatedAtUtc)
     {
         Id = id;
         Title = title ?? "";
@@ -79,13 +62,9 @@ public sealed partial class CardRowVm : ObservableObject
         Notes = notes ?? "";
         Issuer = string.IsNullOrWhiteSpace(issuer) ? DetectIssuer(number) : issuer;
         CardType = string.IsNullOrWhiteSpace(cardType) ? DefaultCardType : cardType;
-        IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
-        IsNew = isNew;
     }
-
-    public bool IsViewing => !IsEditing;
 
     public string IconLetter => string.IsNullOrWhiteSpace(Title)
         ? "?"
@@ -94,13 +73,9 @@ public sealed partial class CardRowVm : ObservableObject
     public string NumberDisplay
         => IsSecretsVisible ? FormatCardNumber(Number) : MaskCardNumber(Number);
 
-    public string CvcDisplay
-        => IsSecretsVisible ? Cvc : (string.IsNullOrWhiteSpace(Cvc) ? "" : "***");
-
     public string ExpiryDisplay
         => $"{(string.IsNullOrWhiteSpace(ExpiryMonth) ? "MM" : ExpiryMonth)} / {FormatExpiryYear(ExpiryYear)}";
 
-    public string NotesDisplay => DisplayOrPlaceholder("Notes", Notes);
     public string SubtitleDisplay => string.IsNullOrWhiteSpace(Notes)
         ? (string.IsNullOrWhiteSpace(Cardholder) ? "Encrypted card" : Cardholder.Trim())
         : Notes.Trim();
@@ -110,10 +85,8 @@ public sealed partial class CardRowVm : ObservableObject
     public bool IsExpiryUrgent => TryGetExpiryDate(out var expiry) &&
                                   expiry >= DateTime.Today &&
                                   expiry <= DateTime.Today.AddMonths(3);
-    public string FavoriteGlyph => IsFavorite ? "*" : "";
     public string SecretsActionLabel => IsSecretsVisible ? "Hide" : "View";
 
-    partial void OnIsEditingChanged(bool value) => OnPropertyChanged(nameof(IsViewing));
     partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
     partial void OnBankChanged(string value) => OnPropertyChanged(nameof(BankDisplay));
     partial void OnNumberChanged(string value)
@@ -128,10 +101,7 @@ public sealed partial class CardRowVm : ObservableObject
         if (!string.Equals(value, normalized, StringComparison.Ordinal))
         {
             Cvc = normalized;
-            return;
         }
-
-        OnPropertyChanged(nameof(CvcDisplay));
     }
     partial void OnExpiryMonthChanged(string value)
     {
@@ -158,61 +128,18 @@ public sealed partial class CardRowVm : ObservableObject
     partial void OnCardholderChanged(string value) => OnPropertyChanged(nameof(SubtitleDisplay));
     partial void OnNotesChanged(string value)
     {
-        OnPropertyChanged(nameof(NotesDisplay));
         OnPropertyChanged(nameof(SubtitleDisplay));
     }
     partial void OnIssuerChanged(string value) => OnPropertyChanged(nameof(IssuerDisplay));
-    partial void OnIsFavoriteChanged(bool value) => OnPropertyChanged(nameof(FavoriteGlyph));
     partial void OnIsSecretsVisibleChanged(bool value)
     {
         OnPropertyChanged(nameof(NumberDisplay));
-        OnPropertyChanged(nameof(CvcDisplay));
         OnPropertyChanged(nameof(SecretsActionLabel));
-    }
-
-    public void BeginEdit()
-    {
-        _origTitle = Title;
-        _origBank = Bank;
-        _origCardholder = Cardholder;
-        _origNumber = Number;
-        _origExpiryMonth = ExpiryMonth;
-        _origExpiryYear = ExpiryYear;
-        _origCvc = Cvc;
-        _origNotes = Notes;
-        _origIssuer = Issuer;
-        _origCardType = CardType;
-        _origFavorite = IsFavorite;
-        IsEditing = true;
-    }
-
-    public void CancelEdit(bool removeIfNew, Action<CardRowVm> removeRow)
-    {
-        if (removeIfNew && IsNew)
-        {
-            removeRow(this);
-            return;
-        }
-
-        Title = _origTitle;
-        Bank = _origBank;
-        Cardholder = _origCardholder;
-        Number = _origNumber;
-        ExpiryMonth = _origExpiryMonth;
-        ExpiryYear = _origExpiryYear;
-        Cvc = _origCvc;
-        Notes = _origNotes;
-        Issuer = _origIssuer;
-        CardType = _origCardType;
-        IsFavorite = _origFavorite;
-        IsEditing = false;
     }
 
     public void MarkSaved()
     {
         Issuer = string.IsNullOrWhiteSpace(Issuer) ? DetectIssuer(Number) : Issuer.Trim();
-        IsNew = false;
-        IsEditing = false;
         UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
     }
 
@@ -317,11 +244,6 @@ public sealed partial class CardRowVm : ObservableObject
         return true;
     }
 
-    private static string DisplayOrPlaceholder(string label, string? value)
-    {
-        var text = string.IsNullOrWhiteSpace(value) ? "(none)" : value.Trim();
-        return text.Length > 120 ? $"{label}: {text[..117]}..." : $"{label}: {text}";
-    }
 }
 
 public partial class CardsViewModel : ViewModelBase
@@ -405,11 +327,9 @@ public partial class CardsViewModel : ViewModelBase
     [ObservableProperty] private string addExpiryYear = "";
     [ObservableProperty] private string addCvc = "";
     [ObservableProperty] private string addNotes = "";
-    [ObservableProperty] private bool addFavorite;
     [ObservableProperty] private bool isAddCvcVisible;
     [ObservableProperty] private string error = "";
 
-    public int TotalCardsCount => _all.Count;
     public int ActiveCardsCount => _all.Count(row => !row.IsExpired);
     public int ExpiringSoonCount => _all.Count(row => row.IsExpiryUrgent);
     public int ExpiredCardsCount => _all.Count(row => row.IsExpired);
@@ -537,13 +457,6 @@ public partial class CardsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void BeginEdit(CardRowVm row)
-    {
-        Error = "";
-        row.BeginEdit();
-    }
-
-    [RelayCommand]
     private void ShowDetails(CardRowVm row)
     {
         Error = "";
@@ -594,14 +507,6 @@ public partial class CardsViewModel : ViewModelBase
     {
         Error = "";
         IsCardDeleteConfirming = false;
-    }
-
-    [RelayCommand]
-    private void Cancel(CardRowVm row)
-    {
-        Error = "";
-        row.CancelEdit(removeIfNew: true, removeRow: RemoveRow);
-        ApplyFilter(resetPage: false);
     }
 
     [RelayCommand]
@@ -691,7 +596,7 @@ public partial class CardsViewModel : ViewModelBase
             var header = new VaultItemHeader(
                 Id: id,
                 Type: ItemType.Card,
-                Favorite: AddFavorite,
+                Favorite: false,
                 CreatedAtUtc: now,
                 UpdatedAtUtc: now
             );
@@ -710,10 +615,8 @@ public partial class CardsViewModel : ViewModelBase
                 payload.Notes,
                 payload.Issuer,
                 payload.CardType,
-                AddFavorite,
                 now,
-                now,
-                isNew: false
+                now
             ));
 
             ClearAddCardForm();
@@ -782,7 +685,7 @@ public partial class CardsViewModel : ViewModelBase
             var header = new VaultItemHeader(
                 Id: row.Id,
                 Type: ItemType.Card,
-                Favorite: AddFavorite,
+                Favorite: false,
                 CreatedAtUtc: row.CreatedAtUtc,
                 UpdatedAtUtc: now
             );
@@ -799,125 +702,12 @@ public partial class CardsViewModel : ViewModelBase
             row.Notes = payload.Notes;
             row.Issuer = payload.Issuer;
             row.CardType = payload.CardType;
-            row.IsFavorite = AddFavorite;
             row.MarkSaved();
 
             IsCardDetailsEditing = false;
             IsCardDeleteConfirming = false;
             PopulateModalFromRow(row);
             ApplyFilter(resetPage: false);
-        }
-        catch (Exception ex)
-        {
-            Error = ex.Message;
-        }
-    }
-
-    [RelayCommand]
-    private async Task ToggleFavoriteAsync(CardRowVm row)
-    {
-        Error = "";
-        var previous = row.IsFavorite;
-        row.IsFavorite = !row.IsFavorite;
-        await SaveAsync(row);
-
-        if (!string.IsNullOrWhiteSpace(Error))
-        {
-            row.IsFavorite = previous;
-            NotifyCardSummaryChanged();
-        }
-    }
-
-    [RelayCommand]
-    private async Task SaveAsync(CardRowVm row)
-    {
-        Error = "";
-
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(row.Title)) { Error = "Title is required."; return; }
-
-        var digits = CardRowVm.DigitsOnly(row.Number, CardRowVm.StandardCardNumberMaxDigits);
-        if (digits.Length < 12) { Error = "Card number looks too short."; return; }
-
-        if (!int.TryParse(row.ExpiryMonth, out var mm) || mm < 1 || mm > 12)
-        {
-            Error = "Expiry month must be 1-12.";
-            return;
-        }
-
-        if (!int.TryParse(row.ExpiryYear, out var yy) || yy < 2000 || yy > 2100)
-        {
-            Error = "Expiry year must be like 2026.";
-            return;
-        }
-
-        var cvcDigits = CardRowVm.DigitsOnly(row.Cvc, CardRowVm.CvcMaxDigits);
-        if (cvcDigits.Length is < 3 or > 4)
-        {
-            Error = "CVC must be 3 or 4 digits.";
-            return;
-        }
-
-        try
-        {
-            var now = DateTimeOffset.UtcNow.ToString("O");
-
-            var payload = new CardPayload(
-                Title: row.Title.Trim(),
-                Cardholder: row.Cardholder?.Trim() ?? "",
-                Number: digits,
-                ExpiryMonth: mm,
-                ExpiryYear: yy,
-                Cvc: cvcDigits,
-                Notes: row.Notes?.Trim() ?? "",
-                Issuer: string.IsNullOrWhiteSpace(row.Issuer) ? CardRowVm.DetectIssuer(digits) : row.Issuer.Trim(),
-                Bank: row.Bank?.Trim() ?? "",
-                CardType: string.IsNullOrWhiteSpace(row.CardType) ? CardRowVm.DefaultCardType : row.CardType.Trim()
-            );
-
-            var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-            var enc = AesGcmBlob.Encrypt(_root.VaultKey, json);
-
-            var header = new VaultItemHeader(
-                Id: row.Id,
-                Type: ItemType.Card,
-                Favorite: row.IsFavorite,
-                CreatedAtUtc: row.CreatedAtUtc,
-                UpdatedAtUtc: now
-            );
-
-            if (row.IsNew)
-                await _repo.InsertAsync(_root.VaultPath, header, enc);
-            else
-                await _repo.UpdateAsync(_root.VaultPath, header, enc);
-
-            row.Number = digits;
-            row.Cvc = cvcDigits;
-            row.Issuer = payload.Issuer;
-            row.Bank = payload.Bank ?? "";
-            row.CardType = payload.CardType;
-            row.ExpiryMonth = mm.ToString("00");
-            row.ExpiryYear = yy.ToString();
-            row.MarkSaved();
-
-            ApplyFilter(resetPage: false);
-        }
-        catch (Exception ex)
-        {
-            Error = ex.Message;
-        }
-    }
-
-    [RelayCommand]
-    private async Task DeleteAsync(CardRowVm row)
-    {
-        Error = "";
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-
-        try
-        {
-            await _repo.DeleteAsync(_root.VaultPath, row.Id);
-            RemoveRow(row);
         }
         catch (Exception ex)
         {
@@ -971,7 +761,6 @@ public partial class CardsViewModel : ViewModelBase
         AddCvc = "";
         IsAddCvcVisible = false;
         AddNotes = "";
-        AddFavorite = false;
     }
 
     private void PopulateModalFromRow(CardRowVm row)
@@ -985,7 +774,6 @@ public partial class CardsViewModel : ViewModelBase
         AddCvc = row.Cvc;
         IsAddCvcVisible = false;
         AddNotes = row.Notes;
-        AddFavorite = row.IsFavorite;
         AddCardType = string.IsNullOrWhiteSpace(row.CardType) ? CardRowVm.DefaultCardType : row.CardType;
         AddIssuer = string.IsNullOrWhiteSpace(row.Issuer) ? row.IssuerDisplay : row.Issuer;
         _lastAutoAddIssuer = AddIssuer;
@@ -1044,10 +832,8 @@ public partial class CardsViewModel : ViewModelBase
                     payload.Notes,
                     payload.Issuer,
                     string.IsNullOrWhiteSpace(payload.CardType) ? CardRowVm.DefaultCardType : payload.CardType,
-                    r.Header.Favorite,
                     r.Header.CreatedAtUtc,
-                    r.Header.UpdatedAtUtc,
-                    isNew: false
+                    r.Header.UpdatedAtUtc
                 ));
             }
 
@@ -1103,8 +889,7 @@ public partial class CardsViewModel : ViewModelBase
                 r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.IssuerDisplay.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.CardType.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.ExpiryDisplay.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                (r.IsFavorite && "favorite".Contains(q, StringComparison.OrdinalIgnoreCase)));
+                r.ExpiryDisplay.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
 
         filtered = SelectedSortOption switch
@@ -1143,7 +928,6 @@ public partial class CardsViewModel : ViewModelBase
 
     private void NotifyCardSummaryChanged()
     {
-        OnPropertyChanged(nameof(TotalCardsCount));
         OnPropertyChanged(nameof(ActiveCardsCount));
         OnPropertyChanged(nameof(ExpiringSoonCount));
         OnPropertyChanged(nameof(ExpiredCardsCount));

@@ -311,7 +311,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
     private static string BuildWebDuplicateKey(string payloadJson)
     {
         var payload = JsonSerializer.Deserialize<WebPayload>(payloadJson, JsonOptions)
-            ?? new WebPayload("", "", "", "", "", "", "");
+            ?? new WebPayload("", "", "", "", "");
         return string.Join("|",
             "web",
             NormalizeDuplicatePart(payload.Title),
@@ -400,8 +400,6 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         var username = Get("Username", "Login", "User");
         var password = Get("Password", "Secret");
         var notes = Get("Notes", "Note");
-        var twoFaNote = Get("TwoFaNote", "TwoFactorNote", "2FA Note");
-        var totpSecret = Get("TotpSecret", "TOTPSecret", "OtpSecret", "OTPSecret", "TOTP", "OTP", "2FA", "TwoFactor");
         var cardholder = Get("Cardholder", "Card Holder");
         var number = Get("Number", "CardNumber");
         var expiryMonth = Get("ExpiryMonth", "ExpMonth");
@@ -459,7 +457,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
                 if (string.IsNullOrWhiteSpace(normalizedTitle))
                     return CsvCandidate.Invalid(lineNumber, type, "Web", "Web login rows must include a title, url, or username.");
 
-                var payload = new WebPayload(normalizedTitle, url, username, password, notes, twoFaNote, totpSecret);
+                var payload = new WebPayload(normalizedTitle, url, username, password, notes);
                 payloadJson = JsonSerializer.Serialize(payload, JsonOptions);
                 duplicateKey = string.Join("|", "web", NormalizeDuplicatePart(payload.Title), NormalizeDuplicatePart(payload.Username), NormalizeDuplicatePart(payload.Url));
                 secondaryText = string.IsNullOrWhiteSpace(payload.Username)

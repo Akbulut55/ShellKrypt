@@ -5,9 +5,7 @@ public sealed record WebPayload(
     string Url,
     string Username,
     string Password,
-    string Notes,
-    string TwoFaNote,
-    string TotpSecret
+    string Notes
 )
 {
     public string Email { get; init; } = "";

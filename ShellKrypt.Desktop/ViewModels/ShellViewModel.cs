@@ -9,7 +9,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 public partial class ShellViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
-    private readonly IItemRepository _repo;
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new()
     {
@@ -26,17 +25,16 @@ public partial class ShellViewModel : ViewModelBase
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
 
-    public ShellViewModel(MainWindowViewModel root, IItemRepository repo)
+    public ShellViewModel(MainWindowViewModel root, IItemRepository repo, IWebLoginService webLoginService)
     {
         _root = root;
-        _repo = repo;
 
-        AllItems = new AllItemsViewModel(_root, this, _repo);
-        WebLogins = new WebLoginsViewModel(_root, _repo);
-        SecureNotes = new SecureNotesViewModel(_root, _repo);
-        Cards = new CardsViewModel(_root, _repo);
-        Tools = new ToolsViewModel();
-        Health = new HealthViewModel(_root, _repo);
+        AllItems = new AllItemsViewModel(_root, this, repo);
+        WebLogins = new WebLoginsViewModel(_root, webLoginService);
+        SecureNotes = new SecureNotesViewModel(_root, repo);
+        Cards = new CardsViewModel(_root, repo);
+        Tools = new ToolsViewModel(_root);
+        Health = new HealthViewModel(_root, repo);
         Settings = new SettingsViewModel(_root);
         Vault = new PlaceholderPageViewModel(
             "Vault",
@@ -60,19 +58,19 @@ public partial class ShellViewModel : ViewModelBase
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
-    public string VaultSubtitle => "Local-first encrypted workspace";
+    public string VaultSubtitle => "Local encrypted workspace";
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
         "vault" => "Vault dashboard placeholder for the active encrypted workspace.",
-        "web" => "Credentials, account URLs, and one-time code details.",
+        "web" => "Credentials, account URLs, and saved login details.",
         "notes" => "Encrypted private notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
         "audit" => "Audit reuse, age, and password risk across the repository.",
         "generator" => "Generate and transform local secrets without leaving the vault.",
         "settings" => "Manage security posture, import/export, and desktop behavior.",
         "activity" => "Activity log placeholder for future vault events.",
-        _ => "Military-grade local-first vault workspace."
+        _ => "Local encrypted vault workspace."
     };
     public bool IsSettingsSelected => SelectedNav?.Key == "settings";
     public bool ShowAddItemAction => !IsSettingsSelected;
