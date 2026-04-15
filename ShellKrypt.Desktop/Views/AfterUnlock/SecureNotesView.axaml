@@ -1,0 +1,485 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.SecureNotesView"
+             x:CompileBindings="False"
+             x:DataType="vm:SecureNotesViewModel">
+
+  <UserControl.Resources>
+    <SolidColorBrush x:Key="MonolithBackgroundBrush" Color="#131313"/>
+    <SolidColorBrush x:Key="MonolithSurfaceLowBrush" Color="#1C1B1B"/>
+    <SolidColorBrush x:Key="MonolithSurfaceBrush" Color="#201F1F"/>
+    <SolidColorBrush x:Key="MonolithSurfaceHighBrush" Color="#2A2A2A"/>
+    <SolidColorBrush x:Key="MonolithSurfaceHighestBrush" Color="#353534"/>
+    <SolidColorBrush x:Key="MonolithSurfaceLowestBrush" Color="#0E0E0E"/>
+    <SolidColorBrush x:Key="MonolithAccentBrush" Color="#57F1DB"/>
+    <SolidColorBrush x:Key="MonolithAccentSoftBrush" Color="#2DD4BF"/>
+    <SolidColorBrush x:Key="MonolithTextBrush" Color="#E5E2E1"/>
+    <SolidColorBrush x:Key="MonolithMutedBrush" Color="#BACAC5"/>
+    <SolidColorBrush x:Key="MonolithOutlineBrush" Color="#3C4A46"/>
+    <SolidColorBrush x:Key="MonolithSuccessBrush" Color="#9CD1C6"/>
+    <SolidColorBrush x:Key="MonolithSuccessPanelBrush" Color="#1A4F47"/>
+    <SolidColorBrush x:Key="MonolithErrorBrush" Color="#FFB4AB"/>
+    <SolidColorBrush x:Key="MonolithErrorPanelBrush" Color="#93000A"/>
+    <SolidColorBrush x:Key="MonolithPrimaryTextBrush" Color="#003731"/>
+  </UserControl.Resources>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.h1">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.h2">
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.meta">
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.searchBox">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.titleEditor">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.editorBody">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="FontSize" Value="16"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="AcceptsReturn" Value="True"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.actionPrimary">
+      <Setter Property="Foreground" Value="{StaticResource MonolithPrimaryTextBrush}"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Padding" Value="18,12"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Background">
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+          <GradientStop Offset="0" Color="#57F1DB"/>
+          <GradientStop Offset="1" Color="#2DD4BF"/>
+        </LinearGradientBrush>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.actionSecondary">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceHighBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Padding" Value="16,12"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.actionGhost">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Padding" Value="10,8"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.filterTab">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,2"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Padding" Value="10,8"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.filterTab.active">
+      <Setter Property="Foreground" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource MonolithAccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.toolButton">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="6,4"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="ListBox.noteList">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.noteList ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0,0,0,12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="ListBox.noteList ListBoxItem:selected">
+      <Setter Property="BorderBrush" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="BorderThickness" Value="3,0,0,0"/>
+    </Style>
+
+    <Style Selector="ListBox.noteList ListBoxItem:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Grid Background="{StaticResource MonolithBackgroundBrush}">
+    <Grid Margin="28,22,28,24"
+          RowDefinitions="Auto,*"
+          RowSpacing="18">
+
+      <Border Background="{StaticResource MonolithBackgroundBrush}"
+              Padding="0,0,0,2">
+        <Grid ColumnDefinitions="380,Auto,*,Auto"
+              ColumnSpacing="18"
+              VerticalAlignment="Center">
+          <Border Background="{StaticResource MonolithSurfaceLowestBrush}"
+                  BorderBrush="#333C4A46"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="14,10">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalAlignment="Center">
+              <TextBlock Text="⌕"
+                         Foreground="{StaticResource MonolithMutedBrush}"
+                         VerticalAlignment="Center"
+                         FontSize="16"/>
+              <TextBox Grid.Column="1"
+                       Classes="searchBox"
+                       Text="{Binding SearchText}"
+                       Watermark="Search secure notes..."/>
+            </Grid>
+          </Border>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="10"
+                      VerticalAlignment="Center">
+            <Button Classes="filterTab"
+                    Classes.active="{Binding IsAllFilterActive}"
+                    Content="All Items"
+                    Command="{Binding ShowAllCommand}"/>
+            <Button Classes="filterTab"
+                    Classes.active="{Binding IsFavoritesFilterActive}"
+                    Content="Favorites"
+                    Command="{Binding ShowFavoritesCommand}"/>
+            <Button Classes="filterTab"
+                    Classes.active="{Binding IsRecentFilterActive}"
+                    Content="Recent"
+                    Command="{Binding ShowRecentCommand}"/>
+          </StackPanel>
+
+          <Grid Grid.Column="3" ColumnDefinitions="Auto,Auto" ColumnSpacing="14">
+            <Button Classes="actionPrimary"
+                    Content="+ Add Item"
+                    Command="{Binding NewNoteCommand}"
+                    IsEnabled="{Binding !IsBusy}"/>
+            <StackPanel Grid.Column="1"
+                        Orientation="Horizontal"
+                        Spacing="12"
+                        VerticalAlignment="Center">
+              <Button Classes="actionGhost" Content="Sync" IsEnabled="False"/>
+              <Button Classes="actionGhost" Content="Alert" IsEnabled="False"/>
+              <Button Classes="actionGhost" Content="Acct" IsEnabled="False"/>
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Row="1"
+            ColumnDefinitions="340,*"
+            ColumnSpacing="18">
+
+        <Border Background="{StaticResource MonolithSurfaceLowBrush}"
+                CornerRadius="10"
+                Padding="16,16,14,16">
+          <Grid RowDefinitions="Auto,*">
+            <Grid ColumnDefinitions="*,Auto" Margin="0,0,0,14">
+              <TextBlock Text="{Binding NotesHeader}"
+                         Foreground="{StaticResource MonolithTextBrush}"
+                         FontWeight="Bold"
+                         FontSize="13"/>
+              <Button Grid.Column="1"
+                      Classes="actionGhost"
+                      Content="Filter"
+                      IsEnabled="False"
+                      Padding="8,4"/>
+            </Grid>
+
+            <Grid Grid.Row="1">
+              <ListBox Classes="noteList"
+                       ItemsSource="{Binding FilteredNotes}"
+                       SelectedItem="{Binding SelectedNote}"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                       ScrollViewer.VerticalScrollBarVisibility="Auto"
+                       IsVisible="{Binding HasFilteredNotes}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:NoteItemVm">
+                    <Border Background="{StaticResource MonolithSurfaceBrush}"
+                            CornerRadius="14"
+                            Padding="16"
+                            BorderBrush="{StaticResource MonolithOutlineBrush}"
+                            BorderThickness="0">
+                      <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+                        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                          <TextBlock Text="{Binding Title}"
+                                     Foreground="{StaticResource MonolithTextBrush}"
+                                     FontWeight="Bold"
+                                     FontSize="13"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding FavoriteGlyph}"
+                                     Foreground="{StaticResource MonolithAccentBrush}"
+                                     FontSize="15"
+                                     IsVisible="{Binding IsFavorite}"/>
+                        </Grid>
+
+                        <TextBlock Grid.Row="1"
+                                   Text="{Binding PreviewText}"
+                                   Foreground="{StaticResource MonolithMutedBrush}"
+                                   FontSize="12"
+                                   MaxHeight="36"
+                                   TextWrapping="Wrap"/>
+
+                        <Grid Grid.Row="2" ColumnDefinitions="Auto,*" ColumnSpacing="8">
+                          <Border Background="{StaticResource MonolithSuccessPanelBrush}"
+                                  CornerRadius="999"
+                                  Padding="10,4">
+                            <TextBlock Text="{Binding StatusLabel}"
+                                       Foreground="{StaticResource MonolithAccentBrush}"
+                                       FontSize="10"
+                                       FontWeight="Bold"/>
+                          </Border>
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding UpdatedDisplay}"
+                                     Foreground="{StaticResource MonolithMutedBrush}"
+                                     FontSize="11"
+                                     HorizontalAlignment="Right"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+
+              <Border Background="{StaticResource MonolithSurfaceBrush}"
+                      CornerRadius="14"
+                      Padding="20"
+                      IsVisible="{Binding !HasFilteredNotes}">
+                <StackPanel Spacing="10" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding EmptyStateTitle}"
+                             Foreground="{StaticResource MonolithTextBrush}"
+                             FontWeight="Bold"
+                             FontSize="15"/>
+                  <TextBlock Text="{Binding EmptyStateSubtitle}"
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             TextWrapping="Wrap"/>
+                  <Button Classes="actionSecondary"
+                          Content="Create New Note"
+                          Command="{Binding NewNoteCommand}"
+                          HorizontalAlignment="Left"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <Border Grid.Column="1"
+                Background="{StaticResource MonolithBackgroundBrush}"
+                CornerRadius="10">
+          <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="14">
+            <Border Background="#66201F1F"
+                    CornerRadius="10"
+                    Padding="20,18">
+              <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                  <Border Width="40"
+                          Height="40"
+                          CornerRadius="8"
+                          Background="{StaticResource MonolithSurfaceHighBrush}"
+                          VerticalAlignment="Top">
+                    <TextBlock Text="▤"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource MonolithAccentBrush}"
+                               FontSize="16"
+                               FontWeight="Bold"/>
+                  </Border>
+
+                  <StackPanel Grid.Column="1" Spacing="6">
+                    <TextBox Classes="titleEditor"
+                             Text="{Binding EditorTitle}"
+                             Watermark="Secure note title"
+                             IsEnabled="{Binding !IsBusy}"/>
+                    <TextBlock Text="{Binding SelectedNoteMeta}"
+                               Classes="meta"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Grid>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="10"
+                            VerticalAlignment="Top">
+                  <Button Classes="actionSecondary"
+                          Content="Copy Content"
+                          IsEnabled="False"/>
+                  <Button Classes="actionSecondary"
+                          Content="Delete"
+                          Command="{Binding DeleteCommand}"
+                          IsEnabled="{Binding CanDeleteSelection}"/>
+                  <Button Classes="actionPrimary"
+                          Content="Save"
+                          Command="{Binding SaveCommand}"
+                          IsEnabled="{Binding CanSave}"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="#40201F1F"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    IsVisible="{Binding HasError}">
+              <TextBlock Text="{Binding Error}"
+                         Foreground="{StaticResource MonolithErrorBrush}"
+                         FontWeight="SemiBold"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid Grid.Row="2">
+              <Grid RowDefinitions="Auto,*,Auto"
+                    RowSpacing="14"
+                    IsVisible="{Binding HasSelectedNote}">
+                <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="12">
+                  <Border Background="{StaticResource MonolithSurfaceHighBrush}"
+                          CornerRadius="999"
+                          Padding="10,5">
+                    <TextBlock Text="Encrypted locally"
+                               Foreground="{StaticResource MonolithAccentBrush}"
+                               FontSize="11"
+                               FontWeight="Bold"/>
+                  </Border>
+                  <Border Grid.Column="1"
+                          Background="{StaticResource MonolithSurfaceHighBrush}"
+                          CornerRadius="999"
+                          Padding="10,5">
+                    <TextBlock Text="Markdown-ready"
+                               Foreground="{StaticResource MonolithMutedBrush}"
+                               FontSize="11"
+                               FontWeight="SemiBold"/>
+                  </Border>
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding EditorStats}"
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"
+                             FontSize="12"/>
+                </Grid>
+
+                <Border Grid.Row="1"
+                        Background="{StaticResource MonolithSurfaceLowestBrush}"
+                        CornerRadius="12"
+                        Padding="22"
+                        BorderBrush="#223C4A46"
+                        BorderThickness="1">
+                  <TextBox Classes="editorBody"
+                           Text="{Binding EditorContent}"
+                           Watermark="Write secure note content here..."
+                           IsEnabled="{Binding !IsBusy}"
+                           VerticalAlignment="Stretch"
+                           HorizontalAlignment="Stretch"
+                           MinHeight="420"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                </Border>
+
+                <Border Grid.Row="2"
+                        Background="#330E0E0E"
+                        CornerRadius="12"
+                        Padding="16">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="Editing guidance"
+                               Foreground="{StaticResource MonolithTextBrush}"
+                               FontWeight="Bold"
+                               FontSize="13"/>
+                    <TextBlock Text="Keep credentials, recovery steps, and operational notes together in a single encrypted record. Sensitive values remain local to the unlocked vault session."
+                               Foreground="{StaticResource MonolithMutedBrush}"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+              </Grid>
+
+              <Border Background="{StaticResource MonolithSurfaceBrush}"
+                      CornerRadius="12"
+                      Padding="28"
+                      IsVisible="{Binding !HasSelectedNote}">
+                <StackPanel Spacing="12"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                  <TextBlock Text="No note selected"
+                             Foreground="{StaticResource MonolithTextBrush}"
+                             FontWeight="Bold"
+                             FontSize="20"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Text="Select an encrypted note from the list or create a new record to begin editing."
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             TextWrapping="Wrap"
+                             TextAlignment="Center"
+                             MaxWidth="420"/>
+                  <Button Classes="actionPrimary"
+                          Content="Create Secure Note"
+                          Command="{Binding NewNoteCommand}"
+                          HorizontalAlignment="Center"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Grid.Row="3"
+                    Background="{StaticResource MonolithSurfaceLowBrush}"
+                    CornerRadius="10"
+                    Padding="16,12">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="16">
+                <StackPanel Orientation="Horizontal" Spacing="12">
+                  <Button Classes="toolButton" Content="B" IsEnabled="False"/>
+                  <Button Classes="toolButton" Content="I" IsEnabled="False"/>
+                  <Button Classes="toolButton" Content="• List" IsEnabled="False"/>
+                  <Button Classes="toolButton" Content="Link" IsEnabled="False"/>
+                  <Button Classes="toolButton" Content="&lt;/&gt;" IsEnabled="False"/>
+                  <Button Classes="toolButton" Content="Image" IsEnabled="False"/>
+                </StackPanel>
+
+                <TextBlock Grid.Column="2"
+                           Text="UTF-8 • MARKDOWN ENABLED • AUTO-SAVED"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="10"
+                           FontWeight="SemiBold"
+                           VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Grid>
+</UserControl>

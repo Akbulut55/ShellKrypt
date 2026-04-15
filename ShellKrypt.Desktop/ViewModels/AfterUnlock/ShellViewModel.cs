@@ -42,9 +42,6 @@ public partial class ShellViewModel : ViewModelBase
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         Health = new HealthViewModel(_root, repo);
         Settings = new SettingsViewModel(_root);
-        Vault = new PlaceholderPageViewModel(
-            "Vault",
-            "Vault overview placeholder. This top-level tab can hold the Stitch vault dashboard when that screen is ready.");
         Activity = new PlaceholderPageViewModel(
             "Activity",
             "Activity timeline placeholder. The Stitch activity log screen can land here when this section is implemented.");
@@ -59,7 +56,6 @@ public partial class ShellViewModel : ViewModelBase
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
-    public PlaceholderPageViewModel Vault { get; }
     public PlaceholderPageViewModel Activity { get; }
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
@@ -68,7 +64,7 @@ public partial class ShellViewModel : ViewModelBase
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
-        "vault" => "Vault dashboard placeholder for the active encrypted workspace.",
+        "vault" => "All encrypted records in the active workspace.",
         "web" => "Credentials, account URLs, and saved login details.",
         "notes" => "Encrypted private notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
@@ -100,7 +96,7 @@ public partial class ShellViewModel : ViewModelBase
 
         CurrentPage = value.Key switch
         {
-            "vault" => Vault,
+            "vault" => AllItems,
             "web" => WebLogins,
             "notes" => SecureNotes,
             "cards" => Cards,
