@@ -5,208 +5,606 @@
              x:CompileBindings="False"
              x:DataType="vm:AllItemsViewModel">
 
-  <ScrollViewer HorizontalScrollBarVisibility="Disabled">
-    <StackPanel Margin="24" Spacing="18">
-      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
-        <StackPanel Spacing="4">
-          <TextBlock Text="All Items" Classes="page-title"/>
-          <TextBlock Text="Monitor every encrypted record inside the active vault."
-                     Classes="page-subtitle"/>
-        </StackPanel>
-      </Grid>
-
-      <Grid ColumnDefinitions="*,*,*" ColumnSpacing="14">
-        <Border Classes="metric-card" Padding="18">
-          <StackPanel Spacing="8">
-            <TextBlock Text="TOTAL ITEMS" Classes="caption"/>
-            <TextBlock Text="{Binding TotalCount}" Classes="metric-value"/>
-            <TextBlock Text="Encrypted records in the active vault."
-                       Classes="page-subtitle"/>
-          </StackPanel>
-        </Border>
-
-        <Border Grid.Column="1" Classes="metric-card" Padding="18">
-          <StackPanel Spacing="8">
-            <TextBlock Text="WEAK PASSWORDS" Classes="caption"/>
-            <TextBlock Text="{Binding WeakPasswordCount}" Classes="metric-value"/>
-            <TextBlock Text="Logins that should be rotated soon."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-          </StackPanel>
-        </Border>
-
-        <Border Grid.Column="2" Classes="metric-card" Padding="18">
-          <StackPanel Spacing="8">
-            <TextBlock Text="REUSED PASSWORDS" Classes="caption"/>
-            <TextBlock Text="{Binding ReusedPasswordCount}" Classes="metric-value"/>
-            <TextBlock Text="Entries sharing a password with another login."
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-          </StackPanel>
-        </Border>
-      </Grid>
-
-      <Border Classes="panel-raised" Padding="16">
-        <StackPanel Spacing="12">
-          <Grid ColumnDefinitions="Auto,Auto,*,Auto" ColumnSpacing="12">
-            <Button Classes="subtle inline" Content="Filter"/>
-            <Button Grid.Column="1" Classes="subtle inline" Content="Sort"/>
-
-            <WrapPanel Grid.Column="3"
-                       HorizontalAlignment="Right"
-                       ItemSpacing="8"
-                       LineSpacing="8">
-              <Border Classes="badge" Padding="10,6">
-                <TextBlock Text="{Binding WebCount, StringFormat={}{0} Logins}"
-                           FontSize="11"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource SuccessBrush}"/>
-              </Border>
-              <Border Classes="badge" Padding="10,6">
-                <TextBlock Text="{Binding CardCount, StringFormat={}{0} Cards}"
-                           FontSize="11"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource WarningBrush}"/>
-              </Border>
-              <Border Classes="badge" Padding="10,6">
-                <TextBlock Text="{Binding NoteCount, StringFormat={}{0} Secure Notes}"
-                           FontSize="11"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource TextMutedBrush}"/>
-              </Border>
-            </WrapPanel>
-          </Grid>
-        </StackPanel>
-      </Border>
-
-      <Border Classes="panel" Padding="0">
-        <Grid RowDefinitions="Auto,*">
-          <Border Background="{StaticResource SurfaceRaisedBrush}"
-                  BorderBrush="{StaticResource BorderBrushSoft}"
-                  BorderThickness="0,0,0,1"
-                  Padding="18,14">
-            <Grid ColumnDefinitions="2.1*,1.05*,1.2*,1.1*,Auto" ColumnSpacing="12">
-              <TextBlock Text="Name" Classes="caption"/>
-              <TextBlock Grid.Column="1" Text="Type" Classes="caption"/>
-              <TextBlock Grid.Column="2" Text="Username / ID" Classes="caption"/>
-              <TextBlock Grid.Column="3" Text="Last Modified" Classes="caption"/>
-              <TextBlock Grid.Column="4" Text="" Classes="caption"/>
-            </Grid>
-          </Border>
-
-          <ListBox Grid.Row="1"
-                   ItemsSource="{Binding Rows}"
-                   SelectedItem="{Binding SelectedRow}">
-            <ListBox.ItemTemplate>
-              <DataTemplate x:DataType="vm:AllItemEntry">
-                <Border BorderBrush="{StaticResource BorderBrushSoft}"
-                        BorderThickness="0,0,0,1"
-                        Padding="16,14">
-                  <Grid ColumnDefinitions="2.1*,1.05*,1.2*,1.1*,Auto" ColumnSpacing="12">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                      <Border Width="32"
-                              Height="32"
-                              CornerRadius="8"
-                              Background="{StaticResource AppBackgroundSoftBrush}">
-                        <TextBlock Text="{Binding IconLetter}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="{StaticResource AccentBrush}"/>
-                      </Border>
-
-                      <StackPanel Grid.Column="1" Spacing="3">
-                        <StackPanel Orientation="Horizontal" Spacing="8">
-                          <TextBlock Text="{Binding Title}"
-                                     FontWeight="SemiBold"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <Border Classes="badge" Padding="8,3" IsVisible="{Binding Favorite}">
-                            <TextBlock Text="Favorite"
-                                       FontSize="10"
-                                       FontWeight="Bold"
-                                       Foreground="{StaticResource SuccessBrush}"/>
-                          </Border>
-                        </StackPanel>
-                        <TextBlock Text="{Binding Snippet}"
-                                   Classes="caption"
-                                   TextWrapping="Wrap"/>
-                      </StackPanel>
-                    </Grid>
-
-                    <Border Grid.Column="1"
-                            Classes="badge"
-                            Padding="8,4"
-                            VerticalAlignment="Center"
-                            HorizontalAlignment="Left">
-                      <TextBlock Text="{Binding DisplayTypeLabel}"
-                                 FontSize="10"
-                                 FontWeight="Bold"
-                                 Foreground="{StaticResource SuccessBrush}"/>
-                    </Border>
-
-                    <StackPanel Grid.Column="2" Spacing="3" VerticalAlignment="Center">
-                      <TextBlock Text="{Binding SecondaryText}"
-                                 FontWeight="Medium"
-                                 TextTrimming="CharacterEllipsis"/>
-                      <TextBlock Text="{Binding LabelsDisplay}"
-                                 Classes="caption"
-                                 TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="3" Spacing="3" VerticalAlignment="Center">
-                      <TextBlock Text="{Binding UpdatedDisplay}" FontWeight="Medium"/>
-                      <TextBlock Text="{Binding CreatedDisplay}" Classes="caption"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="4"
-                                Classes="row-actions"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                Spacing="4"
-                                VerticalAlignment="Center">
-                      <Button Classes="icon subtle"
-                              Content="⧉"
-                              ToolTip.Tip="Copy"/>
-                      <Button Classes="icon subtle"
-                              Content="⋮"
-                              ToolTip.Tip="More"/>
-                    </StackPanel>
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
-        </Grid>
-      </Border>
-
-      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16" VerticalAlignment="Center">
-        <StackPanel Orientation="Horizontal" Spacing="4" VerticalAlignment="Center">
-          <TextBlock Text="Showing" Classes="page-subtitle"/>
-          <TextBlock Text="{Binding FilteredCount}" Classes="page-subtitle"/>
-          <TextBlock Text="of" Classes="page-subtitle"/>
-          <TextBlock Text="{Binding TotalCount}" Classes="page-subtitle"/>
-          <TextBlock Text="items" Classes="page-subtitle"/>
-        </StackPanel>
-
-        <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8">
-          <Button Classes="subtle inline" Content="Previous" IsEnabled="False"/>
-          <Button Classes="primary inline" Content="1"/>
-          <Button Classes="subtle inline" Content="2"/>
-          <Button Classes="subtle inline" Content="3"/>
-          <Button Classes="subtle inline" Content="Next" IsEnabled="False"/>
-        </StackPanel>
-      </Grid>
-    </StackPanel>
-  </ScrollViewer>
+  <UserControl.Resources>
+    <SolidColorBrush x:Key="MonolithBackgroundBrush" Color="#131313"/>
+    <SolidColorBrush x:Key="MonolithSurfaceLowBrush" Color="#1C1B1B"/>
+    <SolidColorBrush x:Key="MonolithSurfaceBrush" Color="#201F1F"/>
+    <SolidColorBrush x:Key="MonolithSurfaceHighBrush" Color="#2A2A2A"/>
+    <SolidColorBrush x:Key="MonolithSurfaceHighestBrush" Color="#353534"/>
+    <SolidColorBrush x:Key="MonolithSurfaceLowestBrush" Color="#0E0E0E"/>
+    <SolidColorBrush x:Key="MonolithTextBrush" Color="#E5E2E1"/>
+    <SolidColorBrush x:Key="MonolithMutedBrush" Color="#BACAC5"/>
+    <SolidColorBrush x:Key="MonolithAccentBrush" Color="#57F1DB"/>
+    <SolidColorBrush x:Key="MonolithAccentSoftBrush" Color="#2DD4BF"/>
+    <SolidColorBrush x:Key="MonolithOutlineBrush" Color="#3C4A46"/>
+    <SolidColorBrush x:Key="MonolithWarningBrush" Color="#FFD1AA"/>
+    <SolidColorBrush x:Key="MonolithDangerBrush" Color="#FFB4AB"/>
+  </UserControl.Resources>
 
   <UserControl.Styles>
-    <Style Selector="StackPanel.row-actions">
+    <Style Selector="UserControl">
+      <Setter Property="Background" Value="{StaticResource MonolithBackgroundBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.searchBox">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="WatermarkForeground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="CaretBrush" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="14"/>
+    </Style>
+
+    <Style Selector="Button.navTab">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,2"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Padding" Value="0,0,0,10"/>
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.navTab:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="Button.navTab.active">
+      <Setter Property="Foreground" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource MonolithAccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.primaryAction">
+      <Setter Property="Background" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="Foreground" Value="#003731"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="18,12"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.primaryAction:pointerover">
+      <Setter Property="Background" Value="{StaticResource MonolithAccentSoftBrush}"/>
+    </Style>
+
+    <Style Selector="Button.iconAction">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="8"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="Button.iconAction:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource MonolithAccentBrush}"/>
+      <Setter Property="Background" Value="#22282828"/>
+    </Style>
+
+    <Style Selector="Button.toolbarButton">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceHighBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.toolbarButton:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+      <Setter Property="Background" Value="#303030"/>
+    </Style>
+
+    <Style Selector="Button.typeChip">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="FontWeight" Value="Medium"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.typeChip:pointerover">
+      <Setter Property="Background" Value="#202A2A2A"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="Button.typeChip.active">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceHighestBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="Button.paginationButton">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceLowBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="16,10"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.paginationButton:pointerover">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="Button.pageChipButton">
+      <Setter Property="Background" Value="{StaticResource MonolithSurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12,10"/>
+      <Setter Property="MinWidth" Value="38"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.pageChipButton:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
+    </Style>
+
+    <Style Selector="ListBox.itemsList">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.itemsList ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="ListBox.itemsList ListBoxItem:selected Border.rowCard">
+      <Setter Property="Background" Value="#242424"/>
+    </Style>
+
+    <Style Selector="StackPanel.rowActions">
       <Setter Property="Opacity" Value="0"/>
     </Style>
 
-    <Style Selector="ListBoxItem:pointerover StackPanel.row-actions">
+    <Style Selector="ListBox.itemsList ListBoxItem:pointerover StackPanel.rowActions">
       <Setter Property="Opacity" Value="1"/>
     </Style>
+
+    <Style Selector="ListBox.itemsList ListBoxItem:pointerover Border.rowCard">
+      <Setter Property="Background" Value="#232323"/>
+    </Style>
   </UserControl.Styles>
+
+  <Grid Background="{StaticResource MonolithBackgroundBrush}">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+      <Grid Margin="28,24,28,26"
+            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
+            RowSpacing="18">
+
+        <Grid ColumnDefinitions="480,Auto,*,Auto"
+              ColumnSpacing="18"
+              VerticalAlignment="Center">
+          <Border Background="{StaticResource MonolithSurfaceLowestBrush}"
+                  BorderBrush="#333C4A46"
+                  BorderThickness="1"
+                  CornerRadius="8"
+                  Padding="14,12">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalAlignment="Center">
+              <TextBlock Text="⌕"
+                         Foreground="{StaticResource MonolithMutedBrush}"
+                         VerticalAlignment="Center"
+                         FontSize="16"/>
+              <TextBox Grid.Column="1"
+                       Classes="searchBox"
+                       Text="{Binding SearchText}"
+                       Watermark="Search vault..."/>
+            </Grid>
+          </Border>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="24"
+                      VerticalAlignment="Center">
+            <Button Classes="navTab"
+                    Classes.active="{Binding IsAllScopeActive}"
+                    Content="All Items"
+                    Command="{Binding ShowAllCommand}"/>
+            <Button Classes="navTab"
+                    Classes.active="{Binding IsFavoritesScopeActive}"
+                    Content="Favorites"
+                    Command="{Binding ShowFavoritesCommand}"/>
+            <Button Classes="navTab"
+                    Classes.active="{Binding IsRecentScopeActive}"
+                    Content="Recent"
+                    Command="{Binding ShowRecentCommand}"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="3"
+                      Orientation="Horizontal"
+                      Spacing="8"
+                      VerticalAlignment="Center">
+            <Button Classes="iconAction"
+                    Content="↻"
+                    Command="{Binding RefreshCommand}"
+                    ToolTip.Tip="Refresh"/>
+            <Button Classes="iconAction"
+                    Content="→"
+                    Command="{Binding OpenSelectedCommand}"
+                    IsEnabled="{Binding HasRows}"
+                    ToolTip.Tip="Open selected item"/>
+            <Button Classes="primaryAction"
+                    Content="{Binding AddItemButtonText}"
+                    Command="{Binding AddItemCommand}"/>
+            <Border Width="40"
+                    Height="40"
+                    CornerRadius="20"
+                    Background="{StaticResource MonolithSurfaceHighBrush}">
+              <TextBlock Text="◉"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Foreground="{StaticResource MonolithMutedBrush}"
+                         FontSize="16"/>
+            </Border>
+          </StackPanel>
+        </Grid>
+
+        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="18">
+          <Border Background="{StaticResource MonolithSurfaceBrush}"
+                  CornerRadius="12"
+                  BorderBrush="#223C4A46"
+                  BorderThickness="1"
+                  Padding="28,22">
+            <Grid>
+              <TextBlock Text="↻"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,-18,-22"
+                         FontSize="120"
+                         Foreground="#0EFFFFFF"/>
+              <StackPanel Spacing="8">
+                <TextBlock Text="TOTAL ITEMS"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                  <TextBlock Text="{Binding TotalCount}"
+                             Foreground="{StaticResource MonolithTextBrush}"
+                             FontSize="38"
+                             FontWeight="Black"/>
+                  <TextBlock Text="{Binding TotalItemsDeltaText}"
+                             Foreground="{StaticResource MonolithAccentBrush}"
+                             FontSize="13"
+                             FontWeight="Bold"
+                             VerticalAlignment="Bottom"
+                             Margin="0,0,0,5"/>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="1"
+                  Background="{StaticResource MonolithSurfaceBrush}"
+                  CornerRadius="12"
+                  BorderBrush="#223C4A46"
+                  BorderThickness="1"
+                  Padding="28,22">
+            <Grid>
+              <TextBlock Text="!"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,-8,-18"
+                         FontSize="120"
+                         Foreground="#10FFB4AB"/>
+              <StackPanel Spacing="8">
+                <TextBlock Text="WEAK PASSWORDS"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                  <TextBlock Text="{Binding WeakPasswordCount}"
+                             Foreground="{StaticResource MonolithDangerBrush}"
+                             FontSize="38"
+                             FontWeight="Black"/>
+                  <TextBlock Text="{Binding WeakPasswordSubtitle}"
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             FontSize="13"
+                             FontWeight="Bold"
+                             VerticalAlignment="Bottom"
+                             Margin="0,0,0,5"/>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="2"
+                  Background="{StaticResource MonolithSurfaceBrush}"
+                  CornerRadius="12"
+                  BorderBrush="#223C4A46"
+                  BorderThickness="1"
+                  Padding="28,22">
+            <Grid>
+              <TextBlock Text="⇄"
+                         HorizontalAlignment="Right"
+                         VerticalAlignment="Bottom"
+                         Margin="0,0,-12,-24"
+                         FontSize="120"
+                         Foreground="#10FFD1AA"/>
+              <StackPanel Spacing="8">
+                <TextBlock Text="REUSED PASSWORDS"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
+                  <TextBlock Text="{Binding ReusedPasswordCount}"
+                             Foreground="{StaticResource MonolithWarningBrush}"
+                             FontSize="38"
+                             FontWeight="Black"/>
+                  <TextBlock Text="{Binding ReusedPasswordSubtitle}"
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             FontSize="13"
+                             FontWeight="Bold"
+                             VerticalAlignment="Bottom"
+                             Margin="0,0,0,5"/>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <Border Grid.Row="2"
+                Background="{StaticResource MonolithSurfaceLowBrush}"
+                CornerRadius="12"
+                Padding="18,16">
+          <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+                ColumnSpacing="10"
+                VerticalAlignment="Center">
+            <Button Classes="toolbarButton"
+                    Content="⌁ Filter"
+                    Command="{Binding ResetFiltersCommand}"/>
+            <Button Grid.Column="1"
+                    Classes="toolbarButton"
+                    Content="⇅ Sort"
+                    Command="{Binding CycleSortCommand}"/>
+
+            <StackPanel Grid.Column="3"
+                        Orientation="Horizontal"
+                        Spacing="8"
+                        VerticalAlignment="Center">
+              <Button Classes="typeChip"
+                      Classes.active="{Binding IsWebTypeActive}"
+                      Content="{Binding WebCount, StringFormat=Logins ({0})}"
+                      Command="{Binding ShowWebTypesCommand}"/>
+              <Button Classes="typeChip"
+                      Classes.active="{Binding IsCardTypeActive}"
+                      Content="{Binding CardCount, StringFormat=Cards ({0})}"
+                      Command="{Binding ShowCardTypesCommand}"/>
+              <Button Classes="typeChip"
+                      Classes.active="{Binding IsNoteTypeActive}"
+                      Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
+                      Command="{Binding ShowNoteTypesCommand}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="3"
+                Background="{StaticResource MonolithSurfaceBrush}"
+                CornerRadius="12"
+                BorderBrush="#223C4A46"
+                BorderThickness="1"
+                Padding="0">
+          <Grid RowDefinitions="Auto,*">
+            <Border Background="{StaticResource MonolithSurfaceHighBrush}"
+                    CornerRadius="12,12,0,0"
+                    Padding="26,18">
+              <Grid ColumnDefinitions="2.3*,1.05*,1.25*,1.1*,Auto" ColumnSpacing="12">
+                <TextBlock Text="NAME"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="1"
+                           Text="TYPE"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="2"
+                           Text="USERNAME / ID"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="3"
+                           Text="LAST MODIFIED"
+                           Foreground="{StaticResource MonolithMutedBrush}"
+                           FontSize="13"
+                           FontWeight="Bold"/>
+                <TextBlock Grid.Column="4" Text=""/>
+              </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+              <ListBox Classes="itemsList"
+                       ItemsSource="{Binding Rows}"
+                       SelectedItem="{Binding SelectedRow}"
+                       IsVisible="{Binding HasRows}"
+                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                       ScrollViewer.VerticalScrollBarVisibility="Disabled">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:AllItemEntry">
+                    <Border Classes="rowCard"
+                            Background="Transparent"
+                            Padding="22,18"
+                            BorderBrush="#183C4A46"
+                            BorderThickness="0,0,0,1">
+                      <Grid ColumnDefinitions="2.3*,1.05*,1.25*,1.1*,Auto" ColumnSpacing="12">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
+                          <Border Width="42"
+                                  Height="42"
+                                  CornerRadius="10"
+                                  Background="{Binding IconBackground}">
+                            <TextBlock Text="{Binding IconGlyph}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding IconForeground}"
+                                       FontSize="18"
+                                       FontWeight="Bold"/>
+                          </Border>
+
+                          <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+                            <StackPanel Orientation="Horizontal" Spacing="8">
+                              <TextBlock Text="{Binding Title}"
+                                         Foreground="{StaticResource MonolithTextBrush}"
+                                         FontSize="14"
+                                         FontWeight="Bold"
+                                         TextTrimming="CharacterEllipsis"/>
+                              <TextBlock Text="{Binding FavoriteGlyph}"
+                                         Foreground="{StaticResource MonolithAccentBrush}"
+                                         FontSize="13"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding Favorite}"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding NameSubtitleDisplay}"
+                                       Foreground="{StaticResource MonolithMutedBrush}"
+                                       FontSize="12"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Column="1"
+                                Background="{Binding TypeBadgeBackground}"
+                                CornerRadius="6"
+                                Padding="10,5"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{Binding DisplayTypeLabel}"
+                                     Foreground="{Binding TypeBadgeForeground}"
+                                     FontSize="11"
+                                     FontWeight="Bold"/>
+                        </Border>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding IdentifierDisplay}"
+                                   Foreground="{StaticResource MonolithTextBrush}"
+                                   FontSize="13"
+                                   FontFamily="Consolas"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                        <StackPanel Grid.Column="3" Spacing="3" VerticalAlignment="Center">
+                          <TextBlock Text="{Binding UpdatedDisplay}"
+                                     Foreground="{StaticResource MonolithTextBrush}"
+                                     FontSize="13"/>
+                          <TextBlock Text="{Binding UpdatedAbsoluteDisplay}"
+                                     Foreground="{StaticResource MonolithMutedBrush}"
+                                     FontSize="11"
+                                     TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4"
+                                    Classes="rowActions"
+                                    Orientation="Horizontal"
+                                    Spacing="4"
+                                    VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                          <Button Classes="iconAction"
+                                  Content="⧉"
+                                  Command="{Binding DataContext.CopyPrimaryValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="Copy value"/>
+                          <Button Classes="iconAction"
+                                  Content="→"
+                                  Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="Open item"/>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+
+              <Border Background="Transparent"
+                      Padding="26,28"
+                      IsVisible="{Binding !HasRows}">
+                <StackPanel Spacing="12" VerticalAlignment="Center">
+                  <TextBlock Text="{Binding EmptyStateTitle}"
+                             Foreground="{StaticResource MonolithTextBrush}"
+                             FontSize="18"
+                             FontWeight="Bold"/>
+                  <TextBlock Text="{Binding EmptyStateSubtitle}"
+                             Foreground="{StaticResource MonolithMutedBrush}"
+                             FontSize="13"
+                             MaxWidth="540"
+                             TextWrapping="Wrap"/>
+                  <StackPanel Orientation="Horizontal" Spacing="10">
+                    <Button Classes="primaryAction"
+                            Content="{Binding AddItemButtonText}"
+                            Command="{Binding AddItemCommand}"
+                            HorizontalAlignment="Left"/>
+                    <Button Classes="toolbarButton"
+                            Content="Reset filters"
+                            Command="{Binding ResetFiltersCommand}"
+                            HorizontalAlignment="Left"/>
+                  </StackPanel>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="16" VerticalAlignment="Center">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding FooterSummary}"
+                       Foreground="{StaticResource MonolithMutedBrush}"
+                       FontSize="12"
+                       FontWeight="Medium"/>
+            <TextBlock Text="{Binding Error}"
+                       Foreground="{StaticResource MonolithDangerBrush}"
+                       FontSize="12"
+                       IsVisible="{Binding HasError}"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+            <Button Classes="paginationButton"
+                    Content="Previous"
+                    Command="{Binding GoPreviousPageCommand}"
+                    IsEnabled="{Binding CanGoPrevious}"/>
+
+            <ItemsControl ItemsSource="{Binding PageChips}">
+              <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <StackPanel Orientation="Horizontal" Spacing="8"/>
+                </ItemsPanelTemplate>
+              </ItemsControl.ItemsPanel>
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:PageChipVm">
+                  <Grid>
+                    <Border Background="{StaticResource MonolithAccentBrush}"
+                            CornerRadius="8"
+                            Padding="12,10"
+                            MinWidth="38"
+                            IsVisible="{Binding IsCurrent}">
+                      <TextBlock Text="{Binding Label}"
+                                 HorizontalAlignment="Center"
+                                 Foreground="#003731"
+                                 FontWeight="Bold"/>
+                    </Border>
+                    <Button Classes="pageChipButton"
+                            Content="{Binding Label}"
+                            IsVisible="{Binding !IsCurrent}"
+                            Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"/>
+                  </Grid>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <Button Classes="paginationButton"
+                    Content="Next"
+                    Command="{Binding GoNextPageCommand}"
+                    IsEnabled="{Binding CanGoNext}"/>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </ScrollViewer>
+  </Grid>
 </UserControl>

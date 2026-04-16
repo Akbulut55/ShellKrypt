@@ -1,0 +1,455 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             xmlns:services="using:ShellKrypt.Desktop.Services"
+             x:Class="ShellKrypt.Desktop.Views.MarkdownNotesView"
+             x:CompileBindings="False"
+             x:DataType="vm:MarkdownNotesViewModel">
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Grid ColumnDefinitions="380,*">
+      <Border Background="#1C1B1B" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,1,0">
+        <Grid RowDefinitions="Auto,*">
+          <Border Padding="20,26,20,18">
+            <StackPanel Spacing="10">
+              <TextBlock Text="Markdown Notes"
+                         FontSize="28"
+                         FontWeight="SemiBold"
+                         LetterSpacing="-0.8"/>
+              <TextBlock Text="Manage your encrypted markdown notes."
+                         Classes="page-subtitle"
+                         FontSize="13"
+                         TextWrapping="Wrap"/>
+              <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Classes="notesPanelSearch"
+                       PlaceholderText="Search notes..."
+                       Margin="0,6,0,0"/>
+              <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
+                <Button Content="All"
+                        Classes="notesSectionButton"
+                        Classes.active="{Binding IsAllFilterActive}"
+                        Command="{Binding ShowAllCommand}"/>
+                <Button Content="Starred"
+                        Classes="notesSectionButton"
+                        Classes.active="{Binding IsFavoritesFilterActive}"
+                        Command="{Binding ShowFavoritesCommand}"/>
+              </StackPanel>
+              <TextBlock Text="{Binding NotesHeader}" Classes="notesKicker" Margin="0,2,0,0"/>
+            </StackPanel>
+          </Border>
+
+          <Grid Grid.Row="1">
+            <ListBox ItemsSource="{Binding FilteredNotes}" SelectedItem="{Binding SelectedNote}" Classes="notesMasterList" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasFilteredNotes}">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:NoteItemVm">
+                  <Border Classes="notesMasterItem">
+                    <StackPanel Spacing="8">
+                      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                        <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                        <Border Grid.Column="1"
+                                Background="{StaticResource AccentMutedBrush}"
+                                CornerRadius="999"
+                                Padding="10,4"
+                                IsVisible="{Binding IsFavorite}"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{Binding FavoriteGlyph}" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Black"/>
+                        </Border>
+                      </Grid>
+                      <TextBlock Text="{Binding PreviewText}" Foreground="{StaticResource TextMutedBrush}" FontSize="13" LineHeight="18" MaxHeight="40" TextWrapping="Wrap" TextTrimming="CharacterEllipsis"/>
+                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                        <Border Background="{StaticResource AccentMutedBrush}" CornerRadius="999" Padding="10,4">
+                          <TextBlock Text="{Binding StatusLabel}" Foreground="{StaticResource AccentBrush}" FontSize="10" FontWeight="Black"/>
+                        </Border>
+                        <TextBlock Grid.Column="1" Text="{Binding UpdatedDisplay}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                      </Grid>
+                    </StackPanel>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Background="Transparent" Padding="28" IsVisible="{Binding !HasFilteredNotes}">
+              <StackPanel Spacing="12" VerticalAlignment="Center">
+                <TextBlock Text="{Binding EmptyStateTitle}" FontSize="18" FontWeight="Bold"/>
+                <TextBlock Text="{Binding EmptyStateSubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
+                <Button Content="Create Markdown Note" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Left"/>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Grid>
+      </Border>
+
+      <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}" RowDefinitions="Auto,*,Auto">
+        <Border Background="#171717" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,28,34,24" IsVisible="{Binding HasEditor}">
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
+              <Border Width="46" Height="46" CornerRadius="10" Background="{StaticResource SurfaceRaisedBrush}" VerticalAlignment="Top">
+                <TextBlock Text="MD" HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="14" FontWeight="Black" Foreground="{StaticResource AccentBrush}"/>
+              </Border>
+              <StackPanel Grid.Column="1" Spacing="6">
+                <TextBlock Text="{Binding EditorTitle}" Classes="notesPreviewTitle" TextWrapping="Wrap" IsVisible="{Binding !IsEditing}"/>
+                <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="notesDocumentTitle" PlaceholderText="Secure note title" IsVisible="{Binding IsEditing}"/>
+                <TextBlock Text="{Binding SelectedNoteMeta}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap"/>
+              </StackPanel>
+            </Grid>
+
+            <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+              <Button Content="{Binding FavoriteToggleLabel}" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding CanToggleFavorite}"/>
+              <Button Content="Copy Markdown" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding CopyContentCommand}" IsEnabled="{Binding CanCopySelection}"/>
+              <Button Content="Edit" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding BeginEditingCommand}" IsVisible="{Binding ShowEditButton}" IsEnabled="{Binding CanStartEditing}"/>
+              <Button Content="{Binding SaveButtonText}" Classes="notesSaveButton" Command="{Binding SaveCommand}" IsVisible="{Binding ShowSaveButton}" IsEnabled="{Binding CanSave}"/>
+              <Button Content="Delete" Classes="notesHeaderButton" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanDeleteSelection}"/>
+            </StackPanel>
+          </Grid>
+        </Border>
+
+          <Grid Grid.Row="1" Margin="34,18,34,12" RowDefinitions="Auto,*,Auto" IsVisible="{Binding HasEditor}">
+            <Border Classes="notesErrorBanner" IsVisible="{Binding HasError}">
+              <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" FontSize="12" FontWeight="SemiBold" TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid Grid.Row="1" Margin="0,12,0,0" RowDefinitions="Auto,*">
+              <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="10">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="MARKDOWN NOTE" Classes="notesKicker"/>
+                  <TextBlock Text="{Binding EditorModeLabel}" Foreground="{StaticResource TextMutedBrush}" FontSize="12"/>
+                </StackPanel>
+
+                <Button Grid.Column="1" Content="{Binding PreviewButtonText}" Classes="notesModeToggle" Classes.active="{Binding IsPreviewMode}" Command="{Binding ShowPreviewCommand}" IsEnabled="{Binding CanShowPreview}"/>
+                <Button Grid.Column="2" Content="{Binding SourceButtonText}" Classes="notesModeToggle" Classes.active="{Binding IsSourceMode}" Command="{Binding ShowSourceCommand}" IsEnabled="{Binding CanShowSource}"/>
+              </Grid>
+
+              <Grid Grid.Row="1" Margin="0,12,0,12">
+                <Grid IsVisible="{Binding IsPreviewMode}" VerticalAlignment="Top">
+                  <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto" MaxHeight="520">
+                    <StackPanel Spacing="0">
+                      <StackPanel Spacing="4" Margin="0,0,0,14">
+                        <TextBlock Text="{Binding PreviewDocumentTitle}" Classes="notesPreviewTitle" TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding PreviewDocumentSubtitle}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap"/>
+                      </StackPanel>
+
+                      <Border Classes="notesPreviewPlaceholder" IsVisible="{Binding !HasPreviewContent}">
+                        <StackPanel Spacing="8">
+                          <TextBlock Text="Nothing to preview yet." FontSize="17" FontWeight="Bold"/>
+                          <TextBlock Text="Switch to source mode and write markdown. The rendered note updates here immediately, even before saving." Classes="page-subtitle" TextWrapping="Wrap"/>
+                        </StackPanel>
+                      </Border>
+
+                      <ItemsControl ItemsSource="{Binding PreviewBlocks}" IsVisible="{Binding HasPreviewContent}">
+                        <ItemsControl.ItemTemplate>
+                          <DataTemplate x:DataType="services:MarkdownBlock">
+                            <StackPanel Margin="0,0,0,18">
+                              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH1" IsVisible="{Binding IsHeading1}" TextWrapping="Wrap"/>
+                              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH2" IsVisible="{Binding IsHeading2}" TextWrapping="Wrap"/>
+                              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH3" IsVisible="{Binding IsHeading3}" TextWrapping="Wrap"/>
+                              <TextBlock Text="{Binding Text}" Classes="notesMarkdownParagraph" IsVisible="{Binding IsParagraph}" TextWrapping="Wrap"/>
+
+                              <Border Background="#101918" BorderBrush="{StaticResource AccentBrush}" BorderThickness="4,0,0,0" CornerRadius="10" Padding="16,14" IsVisible="{Binding IsQuote}">
+                                <TextBlock Text="{Binding Text}" FontSize="14" FontStyle="Italic" LineHeight="22" TextWrapping="Wrap"/>
+                              </Border>
+
+                              <Border Background="{StaticResource AppBackgroundSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="1" CornerRadius="10" Padding="16,14" IsVisible="{Binding IsCodeBlock}">
+                                <TextBlock Text="{Binding Text}" Classes="notesMarkdownCode" TextWrapping="Wrap"/>
+                              </Border>
+
+                              <ItemsControl ItemsSource="{Binding DisplayItems}" IsVisible="{Binding IsList}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate>
+                                    <TextBlock Text="{Binding}" Classes="notesMarkdownListItem" TextWrapping="Wrap"/>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
+                            </StackPanel>
+                          </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                      </ItemsControl>
+                    </StackPanel>
+                  </ScrollViewer>
+                </Grid>
+
+                <Grid IsVisible="{Binding IsSourceMode}">
+                  <TextBox Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           Classes="notesMarkdownEditor"
+                           AcceptsReturn="True"
+                           TextWrapping="Wrap"
+                           VerticalContentAlignment="Top"
+                           VerticalAlignment="Stretch"
+                           MinHeight="0"
+                           PlaceholderText="# Title&#x0a;&#x0a;Write your note in markdown here...&#x0a;&#x0a;- bullet item&#x0a;> quote&#x0a;```&#x0a;code block&#x0a;```"
+                           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                           ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+                </Grid>
+              </Grid>
+
+            </Grid>
+
+            <TextBlock Grid.Row="2"
+                       Margin="0,12,0,0"
+                       Text="{Binding EditorStats}"
+                       Classes="notesFooterStatus"
+                       VerticalAlignment="Bottom"/>
+        </Grid>
+
+        <Border Grid.Row="1" Background="Transparent" IsVisible="{Binding !HasEditor}">
+          <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <TextBlock Text="No note selected" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="Select a note from the left or create a new encrypted markdown note." Classes="page-subtitle" MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
+            <Button Content="Create Markdown Note" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
+          </StackPanel>
+        </Border>
+
+        <Border Grid.Row="2" Background="#1C1B1B" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,14" IsVisible="{Binding HasEditor}">
+          <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
+            <TextBlock Text="MARKDOWN HELP" Classes="notesKicker" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Text="# Heading   |   ## Section   |   - List   |   &gt; Quote   |   ``` code ```" Classes="notesFooterStatus" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+            <TextBlock Grid.Column="2" Text="{Binding ActiveDocumentView}" Classes="notesFooterStatus" VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </Grid>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.notesKicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.6"/>
+    </Style>
+
+    <Style Selector="TextBox.notesPanelSearch">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="14,8"/>
+    </Style>
+
+    <Style Selector="Button.notesSectionButton">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.notesSectionButton.active">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="16,0,16,10"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList ListBoxItem:selected">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList ListBoxItem:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="Border.notesMasterItem">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16,14"/>
+      <Setter Property="Margin" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList ListBoxItem:selected Border.notesMasterItem">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.notesMasterList ListBoxItem:pointerover Border.notesMasterItem">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.notesDocumentTitle">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBox.notesDocumentTitle:focus">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBox.notesMarkdownEditor">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="LineHeight" Value="24"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+    </Style>
+
+    <Style Selector="TextBox.notesMarkdownEditor:focus">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesPreviewTitle">
+      <Setter Property="FontSize" Value="24"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.notesHeaderButton">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.notesHeaderButtonAccent">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.notesSaveButton">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.notesAddButton">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="46"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.notesModeToggle">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.notesModeToggle.active">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Border.notesErrorBanner">
+      <Setter Property="Background" Value="#261e1112"/>
+      <Setter Property="BorderBrush" Value="#55ffb4ab"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="16,12"/>
+    </Style>
+
+    <Style Selector="Border.notesPreviewPlaceholder">
+      <Setter Property="Background" Value="#151515"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="20,18"/>
+      <Setter Property="Margin" Value="0,0,0,12"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesFooterStatus">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="LetterSpacing" Value="1.4"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownH1">
+      <Setter Property="FontSize" Value="26"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownH2">
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownH3">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownParagraph">
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="LineHeight" Value="24"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownListItem">
+      <Setter Property="FontSize" Value="14"/>
+      <Setter Property="LineHeight" Value="24"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+
+    <Style Selector="TextBlock.notesMarkdownCode">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="LineHeight" Value="21"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

@@ -4,9 +4,9 @@ using Avalonia.Markup.Xaml;
 
 namespace ShellKrypt.Desktop.Views;
 
-public partial class SecureNotesView : UserControl
+public partial class MarkdownNotesView : UserControl
 {
-    public SecureNotesView()
+    public MarkdownNotesView()
     {
         InitializeComponent();
     }

@@ -15,7 +15,7 @@ public partial class ShellViewModel : ViewModelBase
     {
         new NavItemVm("vault", "Vault"),
         new NavItemVm("web", "Web Logins"),
-        new NavItemVm("notes", "Secure Notes"),
+        new NavItemVm("notes", "Markdown Notes"),
         new NavItemVm("cards", "Credit Cards"),
         new NavItemVm("audit", "Security Audit"),
         new NavItemVm("generator", "Generator"),
@@ -37,7 +37,7 @@ public partial class ShellViewModel : ViewModelBase
 
         AllItems = new AllItemsViewModel(_root, this, repo);
         WebLogins = new WebLoginsViewModel(_root, webLoginService);
-        SecureNotes = new SecureNotesViewModel(_root, repo);
+        MarkdownNotes = new MarkdownNotesViewModel(_root, repo);
         Cards = new CardsViewModel(_root, cardService);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         Health = new HealthViewModel(_root, repo);
@@ -50,7 +50,7 @@ public partial class ShellViewModel : ViewModelBase
     }
 
     public WebLoginsViewModel WebLogins { get; }
-    public SecureNotesViewModel SecureNotes { get; }
+    public MarkdownNotesViewModel MarkdownNotes { get; }
     public CardsViewModel Cards { get; }
     public ToolsViewModel Tools { get; }
     public HealthViewModel Health { get; }
@@ -66,7 +66,7 @@ public partial class ShellViewModel : ViewModelBase
     {
         "vault" => "All encrypted records in the active workspace.",
         "web" => "Credentials, account URLs, and saved login details.",
-        "notes" => "Encrypted private notes and vault reference material.",
+        "notes" => "Encrypted markdown notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
         "audit" => "Audit reuse, age, and password risk across the repository.",
         "generator" => "Generate and transform local secrets without leaving the vault.",
@@ -81,7 +81,7 @@ public partial class ShellViewModel : ViewModelBase
         "settings" => "Search settings...",
         "vault" => "Search vault...",
         "web" => "Search web logins...",
-        "notes" => "Search secure notes...",
+        "notes" => "Search markdown notes...",
         "cards" => "Search credit cards...",
         "audit" => "Search security audit...",
         "generator" => "Search generator tools...",
@@ -98,7 +98,7 @@ public partial class ShellViewModel : ViewModelBase
         {
             "vault" => AllItems,
             "web" => WebLogins,
-            "notes" => SecureNotes,
+            "notes" => MarkdownNotes,
             "cards" => Cards,
             "generator" => Tools,
             "audit" => Health,
@@ -124,7 +124,7 @@ public partial class ShellViewModel : ViewModelBase
 
     public void ShowWebLogins() => SelectNav("web");
     public void ShowCards() => SelectNav("cards");
-    public void ShowSecureNotes() => SelectNav("notes");
+    public void ShowMarkdownNotes() => SelectNav("notes");
 
     private void SelectNav(string key)
     {

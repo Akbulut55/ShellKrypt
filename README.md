@@ -1,6 +1,6 @@
 # ShellKrypt
 
-ShellKrypt is a local-only encrypted vault desktop app built with .NET and Avalonia. It stores sensitive vault items on the user's device, including web logins, secure notes, credit cards, and generated passwords, with supporting tools for password generation, hashing, Base64 encoding/decoding, import/export, and password health checks.
+ShellKrypt is a local-only encrypted vault desktop app built with .NET and Avalonia. It stores sensitive vault items on the user's device, including web logins, markdown notes, credit cards, and generated passwords, with supporting tools for password generation, hashing, Base64 encoding/decoding, import/export, and password health checks.
 
 The app is currently in active desktop UI development, with several screens being aligned to Stitch-generated designs.
 
@@ -8,7 +8,7 @@ The app is currently in active desktop UI development, with several screens bein
 
 - Encrypted local vault files (`.skvault`)
 - Web login storage with username, email, password, URL, and notes
-- Secure notes
+- Markdown notes
 - Credit card storage with card details, issuer/type metadata, reveal/copy actions, pagination, and expiry summaries
 - Password generator with configurable length and character classes
 - Cryptographic workbench with SHA-256, SHA-512, and Base64 tools
@@ -91,7 +91,7 @@ Important notes:
 
 - `Vault`: planned to become the all-items dashboard.
 - `Web Logins`: active credential list and login detail modal.
-- `Secure Notes`: encrypted notes area.
+- `Markdown Notes`: encrypted markdown notes area.
 - `Credit Cards`: active payment card list and card detail modal.
 - `Security Audit`: password reuse/weakness overview.
 - `Generator`: password generator and cryptographic utility workbench.

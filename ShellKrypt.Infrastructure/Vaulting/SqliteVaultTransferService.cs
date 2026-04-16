@@ -479,7 +479,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
             {
                 "web" or "login" or "website" => ItemType.Web,
                 "card" or "creditcard" or "credit card" => ItemType.Card,
-                "note" or "secure note" or "secure-note" => ItemType.Note,
+                "note" or "markdown note" or "markdown-note" => ItemType.Note,
                 _ => InferItemType(number, cvc, expiryMonth, expiryYear, cardholder, content)
             };
         }
@@ -506,7 +506,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         return type switch
         {
             ItemType.Card => !string.IsNullOrWhiteSpace(cardholder) ? cardholder.Trim() : "Card",
-            ItemType.Note => "Note",
+            ItemType.Note => "Markdown Note",
             _ => !string.IsNullOrWhiteSpace(url) ? url.Trim() : "Web Login"
         };
     }

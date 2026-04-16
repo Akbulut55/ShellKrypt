@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Crypto;
 using System;
 using System.Collections.ObjectModel;
@@ -30,36 +31,26 @@ public sealed partial class NoteItemVm : ObservableObject
         UpdatedAtUtc = updatedAtUtc;
     }
 
-    public string FavoriteGlyph => IsFavorite ? "★" : string.Empty;
+    public string FavoriteGlyph => IsFavorite ? "STAR" : string.Empty;
 
     public string PreviewText
     {
         get
         {
-            if (string.IsNullOrWhiteSpace(Content))
-                return "No content yet.";
-
-            var collapsed = string.Join(" ", Content
-                .Replace("\r", " ")
-                .Replace("\n", " ")
-                .Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
-
-            return collapsed;
+            var plainText = SimpleMarkdown.ToPlainText(Content);
+            return string.IsNullOrWhiteSpace(plainText)
+                ? "No content yet."
+                : plainText;
         }
     }
 
     public string UpdatedDisplay => FormatRelativeTimestamp(UpdatedAtUtc);
-    public string StatusLabel => IsFavorite ? "Favorite" : "Encrypted";
+    public string StatusLabel => IsFavorite ? "Starred" : "Markdown";
 
     partial void OnIsFavoriteChanged(bool value)
     {
         OnPropertyChanged(nameof(FavoriteGlyph));
         OnPropertyChanged(nameof(StatusLabel));
-    }
-
-    partial void OnTitleChanged(string value)
-    {
-        OnPropertyChanged(nameof(PreviewText));
     }
 
     partial void OnContentChanged(string value)
@@ -97,7 +88,7 @@ public sealed partial class NoteItemVm : ObservableObject
     }
 }
 
-public partial class SecureNotesViewModel : ViewModelBase
+public partial class MarkdownNotesViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
     private readonly IItemRepository _repo;
@@ -109,6 +100,7 @@ public partial class SecureNotesViewModel : ViewModelBase
 
     public ObservableCollection<NoteItemVm> Notes { get; } = new();
     public ObservableCollection<NoteItemVm> FilteredNotes { get; } = new();
+    public ObservableCollection<MarkdownBlock> PreviewBlocks { get; } = new();
 
     [ObservableProperty] private NoteItemVm? selectedNote;
     [ObservableProperty] private string editorTitle = "";
@@ -118,8 +110,11 @@ public partial class SecureNotesViewModel : ViewModelBase
     [ObservableProperty] private int noteCount;
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private string activeFilter = "all";
+    [ObservableProperty] private bool isCreatingNote;
+    [ObservableProperty] private bool isEditing;
+    [ObservableProperty] private string activeDocumentView = "preview";
 
-    public SecureNotesViewModel(MainWindowViewModel root, IItemRepository repo)
+    public MarkdownNotesViewModel(MainWindowViewModel root, IItemRepository repo)
     {
         _root = root;
         _repo = repo;
@@ -139,64 +134,132 @@ public partial class SecureNotesViewModel : ViewModelBase
             OnPropertyChanged(nameof(EmptyStateSubtitle));
         };
 
+        PreviewBlocks.CollectionChanged += (_, __) =>
+        {
+            OnPropertyChanged(nameof(HasPreviewContent));
+            OnPropertyChanged(nameof(PreviewDocumentTitle));
+            OnPropertyChanged(nameof(PreviewDocumentSubtitle));
+        };
+
         UpdateNoteCount();
         RefreshFilteredNotes(false);
         _ = LoadAsync();
     }
 
     public int VisibleNoteCount => FilteredNotes.Count;
-    public string NotesHeader => $"NOTES ({VisibleNoteCount})";
+    public string NotesHeader => ActiveFilter switch
+    {
+        "favorites" => $"STARRED ({VisibleNoteCount})",
+        "recent" => $"RECENT ({VisibleNoteCount})",
+        _ => $"NOTES ({VisibleNoteCount})"
+    };
     public bool HasFilteredNotes => FilteredNotes.Count > 0;
-    public bool HasSelectedNote => SelectedNote is not null;
+    public bool HasEditor => SelectedNote is not null || IsCreatingNote;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
+    public bool HasPreviewContent => PreviewBlocks.Count > 0;
     public bool IsAllFilterActive => ActiveFilter == "all";
     public bool IsFavoritesFilterActive => ActiveFilter == "favorites";
     public bool IsRecentFilterActive => ActiveFilter == "recent";
+    public bool IsPreviewMode => ActiveDocumentView == "preview";
+    public bool IsSourceMode => ActiveDocumentView == "source";
     public bool CanDeleteSelection => SelectedNote is not null && !IsBusy;
-    public bool CanSave => !IsBusy;
+    public bool CanCopySelection => !IsBusy && !string.IsNullOrWhiteSpace(EditorContent);
+    public bool CanToggleFavorite => SelectedNote is not null && !IsBusy;
+    public bool CanStartEditing => HasEditor && !IsBusy && !IsEditing;
+    public bool CanShowSource => HasEditor && !IsBusy;
+    public bool CanShowPreview => HasEditor && !IsBusy;
+    public bool CanSave => IsEditing && !IsBusy && !string.IsNullOrWhiteSpace(EditorTitle);
+    public bool ShowEditButton => SelectedNote is not null && !IsEditing;
+    public bool ShowSaveButton => IsEditing;
+    public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true ? "Unstar" : "Star";
+    public string SaveButtonText => SelectedNote is null ? "Create Note" : "Save Note";
+    public string EditorModeLabel => IsEditing
+        ? IsSourceMode
+            ? "Editing raw markdown."
+            : "Previewing unsaved changes."
+        : "Previewing encrypted markdown note.";
+
+    public string PreviewDocumentTitle
+    {
+        get
+        {
+            if (!string.IsNullOrWhiteSpace(EditorTitle))
+                return EditorTitle.Trim();
+
+            var firstHeading = PreviewBlocks.FirstOrDefault(block =>
+                block.Kind is MarkdownBlockKind.Heading1 or MarkdownBlockKind.Heading2 or MarkdownBlockKind.Heading3);
+
+            return !string.IsNullOrWhiteSpace(firstHeading?.Text)
+                ? firstHeading.Text
+                : "Untitled Markdown Note";
+        }
+    }
+
+    public string PreviewDocumentSubtitle => !HasPreviewContent
+        ? "No markdown content to render yet."
+        : IsEditing
+            ? "Preview updates live from unsaved markdown changes."
+            : $"Rendered from {PreviewBlocks.Count:N0} markdown block{(PreviewBlocks.Count == 1 ? "" : "s")}.";
 
     public string SelectedNoteMeta => SelectedNote is null
-        ? "Select a secure note to inspect or create a new encrypted record."
-        : $"Last edited {FormatEditorTimestamp(SelectedNote.UpdatedAtUtc)} • {EditorContent.Length:N0} characters";
+        ? IsCreatingNote
+            ? "Draft content stays local until you save it into the active vault."
+            : "Select a markdown note to inspect or create a new encrypted markdown record."
+        : $"Last edited {FormatEditorTimestamp(SelectedNote.UpdatedAtUtc)} | {EditorContent.Length:N0} characters";
 
-    public string EditorStats => $"{EditorContent.Length:N0} characters • {CountWords(EditorContent):N0} words";
+    public string EditorStats => $"{EditorContent.Length:N0} characters | {CountWords(EditorContent):N0} words | {CountLines(EditorContent):N0} lines";
 
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "No secure notes available"
+        ? ActiveFilter == "favorites"
+            ? "No starred notes available"
+            : "No markdown notes available"
         : "No notes match the current search";
 
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Create a new note to start storing encrypted private data in this vault."
-        : "Try a different search term or switch back to All Items.";
+        ? ActiveFilter == "favorites"
+            ? "Star notes from the editor and they will appear here."
+            : "Create a new markdown note to start storing encrypted private data in this vault."
+        : "Try a different search term or switch back to All.";
+
+    public string PreviewButtonText => IsEditing ? "Preview Draft" : "Preview";
+    public string SourceButtonText => IsEditing ? "Source" : "Edit Source";
 
     partial void OnSelectedNoteChanged(NoteItemVm? value)
     {
         if (value is null)
         {
-            EditorTitle = string.Empty;
-            EditorContent = string.Empty;
+            if (!IsCreatingNote)
+            {
+                EditorTitle = string.Empty;
+                EditorContent = string.Empty;
+                IsEditing = false;
+                ActiveDocumentView = "preview";
+            }
         }
         else
         {
+            IsCreatingNote = false;
+            IsEditing = false;
+            ActiveDocumentView = "preview";
             EditorTitle = value.Title;
             EditorContent = value.Content;
         }
 
-        OnPropertyChanged(nameof(SelectedNoteMeta));
-        OnPropertyChanged(nameof(EditorStats));
-        OnPropertyChanged(nameof(HasSelectedNote));
-        OnPropertyChanged(nameof(CanDeleteSelection));
+        NotifyEditorStateChanged();
     }
 
     partial void OnEditorTitleChanged(string value)
     {
-        OnPropertyChanged(nameof(EditorStats));
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(PreviewDocumentTitle));
     }
 
     partial void OnEditorContentChanged(string value)
     {
         OnPropertyChanged(nameof(EditorStats));
         OnPropertyChanged(nameof(SelectedNoteMeta));
+        OnPropertyChanged(nameof(CanCopySelection));
+        RefreshPreviewContent();
     }
 
     partial void OnNoteCountChanged(int value)
@@ -229,10 +292,37 @@ public partial class SecureNotesViewModel : ViewModelBase
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
+        OnPropertyChanged(nameof(CanCopySelection));
+        OnPropertyChanged(nameof(CanToggleFavorite));
+        OnPropertyChanged(nameof(CanStartEditing));
+        OnPropertyChanged(nameof(CanShowSource));
+        OnPropertyChanged(nameof(CanShowPreview));
         OnPropertyChanged(nameof(CanSave));
     }
 
-    [RelayCommand] private void Lock() => _root.Lock();
+    partial void OnIsCreatingNoteChanged(bool value)
+    {
+        NotifyEditorStateChanged();
+    }
+
+    partial void OnIsEditingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanStartEditing));
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(ShowEditButton));
+        OnPropertyChanged(nameof(ShowSaveButton));
+        OnPropertyChanged(nameof(EditorModeLabel));
+        OnPropertyChanged(nameof(PreviewButtonText));
+        OnPropertyChanged(nameof(SourceButtonText));
+        OnPropertyChanged(nameof(PreviewDocumentSubtitle));
+    }
+
+    partial void OnActiveDocumentViewChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsPreviewMode));
+        OnPropertyChanged(nameof(IsSourceMode));
+        OnPropertyChanged(nameof(EditorModeLabel));
+    }
 
     [RelayCommand]
     private void ShowAll()
@@ -250,6 +340,37 @@ public partial class SecureNotesViewModel : ViewModelBase
     private void ShowRecent()
     {
         ActiveFilter = "recent";
+    }
+
+    [RelayCommand]
+    private void ShowPreview()
+    {
+        if (!HasEditor)
+            return;
+
+        ActiveDocumentView = "preview";
+    }
+
+    [RelayCommand]
+    private void ShowSource()
+    {
+        if (!HasEditor)
+            return;
+
+        if (!IsEditing)
+            IsEditing = true;
+
+        ActiveDocumentView = "source";
+    }
+
+    [RelayCommand]
+    private void BeginEditing()
+    {
+        if (!HasEditor)
+            return;
+
+        IsEditing = true;
+        ActiveDocumentView = "source";
     }
 
     [RelayCommand]
@@ -277,10 +398,29 @@ public partial class SecureNotesViewModel : ViewModelBase
     private void NewNote()
     {
         Error = string.Empty;
+        IsCreatingNote = true;
+        IsEditing = true;
+        ActiveDocumentView = "source";
         SelectedNote = null;
         EditorTitle = string.Empty;
         EditorContent = string.Empty;
-        OnPropertyChanged(nameof(SelectedNoteMeta));
+        NotifyEditorStateChanged();
+        OnPropertyChanged(nameof(CanCopySelection));
+        OnPropertyChanged(nameof(CanSave));
+    }
+
+    [RelayCommand]
+    private async Task CopyContentAsync()
+    {
+        Error = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(EditorContent))
+        {
+            Error = "Nothing to copy yet.";
+            return;
+        }
+
+        await _root.CopyToClipboardAsync(EditorContent);
     }
 
     [RelayCommand]
@@ -309,6 +449,7 @@ public partial class SecureNotesViewModel : ViewModelBase
 
                 var vm = new NoteItemVm(id, EditorTitle, EditorContent, false, now, now);
                 Notes.Insert(0, vm);
+                IsCreatingNote = false;
                 SelectedNote = vm;
             }
             else
@@ -329,10 +470,13 @@ public partial class SecureNotesViewModel : ViewModelBase
                     DateTimeOffset.UtcNow.ToString("O"));
 
                 await _repo.UpdateAsync(_root.VaultPath, header, enc);
+                IsEditing = false;
+                ActiveDocumentView = "preview";
             }
 
             RefreshFilteredNotes();
             OnPropertyChanged(nameof(SelectedNoteMeta));
+            OnPropertyChanged(nameof(SaveButtonText));
         }
         catch (Exception ex)
         {
@@ -355,13 +499,13 @@ public partial class SecureNotesViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            var id = SelectedNote.Id;
-            await _repo.DeleteAsync(_root.VaultPath, id);
+            var deletedId = SelectedNote.Id;
+            await _repo.DeleteAsync(_root.VaultPath, deletedId);
 
-            var selectedId = SelectedNote.Id;
             Notes.Remove(SelectedNote);
-
             RefreshFilteredNotes(false);
+            IsEditing = false;
+            ActiveDocumentView = "preview";
 
             if (FilteredNotes.Count > 0)
             {
@@ -369,7 +513,7 @@ public partial class SecureNotesViewModel : ViewModelBase
                 if (replacement is not null)
                     SelectedNote = replacement;
             }
-            else if (SelectedNote?.Id == selectedId)
+            else if (SelectedNote?.Id == deletedId)
             {
                 SelectedNote = null;
             }
@@ -400,7 +544,7 @@ public partial class SecureNotesViewModel : ViewModelBase
             var query = SearchText.Trim();
             items = items.Where(note =>
                 note.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
-                note.Content.Contains(query, StringComparison.OrdinalIgnoreCase));
+                SimpleMarkdown.ToPlainText(note.Content).Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
         items = ActiveFilter switch
@@ -434,8 +578,45 @@ public partial class SecureNotesViewModel : ViewModelBase
             }
         }
 
+        if (IsCreatingNote)
+        {
+            if (SelectedNote is not null)
+                SelectedNote = null;
+            return;
+        }
+
         if (SelectedNote is null || snapshot.All(note => note.Id != SelectedNote.Id))
             SelectedNote = snapshot[0];
+    }
+
+    private void NotifyEditorStateChanged()
+    {
+        OnPropertyChanged(nameof(SelectedNoteMeta));
+        OnPropertyChanged(nameof(EditorStats));
+        OnPropertyChanged(nameof(HasEditor));
+        OnPropertyChanged(nameof(CanDeleteSelection));
+        OnPropertyChanged(nameof(CanCopySelection));
+        OnPropertyChanged(nameof(CanToggleFavorite));
+        OnPropertyChanged(nameof(CanStartEditing));
+        OnPropertyChanged(nameof(CanShowSource));
+        OnPropertyChanged(nameof(CanShowPreview));
+        OnPropertyChanged(nameof(FavoriteToggleLabel));
+        OnPropertyChanged(nameof(SaveButtonText));
+        OnPropertyChanged(nameof(EditorModeLabel));
+        OnPropertyChanged(nameof(ShowEditButton));
+        OnPropertyChanged(nameof(ShowSaveButton));
+        OnPropertyChanged(nameof(PreviewButtonText));
+        OnPropertyChanged(nameof(SourceButtonText));
+        OnPropertyChanged(nameof(PreviewDocumentTitle));
+        OnPropertyChanged(nameof(PreviewDocumentSubtitle));
+        RefreshPreviewContent();
+    }
+
+    private void RefreshPreviewContent()
+    {
+        PreviewBlocks.Clear();
+        foreach (var block in SimpleMarkdown.Parse(EditorContent))
+            PreviewBlocks.Add(block);
     }
 
     private static DateTimeOffset ParseTimestamp(string value)
@@ -450,7 +631,7 @@ public partial class SecureNotesViewModel : ViewModelBase
         if (!DateTimeOffset.TryParse(value, out var timestamp))
             return value;
 
-        return timestamp.ToLocalTime().ToString("HH:mm • MMM dd");
+        return timestamp.ToLocalTime().ToString("HH:mm | MMM dd");
     }
 
     private static int CountWords(string text)
@@ -459,6 +640,14 @@ public partial class SecureNotesViewModel : ViewModelBase
             return 0;
 
         return text.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries).Length;
+    }
+
+    private static int CountLines(string text)
+    {
+        if (string.IsNullOrEmpty(text))
+            return 0;
+
+        return text.Replace("\r", string.Empty, StringComparison.Ordinal).Split('\n').Length;
     }
 
     private async Task LoadAsync()
@@ -495,8 +684,7 @@ public partial class SecureNotesViewModel : ViewModelBase
             }
 
             RefreshFilteredNotes();
-            OnPropertyChanged(nameof(SelectedNoteMeta));
-            OnPropertyChanged(nameof(EditorStats));
+            NotifyEditorStateChanged();
         }
         catch (Exception ex)
         {

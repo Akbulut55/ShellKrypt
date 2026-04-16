@@ -224,7 +224,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         var confirmed = await _root.ConfirmDangerousActionAsync(
             "Permanently Delete Vault?",
             $"Permanently delete {vault.DisplayLabel}?",
-            "Warning: this action is irreversible. All stored passwords, secure notes, and encrypted data within this vault will be destroyed immediately.",
+            "Warning: this action is irreversible. All stored passwords, markdown notes, and encrypted data within this vault will be destroyed immediately.",
             "Permanently Delete");
 
         if (!confirmed)
