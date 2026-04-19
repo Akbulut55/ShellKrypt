@@ -106,6 +106,7 @@ public partial class WebLoginsViewModel : ViewModelBase
 
     private readonly MainWindowViewModel _root;
     private readonly IWebLoginService _webLoginService;
+    private readonly Func<string?, Task> _refreshAllItemsAsync;
 
     private readonly List<WebLoginRowVm> _all = new();
     private readonly List<WebLoginRowVm> _filtered = new();
@@ -185,10 +186,11 @@ public partial class WebLoginsViewModel : ViewModelBase
         : "Fields are encrypted locally before being stored.";
     public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? "Hide" : "Reveal";
 
-    public WebLoginsViewModel(MainWindowViewModel root, IWebLoginService webLoginService)
+    public WebLoginsViewModel(MainWindowViewModel root, IWebLoginService webLoginService, Func<string?, Task> refreshAllItemsAsync)
     {
         _root = root;
         _webLoginService = webLoginService;
+        _refreshAllItemsAsync = refreshAllItemsAsync;
         _ = LoadAsync();
     }
 
@@ -379,6 +381,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             var entry = await _webLoginService.AddAsync(_root.VaultPath, _root.VaultKey, BuildInput());
 
             _all.Insert(0, ToRow(entry));
+            await _refreshAllItemsAsync(entry.Id);
             RefreshEmailFilterOptions();
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
@@ -410,6 +413,7 @@ public partial class WebLoginsViewModel : ViewModelBase
                 BuildInput());
 
             ApplyEntry(row, entry);
+            await _refreshAllItemsAsync(entry.Id);
 
             IsLoginDetailsEditing = false;
             IsLoginDeleteConfirming = false;
@@ -435,6 +439,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             var row = _selectedDetailsRow;
             await _webLoginService.DeleteAsync(_root.VaultPath, row.Id);
             RemoveRow(row);
+            await _refreshAllItemsAsync(null);
             _selectedDetailsRow = null;
             IsLoginDeleteConfirming = false;
             IsLoginDetailsEditing = false;

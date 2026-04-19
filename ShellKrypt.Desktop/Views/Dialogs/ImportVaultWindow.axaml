@@ -1,44 +1,103 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ShellKrypt.Desktop.Views.ImportVaultWindow"
-        Width="620"
+        Width="700"
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Title="Import Vault">
-  <Border Padding="20" Background="{StaticResource AppBackgroundBrush}">
-    <StackPanel Spacing="16">
-      <StackPanel Spacing="8">
-        <TextBlock Text="Import Vault" Classes="section-title"/>
-        <TextBlock Text="Add an existing `.skvault` file to the local vault manager."
+        Title="Import Vault"
+        Background="#900e0e0e">
+  <Border Background="{StaticResource SurfaceRaisedBrush}"
+          CornerRadius="18">
+    <Grid RowDefinitions="Auto,Auto">
+      <StackPanel Spacing="18"
+                  Margin="28">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Import Vault"
+                     FontSize="30"
+                     FontWeight="Black"/>
+          <TextBlock Text="Add an existing ShellKrypt vault file to the local launcher without changing the file itself."
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="VAULT FILE"
+                     Foreground="{StaticResource TextMutedBrush}"
+                     FontSize="10"
+                     FontWeight="Black"
+                     LetterSpacing="2.2"/>
+          <Grid ColumnDefinitions="*,Auto"
+                ColumnSpacing="10">
+            <TextBox x:Name="PathBox"
+                     PlaceholderText="Existing .skvault path"/>
+            <Button Grid.Column="1"
+                    Content="Browse"
+                    Classes="dialog-cancel-button"
+                    Click="OnBrowseClicked"/>
+          </Grid>
+        </StackPanel>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="DISPLAY NAME"
+                     Foreground="{StaticResource TextMutedBrush}"
+                     FontSize="10"
+                     FontWeight="Black"
+                     LetterSpacing="2.2"/>
+          <TextBox x:Name="DisplayNameBox"
+                   PlaceholderText="Optional launcher label"/>
+        </StackPanel>
+
+        <TextBlock x:Name="ErrorText"
+                   Foreground="{StaticResource DangerBrush}"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   IsVisible="False"/>
+      </StackPanel>
+
+      <Grid Grid.Row="1"
+            Background="{StaticResource SurfaceElevatedBrush}"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="10"
+            Margin="28,22">
+        <TextBlock Text="Only the local launcher registry is updated until you unlock the imported vault."
                    Classes="page-subtitle"
+                   VerticalAlignment="Center"
                    TextWrapping="Wrap"/>
-      </StackPanel>
-
-      <StackPanel Spacing="6">
-        <TextBlock Text="Vault file" Classes="caption"/>
-        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-          <TextBox x:Name="PathBox" Grid.Column="0" Watermark="Existing vault path"/>
-          <Button Grid.Column="1" Content="Browse" Classes="subtle" Click="OnBrowseClicked"/>
-        </Grid>
-      </StackPanel>
-
-      <StackPanel Spacing="6">
-        <TextBlock Text="Display name" Classes="caption"/>
-        <TextBox x:Name="DisplayNameBox" Watermark="Display name (optional)"/>
-      </StackPanel>
-
-      <TextBlock x:Name="ErrorText"
-                 Foreground="{StaticResource DangerBrush}"
-                 TextWrapping="Wrap"
-                 IsVisible="False"/>
-
-      <StackPanel Orientation="Horizontal"
-                  Spacing="8"
-                  HorizontalAlignment="Right">
-        <Button Content="Cancel" Classes="subtle" Click="OnCancelClicked"/>
-        <Button Content="Import Vault" Classes="primary" IsDefault="True" Click="OnImportClicked"/>
-      </StackPanel>
-    </StackPanel>
+        <Button Grid.Column="1"
+                Content="Cancel"
+                Classes="dialog-cancel-button"
+                Click="OnCancelClicked"/>
+        <Button Grid.Column="2"
+                Content="Import Vault"
+                Classes="dialog-primary-button"
+                IsDefault="True"
+                Click="OnImportClicked"/>
+      </Grid>
+    </Grid>
   </Border>
+
+  <Window.Styles>
+    <Style Selector="Button.dialog-cancel-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.dialog-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+  </Window.Styles>
 </Window>

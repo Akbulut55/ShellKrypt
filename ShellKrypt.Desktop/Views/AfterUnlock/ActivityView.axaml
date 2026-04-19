@@ -1,0 +1,434 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.ActivityView"
+             x:CompileBindings="False"
+             x:DataType="vm:ActivityViewModel">
+
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="28,24,28,28"
+                  MaxWidth="1500"
+                  Spacing="24">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="18"
+              VerticalAlignment="Center">
+          <Border Classes="activity-search-shell">
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="10">
+              <TextBlock Text="⌕"
+                         Foreground="{StaticResource TextMutedBrush}"
+                         VerticalAlignment="Center"/>
+              <TextBox Grid.Column="1"
+                       Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       Classes="activity-search-box"
+                       PlaceholderText="Search audit logs..."/>
+            </Grid>
+          </Border>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="10"
+                      VerticalAlignment="Center">
+            <Button Content="R"
+                    Classes="activity-icon-button"
+                    Command="{Binding RefreshCommand}"/>
+            <Border Width="36"
+                    Height="36"
+                    CornerRadius="10"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1">
+              <TextBlock Text="!"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Foreground="{StaticResource TextMutedBrush}"/>
+            </Border>
+            <Border Width="36"
+                    Height="36"
+                    CornerRadius="18"
+                    Background="{StaticResource SurfaceElevatedBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1">
+              <TextBlock Text="A"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Foreground="{StaticResource TextMutedBrush}"
+                         FontWeight="Bold"/>
+            </Border>
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="18"
+              VerticalAlignment="Bottom">
+          <StackPanel Spacing="6">
+            <TextBlock Text="Activity Log"
+                       FontSize="30"
+                       FontWeight="SemiBold"
+                       LetterSpacing="-0.6"/>
+            <TextBlock Text="Real-time monitoring of all security events and access requests."
+                       Classes="page-subtitle"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Orientation="Horizontal"
+                      Spacing="8">
+            <Button Content="All"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsAllFilterActive}"
+                    Command="{Binding ShowAllCommand}"/>
+            <Button Content="Vault"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsVaultFilterActive}"
+                    Command="{Binding ShowVaultCommand}"/>
+            <Button Content="Notes"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsNotesFilterActive}"
+                    Command="{Binding ShowNotesCommand}"/>
+            <Button Content="Export"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsTransferFilterActive}"
+                    Command="{Binding ShowTransferCommand}"/>
+            <Button Content="Settings"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsSettingsFilterActive}"
+                    Command="{Binding ShowSettingsCommand}"/>
+          </StackPanel>
+        </Grid>
+
+        <Grid ColumnDefinitions="*,330"
+              ColumnSpacing="22">
+          <StackPanel Spacing="12">
+            <Grid ColumnDefinitions="1.5*,1.3*,2*,2*,1.2*"
+                  ColumnSpacing="16"
+                  Margin="4,0,4,0">
+              <TextBlock Text="TIMESTAMP"
+                         Classes="activity-table-header"/>
+              <TextBlock Grid.Column="1"
+                         Text="SESSION ID"
+                         Classes="activity-table-header"/>
+              <TextBlock Grid.Column="2"
+                         Text="EVENT TITLE"
+                         Classes="activity-table-header"/>
+              <TextBlock Grid.Column="3"
+                         Text="AFFECTED ITEM"
+                         Classes="activity-table-header"/>
+              <TextBlock Grid.Column="4"
+                         Text="STATUS"
+                         Classes="activity-table-header"
+                         HorizontalAlignment="Right"/>
+            </Grid>
+
+            <ListBox ItemsSource="{Binding Items}"
+                     SelectedItem="{Binding SelectedItem}"
+                     Classes="activity-list"
+                     IsVisible="{Binding HasItems}">
+              <ListBox.ItemTemplate>
+                <DataTemplate x:DataType="vm:ActivityItemVm">
+                  <Border Classes="activity-row-card">
+                    <Grid ColumnDefinitions="1.5*,1.3*,2*,2*,1.2*"
+                          ColumnSpacing="16"
+                          MinHeight="64">
+                      <TextBlock Text="{Binding TimestampColumnDisplay}"
+                                 Classes="activity-row-meta"
+                                 VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding SessionIdDisplay}"
+                                 Classes="activity-row-accent"
+                                 VerticalAlignment="Center"/>
+                      <TextBlock Grid.Column="2"
+                                 Text="{Binding Title}"
+                                 FontSize="13"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <TextBlock Grid.Column="3"
+                                 Text="{Binding AffectedItemDisplay}"
+                                 Classes="activity-row-meta"
+                                 VerticalAlignment="Center"
+                                 TextTrimming="CharacterEllipsis"/>
+                      <Border Grid.Column="4"
+                              Background="{Binding SeverityBackground}"
+                              CornerRadius="999"
+                              Padding="10,4"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Center">
+                        <TextBlock Text="{Binding SeverityChipText}"
+                                   Foreground="{Binding SeverityForeground}"
+                                   FontSize="10"
+                                   FontWeight="Black"/>
+                      </Border>
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ListBox.ItemTemplate>
+            </ListBox>
+
+            <Border Background="Transparent"
+                    Padding="20,30"
+                    IsVisible="{Binding !HasItems}">
+              <StackPanel Spacing="12">
+                <TextBlock Text="{Binding EmptyStateTitle}"
+                           FontSize="18"
+                           FontWeight="Bold"/>
+                <TextBlock Text="{Binding EmptyStateSubtitle}"
+                           Classes="page-subtitle"
+                           MaxWidth="520"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="18">
+            <Border Classes="activity-detail-card">
+              <StackPanel Spacing="16">
+                <TextBlock Text="EVENT METADATA"
+                           Foreground="{StaticResource AccentBrush}"
+                           FontSize="11"
+                           FontWeight="Black"
+                           LetterSpacing="2.2"/>
+
+                <StackPanel Spacing="12">
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="EVENT UUID"
+                               Classes="activity-detail-label"/>
+                    <Border Classes="activity-detail-shell">
+                      <TextBlock Text="{Binding SelectedEventId}"
+                                 Classes="activity-detail-value"
+                                 TextWrapping="Wrap"/>
+                    </Border>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="TIMESTAMP"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedTimestamp}"
+                               Classes="activity-detail-value"/>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="CATEGORY"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedCategory}"
+                               Classes="activity-detail-value"/>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="STATUS"
+                               Classes="activity-detail-label"/>
+                    <Border Background="{Binding SelectedStatusBackground}"
+                            CornerRadius="999"
+                            Padding="10,4"
+                            HorizontalAlignment="Left">
+                      <TextBlock Text="{Binding SelectedStatus}"
+                                 Foreground="{Binding SelectedStatusForeground}"
+                                 FontSize="10"
+                                 FontWeight="Black"/>
+                    </Border>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="AFFECTED ITEM"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedAffectedItem}"
+                               Classes="activity-detail-value"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="VAULT PATH"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedVaultPath}"
+                               Classes="activity-detail-value"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+
+                  <StackPanel Spacing="4">
+                    <TextBlock Text="DETAIL"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedDetail}"
+                               Classes="activity-detail-value"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </StackPanel>
+
+                <Border Classes="activity-detail-shell">
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="SHA-256 INTEGRITY HASH"
+                               Classes="activity-detail-label"/>
+                    <TextBlock Text="{Binding SelectedIntegrityHash}"
+                               Foreground="{StaticResource SuccessBrush}"
+                               FontSize="11"
+                               FontFamily="Consolas"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+
+                <Button Content="Export Full Report"
+                        Classes="activity-report-button"
+                        Command="{Binding ExportSelectedCommand}"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="activity-note-card">
+              <StackPanel Spacing="8">
+                <TextBlock Text="SECURITY NOTE"
+                           FontSize="11"
+                           FontWeight="Black"
+                           LetterSpacing="2.2"/>
+                <TextBlock Text="{Binding SecurityNoteText}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Grid>
+
+        <TextBlock Text="{Binding Error}"
+                   Foreground="{StaticResource DangerBrush}"
+                   FontSize="12"
+                   IsVisible="{Binding HasError}"/>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.activity-search-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="MinWidth" Value="360"/>
+    </Style>
+
+    <Style Selector="TextBox.activity-search-box">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0,11"/>
+      <Setter Property="MinHeight" Value="42"/>
+    </Style>
+
+    <Style Selector="Button.activity-icon-button">
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="Button.activity-chip">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+
+    <Style Selector="Button.activity-chip.active">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.activity-table-header">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="ListBox.activity-list">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="ListBox.activity-list ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="Border.activity-row-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="16,0"/>
+    </Style>
+
+    <Style Selector="ListBox.activity-list ListBoxItem:selected Border.activity-row-card">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="ListBox.activity-list ListBoxItem:pointerover Border.activity-row-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.activity-row-meta">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+    </Style>
+
+    <Style Selector="TextBlock.activity-row-accent">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontFamily" Value="Consolas"/>
+    </Style>
+
+    <Style Selector="Border.activity-detail-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="TextBlock.activity-detail-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="TextBlock.activity-detail-value">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Border.activity-detail-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="14,12"/>
+    </Style>
+
+    <Style Selector="Button.activity-report-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <Style Selector="Border.activity-note-card">
+      <Setter Property="Background" Value="#101a4f47"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

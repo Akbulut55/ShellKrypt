@@ -4,6 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
+using ShellKrypt.Desktop.Services;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -13,7 +14,7 @@ public partial class ShellViewModel : ViewModelBase
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new()
     {
-        new NavItemVm("vault", "Vault"),
+        new NavItemVm("vault", "All Items"),
         new NavItemVm("web", "Web Logins"),
         new NavItemVm("notes", "Markdown Notes"),
         new NavItemVm("cards", "Credit Cards"),
@@ -31,22 +32,23 @@ public partial class ShellViewModel : ViewModelBase
         IItemRepository repo,
         IWebLoginService webLoginService,
         ICardService cardService,
-        ICryptoToolsService cryptoToolsService)
+        INoteService noteService,
+        IHealthAuditService healthAuditService,
+        ICryptoToolsService cryptoToolsService,
+        ActivityLogStore activityLogStore)
     {
         _root = root;
 
         AllItems = new AllItemsViewModel(_root, this, repo);
-        WebLogins = new WebLoginsViewModel(_root, webLoginService);
-        MarkdownNotes = new MarkdownNotesViewModel(_root, repo);
-        Cards = new CardsViewModel(_root, cardService);
+        WebLogins = new WebLoginsViewModel(_root, webLoginService, AllItems.RefreshAfterMutationAsync);
+        MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
+        Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
-        Health = new HealthViewModel(_root, repo);
-        Settings = new SettingsViewModel(_root);
-        Activity = new PlaceholderPageViewModel(
-            "Activity",
-            "Activity timeline placeholder. The Stitch activity log screen can land here when this section is implemented.");
+        Health = new HealthViewModel(_root, healthAuditService);
+        Settings = new SettingsViewModel(_root, this);
+        Activity = new ActivityViewModel(_root, activityLogStore);
 
-        SelectNav("generator");
+        SelectNav("vault");
     }
 
     public WebLoginsViewModel WebLogins { get; }
@@ -56,7 +58,7 @@ public partial class ShellViewModel : ViewModelBase
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
-    public PlaceholderPageViewModel Activity { get; }
+    public ActivityViewModel Activity { get; }
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
@@ -79,20 +81,23 @@ public partial class ShellViewModel : ViewModelBase
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
         "settings" => "Search settings...",
-        "vault" => "Search vault...",
+        "vault" => "Search all items...",
         "web" => "Search web logins...",
         "notes" => "Search markdown notes...",
         "cards" => "Search credit cards...",
         "audit" => "Search security audit...",
         "generator" => "Search generator tools...",
         "activity" => "Search activity...",
-        _ => "Search vault..."
+        _ => "Search all items..."
     };
 
     partial void OnSelectedNavChanged(NavItemVm? value)
     {
         if (value is null)
             return;
+
+        foreach (var item in NavItems)
+            item.IsSelected = ReferenceEquals(item, value);
 
         CurrentPage = value.Key switch
         {
@@ -117,6 +122,13 @@ public partial class ShellViewModel : ViewModelBase
     [RelayCommand]
     private void Lock() => _root.Lock();
 
+    [RelayCommand]
+    private void SelectSection(NavItemVm? item)
+    {
+        if (item is not null)
+            SelectedNav = item;
+    }
+
     public void ShowAllItems()
     {
         CurrentPage = AllItems;
@@ -125,6 +137,9 @@ public partial class ShellViewModel : ViewModelBase
     public void ShowWebLogins() => SelectNav("web");
     public void ShowCards() => SelectNav("cards");
     public void ShowMarkdownNotes() => SelectNav("notes");
+    public void ShowSecurityAudit() => SelectNav("audit");
+    public void ShowSettings() => SelectNav("settings");
+    public void ShowActivity() => SelectNav("activity");
 
     private void SelectNav(string key)
     {

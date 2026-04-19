@@ -1,87 +1,138 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Name="Root"
              x:Class="ShellKrypt.Desktop.Views.ShellView"
              x:DataType="vm:ShellViewModel">
 
   <Grid Background="{StaticResource AppBackgroundBrush}"
-        ColumnDefinitions="256,*">
+        ColumnDefinitions="272,*">
     <Border Background="{StaticResource SidebarBrush}"
-            Padding="20,24"
             BorderBrush="{StaticResource WindowOutlineBrush}"
-            BorderThickness="0,0,1,0">
+            BorderThickness="0,0,1,0"
+            Padding="20,24,20,20">
       <Grid RowDefinitions="Auto,*,Auto">
-        <StackPanel Spacing="28">
-          <StackPanel Spacing="8">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+          <Border Width="40"
+                  Height="40"
+                  CornerRadius="10"
+                  Background="{StaticResource SurfaceElevatedBrush}">
+            <TextBlock Text="SK"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="12"
+                       FontWeight="Black"
+                       Foreground="{StaticResource AccentBrush}"/>
+          </Border>
+
+          <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
             <TextBlock Text="ShellKrypt"
                        FontSize="20"
                        FontWeight="Black"
                        Foreground="{StaticResource AccentBrush}"/>
-            <TextBlock Text="Secure Vault"
+            <TextBlock Text="Local encrypted vault"
                        FontSize="12"
-                       FontWeight="Medium"
                        Foreground="{StaticResource TextMutedBrush}"/>
           </StackPanel>
+        </Grid>
 
-          <ListBox ItemsSource="{Binding NavItems}"
-                   SelectedItem="{Binding SelectedNav}"
-                   Background="Transparent"
-                   BorderThickness="0">
-            <ListBox.ItemTemplate>
+        <StackPanel Grid.Row="1"
+                    Margin="0,22,0,0"
+                    Spacing="12">
+          <TextBlock Text="SECTIONS"
+                     FontSize="11"
+                     FontWeight="Black"
+                     LetterSpacing="2.4"
+                     Foreground="{StaticResource TextMutedBrush}"/>
+
+          <ItemsControl ItemsSource="{Binding NavItems}"
+                        HorizontalAlignment="Stretch">
+            <ItemsControl.ItemTemplate>
               <DataTemplate x:DataType="vm:NavItemVm">
-                <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12" Margin="10,9">
-                  <Border Width="24"
-                          Height="24"
-                          CornerRadius="6"
-                          Background="{StaticResource SurfaceRaisedBrush}">
-                    <TextBlock Text="{Binding ShortCode}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               FontSize="8"
-                               FontWeight="Black"
-                               Foreground="{StaticResource AccentBrush}"/>
+                <Button Classes="shell-nav-button"
+                        Command="{Binding #Root.DataContext.SelectSectionCommand}"
+                        CommandParameter="{Binding}">
+                  <Border Classes="shell-nav-item"
+                          Classes.active="{Binding IsSelected}">
+                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                      <Border Width="28"
+                              Height="28"
+                              CornerRadius="8"
+                              Background="{StaticResource SurfaceElevatedBrush}">
+                        <TextBlock Text="{Binding ShortCode}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="9"
+                                   FontWeight="Black"
+                                   Foreground="{StaticResource AccentBrush}"/>
+                      </Border>
+
+                      <TextBlock Grid.Column="1"
+                                 Text="{Binding Title}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"
+                                 VerticalAlignment="Center"/>
+                    </Grid>
                   </Border>
-                  <TextBlock Grid.Column="1"
-                             Text="{Binding Title}"
-                             FontSize="13"
-                             FontWeight="SemiBold"
-                             VerticalAlignment="Center"/>
-                </Grid>
+                </Button>
               </DataTemplate>
-            </ListBox.ItemTemplate>
-          </ListBox>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
         </StackPanel>
 
-        <StackPanel Grid.Row="2" Spacing="18">
+        <StackPanel Grid.Row="2" Spacing="14">
           <Button Content="Lock Vault"
                   Classes="primary"
                   HorizontalAlignment="Stretch"
                   Command="{Binding LockCommand}"/>
-
-          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-            <Border Width="32"
-                    Height="32"
-                    CornerRadius="999"
-                    Background="{StaticResource SurfaceRaisedBrush}">
-              <TextBlock Text="A"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         FontWeight="Bold"
-                         Foreground="{StaticResource AccentBrush}"/>
-            </Border>
-            <StackPanel Grid.Column="1" Spacing="1" VerticalAlignment="Center">
-              <TextBlock Text="Admin Session" FontSize="12" FontWeight="Bold"/>
-              <TextBlock Text="0x9f...4a2b" Classes="caption"/>
-            </StackPanel>
-          </Grid>
         </StackPanel>
       </Grid>
     </Border>
 
-    <Grid Grid.Column="1"
-          Background="{StaticResource AppBackgroundBrush}">
-      <ContentControl Margin="0"
-                      Content="{Binding CurrentPage}"/>
-    </Grid>
+    <Border Grid.Column="1"
+            Background="{StaticResource AppBackgroundBrush}">
+      <ContentControl Content="{Binding CurrentPage}"/>
+    </Border>
   </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Button.shell-nav-button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="Button.shell-nav-button:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Button.shell-nav-button:pressed">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Border.shell-nav-item">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="12,10"/>
+    </Style>
+
+    <Style Selector="Button.shell-nav-button:pointerover Border.shell-nav-item">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    </Style>
+
+    <Style Selector="Border.shell-nav-item.active">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using Microsoft.Data.Sqlite;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Vaulting;
@@ -27,7 +28,10 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     private readonly MainWindowViewModel _root;
+    private readonly ShellViewModel _shell;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
+    private readonly IVaultService _vaultService = new SqliteVaultService();
+    private readonly VaultRegistryStore _vaultRegistry = new();
 
     [ObservableProperty] private bool autoLockEnabled;
     [ObservableProperty] private AutoLockDurationOption? selectedAutoLockDuration;
@@ -81,18 +85,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
 
-    public SettingsViewModel(MainWindowViewModel root)
+    public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell)
     {
         _root = root;
+        _shell = shell;
         CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
-
-        AutoLockEnabled = _root.AutoLockEnabled;
-        SelectedAutoLockDuration = ResolveAutoLockDuration(_root.AutoLockMinutes);
-        LockOnDeactivate = _root.LockOnDeactivate;
-        LockOnDeactivateSecondsText = _root.LockOnDeactivateSeconds.ToString(CultureInfo.InvariantCulture);
-        ClipboardClearSecondsText = _root.ClipboardClearSeconds.ToString(CultureInfo.InvariantCulture);
-        ClipboardClearSecondsValue = Math.Clamp(_root.ClipboardClearSeconds, 5, 120);
-        SelectedThemeMode = _root.ThemeMode;
+        LoadFromRootSettings();
         Status = "Settings save automatically.";
 
         var exportBaseName = GetVaultDisplayName();
@@ -106,13 +104,20 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string VaultStorageDisplay => GetVaultStorageDisplay();
     public double VaultStoragePercent => GetVaultStoragePercent();
     public string ClipboardClearSecondsDisplay => $"{ClipboardClearSecondsText}s";
+    public string EncryptionDisplay => "AES-256";
+    public string ThemeModeLabel => SelectedThemeMode == AppThemeMode.Dark ? "Dark" : "Light";
     public string FocusLockSummary => LockOnDeactivate
         ? $"The vault locks after the app stays out of focus for about {LockOnDeactivateSecondsText} seconds."
         : "Switching away from the app will not immediately lock the vault.";
+    public string SecurityStatusText => AutoLockEnabled
+        ? $"Auto-lock enabled • {SelectedAutoLockDuration?.Label ?? "Configured"}"
+        : "Auto-lock disabled";
+    public string IntegrityStatusText => "ShellKrypt uses zero-knowledge local encryption. Settings stay on-device.";
 
     partial void OnAutoLockEnabledChanged(bool value)
     {
         _root.AutoLockEnabled = value;
+        OnPropertyChanged(nameof(SecurityStatusText));
     }
 
     partial void OnLockOnDeactivateChanged(bool value)
@@ -148,13 +153,16 @@ public sealed partial class SettingsViewModel : ViewModelBase
             return;
 
         _root.AutoLockMinutes = value.Minutes;
+        _root.AutoLockEnabled = value.Minutes > 0;
         Status = "Settings saved.";
+        OnPropertyChanged(nameof(SecurityStatusText));
     }
 
     partial void OnSelectedThemeModeChanged(AppThemeMode value)
     {
         _root.ThemeMode = value;
         Status = $"Theme switched to {value}.";
+        OnPropertyChanged(nameof(ThemeModeLabel));
     }
 
     partial void OnClipboardClearSecondsTextChanged(string value)
@@ -286,6 +294,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             await _transferService.ExportEncryptedAsync(vaultPath, vaultKey, EncryptedExportPath, ExportPassphrase);
             TransferStatus = $"Encrypted backup saved to {EncryptedExportPath}.";
+            _root.LogActivity("transfer", "Encrypted backup exported", $"Saved an encrypted backup to {EncryptedExportPath}.", "success", vaultPath);
         });
     }
 
@@ -317,6 +326,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             await _transferService.ExportPlaintextJsonAsync(vaultPath, vaultKey, PlaintextExportPath);
             TransferStatus = $"Plaintext JSON export saved to {PlaintextExportPath}.";
+            _root.LogActivity("transfer", "Plaintext export created", $"Saved a plaintext JSON export to {PlaintextExportPath}.", "warning", vaultPath);
         });
     }
 
@@ -375,6 +385,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportEncryptedAsync(EncryptedImportPath, EncryptedImportPassphrase, vaultPath, vaultKey);
             _root.ReloadShell();
             TransferStatus = "Encrypted backup restored into the current vault.";
+            _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup from {EncryptedImportPath}.", "success", vaultPath);
         });
     }
 
@@ -432,6 +443,80 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportCsvAsync(vaultPath, vaultKey, CsvImportPath, SelectedCsvDuplicateStrategy);
             _root.ReloadShell();
             TransferStatus = $"CSV import finished using {SelectedCsvDuplicateStrategy}.";
+            _root.LogActivity("transfer", "CSV import completed", $"Imported items from {CsvImportPath} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath);
+        });
+    }
+
+    [RelayCommand]
+    private void SaveChanges()
+    {
+        Status = "Changes saved locally.";
+    }
+
+    [RelayCommand]
+    private void DiscardChanges()
+    {
+        LoadFromRootSettings();
+        Status = "Local settings reloaded.";
+    }
+
+    [RelayCommand]
+    private void ViewAudit()
+    {
+        _shell.ShowSecurityAudit();
+    }
+
+    [RelayCommand]
+    private async Task DestroyVaultAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_root.VaultPath))
+        {
+            TransferStatus = "No active vault is selected.";
+            return;
+        }
+
+        var vaultPath = _root.VaultPath!;
+        var displayName = Path.GetFileNameWithoutExtension(vaultPath);
+
+        var confirmed = await _root.ConfirmDangerousActionAsync(
+            "Permanently Delete Vault?",
+            $"Permanently delete {displayName}?",
+            "Warning: this action is irreversible. All stored passwords, markdown notes, and encrypted data within this vault will be destroyed immediately.",
+            "Permanently Delete");
+
+        if (!confirmed)
+            return;
+
+        var password = await _root.PromptPasswordAsync(
+            "Confirm Master Password",
+            "Enter the master password to permanently delete this vault.",
+            vaultPath,
+            "Delete Vault");
+
+        if (password is null)
+            return;
+
+        await RunTransferAsync(async () =>
+        {
+            var unlockResult = await _vaultService.UnlockAsync(vaultPath, password);
+            if (!unlockResult.Success)
+            {
+                TransferStatus = unlockResult.Error ?? "Wrong master password.";
+                return;
+            }
+
+            if (unlockResult.VaultKey is { Length: > 0 } vaultKeyBytes)
+                Array.Clear(vaultKeyBytes, 0, vaultKeyBytes.Length);
+
+            SqliteConnection.ClearAllPools();
+
+            DeleteSidecarIfExists(vaultPath, "-wal");
+            DeleteSidecarIfExists(vaultPath, "-shm");
+            DeleteSidecarIfExists(vaultPath, "-journal");
+            File.Delete(vaultPath);
+            _vaultRegistry.RemoveVault(vaultPath);
+            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {displayName}.", "danger", vaultPath);
+            _root.Lock();
         });
     }
 
@@ -528,6 +613,20 @@ public sealed partial class SettingsViewModel : ViewModelBase
     private static string FormatImportSummary(VaultSnapshotSummary summary)
         => $"Previewing import: {summary.ItemCount} items, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
 
+    private void LoadFromRootSettings()
+    {
+        AutoLockEnabled = _root.AutoLockEnabled;
+        SelectedAutoLockDuration = ResolveAutoLockDuration(_root.AutoLockMinutes);
+        LockOnDeactivate = _root.LockOnDeactivate;
+        LockOnDeactivateSecondsText = _root.LockOnDeactivateSeconds.ToString(CultureInfo.InvariantCulture);
+        ClipboardClearSecondsText = _root.ClipboardClearSeconds.ToString(CultureInfo.InvariantCulture);
+        ClipboardClearSecondsValue = Math.Clamp(_root.ClipboardClearSeconds, 5, 120);
+        SelectedThemeMode = _root.ThemeMode;
+        OnPropertyChanged(nameof(SecurityStatusText));
+        OnPropertyChanged(nameof(ThemeModeLabel));
+        OnPropertyChanged(nameof(FocusLockSummary));
+    }
+
     private AutoLockDurationOption ResolveAutoLockDuration(int minutes)
     {
         var existing = AutoLockDurations.FirstOrDefault(x => x.Minutes == minutes);
@@ -537,5 +636,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
         var custom = new AutoLockDurationOption(minutes, $"{minutes} minutes");
         AutoLockDurations.Add(custom);
         return custom;
+    }
+
+    private static void DeleteSidecarIfExists(string vaultPath, string suffix)
+    {
+        var sidecar = vaultPath + suffix;
+        if (File.Exists(sidecar))
+            File.Delete(sidecar);
     }
 }

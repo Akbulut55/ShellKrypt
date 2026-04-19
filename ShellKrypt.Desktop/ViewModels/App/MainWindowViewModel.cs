@@ -24,14 +24,19 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly AppState _state = new();
     private readonly AppSettingsStore _settingsStore = new();
     private readonly VaultRegistryStore _vaultRegistryStore = new();
+    private readonly ActivityLogStore _activityLogStore = new();
     private readonly ClipboardService _clipboardService = new();
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
+    private readonly INoteService _noteService;
+    private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
     private readonly DispatcherTimer _autoLockTimer = new();
     private readonly DispatcherTimer _focusLossLockTimer = new() { Interval = TimeSpan.FromSeconds(20) };
+
+    public event EventHandler? ActivityChanged;
 
     [ObservableProperty]
     private ViewModelBase current = null!;
@@ -47,6 +52,8 @@ public partial class MainWindowViewModel : ViewModelBase
     {
         _webLoginService = new WebLoginService(_itemRepo);
         _cardService = new CardService(_itemRepo);
+        _noteService = new NoteService(_itemRepo);
+        _healthAuditService = new HealthAuditService(_itemRepo);
 
         var settings = _settingsStore.Load();
         AutoLockEnabled = settings.AutoLockEnabled;
@@ -77,6 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
+    public ActivityLogStore ActivityLogStore => _activityLogStore;
 
     public void SetVaultPath(string path) => _state.VaultPath = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetFullPath(path);
     public void AttachClipboard(IClipboard? clipboard) => _clipboardService.Attach(clipboard);
@@ -114,16 +122,33 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!string.IsNullOrWhiteSpace(_state.VaultPath))
             _vaultRegistryStore.MarkOpened(_state.VaultPath);
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _cryptoToolsService);
+        LogActivity(
+            category: "vault",
+            title: "Vault unlocked",
+            detail: $"Opened {GetVaultDisplayName(_state.VaultPath)}.",
+            severity: "success",
+            vaultPath: _state.VaultPath);
+
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
         RestartAutoLockTimer();
     }
 
     public void Lock()
     {
+        var vaultPath = _state.VaultPath;
         StopAutoLockTimer();
         StopFocusLossTimer();
         _ = _clipboardService.ClearAsync();
         _state.ClearSensitive();
+        if (!string.IsNullOrWhiteSpace(vaultPath))
+        {
+            LogActivity(
+                category: "vault",
+                title: "Vault locked",
+                detail: $"Locked {GetVaultDisplayName(vaultPath)}.",
+                severity: "info",
+                vaultPath: vaultPath);
+        }
         GoWelcome();
     }
 
@@ -132,7 +157,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _cryptoToolsService);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
         RestartAutoLockTimer();
     }
 
@@ -224,6 +249,19 @@ public partial class MainWindowViewModel : ViewModelBase
         return (confirmed, dialog.DisplayName, dialog.Description);
     }
 
+    public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null)
+    {
+        _activityLogStore.Append(new ActivityLogEntry(
+            Id: Guid.NewGuid().ToString("N"),
+            TimestampUtc: DateTimeOffset.UtcNow.ToString("O"),
+            Category: string.IsNullOrWhiteSpace(category) ? "system" : category.Trim().ToLowerInvariant(),
+            Title: title.Trim(),
+            Detail: detail.Trim(),
+            Severity: string.IsNullOrWhiteSpace(severity) ? "info" : severity.Trim().ToLowerInvariant(),
+            VaultPath: string.IsNullOrWhiteSpace(vaultPath) ? VaultPath : vaultPath));
+        ActivityChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndUpdateTimer();
     partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndUpdateTimer();
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndUpdateTimer();
@@ -292,5 +330,13 @@ public partial class MainWindowViewModel : ViewModelBase
             return "*.*";
 
         return normalized.StartsWith(".", StringComparison.Ordinal) ? $"*{normalized}" : $"*.{normalized.TrimStart('*')}";
+    }
+
+    private static string GetVaultDisplayName(string? vaultPath)
+    {
+        if (string.IsNullOrWhiteSpace(vaultPath))
+            return "Vault";
+
+        return Path.GetFileNameWithoutExtension(vaultPath);
     }
 }

@@ -5,606 +5,505 @@
              x:CompileBindings="False"
              x:DataType="vm:AllItemsViewModel">
 
-  <UserControl.Resources>
-    <SolidColorBrush x:Key="MonolithBackgroundBrush" Color="#131313"/>
-    <SolidColorBrush x:Key="MonolithSurfaceLowBrush" Color="#1C1B1B"/>
-    <SolidColorBrush x:Key="MonolithSurfaceBrush" Color="#201F1F"/>
-    <SolidColorBrush x:Key="MonolithSurfaceHighBrush" Color="#2A2A2A"/>
-    <SolidColorBrush x:Key="MonolithSurfaceHighestBrush" Color="#353534"/>
-    <SolidColorBrush x:Key="MonolithSurfaceLowestBrush" Color="#0E0E0E"/>
-    <SolidColorBrush x:Key="MonolithTextBrush" Color="#E5E2E1"/>
-    <SolidColorBrush x:Key="MonolithMutedBrush" Color="#BACAC5"/>
-    <SolidColorBrush x:Key="MonolithAccentBrush" Color="#57F1DB"/>
-    <SolidColorBrush x:Key="MonolithAccentSoftBrush" Color="#2DD4BF"/>
-    <SolidColorBrush x:Key="MonolithOutlineBrush" Color="#3C4A46"/>
-    <SolidColorBrush x:Key="MonolithWarningBrush" Color="#FFD1AA"/>
-    <SolidColorBrush x:Key="MonolithDangerBrush" Color="#FFB4AB"/>
-  </UserControl.Resources>
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="28,24,28,28"
+                  MaxWidth="1500"
+                  HorizontalAlignment="Stretch"
+                  Spacing="24">
 
-  <UserControl.Styles>
-    <Style Selector="UserControl">
-      <Setter Property="Background" Value="{StaticResource MonolithBackgroundBrush}"/>
-    </Style>
-
-    <Style Selector="TextBox.searchBox">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-      <Setter Property="WatermarkForeground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="CaretBrush" Value="{StaticResource MonolithAccentBrush}"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="FontSize" Value="14"/>
-    </Style>
-
-    <Style Selector="Button.navTab">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0,0,0,2"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="CornerRadius" Value="0"/>
-      <Setter Property="Padding" Value="0,0,0,10"/>
-      <Setter Property="FontSize" Value="14"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="Button.navTab:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-    </Style>
-
-    <Style Selector="Button.navTab.active">
-      <Setter Property="Foreground" Value="{StaticResource MonolithAccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource MonolithAccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.primaryAction">
-      <Setter Property="Background" Value="{StaticResource MonolithAccentBrush}"/>
-      <Setter Property="Foreground" Value="#003731"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="18,12"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-
-    <Style Selector="Button.primaryAction:pointerover">
-      <Setter Property="Background" Value="{StaticResource MonolithAccentSoftBrush}"/>
-    </Style>
-
-    <Style Selector="Button.iconAction">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="8"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="CornerRadius" Value="8"/>
-    </Style>
-
-    <Style Selector="Button.iconAction:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource MonolithAccentBrush}"/>
-      <Setter Property="Background" Value="#22282828"/>
-    </Style>
-
-    <Style Selector="Button.toolbarButton">
-      <Setter Property="Background" Value="{StaticResource MonolithSurfaceHighBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="14,10"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.toolbarButton:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-      <Setter Property="Background" Value="#303030"/>
-    </Style>
-
-    <Style Selector="Button.typeChip">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="10,6"/>
-      <Setter Property="FontWeight" Value="Medium"/>
-      <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.typeChip:pointerover">
-      <Setter Property="Background" Value="#202A2A2A"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-    </Style>
-
-    <Style Selector="Button.typeChip.active">
-      <Setter Property="Background" Value="{StaticResource MonolithSurfaceHighestBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-    </Style>
-
-    <Style Selector="Button.paginationButton">
-      <Setter Property="Background" Value="{StaticResource MonolithSurfaceLowBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="16,10"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-
-    <Style Selector="Button.paginationButton:pointerover">
-      <Setter Property="Background" Value="{StaticResource MonolithSurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-    </Style>
-
-    <Style Selector="Button.pageChipButton">
-      <Setter Property="Background" Value="{StaticResource MonolithSurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource MonolithMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12,10"/>
-      <Setter Property="MinWidth" Value="38"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-
-    <Style Selector="Button.pageChipButton:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource MonolithTextBrush}"/>
-    </Style>
-
-    <Style Selector="ListBox.itemsList">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
-    <Style Selector="ListBox.itemsList ListBoxItem">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-    </Style>
-
-    <Style Selector="ListBox.itemsList ListBoxItem:selected Border.rowCard">
-      <Setter Property="Background" Value="#242424"/>
-    </Style>
-
-    <Style Selector="StackPanel.rowActions">
-      <Setter Property="Opacity" Value="0"/>
-    </Style>
-
-    <Style Selector="ListBox.itemsList ListBoxItem:pointerover StackPanel.rowActions">
-      <Setter Property="Opacity" Value="1"/>
-    </Style>
-
-    <Style Selector="ListBox.itemsList ListBoxItem:pointerover Border.rowCard">
-      <Setter Property="Background" Value="#232323"/>
-    </Style>
-  </UserControl.Styles>
-
-  <Grid Background="{StaticResource MonolithBackgroundBrush}">
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
-      <Grid Margin="28,24,28,26"
-            RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-            RowSpacing="18">
-
-        <Grid ColumnDefinitions="480,Auto,*,Auto"
-              ColumnSpacing="18"
-              VerticalAlignment="Center">
-          <Border Background="{StaticResource MonolithSurfaceLowestBrush}"
-                  BorderBrush="#333C4A46"
-                  BorderThickness="1"
-                  CornerRadius="8"
-                  Padding="14,12">
-            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10" VerticalAlignment="Center">
-              <TextBlock Text="⌕"
-                         Foreground="{StaticResource MonolithMutedBrush}"
-                         VerticalAlignment="Center"
-                         FontSize="16"/>
-              <TextBox Grid.Column="1"
-                       Classes="searchBox"
-                       Text="{Binding SearchText}"
-                       Watermark="Search vault..."/>
-            </Grid>
-          </Border>
-
-          <StackPanel Grid.Column="1"
-                      Orientation="Horizontal"
-                      Spacing="24"
-                      VerticalAlignment="Center">
-            <Button Classes="navTab"
-                    Classes.active="{Binding IsAllScopeActive}"
-                    Content="All Items"
-                    Command="{Binding ShowAllCommand}"/>
-            <Button Classes="navTab"
-                    Classes.active="{Binding IsFavoritesScopeActive}"
-                    Content="Favorites"
-                    Command="{Binding ShowFavoritesCommand}"/>
-            <Button Classes="navTab"
-                    Classes.active="{Binding IsRecentScopeActive}"
-                    Content="Recent"
-                    Command="{Binding ShowRecentCommand}"/>
-          </StackPanel>
-
-          <StackPanel Grid.Column="3"
-                      Orientation="Horizontal"
-                      Spacing="8"
-                      VerticalAlignment="Center">
-            <Button Classes="iconAction"
-                    Content="↻"
-                    Command="{Binding RefreshCommand}"
-                    ToolTip.Tip="Refresh"/>
-            <Button Classes="iconAction"
-                    Content="→"
-                    Command="{Binding OpenSelectedCommand}"
-                    IsEnabled="{Binding HasRows}"
-                    ToolTip.Tip="Open selected item"/>
-            <Button Classes="primaryAction"
-                    Content="{Binding AddItemButtonText}"
-                    Command="{Binding AddItemCommand}"/>
-            <Border Width="40"
-                    Height="40"
-                    CornerRadius="20"
-                    Background="{StaticResource MonolithSurfaceHighBrush}">
-              <TextBlock Text="◉"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         Foreground="{StaticResource MonolithMutedBrush}"
-                         FontSize="16"/>
-            </Border>
-          </StackPanel>
-        </Grid>
-
-        <Grid Grid.Row="1" ColumnDefinitions="*,*,*" ColumnSpacing="18">
-          <Border Background="{StaticResource MonolithSurfaceBrush}"
-                  CornerRadius="12"
-                  BorderBrush="#223C4A46"
-                  BorderThickness="1"
-                  Padding="28,22">
+        <Grid ColumnDefinitions="*,*,*"
+              ColumnSpacing="18">
+          <Border Classes="allitems-stat-card">
             <Grid>
               <TextBlock Text="↻"
+                         Classes="allitems-stat-watermark"
                          HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"
-                         Margin="0,0,-18,-22"
-                         FontSize="120"
-                         Foreground="#0EFFFFFF"/>
-              <StackPanel Spacing="8">
+                         VerticalAlignment="Bottom"/>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
                 <TextBlock Text="TOTAL ITEMS"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
-                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                  <TextBlock Text="{Binding TotalCount}"
-                             Foreground="{StaticResource MonolithTextBrush}"
-                             FontSize="38"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{Binding TotalItemsDeltaText}"
-                             Foreground="{StaticResource MonolithAccentBrush}"
-                             FontSize="13"
-                             FontWeight="Bold"
-                             VerticalAlignment="Bottom"
-                             Margin="0,0,0,5"/>
-                </StackPanel>
-              </StackPanel>
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding TotalCount}"
+                           FontSize="34"
+                           FontWeight="Black"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding TotalItemsDeltaText}"
+                           Classes="allitems-accent-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
             </Grid>
           </Border>
 
           <Border Grid.Column="1"
-                  Background="{StaticResource MonolithSurfaceBrush}"
-                  CornerRadius="12"
-                  BorderBrush="#223C4A46"
-                  BorderThickness="1"
-                  Padding="28,22">
+                  Classes="allitems-stat-card">
             <Grid>
               <TextBlock Text="!"
+                         Classes="allitems-stat-watermark"
                          HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"
-                         Margin="0,0,-8,-18"
-                         FontSize="120"
-                         Foreground="#10FFB4AB"/>
-              <StackPanel Spacing="8">
+                         VerticalAlignment="Bottom"/>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
                 <TextBlock Text="WEAK PASSWORDS"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
-                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                  <TextBlock Text="{Binding WeakPasswordCount}"
-                             Foreground="{StaticResource MonolithDangerBrush}"
-                             FontSize="38"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{Binding WeakPasswordSubtitle}"
-                             Foreground="{StaticResource MonolithMutedBrush}"
-                             FontSize="13"
-                             FontWeight="Bold"
-                             VerticalAlignment="Bottom"
-                             Margin="0,0,0,5"/>
-                </StackPanel>
-              </StackPanel>
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding WeakPasswordCount}"
+                           FontSize="34"
+                           FontWeight="Black"
+                           Foreground="{StaticResource DangerBrush}"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding WeakPasswordSubtitle}"
+                           Classes="allitems-muted-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
             </Grid>
           </Border>
 
           <Border Grid.Column="2"
-                  Background="{StaticResource MonolithSurfaceBrush}"
-                  CornerRadius="12"
-                  BorderBrush="#223C4A46"
-                  BorderThickness="1"
-                  Padding="28,22">
+                  Classes="allitems-stat-card">
             <Grid>
               <TextBlock Text="⇄"
+                         Classes="allitems-stat-watermark"
                          HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"
-                         Margin="0,0,-12,-24"
-                         FontSize="120"
-                         Foreground="#10FFD1AA"/>
-              <StackPanel Spacing="8">
-                <TextBlock Text="REUSED PASSWORDS"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
-                <StackPanel Orientation="Horizontal" Spacing="12" VerticalAlignment="Bottom">
-                  <TextBlock Text="{Binding ReusedPasswordCount}"
-                             Foreground="{StaticResource MonolithWarningBrush}"
-                             FontSize="38"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{Binding ReusedPasswordSubtitle}"
-                             Foreground="{StaticResource MonolithMutedBrush}"
-                             FontSize="13"
-                             FontWeight="Bold"
-                             VerticalAlignment="Bottom"
-                             Margin="0,0,0,5"/>
-                </StackPanel>
-              </StackPanel>
+                         VerticalAlignment="Bottom"/>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
+                <TextBlock Text="EXPIRING SOON"
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding ExpiringSoonCardCount}"
+                           FontSize="34"
+                           FontWeight="Black"
+                           Foreground="{StaticResource WarningBrush}"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding ExpiringSoonCardSubtitle}"
+                           Classes="allitems-muted-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
             </Grid>
           </Border>
         </Grid>
 
-        <Border Grid.Row="2"
-                Background="{StaticResource MonolithSurfaceLowBrush}"
-                CornerRadius="12"
-                Padding="18,16">
-          <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+        <Border Classes="allitems-filter-shell">
+          <Grid ColumnDefinitions="320,*"
                 ColumnSpacing="10"
                 VerticalAlignment="Center">
-            <Button Classes="toolbarButton"
-                    Content="⌁ Filter"
-                    Command="{Binding ResetFiltersCommand}"/>
-            <Button Grid.Column="1"
-                    Classes="toolbarButton"
-                    Content="⇅ Sort"
-                    Command="{Binding CycleSortCommand}"/>
+            <Border Classes="allitems-search-shell">
+              <Grid ColumnDefinitions="Auto,*"
+                    ColumnSpacing="10">
+                <TextBlock Text="⌕"
+                           Foreground="{StaticResource TextMutedBrush}"
+                           VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1"
+                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="allitems-top-search"
+                         PlaceholderText="Search all items..."/>
+              </Grid>
+            </Border>
 
-            <StackPanel Grid.Column="3"
+            <StackPanel Grid.Column="1"
                         Orientation="Horizontal"
                         Spacing="8"
-                        VerticalAlignment="Center">
-              <Button Classes="typeChip"
+                        HorizontalAlignment="Right">
+              <Button Content="{Binding TotalCount, StringFormat=All ({0})}"
+                      Classes="allitems-chip"
+                      Classes.active="{Binding IsAllTypeActive}"
+                      Command="{Binding ShowAllCommand}"/>
+              <Button Content="{Binding WebCount, StringFormat=Logins ({0})}"
+                      Classes="allitems-chip"
                       Classes.active="{Binding IsWebTypeActive}"
-                      Content="{Binding WebCount, StringFormat=Logins ({0})}"
                       Command="{Binding ShowWebTypesCommand}"/>
-              <Button Classes="typeChip"
+              <Button Content="{Binding CardCount, StringFormat=Cards ({0})}"
+                      Classes="allitems-chip"
                       Classes.active="{Binding IsCardTypeActive}"
-                      Content="{Binding CardCount, StringFormat=Cards ({0})}"
                       Command="{Binding ShowCardTypesCommand}"/>
-              <Button Classes="typeChip"
+              <Button Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
+                      Classes="allitems-chip"
                       Classes.active="{Binding IsNoteTypeActive}"
-                      Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
                       Command="{Binding ShowNoteTypesCommand}"/>
             </StackPanel>
           </Grid>
         </Border>
 
-        <Border Grid.Row="3"
-                Background="{StaticResource MonolithSurfaceBrush}"
-                CornerRadius="12"
-                BorderBrush="#223C4A46"
-                BorderThickness="1"
-                Padding="0">
-          <Grid RowDefinitions="Auto,*">
-            <Border Background="{StaticResource MonolithSurfaceHighBrush}"
-                    CornerRadius="12,12,0,0"
-                    Padding="26,18">
-              <Grid ColumnDefinitions="2.3*,1.05*,1.25*,1.1*,Auto" ColumnSpacing="12">
+        <Border Classes="allitems-table-shell">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <Border Background="{StaticResource SurfaceRaisedBrush}"
+                    Padding="22,14">
+              <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
+                    ColumnSpacing="18">
                 <TextBlock Text="NAME"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
+                           Classes="allitems-table-header"/>
                 <TextBlock Grid.Column="1"
                            Text="TYPE"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
+                           Classes="allitems-table-header"/>
                 <TextBlock Grid.Column="2"
                            Text="USERNAME / ID"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
+                           Classes="allitems-table-header"/>
                 <TextBlock Grid.Column="3"
                            Text="LAST MODIFIED"
-                           Foreground="{StaticResource MonolithMutedBrush}"
-                           FontSize="13"
-                           FontWeight="Bold"/>
-                <TextBlock Grid.Column="4" Text=""/>
+                           Classes="allitems-table-header"/>
+                <TextBlock Grid.Column="4"
+                           Text=""
+                           Classes="allitems-table-header"/>
               </Grid>
             </Border>
 
             <Grid Grid.Row="1">
-              <ListBox Classes="itemsList"
-                       ItemsSource="{Binding Rows}"
-                       SelectedItem="{Binding SelectedRow}"
-                       IsVisible="{Binding HasRows}"
-                       ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                       ScrollViewer.VerticalScrollBarVisibility="Disabled">
-                <ListBox.ItemTemplate>
+              <ItemsControl ItemsSource="{Binding Rows}"
+                            Classes="allitems-list"
+                            IsVisible="{Binding HasRows}">
+                <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:AllItemEntry">
-                    <Border Classes="rowCard"
-                            Background="Transparent"
-                            Padding="22,18"
-                            BorderBrush="#183C4A46"
-                            BorderThickness="0,0,0,1">
-                      <Grid ColumnDefinitions="2.3*,1.05*,1.25*,1.1*,Auto" ColumnSpacing="12">
-                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="14">
-                          <Border Width="42"
-                                  Height="42"
+                    <Border Classes="allitems-row">
+                      <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
+                            ColumnSpacing="18"
+                            Margin="22,0"
+                            MinHeight="78">
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12"
+                              VerticalAlignment="Center">
+                          <Border Width="38"
+                                  Height="38"
                                   CornerRadius="10"
-                                  Background="{Binding IconBackground}">
+                                  Background="{StaticResource SurfaceElevatedBrush}">
                             <TextBlock Text="{Binding IconGlyph}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        Foreground="{Binding IconForeground}"
-                                       FontSize="18"
-                                       FontWeight="Bold"/>
+                                       FontWeight="Black"
+                                       FontSize="11"/>
                           </Border>
 
-                          <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal" Spacing="8">
-                              <TextBlock Text="{Binding Title}"
-                                         Foreground="{StaticResource MonolithTextBrush}"
-                                         FontSize="14"
-                                         FontWeight="Bold"
-                                         TextTrimming="CharacterEllipsis"/>
-                              <TextBlock Text="{Binding FavoriteGlyph}"
-                                         Foreground="{StaticResource MonolithAccentBrush}"
-                                         FontSize="13"
-                                         VerticalAlignment="Center"
-                                         IsVisible="{Binding Favorite}"/>
-                            </StackPanel>
+                          <StackPanel Grid.Column="1"
+                                      Spacing="3"
+                                      VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       TextTrimming="CharacterEllipsis"/>
                             <TextBlock Text="{Binding NameSubtitleDisplay}"
-                                       Foreground="{StaticResource MonolithMutedBrush}"
-                                       FontSize="12"
+                                       Classes="allitems-cell-subtitle"
                                        TextTrimming="CharacterEllipsis"/>
                           </StackPanel>
                         </Grid>
 
                         <Border Grid.Column="1"
                                 Background="{Binding TypeBadgeBackground}"
-                                CornerRadius="6"
+                                CornerRadius="999"
                                 Padding="10,5"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center">
                           <TextBlock Text="{Binding DisplayTypeLabel}"
                                      Foreground="{Binding TypeBadgeForeground}"
-                                     FontSize="11"
-                                     FontWeight="Bold"/>
+                                     FontSize="10"
+                                     FontWeight="Black"/>
                         </Border>
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding IdentifierDisplay}"
-                                   Foreground="{StaticResource MonolithTextBrush}"
-                                   FontSize="13"
                                    FontFamily="Consolas"
+                                   FontSize="12"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"/>
 
-                        <StackPanel Grid.Column="3" Spacing="3" VerticalAlignment="Center">
-                          <TextBlock Text="{Binding UpdatedDisplay}"
-                                     Foreground="{StaticResource MonolithTextBrush}"
-                                     FontSize="13"/>
-                          <TextBlock Text="{Binding UpdatedAbsoluteDisplay}"
-                                     Foreground="{StaticResource MonolithMutedBrush}"
-                                     FontSize="11"
-                                     TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding UpdatedDisplay}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
 
                         <StackPanel Grid.Column="4"
-                                    Classes="rowActions"
                                     Orientation="Horizontal"
-                                    Spacing="4"
-                                    VerticalAlignment="Center"
-                                    HorizontalAlignment="Right">
-                          <Button Classes="iconAction"
-                                  Content="⧉"
-                                  Command="{Binding DataContext.CopyPrimaryValueCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"
-                                  ToolTip.Tip="Copy value"/>
-                          <Button Classes="iconAction"
-                                  Content="→"
+                                    Spacing="8"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                          <Button Content="View"
+                                  Classes="allitems-inline-button"
                                   Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"
-                                  ToolTip.Tip="Open item"/>
+                                  CommandParameter="{Binding}"/>
                         </StackPanel>
                       </Grid>
                     </Border>
                   </DataTemplate>
-                </ListBox.ItemTemplate>
-              </ListBox>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-              <Border Background="Transparent"
-                      Padding="26,28"
+              <Border Padding="30,30"
+                      Background="Transparent"
                       IsVisible="{Binding !HasRows}">
-                <StackPanel Spacing="12" VerticalAlignment="Center">
+                <StackPanel Spacing="12"
+                            VerticalAlignment="Center">
                   <TextBlock Text="{Binding EmptyStateTitle}"
-                             Foreground="{StaticResource MonolithTextBrush}"
                              FontSize="18"
                              FontWeight="Bold"/>
                   <TextBlock Text="{Binding EmptyStateSubtitle}"
-                             Foreground="{StaticResource MonolithMutedBrush}"
-                             FontSize="13"
-                             MaxWidth="540"
+                             Classes="page-subtitle"
+                             MaxWidth="520"
                              TextWrapping="Wrap"/>
-                  <StackPanel Orientation="Horizontal" Spacing="10">
-                    <Button Classes="primaryAction"
-                            Content="{Binding AddItemButtonText}"
-                            Command="{Binding AddItemCommand}"
-                            HorizontalAlignment="Left"/>
-                    <Button Classes="toolbarButton"
-                            Content="Reset filters"
-                            Command="{Binding ResetFiltersCommand}"
-                            HorizontalAlignment="Left"/>
+                  <StackPanel Orientation="Horizontal"
+                              Spacing="10">
+                    <Button Content="{Binding AddItemButtonText}"
+                            Classes="allitems-add-button"
+                            Command="{Binding AddItemCommand}"/>
+                    <Button Content="Reset filters"
+                            Classes="allitems-filter-button"
+                            Command="{Binding ResetFiltersCommand}"/>
                   </StackPanel>
                 </StackPanel>
               </Border>
             </Grid>
+
+            <Border Grid.Row="2"
+                    Padding="22,18">
+              <Grid ColumnDefinitions="*,Auto"
+                    ColumnSpacing="16">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding FooterSummary}"
+                             Classes="allitems-footer-text"/>
+                  <TextBlock Text="{Binding Error}"
+                             Foreground="{StaticResource DangerBrush}"
+                             FontSize="12"
+                             IsVisible="{Binding HasError}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            Spacing="8"
+                            VerticalAlignment="Center">
+                  <Button Content="Previous"
+                          Classes="allitems-page-button"
+                          Command="{Binding GoPreviousPageCommand}"
+                          IsEnabled="{Binding CanGoPrevious}"/>
+                  <ItemsControl ItemsSource="{Binding PageChips}">
+                    <ItemsControl.ItemsPanel>
+                      <ItemsPanelTemplate>
+                        <StackPanel Orientation="Horizontal"
+                                    Spacing="8"/>
+                      </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:PageChipVm">
+                        <Button Content="{Binding Label}"
+                                Classes="allitems-page-button"
+                                Classes.active="{Binding IsCurrent}"
+                                Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                  <Button Content="Next"
+                          Classes="allitems-page-button"
+                          Command="{Binding GoNextPageCommand}"
+                          IsEnabled="{Binding CanGoNext}"/>
+                </StackPanel>
+              </Grid>
+            </Border>
           </Grid>
         </Border>
-
-        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="16" VerticalAlignment="Center">
-          <StackPanel Spacing="4">
-            <TextBlock Text="{Binding FooterSummary}"
-                       Foreground="{StaticResource MonolithMutedBrush}"
-                       FontSize="12"
-                       FontWeight="Medium"/>
-            <TextBlock Text="{Binding Error}"
-                       Foreground="{StaticResource MonolithDangerBrush}"
-                       FontSize="12"
-                       IsVisible="{Binding HasError}"/>
-          </StackPanel>
-
-          <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
-            <Button Classes="paginationButton"
-                    Content="Previous"
-                    Command="{Binding GoPreviousPageCommand}"
-                    IsEnabled="{Binding CanGoPrevious}"/>
-
-            <ItemsControl ItemsSource="{Binding PageChips}">
-              <ItemsControl.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <StackPanel Orientation="Horizontal" Spacing="8"/>
-                </ItemsPanelTemplate>
-              </ItemsControl.ItemsPanel>
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:PageChipVm">
-                  <Grid>
-                    <Border Background="{StaticResource MonolithAccentBrush}"
-                            CornerRadius="8"
-                            Padding="12,10"
-                            MinWidth="38"
-                            IsVisible="{Binding IsCurrent}">
-                      <TextBlock Text="{Binding Label}"
-                                 HorizontalAlignment="Center"
-                                 Foreground="#003731"
-                                 FontWeight="Bold"/>
-                    </Border>
-                    <Button Classes="pageChipButton"
-                            Content="{Binding Label}"
-                            IsVisible="{Binding !IsCurrent}"
-                            Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}"/>
-                  </Grid>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
-
-            <Button Classes="paginationButton"
-                    Content="Next"
-                    Command="{Binding GoNextPageCommand}"
-                    IsEnabled="{Binding CanGoNext}"/>
-          </StackPanel>
-        </Grid>
-      </Grid>
+      </StackPanel>
     </ScrollViewer>
   </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.allitems-search-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="MinWidth" Value="320"/>
+    </Style>
+
+    <Style Selector="TextBox.allitems-top-search">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0,11"/>
+      <Setter Property="MinHeight" Value="42"/>
+    </Style>
+
+    <Style Selector="Button.allitems-top-link">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0,0,0,8"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.allitems-top-link.active">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,2"/>
+    </Style>
+
+    <Style Selector="Button.allitems-icon-button">
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="Button.allitems-add-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Border.allitems-stat-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="24,20"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-stat-watermark">
+      <Setter Property="Foreground" Value="#0fffffff"/>
+      <Setter Property="FontSize" Value="96"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Margin" Value="0,0,-12,-20"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.4"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-accent-note">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-muted-note">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Border.allitems-filter-shell">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <Style Selector="Button.allitems-filter-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.allitems-chip">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="10,6"/>
+      <Setter Property="MinHeight" Value="0"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.allitems-chip.active">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    </Style>
+
+    <Style Selector="Border.allitems-table-shell">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-table-header">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="ItemsControl.allitems-list">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Border.allitems-row">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="#183C4A46"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    </Style>
+
+    <Style Selector="Border.allitems-row:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-cell-subtitle">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <Style Selector="Button.allitems-inline-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-footer-text">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.allitems-page-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="MinWidth" Value="32"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.allitems-page-button.active">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

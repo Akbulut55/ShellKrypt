@@ -2,11 +2,9 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Services;
-using ShellKrypt.Infrastructure.Crypto;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -20,6 +18,7 @@ public sealed partial class NoteItemVm : ObservableObject
     [ObservableProperty] private string title;
     [ObservableProperty] private string content;
     [ObservableProperty] private bool isFavorite;
+    [ObservableProperty] private bool isSelected;
 
     public NoteItemVm(string id, string title, string content, bool favorite, string createdAtUtc, string updatedAtUtc)
     {
@@ -65,6 +64,16 @@ public sealed partial class NoteItemVm : ObservableObject
         OnPropertyChanged(nameof(UpdatedDisplay));
     }
 
+    public void Apply(NoteEntry entry)
+    {
+        Title = entry.Title;
+        Content = entry.Content;
+        IsFavorite = entry.Favorite;
+        UpdatedAtUtc = entry.UpdatedAtUtc;
+        OnPropertyChanged(nameof(UpdatedAtUtc));
+        OnPropertyChanged(nameof(UpdatedDisplay));
+    }
+
     private static string FormatRelativeTimestamp(string value)
     {
         if (!DateTimeOffset.TryParse(value, out var timestamp))
@@ -91,12 +100,8 @@ public sealed partial class NoteItemVm : ObservableObject
 public partial class MarkdownNotesViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
-    private readonly IItemRepository _repo;
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private readonly INoteService _noteService;
+    private readonly Func<string?, Task> _refreshAllItemsAsync;
 
     public ObservableCollection<NoteItemVm> Notes { get; } = new();
     public ObservableCollection<NoteItemVm> FilteredNotes { get; } = new();
@@ -114,10 +119,11 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private bool isEditing;
     [ObservableProperty] private string activeDocumentView = "preview";
 
-    public MarkdownNotesViewModel(MainWindowViewModel root, IItemRepository repo)
+    public MarkdownNotesViewModel(MainWindowViewModel root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
     {
         _root = root;
-        _repo = repo;
+        _noteService = noteService;
+        _refreshAllItemsAsync = refreshAllItemsAsync;
 
         Notes.CollectionChanged += (_, __) =>
         {
@@ -138,7 +144,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             OnPropertyChanged(nameof(HasPreviewContent));
             OnPropertyChanged(nameof(PreviewDocumentTitle));
-            OnPropertyChanged(nameof(PreviewDocumentSubtitle));
         };
 
         UpdateNoteCount();
@@ -166,18 +171,12 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     public bool CanCopySelection => !IsBusy && !string.IsNullOrWhiteSpace(EditorContent);
     public bool CanToggleFavorite => SelectedNote is not null && !IsBusy;
     public bool CanStartEditing => HasEditor && !IsBusy && !IsEditing;
-    public bool CanShowSource => HasEditor && !IsBusy;
-    public bool CanShowPreview => HasEditor && !IsBusy;
+    public bool CanToggleDocumentView => HasEditor && !IsBusy;
     public bool CanSave => IsEditing && !IsBusy && !string.IsNullOrWhiteSpace(EditorTitle);
     public bool ShowEditButton => SelectedNote is not null && !IsEditing;
     public bool ShowSaveButton => IsEditing;
     public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true ? "Unstar" : "Star";
     public string SaveButtonText => SelectedNote is null ? "Create Note" : "Save Note";
-    public string EditorModeLabel => IsEditing
-        ? IsSourceMode
-            ? "Editing raw markdown."
-            : "Previewing unsaved changes."
-        : "Previewing encrypted markdown note.";
 
     public string PreviewDocumentTitle
     {
@@ -194,12 +193,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                 : "Untitled Markdown Note";
         }
     }
-
-    public string PreviewDocumentSubtitle => !HasPreviewContent
-        ? "No markdown content to render yet."
-        : IsEditing
-            ? "Preview updates live from unsaved markdown changes."
-            : $"Rendered from {PreviewBlocks.Count:N0} markdown block{(PreviewBlocks.Count == 1 ? "" : "s")}.";
 
     public string SelectedNoteMeta => SelectedNote is null
         ? IsCreatingNote
@@ -221,11 +214,12 @@ public partial class MarkdownNotesViewModel : ViewModelBase
             : "Create a new markdown note to start storing encrypted private data in this vault."
         : "Try a different search term or switch back to All.";
 
-    public string PreviewButtonText => IsEditing ? "Preview Draft" : "Preview";
-    public string SourceButtonText => IsEditing ? "Source" : "Edit Source";
+    public string DocumentViewToggleText => IsPreviewMode ? "Source" : "Preview";
 
     partial void OnSelectedNoteChanged(NoteItemVm? value)
     {
+        UpdateSelectionState();
+
         if (value is null)
         {
             if (!IsCreatingNote)
@@ -295,8 +289,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanCopySelection));
         OnPropertyChanged(nameof(CanToggleFavorite));
         OnPropertyChanged(nameof(CanStartEditing));
-        OnPropertyChanged(nameof(CanShowSource));
-        OnPropertyChanged(nameof(CanShowPreview));
+        OnPropertyChanged(nameof(CanToggleDocumentView));
         OnPropertyChanged(nameof(CanSave));
     }
 
@@ -311,17 +304,13 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanSave));
         OnPropertyChanged(nameof(ShowEditButton));
         OnPropertyChanged(nameof(ShowSaveButton));
-        OnPropertyChanged(nameof(EditorModeLabel));
-        OnPropertyChanged(nameof(PreviewButtonText));
-        OnPropertyChanged(nameof(SourceButtonText));
-        OnPropertyChanged(nameof(PreviewDocumentSubtitle));
     }
 
     partial void OnActiveDocumentViewChanged(string value)
     {
         OnPropertyChanged(nameof(IsPreviewMode));
         OnPropertyChanged(nameof(IsSourceMode));
-        OnPropertyChanged(nameof(EditorModeLabel));
+        OnPropertyChanged(nameof(DocumentViewToggleText));
     }
 
     [RelayCommand]
@@ -343,24 +332,22 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ShowPreview()
+    private void ToggleDocumentView()
     {
         if (!HasEditor)
             return;
 
-        ActiveDocumentView = "preview";
-    }
+        if (IsPreviewMode)
+        {
+            if (!IsEditing)
+                IsEditing = true;
 
-    [RelayCommand]
-    private void ShowSource()
-    {
-        if (!HasEditor)
-            return;
-
-        if (!IsEditing)
-            IsEditing = true;
-
-        ActiveDocumentView = "source";
+            ActiveDocumentView = "source";
+        }
+        else
+        {
+            ActiveDocumentView = "preview";
+        }
     }
 
     [RelayCommand]
@@ -391,7 +378,14 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             SelectedNote.IsFavorite = previous;
             RefreshFilteredNotes();
+            return;
         }
+
+        _root.LogActivity(
+            "notes",
+            previous ? "Markdown note unstarred" : "Markdown note starred",
+            $"{SelectedNote.Title} was {(previous ? "removed from" : "added to")} starred notes.",
+            "info");
     }
 
     [RelayCommand]
@@ -434,44 +428,34 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            var now = DateTimeOffset.UtcNow.ToString("O");
-            var vaultKey = _root.VaultKey;
-
             if (SelectedNote is null)
             {
-                var id = Guid.NewGuid().ToString("N");
-                var payload = new NotePayload(EditorTitle, EditorContent);
-                var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-                var enc = AesGcmBlob.Encrypt(vaultKey, json);
+                var entry = await _noteService.AddAsync(
+                    _root.VaultPath,
+                    _root.VaultKey,
+                    new NoteInput(EditorTitle, EditorContent, Favorite: false));
 
-                var header = new VaultItemHeader(id, ItemType.Note, false, now, now);
-                await _repo.InsertAsync(_root.VaultPath, header, enc);
-
-                var vm = new NoteItemVm(id, EditorTitle, EditorContent, false, now, now);
+                var vm = new NoteItemVm(entry.Id, entry.Title, entry.Content, entry.Favorite, entry.CreatedAtUtc, entry.UpdatedAtUtc);
                 Notes.Insert(0, vm);
                 IsCreatingNote = false;
                 SelectedNote = vm;
+                await _refreshAllItemsAsync(entry.Id);
+                _root.LogActivity("notes", "Markdown note created", $"Saved {entry.Title}.", "success");
             }
             else
             {
-                var payload = new NotePayload(EditorTitle, EditorContent);
-                var json = JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts);
-                var enc = AesGcmBlob.Encrypt(vaultKey, json);
-
-                SelectedNote.Title = EditorTitle;
-                SelectedNote.Content = EditorContent;
-                SelectedNote.TouchUpdated();
-
-                var header = new VaultItemHeader(
+                var entry = await _noteService.UpdateAsync(
+                    _root.VaultPath,
+                    _root.VaultKey,
                     SelectedNote.Id,
-                    ItemType.Note,
-                    SelectedNote.IsFavorite,
                     SelectedNote.CreatedAtUtc,
-                    DateTimeOffset.UtcNow.ToString("O"));
+                    new NoteInput(EditorTitle, EditorContent, SelectedNote.IsFavorite));
 
-                await _repo.UpdateAsync(_root.VaultPath, header, enc);
+                SelectedNote.Apply(entry);
                 IsEditing = false;
                 ActiveDocumentView = "preview";
+                await _refreshAllItemsAsync(entry.Id);
+                _root.LogActivity("notes", "Markdown note updated", $"Updated {entry.Title}.", "info");
             }
 
             RefreshFilteredNotes();
@@ -499,8 +483,10 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         IsBusy = true;
         try
         {
+            var deletedTitle = SelectedNote.Title;
             var deletedId = SelectedNote.Id;
-            await _repo.DeleteAsync(_root.VaultPath, deletedId);
+            await _noteService.DeleteAsync(_root.VaultPath, deletedId);
+            _root.LogActivity("notes", "Markdown note deleted", $"Deleted {deletedTitle}.", "warning");
 
             Notes.Remove(SelectedNote);
             RefreshFilteredNotes(false);
@@ -517,6 +503,8 @@ public partial class MarkdownNotesViewModel : ViewModelBase
             {
                 SelectedNote = null;
             }
+
+            await _refreshAllItemsAsync(null);
         }
         catch (Exception ex)
         {
@@ -587,6 +575,17 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
         if (SelectedNote is null || snapshot.All(note => note.Id != SelectedNote.Id))
             SelectedNote = snapshot[0];
+
+        UpdateSelectionState();
+    }
+
+    public void SelectNote(NoteItemVm? note)
+    {
+        if (note is null)
+            return;
+
+        if (!ReferenceEquals(SelectedNote, note))
+            SelectedNote = note;
     }
 
     private void NotifyEditorStateChanged()
@@ -598,18 +597,20 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanCopySelection));
         OnPropertyChanged(nameof(CanToggleFavorite));
         OnPropertyChanged(nameof(CanStartEditing));
-        OnPropertyChanged(nameof(CanShowSource));
-        OnPropertyChanged(nameof(CanShowPreview));
+        OnPropertyChanged(nameof(CanToggleDocumentView));
         OnPropertyChanged(nameof(FavoriteToggleLabel));
         OnPropertyChanged(nameof(SaveButtonText));
-        OnPropertyChanged(nameof(EditorModeLabel));
         OnPropertyChanged(nameof(ShowEditButton));
         OnPropertyChanged(nameof(ShowSaveButton));
-        OnPropertyChanged(nameof(PreviewButtonText));
-        OnPropertyChanged(nameof(SourceButtonText));
+        OnPropertyChanged(nameof(DocumentViewToggleText));
         OnPropertyChanged(nameof(PreviewDocumentTitle));
-        OnPropertyChanged(nameof(PreviewDocumentSubtitle));
         RefreshPreviewContent();
+    }
+
+    private void UpdateSelectionState()
+    {
+        foreach (var note in FilteredNotes)
+            note.IsSelected = ReferenceEquals(note, SelectedNote);
     }
 
     private void RefreshPreviewContent()
@@ -661,27 +662,10 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             Notes.Clear();
 
-            var vaultKey = _root.VaultKey;
-            var rows = await _repo.ListAsync(_root.VaultPath);
+            var notes = await _noteService.ListAsync(_root.VaultPath, _root.VaultKey);
 
-            foreach (var row in rows)
-            {
-                if (row.Header.Type != ItemType.Note)
-                    continue;
-
-                var json = AesGcmBlob.Decrypt(vaultKey, row.EncryptedPayload);
-                var payload = JsonSerializer.Deserialize<NotePayload>(json, JsonOpts);
-                if (payload is null)
-                    continue;
-
-                Notes.Add(new NoteItemVm(
-                    row.Header.Id,
-                    payload.Title,
-                    payload.Content,
-                    row.Header.Favorite,
-                    row.Header.CreatedAtUtc,
-                    row.Header.UpdatedAtUtc));
-            }
+            foreach (var note in notes)
+                Notes.Add(new NoteItemVm(note.Id, note.Title, note.Content, note.Favorite, note.CreatedAtUtc, note.UpdatedAtUtc));
 
             RefreshFilteredNotes();
             NotifyEditorStateChanged();

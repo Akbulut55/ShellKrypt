@@ -1,13 +1,9 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Infrastructure.Crypto;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Linq;
-using System.Text.Json;
+using System.Collections.Specialized;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -18,19 +14,48 @@ public sealed partial class HealthIssueVm : ObservableObject
     [ObservableProperty] private string category = "";
     [ObservableProperty] private string title = "";
     [ObservableProperty] private string details = "";
+
+    public string SeverityBadgeBackground => Severity switch
+    {
+        "CRITICAL" => "#93000a",
+        "HIGH" => "#93000a",
+        "MEDIUM" => "#744000",
+        "LOW" => "#353534",
+        _ => "#353534"
+    };
+
+    public string SeverityBadgeForeground => Severity switch
+    {
+        "CRITICAL" => "#ffdad6",
+        "HIGH" => "#ffdad6",
+        "MEDIUM" => "#ffd1aa",
+        "LOW" => "#bacac5",
+        _ => "#bacac5"
+    };
+
+    public string SeverityAccentBrush => Severity switch
+    {
+        "CRITICAL" => "#ffb4ab",
+        "HIGH" => "#ffb4ab",
+        "MEDIUM" => "#ffac5a",
+        "LOW" => "#859490",
+        _ => "#859490"
+    };
+
+    public string IconGlyph => Category.ToUpperInvariant() switch
+    {
+        "BREACH" => "!!",
+        "REUSED" => "RP",
+        "WEAK" => "WP",
+        "OLD" => "OC",
+        _ => "!!"
+    };
 }
 
 public partial class HealthViewModel : ViewModelBase
 {
-    private const int OldPasswordDays = 90;
-
     private readonly MainWindowViewModel _root;
-    private readonly IItemRepository _repo;
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
+    private readonly IHealthAuditService _healthAuditService;
 
     public ObservableCollection<HealthIssueVm> Issues { get; } = new();
 
@@ -42,10 +67,11 @@ public partial class HealthViewModel : ViewModelBase
     [ObservableProperty] private int oldCount;
     [ObservableProperty] private string lastCheckedText = "Never";
 
-    public HealthViewModel(MainWindowViewModel root, IItemRepository repo)
+    public HealthViewModel(MainWindowViewModel root, IHealthAuditService healthAuditService)
     {
         _root = root;
-        _repo = repo;
+        _healthAuditService = healthAuditService;
+        Issues.CollectionChanged += OnIssuesChanged;
         _ = RefreshAsync();
     }
 
@@ -53,9 +79,61 @@ public partial class HealthViewModel : ViewModelBase
         ? "No web logins were found yet."
         : $"Analyzed {AnalyzedCount} web logins.";
     public string LastCheckedDisplay => $"Last checked: {LastCheckedText}";
+    public bool HasIssues => Issues.Count > 0;
+    public int HealthScore => Math.Clamp(100 - (ReusedCount * 2 + WeakCount * 2 + OldCount), 0, 100);
+    public string HealthScoreDisplay => $"{HealthScore}%";
+    public string HealthScoreTitle => HealthScore switch
+    {
+        >= 85 => "Vault is generally secure",
+        >= 60 => "Vault needs attention",
+        _ => "Immediate action required"
+    };
+    public string HealthScoreSubtitle => HasIssues
+        ? $"{Issues.Count} vulnerabilities need immediate remediation"
+        : "No active findings right now";
+    public string MasterPasswordSummary => AnalyzedCount == 0
+        ? "Run a scan to generate vault password hygiene context."
+        : $"Checked {LastCheckedText} • Password hygiene snapshot";
+    public string SmartSuggestionTitle => Issues.Count == 0 ? "No urgent finding" : Issues[0].Title;
+    public string SmartSuggestionText => Issues.Count == 0
+        ? "Run a scan after adding or editing credentials to generate remediation guidance."
+        : Issues[0].Details;
+    public string ChecklistClipboardText => $"Clear clipboard ({Math.Max(1, _root.ClipboardClearSeconds)}s)";
+    public bool HasClipboardTimeout => _root.ClipboardClearSeconds > 0;
+    public bool HasAutoLock => _root.AutoLockEnabled;
+    public bool HasFocusLock => _root.LockOnDeactivate;
+    public string AuditStatusText => HasIssues
+        ? "Lock down the highest-risk credentials first."
+        : "No emergency mitigation required.";
 
-    partial void OnAnalyzedCountChanged(int value) => OnPropertyChanged(nameof(SummaryText));
+    partial void OnAnalyzedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(SummaryText));
+        OnPropertyChanged(nameof(HealthScore));
+        OnPropertyChanged(nameof(HealthScoreDisplay));
+        OnPropertyChanged(nameof(HealthScoreTitle));
+        OnPropertyChanged(nameof(HealthScoreSubtitle));
+        OnPropertyChanged(nameof(MasterPasswordSummary));
+    }
     partial void OnLastCheckedTextChanged(string value) => OnPropertyChanged(nameof(LastCheckedDisplay));
+    partial void OnReusedCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HealthScore));
+        OnPropertyChanged(nameof(HealthScoreDisplay));
+        OnPropertyChanged(nameof(HealthScoreTitle));
+    }
+    partial void OnWeakCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HealthScore));
+        OnPropertyChanged(nameof(HealthScoreDisplay));
+        OnPropertyChanged(nameof(HealthScoreTitle));
+    }
+    partial void OnOldCountChanged(int value)
+    {
+        OnPropertyChanged(nameof(HealthScore));
+        OnPropertyChanged(nameof(HealthScoreDisplay));
+        OnPropertyChanged(nameof(HealthScoreTitle));
+    }
 
     [RelayCommand]
     private Task RefreshAsync() => LoadAsync();
@@ -73,34 +151,27 @@ public partial class HealthViewModel : ViewModelBase
         IsBusy = true;
         try
         {
+            var result = await _healthAuditService.AnalyzeAsync(_root.VaultPath, _root.VaultKey);
+
             Issues.Clear();
-            AnalyzedCount = 0;
-            ReusedCount = 0;
-            WeakCount = 0;
-            OldCount = 0;
-
-            var rows = await _repo.ListAsync(_root.VaultPath);
-            var vaultKey = _root.VaultKey;
-            var entries = new List<WebLoginHealthItem>();
-
-            foreach (var row in rows.Where(r => r.Header.Type == ItemType.Web))
+            foreach (var issue in result.Issues)
             {
-                var json = AesGcmBlob.Decrypt(vaultKey, row.EncryptedPayload);
-                var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts);
-                if (payload is null)
-                    continue;
-
-                entries.Add(new WebLoginHealthItem(
-                    row.Header.Id,
-                    payload.Title,
-                    payload.Username,
-                    payload.Password,
-                    ParseUpdated(row.Header.UpdatedAtUtc)));
+                Issues.Add(new HealthIssueVm
+                {
+                    Severity = issue.Severity,
+                    Category = issue.Category,
+                    Title = issue.Title,
+                    Details = issue.Details
+                });
             }
 
-            AnalyzedCount = entries.Count;
-            BuildIssues(entries);
-            LastCheckedText = DateTimeOffset.UtcNow.ToString("u");
+            AnalyzedCount = result.AnalyzedCount;
+            ReusedCount = result.ReusedCount;
+            WeakCount = result.WeakCount;
+            OldCount = result.OldCount;
+            LastCheckedText = result.CheckedAtUtc.ToString("u");
+            _root.LogActivity("settings", "Security audit refreshed", $"Reviewed {result.AnalyzedCount} web login records.", "info");
+            OnPropertyChanged(nameof(HasIssues));
         }
         catch (Exception ex)
         {
@@ -112,114 +183,12 @@ public partial class HealthViewModel : ViewModelBase
         }
     }
 
-    private void BuildIssues(List<WebLoginHealthItem> entries)
+    private void OnIssuesChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
-        var reusedGroups = entries
-            .Where(x => !string.IsNullOrWhiteSpace(x.Password))
-            .GroupBy(x => x.Password)
-            .Where(g => g.Count() > 1)
-            .OrderByDescending(g => g.Count())
-            .ToList();
-
-        foreach (var group in reusedGroups)
-        {
-            ReusedCount += group.Count();
-            Issues.Add(new HealthIssueVm
-            {
-                Severity = "High",
-                Category = "Reused",
-                Title = $"{group.Count()} entries share one password",
-                Details = string.Join(", ", group.Select(x => x.Title).Where(t => !string.IsNullOrWhiteSpace(t)).Take(5))
-            });
-        }
-
-        foreach (var item in entries)
-        {
-            var weaknesses = DescribeWeaknesses(item.Password);
-            if (!string.IsNullOrWhiteSpace(weaknesses))
-            {
-                WeakCount++;
-                Issues.Add(new HealthIssueVm
-                {
-                    Severity = "High",
-                    Category = "Weak",
-                    Title = item.Title,
-                    Details = weaknesses + FormatIdentity(item)
-                });
-            }
-
-            var age = DateTimeOffset.UtcNow - item.UpdatedAtUtc;
-            if (age.TotalDays >= OldPasswordDays)
-            {
-                OldCount++;
-                Issues.Add(new HealthIssueVm
-                {
-                    Severity = "Medium",
-                    Category = "Old",
-                    Title = item.Title,
-                    Details = $"Last updated {FormatAge(age)} ago" + FormatIdentity(item)
-                });
-            }
-        }
+        OnPropertyChanged(nameof(HasIssues));
+        OnPropertyChanged(nameof(HealthScoreSubtitle));
+        OnPropertyChanged(nameof(SmartSuggestionTitle));
+        OnPropertyChanged(nameof(SmartSuggestionText));
+        OnPropertyChanged(nameof(AuditStatusText));
     }
-
-    private static DateTimeOffset ParseUpdated(string value)
-    {
-        if (DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
-            return parsed;
-
-        return DateTimeOffset.UtcNow;
-    }
-
-    private static string DescribeWeaknesses(string password)
-    {
-        if (string.IsNullOrWhiteSpace(password))
-            return "Empty password.";
-
-        var issues = new List<string>();
-        if (password.Length < 12)
-            issues.Add($"length {password.Length}");
-        if (!password.Any(char.IsLower))
-            issues.Add("missing lowercase");
-        if (!password.Any(char.IsUpper))
-            issues.Add("missing uppercase");
-        if (!password.Any(char.IsDigit))
-            issues.Add("missing digit");
-        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
-            issues.Add("missing symbol");
-
-        return issues.Count == 0
-            ? ""
-            : "Weak: " + string.Join(", ", issues) + ".";
-    }
-
-    private static string FormatIdentity(WebLoginHealthItem item)
-    {
-        var pieces = new List<string>();
-        if (!string.IsNullOrWhiteSpace(item.Username))
-            pieces.Add($"User: {item.Username}");
-
-        if (pieces.Count == 0)
-            return "";
-
-        return " | " + string.Join(" | ", pieces);
-    }
-
-    private static string FormatAge(TimeSpan age)
-    {
-        if (age.TotalDays >= 365)
-            return $"{Math.Floor(age.TotalDays / 365)} year(s)";
-
-        if (age.TotalDays >= 30)
-            return $"{Math.Floor(age.TotalDays / 30)} month(s)";
-
-        return $"{Math.Max(1, Math.Floor(age.TotalDays))} day(s)";
-    }
-
-    private sealed record WebLoginHealthItem(
-        string Id,
-        string Title,
-        string Username,
-        string Password,
-        DateTimeOffset UpdatedAtUtc);
 }

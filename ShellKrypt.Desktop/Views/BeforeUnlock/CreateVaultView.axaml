@@ -5,63 +5,211 @@
              x:CompileBindings="False"
              x:DataType="vm:CreateVaultViewModel">
 
-  <Grid Margin="28" ColumnDefinitions="1.15*,0.9*" ColumnSpacing="22">
-    <Border Classes="panel-raised" Padding="24">
-      <StackPanel Spacing="14">
-        <TextBlock Text="Create Vault" Classes="page-title"/>
-        <TextBlock Text="Set a name, confirm where the encrypted vault file should live, and establish the master password for this workspace."
-                   Classes="page-subtitle"
-                   TextWrapping="Wrap"/>
-
-        <TextBox Watermark="Display name" Text="{Binding DisplayName}"/>
-        <TextBox Watermark="Description"
-                 Text="{Binding Description}"
-                 AcceptsReturn="True"
-                 MinHeight="96"
-                 TextWrapping="Wrap"/>
-
-        <StackPanel Spacing="6">
-          <TextBlock Text="Vault location" Classes="caption"/>
-          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
-            <TextBox Text="{Binding VaultPath}" Grid.Column="0"/>
-            <Button Grid.Column="1" Content="Browse" Classes="subtle" Command="{Binding BrowseVaultPathCommand}"/>
-          </Grid>
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled">
+      <StackPanel Margin="28,24,28,28"
+                  MaxWidth="1360"
+                  Spacing="24">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="12">
+          <Border Width="34"
+                  Height="34"
+                  CornerRadius="10"
+                  Background="{StaticResource AccentMutedBrush}">
+            <TextBlock Text="SK"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource AccentBrush}"
+                       FontWeight="Black"
+                       FontSize="11"/>
+          </Border>
+          <TextBlock Text="ShellKrypt"
+                     Foreground="{StaticResource AccentBrush}"
+                     FontSize="20"
+                     FontWeight="Black"
+                     VerticalAlignment="Center"/>
         </StackPanel>
 
-        <TextBox Watermark="Master password" PasswordChar="*" Text="{Binding MasterPassword}"/>
-        <TextBox Watermark="Confirm password" PasswordChar="*" Text="{Binding ConfirmPassword}"/>
-        <TextBlock Text="{Binding Error}" Foreground="{StaticResource DangerBrush}" TextWrapping="Wrap"/>
+        <Grid ColumnDefinitions="1.15*,0.85*"
+              ColumnSpacing="24">
+          <Border Classes="create-main-card">
+            <StackPanel Spacing="22">
+              <StackPanel Spacing="8">
+                <TextBlock Text="Create Vault"
+                           FontSize="34"
+                           FontWeight="Black"
+                           LetterSpacing="-0.6"/>
+                <TextBlock Text="Create a new local vault file, define its location, and protect it with a master password."
+                           Classes="page-subtitle"
+                           FontSize="14"
+                           MaxWidth="620"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Spacing="8">
-          <Button Content="Back" Classes="subtle" Command="{Binding BackCommand}" IsEnabled="{Binding !IsBusy}"/>
-          <Button Content="Create Vault" Classes="primary" Command="{Binding CreateCommand}" IsEnabled="{Binding !IsBusy}"/>
-        </StackPanel>
-      </StackPanel>
-    </Border>
+              <Grid ColumnDefinitions="*,*"
+                    ColumnSpacing="16">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="DISPLAY NAME"
+                             Classes="create-kicker"/>
+                  <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="ShellKrypt Personal Vault"/>
+                </StackPanel>
 
-    <Border Grid.Column="1" Classes="panel-raised" Padding="24">
-      <StackPanel Spacing="12">
-        <TextBlock Text="What happens next" Classes="section-title"/>
-        <TextBlock Text="ShellKrypt creates a local SQLite-backed vault file, derives the unlock key from your master password, and stores the vault record in the local manager."
-                   Classes="page-subtitle"
-                   TextWrapping="Wrap"/>
+                <StackPanel Grid.Column="1"
+                            Spacing="8">
+                  <TextBlock Text="VAULT LOCATION"
+                             Classes="create-kicker"/>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBox Text="{Binding VaultPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Choose a local vault file path"/>
+                    <Button Grid.Column="1"
+                            Content="Browse"
+                            Classes="create-secondary-button"
+                            Command="{Binding BrowseVaultPathCommand}"/>
+                  </Grid>
+                </StackPanel>
+              </Grid>
 
-        <Border Classes="panel" Padding="14">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Security notes" Classes="caption"/>
-            <TextBlock Text="Your master password is never used directly to encrypt every record." TextWrapping="Wrap"/>
-            <TextBlock Text="A derived key unlocks the vault key, which then encrypts item payloads." Classes="page-subtitle" TextWrapping="Wrap"/>
+              <StackPanel Spacing="8">
+                <TextBlock Text="DESCRIPTION"
+                           Classes="create-kicker"/>
+                <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PlaceholderText="What this vault will store"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="110"/>
+              </StackPanel>
+
+              <Grid ColumnDefinitions="*,*"
+                    ColumnSpacing="16">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="MASTER PASSWORD"
+                             Classes="create-kicker"/>
+                  <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="Enter a strong master password"
+                           PasswordChar="*"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Spacing="8">
+                  <TextBlock Text="CONFIRM PASSWORD"
+                             Classes="create-kicker"/>
+                  <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="Re-enter the master password"
+                           PasswordChar="*"/>
+                </StackPanel>
+              </Grid>
+
+              <TextBlock Text="{Binding Error}"
+                         Foreground="{StaticResource DangerBrush}"
+                         FontSize="12"
+                         IsVisible="{Binding HasError}"/>
+
+              <Grid ColumnDefinitions="*,Auto,Auto"
+                    ColumnSpacing="10">
+                <TextBlock Text="{Binding IsBusy, StringFormat=Busy: {0}}"
+                           Classes="page-subtitle"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="1"
+                        Content="Back"
+                        Classes="create-secondary-button"
+                        Command="{Binding BackCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+                <Button Grid.Column="2"
+                        Content="Create Vault"
+                        Classes="create-primary-button"
+                        Command="{Binding CreateCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+              </Grid>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="18">
+            <Border Classes="create-side-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="1. Local vault file is created"
+                           FontSize="15"
+                           FontWeight="Bold"/>
+                <TextBlock Text="The file stays on this device unless you intentionally export or copy it."
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="create-side-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="2. Unlock flow stays consistent"
+                           FontSize="15"
+                           FontWeight="Bold"/>
+                <TextBlock Text="After creation, ShellKrypt moves directly to the unlock screen for the new vault."
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="create-side-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="3. Master password stays local"
+                           FontSize="15"
+                           FontWeight="Bold"/>
+                <TextBlock Text="The master password derives the unlock key locally. It is never uploaded or synced."
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
           </StackPanel>
-        </Border>
-
-        <Border Classes="panel" Padding="14">
-          <StackPanel Spacing="6">
-            <TextBlock Text="Desktop workflow" Classes="caption"/>
-            <TextBlock Text="After creation, you return to the unlock step with the new vault selected." TextWrapping="Wrap"/>
-            <TextBlock Text="This keeps startup and vault switching consistent with the rest of the product." Classes="page-subtitle" TextWrapping="Wrap"/>
-          </StackPanel>
-        </Border>
+        </Grid>
       </StackPanel>
-    </Border>
+    </ScrollViewer>
   </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.create-main-card">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Padding" Value="26"/>
+    </Style>
+
+    <Style Selector="Border.create-side-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="TextBlock.create-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="Button.create-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.create-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+  </UserControl.Styles>
 </UserControl>

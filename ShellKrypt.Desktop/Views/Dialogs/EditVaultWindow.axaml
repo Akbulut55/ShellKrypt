@@ -1,47 +1,112 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ShellKrypt.Desktop.Views.EditVaultWindow"
-        Width="620"
+        Width="700"
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
-        Title="Edit Vault">
-  <Border Padding="20" Background="{StaticResource AppBackgroundBrush}">
-    <StackPanel Spacing="16">
-      <StackPanel Spacing="8">
-        <TextBlock Text="Edit Vault" Classes="section-title"/>
-        <TextBlock Text="Update the vault label and description without changing the vault file itself."
-                   Classes="page-subtitle"
-                   TextWrapping="Wrap"/>
-      </StackPanel>
-
-      <StackPanel Spacing="6">
-        <TextBlock Text="Display name" Classes="caption"/>
-        <TextBox x:Name="DisplayNameBox" Watermark="Display name"/>
-      </StackPanel>
-
-      <StackPanel Spacing="6">
-        <TextBlock Text="Description" Classes="caption"/>
-        <TextBox x:Name="DescriptionBox"
-                 Watermark="Description"
-                 AcceptsReturn="True"
-                 TextWrapping="Wrap"
-                 MinHeight="110"/>
-      </StackPanel>
-
-      <Border Classes="panel" Padding="12">
-        <StackPanel Spacing="4">
-          <TextBlock Text="Vault file" Classes="caption"/>
-          <TextBlock x:Name="PathText" TextWrapping="Wrap"/>
+        Title="Edit Vault"
+        Background="#900e0e0e">
+  <Border Background="{StaticResource SurfaceRaisedBrush}"
+          CornerRadius="18">
+    <Grid RowDefinitions="Auto,Auto">
+      <StackPanel Spacing="18"
+                  Margin="28">
+        <StackPanel Spacing="8">
+          <TextBlock Text="Edit Vault"
+                     FontSize="30"
+                     FontWeight="Black"/>
+          <TextBlock Text="Update the display name and description used by the local ShellKrypt launcher."
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"/>
         </StackPanel>
-      </Border>
 
-      <StackPanel Orientation="Horizontal"
-                  Spacing="8"
-                  HorizontalAlignment="Right">
-        <Button Content="Cancel" Classes="subtle" Click="OnCancelClicked"/>
-        <Button Content="Save Changes" Classes="primary" IsDefault="True" Click="OnSaveClicked"/>
+        <Grid ColumnDefinitions="*,*"
+              ColumnSpacing="16">
+          <StackPanel Spacing="8">
+            <TextBlock Text="DISPLAY NAME"
+                       Foreground="{StaticResource TextMutedBrush}"
+                       FontSize="10"
+                       FontWeight="Black"
+                       LetterSpacing="2.2"/>
+            <TextBox x:Name="DisplayNameBox"
+                     PlaceholderText="Display name"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="8">
+            <TextBlock Text="VAULT FILE"
+                       Foreground="{StaticResource TextMutedBrush}"
+                       FontSize="10"
+                       FontWeight="Black"
+                       LetterSpacing="2.2"/>
+            <Border Background="{StaticResource AppBackgroundSoftBrush}"
+                    CornerRadius="10"
+                    Padding="14,12">
+              <TextBlock x:Name="PathText"
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"/>
+            </Border>
+          </StackPanel>
+        </Grid>
+
+        <StackPanel Spacing="8">
+          <TextBlock Text="DESCRIPTION"
+                     Foreground="{StaticResource TextMutedBrush}"
+                     FontSize="10"
+                     FontWeight="Black"
+                     LetterSpacing="2.2"/>
+          <TextBox x:Name="DescriptionBox"
+                   PlaceholderText="Describe this vault"
+                   AcceptsReturn="True"
+                   TextWrapping="Wrap"
+                   MinHeight="140"/>
+        </StackPanel>
       </StackPanel>
-    </StackPanel>
+
+      <Grid Grid.Row="1"
+            Background="{StaticResource SurfaceElevatedBrush}"
+            ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="10"
+            Margin="28,22">
+        <TextBlock Text="Metadata changes do not modify the encrypted vault file contents."
+                   Classes="page-subtitle"
+                   VerticalAlignment="Center"
+                   TextWrapping="Wrap"/>
+        <Button Grid.Column="1"
+                Content="Cancel"
+                Classes="dialog-cancel-button"
+                Click="OnCancelClicked"/>
+        <Button Grid.Column="2"
+                Content="Save Changes"
+                Classes="dialog-primary-button"
+                IsDefault="True"
+                Click="OnSaveClicked"/>
+      </Grid>
+    </Grid>
   </Border>
+
+  <Window.Styles>
+    <Style Selector="Button.dialog-cancel-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.dialog-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+  </Window.Styles>
 </Window>

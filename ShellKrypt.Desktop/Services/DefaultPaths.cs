@@ -19,6 +19,7 @@ public static class DefaultPaths
     public static string VaultRegistryPath => Path.Combine(AppRoot, "vaults.json");
 
     public static string SettingsPath => Path.Combine(AppRoot, "settings.json");
+    public static string ActivityLogPath => Path.Combine(AppRoot, "activity.json");
 
     public static string GetSuggestedVaultPath(string? displayName)
     {

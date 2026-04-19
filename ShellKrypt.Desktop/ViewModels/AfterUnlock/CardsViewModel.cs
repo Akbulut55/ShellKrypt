@@ -257,6 +257,7 @@ public partial class CardsViewModel : ViewModelBase
 
     private readonly MainWindowViewModel _root;
     private readonly ICardService _cardService;
+    private readonly Func<string?, Task> _refreshAllItemsAsync;
 
     private readonly List<CardRowVm> _all = new();
     private readonly List<CardRowVm> _filtered = new();
@@ -337,7 +338,7 @@ public partial class CardsViewModel : ViewModelBase
     public string ExpiredCardsSummary => ExpiredCardsCount == 1
         ? "1 card is already expired"
         : $"{ExpiredCardsCount} cards are already expired";
-    public string ItemsSummary => $"SHOWING {Rows.Count} OF {_filtered.Count} CARDS";
+    public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} cards";
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
     public string PageSummary => $"{CurrentPage} / {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
@@ -366,10 +367,11 @@ public partial class CardsViewModel : ViewModelBase
         ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddTitle) ? "this card" : AddTitle)}\"?"
         : "Fields are encrypted locally before being stored.";
 
-    public CardsViewModel(MainWindowViewModel root, ICardService cardService)
+    public CardsViewModel(MainWindowViewModel root, ICardService cardService, Func<string?, Task> refreshAllItemsAsync)
     {
         _root = root;
         _cardService = cardService;
+        _refreshAllItemsAsync = refreshAllItemsAsync;
         _ = LoadAsync();
     }
 
@@ -577,6 +579,7 @@ public partial class CardsViewModel : ViewModelBase
                 BuildInput(digits, mm, yy, cvcDigits));
 
             _all.Insert(0, ToRow(entry));
+            await _refreshAllItemsAsync(entry.Id);
 
             ClearAddCardForm();
             IsAddCardModalOpen = false;
@@ -633,6 +636,7 @@ public partial class CardsViewModel : ViewModelBase
                 BuildInput(digits, mm, yy, cvcDigits));
 
             ApplyEntry(row, entry);
+            await _refreshAllItemsAsync(entry.Id);
 
             IsCardDetailsEditing = false;
             IsCardDeleteConfirming = false;
@@ -658,6 +662,7 @@ public partial class CardsViewModel : ViewModelBase
             var row = _selectedDetailsRow;
             await _cardService.DeleteAsync(_root.VaultPath, row.Id);
             RemoveRow(row);
+            await _refreshAllItemsAsync(null);
             _selectedDetailsRow = null;
             IsCardDeleteConfirming = false;
             IsCardDetailsEditing = false;

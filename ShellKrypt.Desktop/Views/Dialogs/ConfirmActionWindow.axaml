@@ -1,71 +1,93 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         x:Class="ShellKrypt.Desktop.Views.ConfirmActionWindow"
-        Width="448"
+        Width="560"
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         Title="Confirm Action"
-        Background="{StaticResource AppBackgroundSoftBrush}">
+        Background="#900e0e0e">
   <Border Background="{StaticResource SurfaceRaisedBrush}"
-          BorderBrush="{StaticResource BorderBrushSoft}"
-          BorderThickness="1"
-          CornerRadius="12"
-          ClipToBounds="True">
+          CornerRadius="18"
+          Padding="0">
     <Grid RowDefinitions="Auto,Auto,Auto">
-      <StackPanel Margin="32,28,32,22"
-                  HorizontalAlignment="Center"
-                  Spacing="16">
-        <Border Width="64"
-                Height="64"
-                CornerRadius="999"
-                Background="#3393000a">
+      <StackPanel Spacing="18"
+                  Margin="32,30,32,24">
+        <Border Width="68"
+                Height="68"
+                CornerRadius="34"
+                Background="#261e1112"
+                HorizontalAlignment="Center">
           <TextBlock Text="!"
                      HorizontalAlignment="Center"
                      VerticalAlignment="Center"
-                     FontSize="34"
-                     FontWeight="Black"
-                     Foreground="{StaticResource DangerBrush}"/>
+                     Foreground="{StaticResource DangerBrush}"
+                     FontSize="28"
+                     FontWeight="Black"/>
         </Border>
 
         <TextBlock x:Name="MessageText"
-                   FontSize="24"
+                   FontSize="28"
                    FontWeight="Black"
                    TextAlignment="Center"
                    TextWrapping="Wrap"/>
       </StackPanel>
 
-      <Border Grid.Row="1"
-              Margin="32,0,32,28"
-              Padding="16"
-              Background="#2293000a"
-              BorderBrush="#33ffb4ab"
-              BorderThickness="1"
-              CornerRadius="8">
-        <TextBlock x:Name="DetailText"
-                   Foreground="{StaticResource DangerBrush}"
-                   FontSize="13"
-                   FontWeight="SemiBold"
-                   TextWrapping="Wrap"/>
-      </Border>
+      <StackPanel Grid.Row="1"
+                  Spacing="16"
+                  Margin="32,0,32,28">
+        <Border Background="#261e1112"
+                BorderBrush="#55ffb4ab"
+                BorderThickness="1"
+                CornerRadius="12"
+                Padding="16,14">
+          <TextBlock x:Name="DetailText"
+                     Foreground="{StaticResource DangerBrush}"
+                     FontSize="13"
+                     FontWeight="SemiBold"
+                     TextWrapping="Wrap"/>
+        </Border>
+      </StackPanel>
 
-      <Border Grid.Row="2"
-              Padding="32,22"
-              Background="{StaticResource SurfaceElevatedBrush}">
-        <Grid ColumnDefinitions="*,*" ColumnSpacing="12">
-          <Button Content="Cancel"
-                  Classes="subtle"
-                  HorizontalAlignment="Stretch"
-                  Click="OnCancelClicked"/>
-          <Button x:Name="ConfirmButton"
-                  Grid.Column="1"
-                  Content="Confirm"
-                  Classes="danger"
-                  HorizontalAlignment="Stretch"
-                  IsDefault="True"
-                  Click="OnConfirmClicked"/>
-        </Grid>
-      </Border>
+      <Grid Grid.Row="2"
+            Background="{StaticResource SurfaceElevatedBrush}"
+            ColumnDefinitions="*,*"
+            ColumnSpacing="12"
+            Margin="32,22">
+        <Button Content="Cancel"
+                Classes="dialog-cancel-button"
+                Click="OnCancelClicked"/>
+        <Button x:Name="ConfirmButton"
+                Grid.Column="1"
+                Content="Confirm"
+                Classes="dialog-danger-button"
+                IsDefault="True"
+                Click="OnConfirmClicked"/>
+      </Grid>
     </Grid>
   </Border>
+
+  <Window.Styles>
+    <Style Selector="Button.dialog-cancel-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Button.dialog-danger-button">
+      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="Foreground" Value="#350809"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+  </Window.Styles>
 </Window>

@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -14,14 +15,20 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class WelcomeViewModel : ViewModelBase
 {
+    private const int VaultPageSize = 3;
     private readonly MainWindowViewModel _root;
     private readonly VaultRegistryStore _vaultRegistry;
     private readonly IVaultService _vaultService = new SqliteVaultService();
+    private readonly List<VaultRecordVm> _allVaults = new();
+    private int _filteredVaultCount;
 
     public ObservableCollection<VaultRecordVm> Vaults { get; } = new();
     public ObservableCollection<VaultRecordVm> RecentVaults { get; } = new();
 
     [ObservableProperty] private VaultRecordVm? selectedVault;
+    [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private string activeSort = "recent";
+    [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private string status = "Select a vault to unlock, or create a new one.";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
@@ -33,11 +40,76 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         ReloadVaults();
     }
 
+    public bool IsRecentSortActive => ActiveSort == "recent";
+    public bool IsNameSortActive => ActiveSort == "name";
+    public bool HasVaults => Vaults.Count > 0;
+    public bool HasError => !string.IsNullOrWhiteSpace(Error);
+    public int VaultCount => _allVaults.Count;
+    public int ExistingVaultCount => _allVaults.Count(vault => vault.Exists);
+    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredVaultCount / (double)VaultPageSize));
+    public bool HasMultiplePages => TotalPages > 1;
+    public bool CanGoPreviousPage => CurrentPage > 1;
+    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string PageIndicator => $"{CurrentPage} / {TotalPages}";
+    public string TotalStorageDisplay => FormatBytes(_allVaults.Where(vault => vault.Exists).Sum(vault => GetVaultSize(vault.VaultPath)));
+    public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
+        ? "No vaults added yet"
+        : "No vaults match this search";
+    public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
+        ? "Create a new vault or import an existing vault file to get started."
+        : "Try a different name, path fragment, or clear the current search.";
+
+    partial void OnSearchTextChanged(string value)
+    {
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+
+    partial void OnActiveSortChanged(string value)
+    {
+        OnPropertyChanged(nameof(IsRecentSortActive));
+        OnPropertyChanged(nameof(IsNameSortActive));
+        CurrentPage = 1;
+        ApplyFilters();
+    }
+
+    partial void OnCurrentPageChanged(int value)
+    {
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(HasMultiplePages));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(PageIndicator));
+        ApplyFilters();
+    }
+
     [RelayCommand]
     private void CreateVault() => _root.GoCreateVault();
 
     [RelayCommand]
     private void Refresh() => ReloadVaults(SelectedVault?.VaultPath);
+
+    [RelayCommand]
+    private void SortByRecent() => ActiveSort = "recent";
+
+    [RelayCommand]
+    private void SortByName() => ActiveSort = "name";
+
+    [RelayCommand]
+    private void PreviousPage()
+    {
+        if (CanGoPreviousPage)
+            CurrentPage--;
+    }
+
+    [RelayCommand]
+    private void NextPage()
+    {
+        if (CanGoNextPage)
+            CurrentPage++;
+    }
 
     [RelayCommand]
     private void OpenSelectedVault()
@@ -94,6 +166,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(entry.VaultPath);
             Status = "Vault imported into the local manager.";
+            _root.LogActivity("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath);
         }
         catch (Exception ex)
         {
@@ -134,6 +207,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(targetPath);
             Status = "Vault duplicated.";
+            _root.LogActivity("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath);
         }
         catch (Exception ex)
         {
@@ -177,6 +251,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults();
             Status = $"{displayName} was removed from the local vault list.";
+            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path);
         }
         catch (Exception ex)
         {
@@ -270,6 +345,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults();
             Status = $"{vault.DisplayLabel} was deleted permanently.";
+            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath);
         }
         catch (Exception ex)
         {
@@ -310,6 +386,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(vault.VaultPath);
             Status = "Vault metadata saved.";
+            _root.LogActivity("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath);
         }
         catch (Exception ex)
         {
@@ -333,6 +410,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             _vaultRegistry.SetDefaultVault(vault.VaultPath);
             ReloadVaults(vault.VaultPath);
             Status = "Default vault updated.";
+            _root.LogActivity("vault", "Default vault changed", $"Marked {vault.DisplayLabel} as the default vault.", "info", vault.VaultPath);
         }
         catch (Exception ex)
         {
@@ -367,18 +445,22 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             var vaults = registry.Vaults.Select(x => new VaultRecordVm(x)).ToArray();
 
-            Vaults.Clear();
-            foreach (var vault in vaults)
-                Vaults.Add(vault);
+            _allVaults.Clear();
+            _allVaults.AddRange(vaults);
 
             RecentVaults.Clear();
             foreach (var vault in _vaultRegistry.ListRecentVaults())
                 RecentVaults.Add(new VaultRecordVm(vault));
 
-            SelectedVault = vaults.FirstOrDefault(x => string.Equals(NormalizePath(x.VaultPath), selectedPath, StringComparison.OrdinalIgnoreCase))
-                ?? vaults.FirstOrDefault(x => x.IsDefault)
-                ?? vaults.FirstOrDefault();
+            ApplyFilters();
 
+            SelectedVault = Vaults.FirstOrDefault(x => string.Equals(NormalizePath(x.VaultPath), selectedPath, StringComparison.OrdinalIgnoreCase))
+                ?? Vaults.FirstOrDefault(x => x.IsDefault)
+                ?? Vaults.FirstOrDefault();
+
+            OnPropertyChanged(nameof(VaultCount));
+            OnPropertyChanged(nameof(ExistingVaultCount));
+            OnPropertyChanged(nameof(TotalStorageDisplay));
             if (vaults.Length == 0)
             {
                 Status = "No vaults are registered yet. Create your first vault to continue.";
@@ -401,6 +483,64 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         }
     }
 
+    private void ApplyFilters()
+    {
+        var selectedId = SelectedVault?.Id;
+        IEnumerable<VaultRecordVm> items = _allVaults;
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var query = SearchText.Trim();
+            items = items.Where(vault =>
+                vault.DisplayLabel.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                vault.DescriptionDisplay.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                vault.PathDisplay.Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        items = ActiveSort switch
+        {
+            "name" => items.OrderBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase),
+            _ => items
+                .OrderByDescending(vault => DateTimeOffset.TryParse(vault.LastOpenedAtUtc, out var opened) ? opened : DateTimeOffset.MinValue)
+                .ThenBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase)
+        };
+
+        var filteredItems = items.ToList();
+        _filteredVaultCount = filteredItems.Count;
+
+        var totalPages = TotalPages;
+        if (CurrentPage > totalPages)
+        {
+            CurrentPage = totalPages;
+            return;
+        }
+
+        items = filteredItems
+            .Skip((CurrentPage - 1) * VaultPageSize)
+            .Take(VaultPageSize);
+
+        Vaults.Clear();
+        foreach (var vault in items)
+            Vaults.Add(vault);
+
+        if (selectedId is not null)
+            SelectedVault = Vaults.FirstOrDefault(vault => vault.Id == selectedId) ?? Vaults.FirstOrDefault();
+        else if (SelectedVault is null)
+            SelectedVault = Vaults.FirstOrDefault();
+
+        OnPropertyChanged(nameof(HasVaults));
+        OnPropertyChanged(nameof(VaultCount));
+        OnPropertyChanged(nameof(ExistingVaultCount));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(HasMultiplePages));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(PageIndicator));
+        OnPropertyChanged(nameof(TotalStorageDisplay));
+        OnPropertyChanged(nameof(EmptyStateTitle));
+        OnPropertyChanged(nameof(EmptyStateSubtitle));
+    }
+
     private static string NormalizePath(string? path)
         => string.IsNullOrWhiteSpace(path) ? "" : System.IO.Path.GetFullPath(path);
 
@@ -418,5 +558,23 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         var sidecar = vaultPath + suffix;
         if (File.Exists(sidecar))
             File.Delete(sidecar);
+    }
+
+    private static long GetVaultSize(string path)
+        => File.Exists(path) ? new FileInfo(path).Length : 0L;
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB", "TB"];
+        decimal display = bytes;
+        var unitIndex = 0;
+
+        while (display >= 1024 && unitIndex < units.Length - 1)
+        {
+            display /= 1024;
+            unitIndex++;
+        }
+
+        return $"{display:0.##} {units[unitIndex]}";
     }
 }

@@ -23,6 +23,8 @@ public partial class CreateVaultViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
 
+    public bool HasError => !string.IsNullOrWhiteSpace(Error);
+
     private bool _hasCustomVaultPath;
     private bool _isUpdatingSuggestedPath;
 
@@ -35,6 +37,7 @@ public partial class CreateVaultViewModel : ViewModelBase
     }
 
     partial void OnDisplayNameChanged(string value) => UpdateSuggestedPath();
+    partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
 
     partial void OnVaultPathChanged(string value)
     {
@@ -72,6 +75,7 @@ public partial class CreateVaultViewModel : ViewModelBase
                 isDefault: !_vaultRegistry.ListVaults().Any(),
                 markOpened: true);
 
+            _root.LogActivity("vault", "Vault created", $"Created {DisplayName.Trim()} at {VaultPath}.", "success", VaultPath);
             _root.SetVaultPath(VaultPath);
             _root.GoUnlock();
         }

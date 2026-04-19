@@ -38,7 +38,9 @@ public sealed class AllItemEntry
         bool favorite,
         string createdAtUtc,
         string updatedAtUtc,
-        string copyValue)
+        string copyValue,
+        int expiryMonth = 0,
+        int expiryYear = 0)
     {
         Id = id;
         Type = type;
@@ -51,6 +53,8 @@ public sealed class AllItemEntry
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
         CopyValue = copyValue;
+        ExpiryMonth = expiryMonth;
+        ExpiryYear = expiryYear;
     }
 
     public string Id { get; }
@@ -64,6 +68,8 @@ public sealed class AllItemEntry
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; }
     public string CopyValue { get; }
+    public int ExpiryMonth { get; }
+    public int ExpiryYear { get; }
 
     public string TypeLabel => Type.ToString();
 
@@ -77,10 +83,10 @@ public sealed class AllItemEntry
 
     public string IconGlyph => Type switch
     {
-        ItemType.Web => "↗",
-        ItemType.Card => "▣",
-        ItemType.Note => "≡",
-        _ => "•"
+        ItemType.Web => "WB",
+        ItemType.Card => "CC",
+        ItemType.Note => "MD",
+        _ => "IT"
     };
 
     public string IconBackground => Type switch
@@ -122,6 +128,9 @@ public sealed class AllItemEntry
     public string UpdatedDisplay => FormatRelativeDate(UpdatedAtUtc);
     public string UpdatedAbsoluteDisplay => FormatAbsoluteDate(UpdatedAtUtc);
     public string CreatedDisplay => FormatAbsoluteDate(CreatedAtUtc);
+    public bool IsCardExpiryUrgent => TryGetExpiryDate(out var expiry) &&
+                                      expiry >= DateTime.Today &&
+                                      expiry <= DateTime.Today.AddMonths(3);
 
     public bool IsRecent(int recentWindowDays = 30)
     {
@@ -162,11 +171,22 @@ public sealed class AllItemEntry
         if (!TryParseDate(value, out var parsed))
             return "Unknown";
 
-        return parsed.ToLocalTime().ToString("MMM d, yyyy • HH:mm", CultureInfo.InvariantCulture);
+        return parsed.ToLocalTime().ToString("MMM d, yyyy '|' HH:mm", CultureInfo.InvariantCulture);
     }
 
     private static bool TryParseDate(string? value, out DateTimeOffset parsed)
         => DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out parsed);
+
+    private bool TryGetExpiryDate(out DateTime expiry)
+    {
+        expiry = DateTime.MaxValue;
+
+        if (Type != ItemType.Card || ExpiryMonth is < 1 or > 12 || ExpiryYear < 2000)
+            return false;
+
+        expiry = new DateTime(ExpiryYear, ExpiryMonth, DateTime.DaysInMonth(ExpiryYear, ExpiryMonth));
+        return true;
+    }
 
     private static string Pluralize(double value)
         => Math.Abs(value) >= 2 ? "s" : string.Empty;
@@ -210,6 +230,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     private int _filteredCount;
     private int _weakPasswordCount;
     private int _reusedPasswordCount;
+    private int _expiringSoonCardCount;
     private int _createdThisMonthCount;
     private int _currentPage = 1;
 
@@ -234,9 +255,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         GoPreviousPageCommand = new RelayCommand(GoPreviousPage);
         GoNextPageCommand = new RelayCommand(GoNextPage);
         GoToPageCommand = new RelayCommand<PageChipVm?>(GoToPage);
-        CopyPrimaryValueCommand = new AsyncRelayCommand<AllItemEntry?>(CopyPrimaryValueAsync);
         AddItemCommand = new RelayCommand(AddItem);
-        OpenSelectedCommand = new RelayCommand(OpenSelected);
         OpenRowCommand = new RelayCommand<AllItemEntry?>(OpenRow);
 
         _ = LoadAsync();
@@ -257,9 +276,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public ICommand GoPreviousPageCommand { get; }
     public ICommand GoNextPageCommand { get; }
     public ICommand GoToPageCommand { get; }
-    public ICommand CopyPrimaryValueCommand { get; }
     public ICommand AddItemCommand { get; }
-    public ICommand OpenSelectedCommand { get; }
     public ICommand OpenRowCommand { get; }
 
     public AllItemEntry? SelectedRow
@@ -400,6 +417,16 @@ public sealed class AllItemsViewModel : ViewModelBase
         }
     }
 
+    public int ExpiringSoonCardCount
+    {
+        get => _expiringSoonCardCount;
+        private set
+        {
+            if (SetProperty(ref _expiringSoonCardCount, value))
+                OnPropertyChanged(nameof(ExpiringSoonCardSubtitle));
+        }
+    }
+
     public int CreatedThisMonthCount
     {
         get => _createdThisMonthCount;
@@ -435,9 +462,15 @@ public sealed class AllItemsViewModel : ViewModelBase
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(Math.Max(FilteredCount, 1) / (double)PageSize));
     public bool CanGoPrevious => CurrentPage > 1;
     public bool CanGoNext => CurrentPage < TotalPages;
-    public string TotalItemsDeltaText => CreatedThisMonthCount <= 0 ? "Vault baseline" : $"+{CreatedThisMonthCount} this month";
-    public string WeakPasswordSubtitle => WeakPasswordCount <= 0 ? "No weak logins found" : "Needs attention";
+    public string TotalItemsDeltaText => CreatedThisMonthCount <= 0 ? "0 items this month" : $"+{CreatedThisMonthCount} items this month";
+    public string WeakPasswordSubtitle => WeakPasswordCount <= 0 ? "0 passwords needs attention" : $"{WeakPasswordCount} passwords needs attention";
     public string ReusedPasswordSubtitle => ReusedPasswordCount <= 0 ? "No overlap found" : "Security risk";
+    public string ExpiringSoonCardSubtitle => ExpiringSoonCardCount switch
+    {
+        0 => "No urgent renewals",
+        1 => "1 card expires within 3 months",
+        _ => $"{ExpiringSoonCardCount} cards expire within 3 months"
+    };
     public string FooterSummary => $"Showing {Rows.Count} of {FilteredCount} items";
 
     public string AddItemButtonText => ActiveType switch
@@ -462,7 +495,11 @@ public sealed class AllItemsViewModel : ViewModelBase
         _ => "Adjust the search query or category filter to surface another item set."
     };
 
-    private void ShowAll() => ActiveScope = "all";
+    private void ShowAll()
+    {
+        ActiveScope = "all";
+        ActiveType = "all";
+    }
     private void ShowFavorites() => ActiveScope = "favorites";
     private void ShowRecent() => ActiveScope = "recent";
     private void ShowWebTypes() => ActiveType = "web";
@@ -473,6 +510,9 @@ public sealed class AllItemsViewModel : ViewModelBase
     {
         await LoadAsync(SelectedRow?.Id);
     }
+
+    public Task RefreshAfterMutationAsync(string? selectItemId = null)
+        => LoadAsync(selectItemId);
 
     private void ResetFilters()
     {
@@ -516,22 +556,6 @@ public sealed class AllItemsViewModel : ViewModelBase
             CurrentPage = page.Number;
     }
 
-    private async Task CopyPrimaryValueAsync(AllItemEntry? row)
-    {
-        Error = string.Empty;
-
-        if (row is null)
-            return;
-
-        if (string.IsNullOrWhiteSpace(row.CopyValue))
-        {
-            Error = "No value available to copy for this item.";
-            return;
-        }
-
-        await _root.CopyToClipboardAsync(row.CopyValue);
-    }
-
     private void AddItem()
     {
         Error = string.Empty;
@@ -561,12 +585,6 @@ public sealed class AllItemsViewModel : ViewModelBase
                 ExecuteCommand(_shell.MarkdownNotes.NewNoteCommand);
                 break;
         }
-    }
-
-    private void OpenSelected()
-    {
-        if (SelectedRow is not null)
-            OpenRow(SelectedRow);
     }
 
     private void OpenRow(AllItemEntry? row)
@@ -620,6 +638,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             NoteCount = _allItems.Count(x => x.Type == ItemType.Note);
             WeakPasswordCount = _webPasswords.Count(IsWeakPassword);
             ReusedPasswordCount = CountReusedPasswords(_webPasswords);
+            ExpiringSoonCardCount = _allItems.Count(x => x.IsCardExpiryUrgent);
             CreatedThisMonthCount = CountCreatedThisMonth(_allItems);
 
             ApplyFilter();
@@ -827,7 +846,9 @@ public sealed class AllItemsViewModel : ViewModelBase
             row.Header.Favorite,
             row.Header.CreatedAtUtc,
             row.Header.UpdatedAtUtc,
-            copyValue);
+            copyValue,
+            payload.ExpiryMonth,
+            payload.ExpiryYear);
     }
 
     private AllItemEntry BuildNoteEntry(VaultItemRow row, IReadOnlyList<string> labels)

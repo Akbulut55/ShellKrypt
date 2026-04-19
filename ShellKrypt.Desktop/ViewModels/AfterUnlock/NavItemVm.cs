@@ -4,6 +4,8 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class NavItemVm : ObservableObject
 {
+    [ObservableProperty] private bool isSelected;
+
     public string Key { get; }
     public string Title { get; }
     public string ShortCode { get; }
@@ -15,6 +17,7 @@ public sealed partial class NavItemVm : ObservableObject
         ShortCode = key.ToUpperInvariant() switch
         {
             "ALL" => "AI",
+            "VAULT" => "AI",
             "WEB" => "WB",
             "CARDS" => "CC",
             "NOTES" => "SN",
