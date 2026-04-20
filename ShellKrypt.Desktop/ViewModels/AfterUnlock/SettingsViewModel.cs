@@ -43,6 +43,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string transferStatus = "Preview an operation before applying it.";
     [ObservableProperty] private bool isTransferBusy;
+    [ObservableProperty] private string currentMasterPassword = "";
+    [ObservableProperty] private string newMasterPassword = "";
+    [ObservableProperty] private string confirmNewMasterPassword = "";
+    [ObservableProperty] private string masterPasswordStatus = "";
+    [ObservableProperty] private VaultSecurityProfile? selectedSecurityProfile;
+    [ObservableProperty] private string activeSecurityProfileLabel = "Unknown";
 
     [ObservableProperty] private string encryptedExportPath = "";
     [ObservableProperty] private string exportPassphrase = "";
@@ -83,6 +89,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
         new(120, "2 Hours"),
     ];
 
+    public ObservableCollection<VaultSecurityProfile> SecurityProfiles { get; } =
+    [
+        .. VaultSecurityProfiles.All
+    ];
+
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
 
     public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell)
@@ -96,9 +107,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
         var exportBaseName = GetVaultDisplayName();
         EncryptedExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Backup", ".skbx");
         PlaintextExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Export", ".json");
+        SelectedSecurityProfile = VaultSecurityProfiles.Default;
+        _ = LoadCurrentSecurityProfileAsync();
     }
 
     public bool HasCsvPreview => CsvPreviewRows.Count > 0;
+    public bool HasMasterPasswordStatus => !string.IsNullOrWhiteSpace(MasterPasswordStatus);
     public string ActiveVaultDisplay => GetVaultFileName();
     public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? "No active vault path." : _root.VaultPath;
     public string VaultStorageDisplay => GetVaultStorageDisplay();
@@ -109,6 +123,10 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string FocusLockSummary => LockOnDeactivate
         ? $"The vault locks after the app stays out of focus for about {LockOnDeactivateSecondsText} seconds."
         : "Switching away from the app will not immediately lock the vault.";
+    public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
+    public string RecoveryGuidanceText => "If the vault is locked and the master password is forgotten, the data cannot be recovered without a prior backup.";
+    public string BackupRecommendationText => "Create an encrypted .skbx backup with a separate export passphrase before changing the master password or moving the vault.";
+    public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
     public string SecurityStatusText => AutoLockEnabled
         ? $"Auto-lock enabled • {SelectedAutoLockDuration?.Label ?? "Configured"}"
         : "Auto-lock disabled";
@@ -164,6 +182,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
         Status = $"Theme switched to {value}.";
         OnPropertyChanged(nameof(ThemeModeLabel));
     }
+
+    partial void OnMasterPasswordStatusChanged(string value) => OnPropertyChanged(nameof(HasMasterPasswordStatus));
+    partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value) => OnPropertyChanged(nameof(SelectedSecurityProfileDescription));
 
     partial void OnClipboardClearSecondsTextChanged(string value)
     {
@@ -448,6 +469,72 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private async Task ChangeMasterPasswordAsync()
+    {
+        MasterPasswordStatus = "";
+
+        if (!_root.IsUnlocked || string.IsNullOrWhiteSpace(_root.VaultPath))
+        {
+            MasterPasswordStatus = "Unlock a vault before changing the master password.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(CurrentMasterPassword))
+        {
+            MasterPasswordStatus = "Enter the current master password.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(NewMasterPassword))
+        {
+            MasterPasswordStatus = "Enter a new master password.";
+            return;
+        }
+
+        if (string.Equals(CurrentMasterPassword, NewMasterPassword, StringComparison.Ordinal))
+        {
+            MasterPasswordStatus = "Choose a different new master password.";
+            return;
+        }
+
+        var validation = VaultMasterPasswordPolicy.Validate(NewMasterPassword);
+        if (!validation.IsValid)
+        {
+            MasterPasswordStatus = validation.Message;
+            return;
+        }
+
+        if (!string.Equals(NewMasterPassword, ConfirmNewMasterPassword, StringComparison.Ordinal))
+        {
+            MasterPasswordStatus = "New master passwords do not match.";
+            return;
+        }
+
+        await RunTransferAsync(async () =>
+        {
+            var result = await _vaultService.ChangeMasterPasswordAsync(
+                _root.VaultPath!,
+                CurrentMasterPassword,
+                NewMasterPassword,
+                SelectedSecurityProfile?.Kdf);
+
+            if (!result.Success)
+            {
+                MasterPasswordStatus = result.Error ?? "Unable to change the master password.";
+                return;
+            }
+
+            CurrentMasterPassword = "";
+            NewMasterPassword = "";
+            ConfirmNewMasterPassword = "";
+            MasterPasswordStatus = "Master password updated. Existing vault contents were re-wrapped in place.";
+            TransferStatus = "Master password changed successfully.";
+            _root.LogActivity("vault", "Master password changed", $"Updated the master password for {GetVaultDisplayName()}.", "success", _root.VaultPath);
+            await LoadCurrentSecurityProfileAsync();
+        });
+    }
+
+    [RelayCommand]
     private void SaveChanges()
     {
         Status = "Changes saved locally.";
@@ -643,5 +730,45 @@ public sealed partial class SettingsViewModel : ViewModelBase
         var sidecar = vaultPath + suffix;
         if (File.Exists(sidecar))
             File.Delete(sidecar);
+    }
+
+    private async Task LoadCurrentSecurityProfileAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_root.VaultPath))
+            return;
+
+        try
+        {
+            var kdf = await _vaultService.GetKdfParamsAsync(_root.VaultPath);
+            if (kdf is null)
+                return;
+
+            var known = VaultSecurityProfiles.Match(kdf);
+            if (known is not null)
+            {
+                SelectedSecurityProfile = SecurityProfiles.FirstOrDefault(profile => profile.Key == known.Key) ?? known;
+                ActiveSecurityProfileLabel = known.Label;
+                return;
+            }
+
+            var custom = SecurityProfiles.FirstOrDefault(profile => profile.Key == "custom");
+            var customLabel = $"Custom ({kdf.MemoryKb / 1024} MB Argon2)";
+            var customProfile = new VaultSecurityProfile("custom", customLabel, "Matches the current vault protection parameters.", kdf);
+
+            if (custom is null)
+                SecurityProfiles.Add(customProfile);
+            else
+            {
+                var index = SecurityProfiles.IndexOf(custom);
+                SecurityProfiles[index] = customProfile;
+            }
+
+            SelectedSecurityProfile = customProfile;
+            ActiveSecurityProfileLabel = customProfile.Label;
+        }
+        catch
+        {
+            ActiveSecurityProfileLabel = "Unavailable";
+        }
     }
 }

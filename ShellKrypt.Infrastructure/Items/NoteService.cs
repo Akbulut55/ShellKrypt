@@ -20,7 +20,7 @@ public sealed class NoteService : INoteService
 
     public async Task<IReadOnlyList<NoteEntry>> ListAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
-        var rows = await _repo.ListAsync(vaultPath, ct);
+        var rows = await _repo.ListAsync(vaultPath, vaultKey, ct);
         var notes = new List<NoteEntry>();
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Note))

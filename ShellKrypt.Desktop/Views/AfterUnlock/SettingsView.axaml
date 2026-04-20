@@ -190,6 +190,93 @@
                     </Grid>
                   </StackPanel>
                 </Border>
+
+                <Border Classes="settings-field-shell">
+                  <StackPanel Spacing="14">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="14">
+                      <StackPanel Spacing="6">
+                        <TextBlock Text="Change master password"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"/>
+                        <TextBlock Text="{Binding RecoveryGuidanceText}"
+                                   Classes="page-subtitle"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"/>
+                      </StackPanel>
+                      <Border Grid.Column="1"
+                              Background="{StaticResource SurfaceRaisedBrush}"
+                              CornerRadius="999"
+                              Padding="12,6"
+                              VerticalAlignment="Top">
+                        <TextBlock Text="{Binding ActiveSecurityProfileLabel}"
+                                   Classes="settings-mini-label"/>
+                      </Border>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="14">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="CURRENT PASSWORD"
+                                   Classes="settings-mini-label"/>
+                        <TextBox Text="{Binding CurrentMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PasswordChar="*"
+                                 PlaceholderText="Enter the current master password"/>
+                      </StackPanel>
+                      <StackPanel Grid.Column="1"
+                                  Spacing="8">
+                        <TextBlock Text="SECURITY PROFILE"
+                                   Classes="settings-mini-label"/>
+                        <ComboBox ItemsSource="{Binding SecurityProfiles}"
+                                  SelectedItem="{Binding SelectedSecurityProfile}">
+                          <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding Label}"/>
+                            </DataTemplate>
+                          </ComboBox.ItemTemplate>
+                        </ComboBox>
+                      </StackPanel>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="14">
+                      <StackPanel Spacing="8">
+                        <TextBlock Text="NEW PASSWORD"
+                                   Classes="settings-mini-label"/>
+                        <TextBox Text="{Binding NewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PasswordChar="*"
+                                 PlaceholderText="Use a strong passphrase or long secret"/>
+                      </StackPanel>
+                      <StackPanel Grid.Column="1"
+                                  Spacing="8">
+                        <TextBlock Text="CONFIRM NEW PASSWORD"
+                                   Classes="settings-mini-label"/>
+                        <TextBox Text="{Binding ConfirmNewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PasswordChar="*"
+                                 PlaceholderText="Re-enter the new master password"/>
+                      </StackPanel>
+                    </Grid>
+
+                    <TextBlock Text="{Binding PasswordPolicyGuidance}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding SelectedSecurityProfileDescription}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               Opacity="0.82"/>
+                    <TextBlock Text="{Binding MasterPasswordStatus}"
+                               Foreground="{StaticResource TextPrimaryBrush}"
+                               FontSize="12"
+                               IsVisible="{Binding HasMasterPasswordStatus}"/>
+
+                    <Button Content="Change Master Password"
+                            Classes="settings-primary-button"
+                            Command="{Binding ChangeMasterPasswordCommand}"
+                            HorizontalAlignment="Stretch"/>
+                  </StackPanel>
+                </Border>
               </StackPanel>
             </Border>
 
@@ -326,31 +413,140 @@
                   </StackPanel>
                 </Border>
 
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="14">
-                  <StackPanel Spacing="10">
-                    <TextBlock Text="IMPORT"
+                <Border Classes="settings-field-shell">
+                  <StackPanel Spacing="14">
+                    <TextBlock Text="BACKUP AND RECOVERY"
                                Classes="settings-mini-label"/>
-                    <Button Content="From Backup"
-                            Classes="settings-transfer-button"
-                            Command="{Binding PreviewEncryptedImportCommand}"/>
-                    <Button Content="Import CSV"
-                            Classes="settings-transfer-button"
-                            Command="{Binding PreviewCsvImportCommand}"/>
-                  </StackPanel>
+                    <TextBlock Text="{Binding BackupRecommendationText}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
 
-                  <StackPanel Grid.Column="1"
-                              Spacing="10">
-                    <TextBlock Text="EXPORT"
-                               Classes="settings-mini-label"/>
-                    <Button Content="Export .SKBX"
-                            Classes="settings-transfer-button"
-                            Command="{Binding ExportEncryptedCommand}"/>
-                    <Button Content="Export .JSON"
-                            Classes="settings-transfer-button"
-                            Command="{Binding ExportPlaintextCommand}"/>
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="ENCRYPTED BACKUP PATH"
+                                 Classes="settings-mini-label"/>
+                      <Grid ColumnDefinitions="*,Auto"
+                            ColumnSpacing="10">
+                        <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 PlaceholderText="Choose where to store the encrypted backup"/>
+                        <Button Grid.Column="1"
+                                Content="Browse"
+                                Classes="settings-secondary-button"
+                                Command="{Binding BrowseEncryptedExportPathCommand}"/>
+                      </Grid>
+                    </StackPanel>
+
+                    <StackPanel Spacing="8">
+                      <TextBlock Text="BACKUP PASSPHRASE"
+                                 Classes="settings-mini-label"/>
+                      <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PasswordChar="*"
+                               PlaceholderText="Use a separate passphrase for the .skbx backup"/>
+                    </StackPanel>
+
+                    <Grid ColumnDefinitions="Auto,Auto,*"
+                          ColumnSpacing="10">
+                      <Button Content="Preview Backup"
+                              Classes="settings-transfer-button"
+                              Command="{Binding PreviewExportCommand}"/>
+                      <Button Grid.Column="1"
+                              Content="Export Backup"
+                              Classes="settings-primary-button"
+                              Command="{Binding ExportEncryptedCommand}"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding ExportSummary}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
                   </StackPanel>
-                </Grid>
+                </Border>
+
+                <Border Classes="settings-field-shell">
+                  <StackPanel Spacing="14">
+                    <TextBlock Text="RESTORE ENCRYPTED BACKUP"
+                               Classes="settings-mini-label"/>
+
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="10">
+                      <TextBox Text="{Binding EncryptedImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="Select an encrypted .skbx backup"/>
+                      <Button Grid.Column="1"
+                              Content="Browse"
+                              Classes="settings-secondary-button"
+                              Command="{Binding BrowseEncryptedImportPathCommand}"/>
+                    </Grid>
+
+                    <TextBox Text="{Binding EncryptedImportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PasswordChar="*"
+                             PlaceholderText="Enter the backup passphrase"/>
+
+                    <Grid ColumnDefinitions="Auto,Auto,*"
+                          ColumnSpacing="10">
+                      <Button Content="Preview Restore"
+                              Classes="settings-transfer-button"
+                              Command="{Binding PreviewEncryptedImportCommand}"/>
+                      <Button Grid.Column="1"
+                              Content="Restore Backup"
+                              Classes="settings-transfer-button"
+                              Command="{Binding ImportEncryptedCommand}"/>
+                    </Grid>
+
+                    <TextBlock Text="{Binding EncryptedImportSummary}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Border>
+
+                <Border Classes="settings-field-shell">
+                  <StackPanel Spacing="14">
+                    <TextBlock Text="ADVANCED IMPORT OR EXPORT"
+                               Classes="settings-mini-label"/>
+
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="10">
+                      <TextBox Text="{Binding CsvImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="Select a CSV file for bulk import"/>
+                      <Button Grid.Column="1"
+                              Content="Browse CSV"
+                              Classes="settings-secondary-button"
+                              Command="{Binding BrowseCsvImportPathCommand}"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="Auto,Auto,*"
+                          ColumnSpacing="10">
+                      <Button Content="Preview CSV"
+                              Classes="settings-transfer-button"
+                              Command="{Binding PreviewCsvImportCommand}"/>
+                      <Button Grid.Column="1"
+                              Content="Import CSV"
+                              Classes="settings-transfer-button"
+                              Command="{Binding ImportCsvCommand}"/>
+                    </Grid>
+
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="10">
+                      <TextBox Text="{Binding PlaintextExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="Choose where to save the plaintext JSON export"/>
+                      <Button Grid.Column="1"
+                              Content="Browse JSON"
+                              Classes="settings-secondary-button"
+                              Command="{Binding BrowsePlaintextExportPathCommand}"/>
+                    </Grid>
+                    <CheckBox Content="I understand plaintext JSON exports are not encrypted."
+                              IsChecked="{Binding ConfirmPlaintextExport}"/>
+                    <Button Content="Export Plaintext JSON"
+                            Classes="settings-danger-link"
+                            Command="{Binding ExportPlaintextCommand}"/>
+
+                    <TextBlock Text="{Binding CsvPreviewSummary}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextWrapping="Wrap"
+                               IsVisible="{Binding HasCsvPreview}"/>
+                  </StackPanel>
+                </Border>
 
                 <Button Content="Destroy All Vault Data"
                         Classes="settings-danger-link"

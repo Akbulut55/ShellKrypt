@@ -79,22 +79,24 @@
             </ScrollViewer>
 
             <Border Background="Transparent" Padding="28" IsVisible="{Binding !HasFilteredNotes}">
-              <StackPanel Spacing="12" VerticalAlignment="Center">
+              <StackPanel Spacing="12"
+                          VerticalAlignment="Center"
+                          HorizontalAlignment="Left">
                 <TextBlock Text="{Binding EmptyStateTitle}" FontSize="18" FontWeight="Bold"/>
                 <TextBlock Text="{Binding EmptyStateSubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
-                <Button Content="Create Markdown Note" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Left"/>
               </StackPanel>
             </Border>
           </Grid>
 
           <Border Grid.Row="2"
-                  Background="#1C1B1B"
-                  Padding="20,10,20,20">
-            <Button Content="Create Note"
+                  Background="Transparent"
+                  Padding="20,12,20,20">
+            <Button Content="Create New Note"
                     Classes="notesAddButton"
                     Command="{Binding NewNoteCommand}"
                     HorizontalAlignment="Right"/>
           </Border>
+
         </Grid>
       </Border>
 

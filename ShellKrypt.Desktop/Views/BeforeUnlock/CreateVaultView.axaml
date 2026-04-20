@@ -6,11 +6,11 @@
              x:DataType="vm:CreateVaultViewModel">
 
   <Grid Background="{StaticResource AppBackgroundBrush}">
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled">
       <StackPanel Margin="28,24,28,28"
                   MaxWidth="1360"
-                  Spacing="24">
+                  Spacing="24"
+                  VerticalAlignment="Center"
+                  HorizontalAlignment="Center">
         <StackPanel Orientation="Horizontal"
                     Spacing="12">
           <Border Width="34"
@@ -102,6 +102,41 @@
                 </StackPanel>
               </Grid>
 
+              <Grid ColumnDefinitions="*,*"
+                    ColumnSpacing="16">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="SECURITY PROFILE"
+                             Classes="create-kicker"/>
+                  <ComboBox ItemsSource="{Binding SecurityProfiles}"
+                            SelectedItem="{Binding SelectedSecurityProfile}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Label}"/>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Spacing="8">
+                  <TextBlock Text="PASSWORD GUIDANCE"
+                             Classes="create-kicker"/>
+                  <Border Classes="create-guidance-card">
+                    <StackPanel Spacing="6">
+                      <TextBlock Text="{Binding PasswordGuidanceText}"
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"/>
+                      <TextBlock Text="{Binding SelectedSecurityDescription}"
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"
+                                 Opacity="0.8"/>
+                    </StackPanel>
+                  </Border>
+                </StackPanel>
+              </Grid>
+
               <TextBlock Text="{Binding Error}"
                          Foreground="{StaticResource DangerBrush}"
                          FontSize="12"
@@ -109,9 +144,6 @@
 
               <Grid ColumnDefinitions="*,Auto,Auto"
                     ColumnSpacing="10">
-                <TextBlock Text="{Binding IsBusy, StringFormat=Busy: {0}}"
-                           Classes="page-subtitle"
-                           VerticalAlignment="Center"/>
                 <Button Grid.Column="1"
                         Content="Back"
                         Classes="create-secondary-button"
@@ -163,7 +195,6 @@
           </StackPanel>
         </Grid>
       </StackPanel>
-    </ScrollViewer>
   </Grid>
 
   <UserControl.Styles>
@@ -193,10 +224,13 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="MinWidth" Value="136"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.create-secondary-button">
@@ -206,10 +240,19 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="MinWidth" Value="96"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Border.create-guidance-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="14"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

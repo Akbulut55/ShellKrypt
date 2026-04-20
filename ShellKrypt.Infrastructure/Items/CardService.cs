@@ -24,7 +24,7 @@ public sealed class CardService : ICardService
 
     public async Task<IReadOnlyList<CardEntry>> ListAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
-        var rows = await _repo.ListAsync(vaultPath, ct);
+        var rows = await _repo.ListAsync(vaultPath, vaultKey, ct);
         var cards = new List<CardEntry>();
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Card))

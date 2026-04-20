@@ -32,6 +32,14 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private string status = "Select a vault to unlock, or create a new one.";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private bool isDeleteOverlayOpen;
+    [ObservableProperty] private bool isDeletePasswordStep;
+    [ObservableProperty] private bool isDeletePasswordVisible;
+    [ObservableProperty] private string deletePassword = "";
+    [ObservableProperty] private string deleteOverlayError = "";
+    [ObservableProperty] private VaultRecordVm? deleteTarget;
+    [ObservableProperty] private bool isRemoveOverlayOpen;
+    [ObservableProperty] private VaultRecordVm? removeTarget;
 
     public WelcomeViewModel(MainWindowViewModel root, VaultRegistryStore vaultRegistry)
     {
@@ -44,6 +52,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public bool IsNameSortActive => ActiveSort == "name";
     public bool HasVaults => Vaults.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
+    public bool HasDeleteOverlayError => !string.IsNullOrWhiteSpace(DeleteOverlayError);
     public int VaultCount => _allVaults.Count;
     public int ExistingVaultCount => _allVaults.Count(vault => vault.Exists);
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredVaultCount / (double)VaultPageSize));
@@ -58,6 +67,13 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
         ? "Create a new vault or import an existing vault file to get started."
         : "Try a different name, path fragment, or clear the current search.";
+    public bool IsDeleteWarningStep => IsDeleteOverlayOpen && !IsDeletePasswordStep;
+    public string DeleteWarningTitle => $"Permanently delete {DeleteTarget?.DisplayLabel ?? "vault"}?";
+    public string DeletePasswordTitle => "Enter the master password to permanently delete this vault.";
+    public string DeletePasswordDetail => DeleteTarget?.VaultPath ?? "";
+    public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? "Hide" : "Show";
+    public string RemoveOverlayTitle => $"Remove {RemoveTarget?.DisplayLabel ?? "vault"} from the list?";
+    public string RemoveOverlayDetail => "This only removes the stale entry from ShellKrypt's launcher. No vault file will be deleted.";
 
     partial void OnSearchTextChanged(string value)
     {
@@ -66,6 +82,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+    partial void OnDeleteOverlayErrorChanged(string value) => OnPropertyChanged(nameof(HasDeleteOverlayError));
 
     partial void OnActiveSortChanged(string value)
     {
@@ -83,6 +100,32 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanGoNextPage));
         OnPropertyChanged(nameof(PageIndicator));
         ApplyFilters();
+    }
+
+    partial void OnIsDeleteOverlayOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsDeleteWarningStep));
+    }
+
+    partial void OnIsDeletePasswordStepChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsDeleteWarningStep));
+    }
+
+    partial void OnIsDeletePasswordVisibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(DeletePasswordVisibilityLabel));
+    }
+
+    partial void OnDeleteTargetChanged(VaultRecordVm? value)
+    {
+        OnPropertyChanged(nameof(DeleteWarningTitle));
+        OnPropertyChanged(nameof(DeletePasswordDetail));
+    }
+
+    partial void OnRemoveTargetChanged(VaultRecordVm? value)
+    {
+        OnPropertyChanged(nameof(RemoveOverlayTitle));
     }
 
     [RelayCommand]
@@ -260,6 +303,69 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void RemoveVaultFromList(VaultRecordVm? vault)
+    {
+        Error = "";
+
+        if (vault is null)
+        {
+            Error = "Select a vault first.";
+            return;
+        }
+
+        RemoveTarget = vault;
+        IsRemoveOverlayOpen = true;
+    }
+
+    [RelayCommand]
+    private void CancelRemoveOverlay()
+    {
+        if (IsBusy)
+            return;
+
+        IsRemoveOverlayOpen = false;
+        RemoveTarget = null;
+    }
+
+    [RelayCommand]
+    private void ConfirmRemoveOverlay()
+    {
+        Error = "";
+
+        var vault = RemoveTarget;
+        if (vault is null)
+        {
+            IsRemoveOverlayOpen = false;
+            return;
+        }
+
+        try
+        {
+            var displayName = vault.DisplayLabel;
+            var path = vault.VaultPath;
+
+            if (!_vaultRegistry.RemoveVault(path))
+            {
+                Error = "That vault is no longer registered.";
+                return;
+            }
+
+            if (string.Equals(_root.VaultPath, path, StringComparison.OrdinalIgnoreCase))
+                _root.SetVaultPath("");
+
+            IsRemoveOverlayOpen = false;
+            RemoveTarget = null;
+            ReloadVaults();
+            Status = $"{displayName} was removed from the local vault list.";
+            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path);
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
     private void OpenVault(VaultRecordVm? vault)
     {
         if (vault is null)
@@ -280,7 +386,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private async Task DeleteVaultAsync(VaultRecordVm? vault)
+    private void DeleteVault(VaultRecordVm? vault)
     {
         Error = "";
 
@@ -296,31 +402,64 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             return;
         }
 
-        var confirmed = await _root.ConfirmDangerousActionAsync(
-            "Permanently Delete Vault?",
-            $"Permanently delete {vault.DisplayLabel}?",
-            "Warning: this action is irreversible. All stored passwords, markdown notes, and encrypted data within this vault will be destroyed immediately.",
-            "Permanently Delete");
+        DeleteTarget = vault;
+        DeletePassword = "";
+        DeleteOverlayError = "";
+        IsDeletePasswordVisible = false;
+        IsDeletePasswordStep = false;
+        IsDeleteOverlayOpen = true;
+    }
 
-        if (!confirmed)
+    [RelayCommand]
+    private void CancelDeleteOverlay()
+    {
+        if (IsBusy)
             return;
 
-        var password = await _root.PromptPasswordAsync(
-            "Confirm Master Password",
-            "Enter the master password to permanently delete this vault.",
-            vault.VaultPath,
-            "Delete Vault");
+        ClearDeleteOverlay();
+    }
 
-        if (password is null)
+    [RelayCommand]
+    private void ContinueDeleteOverlay()
+    {
+        DeleteOverlayError = "";
+        DeletePassword = "";
+        IsDeletePasswordVisible = false;
+        IsDeletePasswordStep = true;
+    }
+
+    [RelayCommand]
+    private void ToggleDeletePasswordVisibility()
+    {
+        IsDeletePasswordVisible = !IsDeletePasswordVisible;
+    }
+
+    [RelayCommand]
+    private async Task ConfirmDeleteOverlayAsync()
+    {
+        Error = "";
+        DeleteOverlayError = "";
+
+        var vault = DeleteTarget;
+        if (vault is null)
+        {
+            ClearDeleteOverlay();
             return;
+        }
+
+        if (string.IsNullOrWhiteSpace(DeletePassword))
+        {
+            DeleteOverlayError = "Enter the master password to continue.";
+            return;
+        }
 
         IsBusy = true;
         try
         {
-            var unlockResult = await _vaultService.UnlockAsync(vault.VaultPath, password);
+            var unlockResult = await _vaultService.UnlockAsync(vault.VaultPath, DeletePassword);
             if (!unlockResult.Success)
             {
-                Error = unlockResult.Error ?? "Wrong master password.";
+                DeleteOverlayError = unlockResult.Error ?? "Wrong master password.";
                 return;
             }
 
@@ -343,6 +482,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             if (string.Equals(_root.VaultPath, vault.VaultPath, StringComparison.OrdinalIgnoreCase))
                 _root.SetVaultPath("");
 
+            ClearDeleteOverlay();
             ReloadVaults();
             Status = $"{vault.DisplayLabel} was deleted permanently.";
             _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath);
@@ -543,6 +683,16 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
     private static string NormalizePath(string? path)
         => string.IsNullOrWhiteSpace(path) ? "" : System.IO.Path.GetFullPath(path);
+
+    private void ClearDeleteOverlay()
+    {
+        IsDeleteOverlayOpen = false;
+        IsDeletePasswordStep = false;
+        IsDeletePasswordVisible = false;
+        DeleteOverlayError = "";
+        DeletePassword = "";
+        DeleteTarget = null;
+    }
 
     private static void CopySidecarIfExists(string sourcePath, string targetPath, string suffix)
     {

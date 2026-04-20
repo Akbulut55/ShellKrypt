@@ -20,15 +20,13 @@ public sealed class SqliteVaultService : IVaultService
     private const int TagSize = 16;
 
     private static VaultKdfParams DefaultKdf()
-    {
-        var p = Math.Max(1, Environment.ProcessorCount / 2);
-        return new VaultKdfParams(MemoryKb: 65536, Iterations: 3, Parallelism: p); // 64MB
-    }
+        => NormalizeKdf(VaultSecurityProfiles.Default.Kdf);
 
-    public async Task CreateAsync(string vaultPath, string masterPassword, CancellationToken ct = default)
+    public async Task CreateAsync(string vaultPath, string masterPassword, VaultKdfParams? kdf = null, CancellationToken ct = default)
     {
-        if (string.IsNullOrWhiteSpace(masterPassword))
-            throw new ArgumentException("Master password cannot be empty.", nameof(masterPassword));
+        var validation = VaultMasterPasswordPolicy.Validate(masterPassword);
+        if (!validation.IsValid)
+            throw new ArgumentException(validation.Message, nameof(masterPassword));
 
         if (File.Exists(vaultPath))
             throw new InvalidOperationException("A vault already exists at this path.");
@@ -41,16 +39,16 @@ public sealed class SqliteVaultService : IVaultService
         await ConfigureConnectionAsync(conn, ct);
         await CreateSchemaAsync(conn, ct);
 
-        var kdf = DefaultKdf();
+        var effectiveKdf = NormalizeKdf(kdf ?? DefaultKdf());
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
-        var derivedKey = await DeriveKeyAsync(masterPassword, salt, kdf, ct);
+        var derivedKey = await DeriveKeyAsync(masterPassword, salt, effectiveKdf, ct);
         try
         {
             var vaultKey = RandomNumberGenerator.GetBytes(KeySize);
             var encryptedVaultKey = EncryptAesGcm(derivedKey, vaultKey);
 
-            await InsertVaultMetaAsync(conn, kdf, salt, encryptedVaultKey, ct);
+            await InsertVaultMetaAsync(conn, effectiveKdf, salt, encryptedVaultKey, ct);
 
             CryptographicOperations.ZeroMemory(vaultKey);
         }
@@ -95,6 +93,84 @@ public sealed class SqliteVaultService : IVaultService
         }
     }
 
+    public async Task<ChangeMasterPasswordResult> ChangeMasterPasswordAsync(
+        string vaultPath,
+        string currentMasterPassword,
+        string newMasterPassword,
+        VaultKdfParams? newKdf = null,
+        CancellationToken ct = default)
+    {
+        if (!File.Exists(vaultPath))
+            return ChangeMasterPasswordResult.Fail("Vault file not found.");
+
+        if (string.IsNullOrWhiteSpace(currentMasterPassword))
+            return ChangeMasterPasswordResult.Fail("Enter the current master password.");
+
+        var validation = VaultMasterPasswordPolicy.Validate(newMasterPassword);
+        if (!validation.IsValid)
+            return ChangeMasterPasswordResult.Fail(validation.Message);
+
+        await using var conn = CreateConnection(vaultPath, SqliteOpenMode.ReadWrite);
+        await conn.OpenAsync(ct);
+        await ConfigureConnectionAsync(conn, ct);
+
+        var meta = await ReadVaultMetaAsync(conn, ct);
+        if (meta is null)
+            return ChangeMasterPasswordResult.Fail("Vault metadata missing or corrupted.");
+
+        var currentDerivedKey = await DeriveKeyAsync(currentMasterPassword, meta.Value.Salt, meta.Value.Kdf, ct);
+        try
+        {
+            byte[] vaultKey;
+            try
+            {
+                vaultKey = DecryptAesGcm(currentDerivedKey, meta.Value.EncryptedVaultKey);
+            }
+            catch (CryptographicException)
+            {
+                return ChangeMasterPasswordResult.Fail("Wrong current master password.");
+            }
+
+            try
+            {
+                var effectiveKdf = NormalizeKdf(newKdf ?? DefaultKdf());
+                var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
+                var newDerivedKey = await DeriveKeyAsync(newMasterPassword, newSalt, effectiveKdf, ct);
+                try
+                {
+                    var rewrappedVaultKey = EncryptAesGcm(newDerivedKey, vaultKey);
+                    await UpdateVaultMetaAsync(conn, effectiveKdf, newSalt, rewrappedVaultKey, ct);
+                    return ChangeMasterPasswordResult.Ok();
+                }
+                finally
+                {
+                    CryptographicOperations.ZeroMemory(newDerivedKey);
+                }
+            }
+            finally
+            {
+                CryptographicOperations.ZeroMemory(vaultKey);
+            }
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(currentDerivedKey);
+        }
+    }
+
+    public async Task<VaultKdfParams?> GetKdfParamsAsync(string vaultPath, CancellationToken ct = default)
+    {
+        if (!File.Exists(vaultPath))
+            return null;
+
+        await using var conn = CreateConnection(vaultPath, SqliteOpenMode.ReadWrite);
+        await conn.OpenAsync(ct);
+        await ConfigureConnectionAsync(conn, ct);
+
+        var meta = await ReadVaultMetaAsync(conn, ct);
+        return meta?.Kdf;
+    }
+
     private static async Task CreateSchemaAsync(SqliteConnection conn, CancellationToken ct)
     {
         var cmd = conn.CreateCommand();
@@ -123,6 +199,7 @@ public sealed class SqliteVaultService : IVaultService
 
         CREATE TABLE IF NOT EXISTS labels (
             id TEXT PRIMARY KEY,
+            encryptedName BLOB,
             name TEXT NOT NULL,
             color TEXT NULL
         );
@@ -190,6 +267,33 @@ public sealed class SqliteVaultService : IVaultService
         await cmd.ExecuteNonQueryAsync(ct);
     }
 
+    private static async Task UpdateVaultMetaAsync(
+        SqliteConnection conn,
+        VaultKdfParams kdf,
+        byte[] salt,
+        byte[] encryptedVaultKey,
+        CancellationToken ct)
+    {
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+        UPDATE vault_meta
+        SET kdfMemoryKb = $mem,
+            kdfIterations = $iters,
+            kdfParallelism = $par,
+            salt = $salt,
+            encryptedVaultKey = $evk
+        WHERE id = 1;
+        """;
+
+        cmd.Parameters.AddWithValue("$mem", kdf.MemoryKb);
+        cmd.Parameters.AddWithValue("$iters", kdf.Iterations);
+        cmd.Parameters.AddWithValue("$par", kdf.Parallelism);
+        cmd.Parameters.Add("$salt", SqliteType.Blob).Value = salt;
+        cmd.Parameters.Add("$evk", SqliteType.Blob).Value = encryptedVaultKey;
+
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
     private static async Task<(VaultKdfParams Kdf, byte[] Salt, byte[] EncryptedVaultKey)?> ReadVaultMetaAsync(
         SqliteConnection conn,
         CancellationToken ct)
@@ -226,6 +330,15 @@ public sealed class SqliteVaultService : IVaultService
             };
             return argon2.GetBytes(KeySize);
         }, ct);
+    }
+
+    private static VaultKdfParams NormalizeKdf(VaultKdfParams p)
+    {
+        var parallelism = Math.Clamp(p.Parallelism, 1, Math.Max(1, Environment.ProcessorCount));
+        return new VaultKdfParams(
+            MemoryKb: Math.Max(32768, p.MemoryKb),
+            Iterations: Math.Max(3, p.Iterations),
+            Parallelism: parallelism);
     }
 
     private static byte[] EncryptAesGcm(byte[] key, byte[] plaintext)

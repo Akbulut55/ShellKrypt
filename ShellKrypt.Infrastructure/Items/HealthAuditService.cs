@@ -23,7 +23,7 @@ public sealed class HealthAuditService : IHealthAuditService
 
     public async Task<HealthAuditResult> AnalyzeAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
-        var rows = await _repo.ListAsync(vaultPath, ct);
+        var rows = await _repo.ListAsync(vaultPath, vaultKey, ct);
         var entries = new List<WebLoginHealthItem>();
         var issues = new List<HealthAuditIssue>();
         var reusedCount = 0;

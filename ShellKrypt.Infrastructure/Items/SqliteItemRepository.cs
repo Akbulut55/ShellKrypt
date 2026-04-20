@@ -1,24 +1,28 @@
+using System.Text;
+using System.Security.Cryptography;
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Infrastructure.Crypto;
 
 namespace ShellKrypt.Infrastructure.Items;
 
 public sealed class SqliteItemRepository : IItemRepository
 {
-    public async Task<IReadOnlyList<VaultItemRow>> ListAsync(string vaultPath, CancellationToken ct = default)
+    public async Task<IReadOnlyList<VaultItemRow>> ListAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
         var items = new Dictionary<string, ItemRowBuilder>(StringComparer.Ordinal);
         var order = new List<string>();
 
         await using var conn = await OpenConnectionAsync(vaultPath, ct);
+        await EnsureLabelSchemaAsync(conn, vaultKey, ct);
         var cmd = conn.CreateCommand();
         cmd.CommandText = """
         SELECT i.id, i.type, i.favorite, i.createdAtUtc, i.updatedAtUtc, i.encryptedPayload,
-               l.id, l.name, l.color
+               l.id, l.encryptedName, l.name, l.color
         FROM items i
         LEFT JOIN item_labels il ON il.itemId = i.id
         LEFT JOIN labels l ON l.id = il.labelId
-        ORDER BY i.updatedAtUtc DESC, i.id ASC, l.name COLLATE NOCASE ASC;
+        ORDER BY i.updatedAtUtc DESC, i.id ASC;
         """;
 
         await using var reader = await cmd.ExecuteReaderAsync(ct);
@@ -45,24 +49,28 @@ public sealed class SqliteItemRepository : IItemRepository
             {
                 builder.Labels.Add(new VaultLabelRow(
                     reader.GetString(6),
-                    reader.GetString(7),
-                    reader.IsDBNull(8) ? null : reader.GetString(8)));
+                    DecryptLabelName(vaultKey, reader.IsDBNull(7) ? null : reader.GetFieldValue<byte[]>(7), reader.IsDBNull(8) ? null : reader.GetString(8)),
+                    reader.IsDBNull(9) ? null : reader.GetString(9)));
             }
         }
 
-        return order.Select(id => items[id].Build()).ToArray();
+        return order
+            .Select(id => items[id].Build())
+            .Select(SortLabels)
+            .ToArray();
     }
 
-    public async Task<IReadOnlyList<VaultLabelRow>> ListLabelsAsync(string vaultPath, CancellationToken ct = default)
+    public async Task<IReadOnlyList<VaultLabelRow>> ListLabelsAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
         var labels = new List<VaultLabelRow>();
 
         await using var conn = await OpenConnectionAsync(vaultPath, ct);
+        await EnsureLabelSchemaAsync(conn, vaultKey, ct);
         var cmd = conn.CreateCommand();
         cmd.CommandText = """
-        SELECT id, name, color
+        SELECT id, encryptedName, name, color
         FROM labels
-        ORDER BY name COLLATE NOCASE ASC;
+        ORDER BY id ASC;
         """;
 
         await using var reader = await cmd.ExecuteReaderAsync(ct);
@@ -70,49 +78,48 @@ public sealed class SqliteItemRepository : IItemRepository
         {
             labels.Add(new VaultLabelRow(
                 reader.GetString(0),
-                reader.GetString(1),
-                reader.IsDBNull(2) ? null : reader.GetString(2)));
+                DecryptLabelName(vaultKey, reader.IsDBNull(1) ? null : reader.GetFieldValue<byte[]>(1), reader.IsDBNull(2) ? null : reader.GetString(2)),
+                reader.IsDBNull(3) ? null : reader.GetString(3)));
         }
 
-        return labels;
+        return labels
+            .OrderBy(label => label.Name, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
     }
 
-    public async Task<VaultLabelRow> UpsertLabelAsync(string vaultPath, string name, string? color = null, CancellationToken ct = default)
+    public async Task<VaultLabelRow> UpsertLabelAsync(string vaultPath, byte[] vaultKey, string name, string? color = null, CancellationToken ct = default)
     {
         var normalized = NormalizeLabelName(name);
         if (normalized is null)
             throw new ArgumentException("Label name cannot be empty.", nameof(name));
 
         await using var conn = await OpenConnectionAsync(vaultPath, ct);
+        await EnsureLabelSchemaAsync(conn, vaultKey, ct);
 
-        var select = conn.CreateCommand();
-        select.CommandText = """
-        SELECT id, name, color
-        FROM labels
-        WHERE name COLLATE NOCASE = $name
-        LIMIT 1;
-        """;
-        select.Parameters.AddWithValue("$name", normalized);
+        var existing = await ReadStoredLabelsAsync(conn, ct);
+        var match = existing.FirstOrDefault(label =>
+            string.Equals(
+                NormalizeLabelName(DecryptLabelName(vaultKey, label.EncryptedName, label.LegacyName)),
+                normalized,
+                StringComparison.OrdinalIgnoreCase));
 
-        await using (var reader = await select.ExecuteReaderAsync(ct))
+        if (match is not null)
         {
-            if (await reader.ReadAsync(ct))
-            {
-                return new VaultLabelRow(
-                    reader.GetString(0),
-                    reader.GetString(1),
-                    reader.IsDBNull(2) ? null : reader.GetString(2));
-            }
+            return new VaultLabelRow(
+                match.Id,
+                normalized,
+                string.IsNullOrWhiteSpace(match.Color) ? null : match.Color);
         }
 
         var id = Guid.NewGuid().ToString("N");
         var insert = conn.CreateCommand();
         insert.CommandText = """
-        INSERT INTO labels (id, name, color)
-        VALUES ($id, $name, $color);
+        INSERT INTO labels (id, encryptedName, name, color)
+        VALUES ($id, $encryptedName, $lookup, $color);
         """;
         insert.Parameters.AddWithValue("$id", id);
-        insert.Parameters.AddWithValue("$name", normalized);
+        insert.Parameters.Add("$encryptedName", SqliteType.Blob).Value = EncryptLabelName(vaultKey, normalized);
+        insert.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(normalized));
         insert.Parameters.AddWithValue("$color", string.IsNullOrWhiteSpace(color) ? DBNull.Value : color);
         await insert.ExecuteNonQueryAsync(ct);
 
@@ -234,6 +241,106 @@ public sealed class SqliteItemRepository : IItemRepository
         return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
     }
 
+    private static async Task EnsureLabelSchemaAsync(SqliteConnection conn, byte[] vaultKey, CancellationToken ct)
+    {
+        var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var pragma = conn.CreateCommand();
+        pragma.CommandText = "PRAGMA table_info(labels);";
+        await using (var reader = await pragma.ExecuteReaderAsync(ct))
+        {
+            while (await reader.ReadAsync(ct))
+                columns.Add(reader.GetString(1));
+        }
+
+        if (!columns.Contains("encryptedName"))
+        {
+            var alter = conn.CreateCommand();
+            alter.CommandText = "ALTER TABLE labels ADD COLUMN encryptedName BLOB;";
+            await alter.ExecuteNonQueryAsync(ct);
+        }
+
+        var rows = await ReadStoredLabelsAsync(conn, ct);
+        foreach (var row in rows.Where(row => row.EncryptedName is null && !string.IsNullOrWhiteSpace(row.LegacyName)))
+        {
+            var update = conn.CreateCommand();
+            update.CommandText = """
+            UPDATE labels
+            SET encryptedName = $encryptedName,
+                name = $lookup
+            WHERE id = $id;
+            """;
+            update.Parameters.AddWithValue("$id", row.Id);
+            update.Parameters.Add("$encryptedName", SqliteType.Blob).Value = EncryptLabelName(vaultKey, row.LegacyName!);
+            update.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(row.LegacyName!));
+            await update.ExecuteNonQueryAsync(ct);
+        }
+
+        foreach (var row in rows.Where(row => row.EncryptedName is { Length: > 0 }))
+        {
+            var decryptedName = DecryptLabelName(vaultKey, row.EncryptedName, row.LegacyName);
+            var expectedLookup = ComputeLabelLookupKey(decryptedName);
+            if (string.Equals(row.LegacyName, expectedLookup, StringComparison.Ordinal))
+                continue;
+
+            var update = conn.CreateCommand();
+            update.CommandText = """
+            UPDATE labels
+            SET name = $lookup
+            WHERE id = $id;
+            """;
+            update.Parameters.AddWithValue("$id", row.Id);
+            update.Parameters.AddWithValue("$lookup", expectedLookup);
+            await update.ExecuteNonQueryAsync(ct);
+        }
+    }
+
+    private static async Task<IReadOnlyList<StoredLabelRow>> ReadStoredLabelsAsync(SqliteConnection conn, CancellationToken ct)
+    {
+        var labels = new List<StoredLabelRow>();
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+        SELECT id, encryptedName, name, color
+        FROM labels
+        ORDER BY id ASC;
+        """;
+
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            labels.Add(new StoredLabelRow(
+                reader.GetString(0),
+                reader.IsDBNull(1) ? null : reader.GetFieldValue<byte[]>(1),
+                reader.IsDBNull(2) ? null : reader.GetString(2),
+                reader.IsDBNull(3) ? null : reader.GetString(3)));
+        }
+
+        return labels;
+    }
+
+    private static byte[] EncryptLabelName(byte[] vaultKey, string name)
+        => AesGcmBlob.Encrypt(vaultKey, Encoding.UTF8.GetBytes(name));
+
+    private static string ComputeLabelLookupKey(string name)
+    {
+        var normalized = NormalizeLabelName(name) ?? string.Empty;
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalized.ToUpperInvariant()));
+        return Convert.ToHexString(hash);
+    }
+
+    private static string DecryptLabelName(byte[] vaultKey, byte[]? encryptedName, string? legacyName)
+    {
+        if (encryptedName is { Length: > 0 })
+            return Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, encryptedName));
+
+        return legacyName ?? string.Empty;
+    }
+
+    private static VaultItemRow SortLabels(VaultItemRow row)
+        => new(
+            row.Header,
+            row.EncryptedPayload,
+            row.Labels.OrderBy(label => label.Name, StringComparer.OrdinalIgnoreCase).ToArray());
+
     private sealed class ItemRowBuilder
     {
         public ItemRowBuilder(VaultItemHeader header, byte[] payload)
@@ -248,4 +355,10 @@ public sealed class SqliteItemRepository : IItemRepository
 
         public VaultItemRow Build() => new(Header, Payload, Labels.ToArray());
     }
+
+    private sealed record StoredLabelRow(
+        string Id,
+        byte[]? EncryptedName,
+        string? LegacyName,
+        string? Color);
 }

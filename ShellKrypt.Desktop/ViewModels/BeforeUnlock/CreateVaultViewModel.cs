@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Vaulting;
@@ -20,10 +21,18 @@ public partial class CreateVaultViewModel : ViewModelBase
     [ObservableProperty] private string vaultPath = DefaultPaths.GetSuggestedVaultPath("MyVault");
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private string confirmPassword = "";
+    [ObservableProperty] private VaultSecurityProfile? selectedSecurityProfile;
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
 
+    public ObservableCollection<VaultSecurityProfile> SecurityProfiles { get; } =
+    [
+        .. VaultSecurityProfiles.All
+    ];
+
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
+    public string PasswordGuidanceText => VaultMasterPasswordPolicy.Guidance;
+    public string SelectedSecurityDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
 
     private bool _hasCustomVaultPath;
     private bool _isUpdatingSuggestedPath;
@@ -33,11 +42,13 @@ public partial class CreateVaultViewModel : ViewModelBase
         _root = root;
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
+        SelectedSecurityProfile = VaultSecurityProfiles.Default;
         UpdateSuggestedPath();
     }
 
     partial void OnDisplayNameChanged(string value) => UpdateSuggestedPath();
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+    partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value) => OnPropertyChanged(nameof(SelectedSecurityDescription));
 
     partial void OnVaultPathChanged(string value)
     {
@@ -58,6 +69,13 @@ public partial class CreateVaultViewModel : ViewModelBase
             return;
         }
 
+        var validation = VaultMasterPasswordPolicy.Validate(MasterPassword);
+        if (!validation.IsValid)
+        {
+            Error = validation.Message;
+            return;
+        }
+
         if (MasterPassword != ConfirmPassword)
         {
             Error = "Passwords do not match.";
@@ -67,7 +85,7 @@ public partial class CreateVaultViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            await _vaultService.CreateAsync(VaultPath, MasterPassword);
+            await _vaultService.CreateAsync(VaultPath, MasterPassword, SelectedSecurityProfile?.Kdf);
             _vaultRegistry.UpsertVault(
                 VaultPath,
                 DisplayName,

@@ -20,7 +20,7 @@ public sealed class WebLoginService : IWebLoginService
 
     public async Task<IReadOnlyList<WebLoginEntry>> ListAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
-        var rows = await _repo.ListAsync(vaultPath, ct);
+        var rows = await _repo.ListAsync(vaultPath, vaultKey, ct);
         var logins = new List<WebLoginEntry>();
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Web))

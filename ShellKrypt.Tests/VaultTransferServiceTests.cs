@@ -28,15 +28,15 @@ public sealed class VaultTransferServiceTests
         var targetVault = workspace.FilePath("target.skvault");
         var exportPath = workspace.FilePath("backup.skbx");
 
-        var sourceKey = await CreateAndUnlockVaultAsync(vaultService, sourceVault, "source-pass");
-        var targetKey = await CreateAndUnlockVaultAsync(vaultService, targetVault, "target-pass");
+        var sourceKey = await CreateAndUnlockVaultAsync(vaultService, sourceVault, "Source Vault Passphrase 2026");
+        var targetKey = await CreateAndUnlockVaultAsync(vaultService, targetVault, "Target Vault Passphrase 2026");
 
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-10).ToString("O");
         var updatedAt = DateTimeOffset.UtcNow.ToString("O");
         var webId = Guid.NewGuid().ToString("N");
         var noteId = Guid.NewGuid().ToString("N");
 
-        var label = await repo.UpsertLabelAsync(sourceVault, "Work", "#0f0f0f");
+        var label = await repo.UpsertLabelAsync(sourceVault, sourceKey, "Work", "#0f0f0f");
         await InsertWebAsync(repo, sourceVault, sourceKey, webId, "GitHub", "https://github.com", "octocat", "secret123", "repo access", createdAt, updatedAt, favorite: true);
         await InsertNoteAsync(repo, sourceVault, sourceKey, noteId, "Travel", "Pack passport and charger", createdAt, updatedAt);
         await repo.SetItemLabelsAsync(sourceVault, webId, new[] { label.Id });
@@ -53,7 +53,7 @@ public sealed class VaultTransferServiceTests
 
         await transfer.ImportEncryptedAsync(exportPath, "backup-pass", targetVault, targetKey);
 
-        var targetRows = await repo.ListAsync(targetVault);
+        var targetRows = await repo.ListAsync(targetVault, targetKey);
         Assert.Equal(2, targetRows.Count);
 
         var importedWeb = targetRows.Single(x => x.Header.Id == webId);
@@ -83,7 +83,7 @@ public sealed class VaultTransferServiceTests
 
         var vaultPath = workspace.FilePath("vault.skvault");
         var exportPath = workspace.FilePath("export.json");
-        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "vault-pass");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         var itemId = Guid.NewGuid().ToString("N");
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-5).ToString("O");
@@ -112,7 +112,7 @@ public sealed class VaultTransferServiceTests
 
         var vaultPath = workspace.FilePath("vault.skvault");
         var csvPath = workspace.FilePath("import.csv");
-        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "vault-pass");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         var existingId = Guid.NewGuid().ToString("N");
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-15).ToString("O");
@@ -147,7 +147,7 @@ Card,Card,,,,,,Jane,12345,12,2030,123
 
         var vaultPath = workspace.FilePath("vault.skvault");
         var csvPath = workspace.FilePath("overwrite.csv");
-        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "vault-pass");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         var itemId = Guid.NewGuid().ToString("N");
         var createdAt = DateTimeOffset.UtcNow.AddMinutes(-15).ToString("O");
@@ -161,7 +161,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
 
         await transfer.ImportCsvAsync(vaultPath, vaultKey, csvPath, VaultCsvDuplicateStrategy.OverwriteDuplicates);
 
-        var rows = await repo.ListAsync(vaultPath);
+        var rows = await repo.ListAsync(vaultPath, vaultKey);
         Assert.Single(rows);
 
         var payload = JsonSerializer.Deserialize<WebPayload>(

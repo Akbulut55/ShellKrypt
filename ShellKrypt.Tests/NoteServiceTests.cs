@@ -15,7 +15,7 @@ public sealed class NoteServiceTests
         var repo = new SqliteItemRepository();
         var service = new NoteService(repo);
         var vaultPath = workspace.FilePath("vault.skvault");
-        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "vault-pass");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         var added = await service.AddAsync(
             vaultPath,

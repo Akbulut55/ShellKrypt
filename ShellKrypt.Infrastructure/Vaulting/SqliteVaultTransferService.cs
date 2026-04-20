@@ -54,13 +54,13 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
             throw new NotSupportedException($"Unsupported snapshot version {snapshot.Version}.");
 
         var labelMap = new Dictionary<string, string>(StringComparer.Ordinal);
-        var existingItemIds = (await _repo.ListAsync(vaultPath, ct))
+        var existingItemIds = (await _repo.ListAsync(vaultPath, vaultKey, ct))
             .Select(x => x.Header.Id)
             .ToHashSet(StringComparer.Ordinal);
 
         foreach (var label in snapshot.Labels)
         {
-            var stored = await _repo.UpsertLabelAsync(vaultPath, label.Name, label.Color, ct);
+            var stored = await _repo.UpsertLabelAsync(vaultPath, vaultKey, label.Name, label.Color, ct);
             labelMap[label.Id] = stored.Id;
         }
 
@@ -163,8 +163,8 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
 
     private async Task<VaultSnapshot> BuildSnapshotAsync(string vaultPath, byte[] vaultKey, CancellationToken ct)
     {
-        var rows = await _repo.ListAsync(vaultPath, ct);
-        var labels = await _repo.ListLabelsAsync(vaultPath, ct);
+        var rows = await _repo.ListAsync(vaultPath, vaultKey, ct);
+        var labels = await _repo.ListLabelsAsync(vaultPath, vaultKey, ct);
 
         var items = new List<VaultSnapshotItem>(rows.Count);
         var itemLabels = new List<VaultSnapshotItemLabel>();

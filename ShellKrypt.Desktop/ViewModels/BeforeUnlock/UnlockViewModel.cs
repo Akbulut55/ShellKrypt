@@ -10,19 +10,19 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class UnlockViewModel : ViewModelBase
 {
-    private const string LegacyDescription = "Legacy default vault";
-    private const string DefaultUnlockDescription = "Unlock this local vault to continue securely.";
+    private const string DefaultUnlockDescription = "You are opening this local encrypted vault. Enter the master password to decrypt it on this device.";
     private readonly MainWindowViewModel _root;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryStore _vaultRegistry;
 
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private bool showPassword;
+    [ObservableProperty] private bool showRecoveryInfo;
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public string PasswordVisibilityLabel => ShowPassword ? "Hide" : "Reveal";
+    public string PasswordVisibilityLabel => ShowPassword ? "Hide" : "Show";
     public string VaultStatusDisplay => "Locked & Encrypted";
     public string EncryptionDisplay => "AES-256 GCM";
     public string LastUpdatedDisplay
@@ -45,19 +45,10 @@ public partial class UnlockViewModel : ViewModelBase
     public string VaultTitle => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.DisplayName ?? "Unlock Vault";
     public string VaultPath => _root.VaultPath ?? "(no vault selected)";
     public string VaultDescription
-    {
-        get
-        {
-            var description = _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.Description?.Trim() ?? "";
-            if (string.IsNullOrWhiteSpace(description) ||
-                string.Equals(description, LegacyDescription, System.StringComparison.OrdinalIgnoreCase))
-            {
-                return DefaultUnlockDescription;
-            }
-
-            return description;
-        }
-    }
+        => DefaultUnlockDescription;
+    public string RecoveryTitle => "Master password recovery is not available";
+    public string RecoveryBody => "If this vault is still unlocked on this device, open Settings and change the master password or export an encrypted backup before locking it again.";
+    public string RecoverySecondaryBody => "If the vault is already locked and no backup exists, the encrypted contents cannot be recovered by design.";
 
     public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryStore vaultRegistry)
     {
@@ -104,4 +95,10 @@ public partial class UnlockViewModel : ViewModelBase
 
     [RelayCommand]
     private void TogglePasswordVisibility() => ShowPassword = !ShowPassword;
+
+    [RelayCommand]
+    private void ShowRecovery() => ShowRecoveryInfo = true;
+
+    [RelayCommand]
+    private void CloseRecovery() => ShowRecoveryInfo = false;
 }

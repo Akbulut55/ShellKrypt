@@ -242,15 +242,17 @@
                              Classes="page-subtitle"
                              MaxWidth="520"
                              TextWrapping="Wrap"/>
-                  <StackPanel Orientation="Horizontal"
-                              Spacing="10">
+                  <Grid ColumnDefinitions="Auto,Auto"
+                        ColumnSpacing="10"
+                        HorizontalAlignment="Left">
                     <Button Content="{Binding AddItemButtonText}"
                             Classes="allitems-add-button"
                             Command="{Binding AddItemCommand}"/>
-                    <Button Content="Reset filters"
+                    <Button Grid.Column="1"
+                            Content="Reset filters"
                             Classes="allitems-filter-button"
                             Command="{Binding ResetFiltersCommand}"/>
-                  </StackPanel>
+                  </Grid>
                 </StackPanel>
               </Border>
             </Grid>
@@ -357,10 +359,13 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="MinWidth" Value="128"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.allitems-stat-card">
@@ -409,10 +414,13 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="MinWidth" Value="118"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.allitems-chip">

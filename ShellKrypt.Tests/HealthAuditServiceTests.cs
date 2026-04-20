@@ -16,7 +16,7 @@ public sealed class HealthAuditServiceTests
         var webLogins = new WebLoginService(repo);
         var audit = new HealthAuditService(repo);
         var vaultPath = workspace.FilePath("vault.skvault");
-        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "vault-pass");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         var first = await webLogins.AddAsync(
             vaultPath,
@@ -46,7 +46,7 @@ public sealed class HealthAuditServiceTests
         await repo.UpdateAsync(
             vaultPath,
             new VaultItemHeader(first.Id, ItemType.Web, false, first.CreatedAtUtc, DateTimeOffset.UtcNow.AddDays(-120).ToString("O")),
-            (await repo.ListAsync(vaultPath)).First(x => x.Header.Id == first.Id).EncryptedPayload);
+            (await repo.ListAsync(vaultPath, vaultKey)).First(x => x.Header.Id == first.Id).EncryptedPayload);
 
         var result = await audit.AnalyzeAsync(vaultPath, vaultKey);
 

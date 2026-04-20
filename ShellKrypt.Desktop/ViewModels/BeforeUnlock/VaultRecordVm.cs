@@ -34,13 +34,19 @@ public sealed partial class VaultRecordVm : ObservableObject
     public string CreatedDisplay => FormatDate(CreatedAtUtc);
     public string LastOpenedDisplay => FormatDate(LastOpenedAtUtc);
     public string StatusDisplay => Exists ? "Available" : "Missing";
+    public string AvailabilityBadge => Exists ? "Available" : "Missing";
     public bool Exists => File.Exists(VaultPath);
     public string DefaultBadge => IsDefault ? "Default" : "Vault";
+    public bool CanBeDefault => Exists && !IsDefault;
 
     partial void OnDisplayNameChanged(string value) => OnPropertyChanged(nameof(DisplayLabel));
     partial void OnDescriptionChanged(string value) => OnPropertyChanged(nameof(DescriptionDisplay));
     partial void OnLastOpenedAtUtcChanged(string? value) => OnPropertyChanged(nameof(LastOpenedDisplay));
-    partial void OnIsDefaultChanged(bool value) => OnPropertyChanged(nameof(DefaultBadge));
+    partial void OnIsDefaultChanged(bool value)
+    {
+        OnPropertyChanged(nameof(DefaultBadge));
+        OnPropertyChanged(nameof(CanBeDefault));
+    }
 
     public VaultRegistryEntry ToEntry()
         => new()

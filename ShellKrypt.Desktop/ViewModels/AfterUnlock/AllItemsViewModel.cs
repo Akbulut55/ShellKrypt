@@ -627,7 +627,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             Rows.Clear();
             PageChips.Clear();
 
-            var rows = await _repo.ListAsync(_root.VaultPath);
+            var rows = await _repo.ListAsync(_root.VaultPath, _root.VaultKey);
 
             foreach (var row in rows)
                 _allItems.Add(BuildEntry(row));

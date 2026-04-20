@@ -5,66 +5,68 @@
         SizeToContent="Height"
         CanResize="False"
         WindowStartupLocation="CenterOwner"
+        ShowInTaskbar="False"
+        WindowDecorations="None"
         Title="Confirm Action"
-        Background="#900e0e0e">
+        Background="{StaticResource SurfaceRaisedBrush}">
   <Border Background="{StaticResource SurfaceRaisedBrush}"
           CornerRadius="18"
           Padding="0">
-    <Grid RowDefinitions="Auto,Auto,Auto">
-      <StackPanel Spacing="18"
-                  Margin="32,30,32,24">
-        <Border Width="68"
-                Height="68"
-                CornerRadius="34"
-                Background="#261e1112"
-                HorizontalAlignment="Center">
-          <TextBlock Text="!"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"
-                     Foreground="{StaticResource DangerBrush}"
+      <Grid RowDefinitions="Auto,Auto,Auto">
+        <StackPanel Spacing="18"
+                    Margin="32,30,32,24">
+          <Border Width="68"
+                  Height="68"
+                  CornerRadius="34"
+                  Background="#261e1112"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="!"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       Foreground="{StaticResource DangerBrush}"
+                       FontSize="28"
+                       FontWeight="Black"/>
+          </Border>
+
+          <TextBlock x:Name="MessageText"
                      FontSize="28"
-                     FontWeight="Black"/>
-        </Border>
-
-        <TextBlock x:Name="MessageText"
-                   FontSize="28"
-                   FontWeight="Black"
-                   TextAlignment="Center"
-                   TextWrapping="Wrap"/>
-      </StackPanel>
-
-      <StackPanel Grid.Row="1"
-                  Spacing="16"
-                  Margin="32,0,32,28">
-        <Border Background="#261e1112"
-                BorderBrush="#55ffb4ab"
-                BorderThickness="1"
-                CornerRadius="12"
-                Padding="16,14">
-          <TextBlock x:Name="DetailText"
-                     Foreground="{StaticResource DangerBrush}"
-                     FontSize="13"
-                     FontWeight="SemiBold"
+                     FontWeight="Black"
+                     TextAlignment="Center"
                      TextWrapping="Wrap"/>
-        </Border>
-      </StackPanel>
+        </StackPanel>
 
-      <Grid Grid.Row="2"
-            Background="{StaticResource SurfaceElevatedBrush}"
-            ColumnDefinitions="*,*"
-            ColumnSpacing="12"
-            Margin="32,22">
-        <Button Content="Cancel"
-                Classes="dialog-cancel-button"
-                Click="OnCancelClicked"/>
-        <Button x:Name="ConfirmButton"
-                Grid.Column="1"
-                Content="Confirm"
-                Classes="dialog-danger-button"
-                IsDefault="True"
-                Click="OnConfirmClicked"/>
+        <StackPanel Grid.Row="1"
+                    Spacing="16"
+                    Margin="32,0,32,28">
+          <Border Background="#261e1112"
+                  BorderBrush="#55ffb4ab"
+                  BorderThickness="1"
+                  CornerRadius="12"
+                  Padding="16,14">
+            <TextBlock x:Name="DetailText"
+                       Foreground="{StaticResource DangerBrush}"
+                       FontSize="13"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"/>
+          </Border>
+        </StackPanel>
+
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto,Auto"
+              ColumnSpacing="12"
+              Margin="32,0,32,28">
+          <Button Grid.Column="1"
+                  Content="Cancel"
+                  Classes="dialog-cancel-button"
+                  Click="OnCancelClicked"/>
+          <Button x:Name="ConfirmButton"
+                  Grid.Column="2"
+                  Content="Confirm"
+                  Classes="dialog-danger-button"
+                  IsDefault="True"
+                  Click="OnConfirmClicked"/>
+        </Grid>
       </Grid>
-    </Grid>
   </Border>
 
   <Window.Styles>
@@ -76,7 +78,10 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Height" Value="42"/>
       <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="MinWidth" Value="120"/>
       <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.dialog-danger-button">
@@ -87,7 +92,10 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Height" Value="42"/>
       <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="MinWidth" Value="200"/>
       <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </Window.Styles>
 </Window>
