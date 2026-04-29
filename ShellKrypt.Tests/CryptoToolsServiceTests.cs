@@ -50,4 +50,17 @@ public sealed class CryptoToolsServiceTests
         Assert.Equal("abc", service.DecodeBase64("YWJj"));
         Assert.Equal("", service.DecodeBase64("not valid base64"));
     }
+
+    [Fact]
+    public void AssessPasswordStrength_ScoresComplexPasswordHigherThanWeakPassword()
+    {
+        var service = new CryptoToolsService();
+
+        var weak = service.AssessPasswordStrength("aaaaaaa");
+        var strong = service.AssessPasswordStrength("b0V.wGgU[LeCm1H&F&o}GXInN-T4HFM/");
+
+        Assert.Equal(PasswordStrengthRating.Weak, weak.Rating);
+        Assert.True(strong.Score > weak.Score);
+        Assert.True(strong.Rating is PasswordStrengthRating.Strong or PasswordStrengthRating.Secure);
+    }
 }

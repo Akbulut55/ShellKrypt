@@ -14,7 +14,11 @@ public partial class MainWindow : Window
         Activated += OnActivated;
         Deactivated += OnDeactivated;
         PointerPressed += OnPointerPressed;
+        PointerReleased += OnPointerReleased;
+        PointerMoved += OnPointerMoved;
+        PointerWheelChanged += OnPointerWheelChanged;
         KeyDown += OnKeyDown;
+        TextInput += OnTextInput;
         Closing += OnClosing;
     }
 
@@ -38,19 +42,43 @@ public partial class MainWindow : Window
 
     private void OnPointerPressed(object? sender, PointerPressedEventArgs e)
     {
-        if (DataContext is MainWindowViewModel vm)
-            vm.RecordActivity();
+        RecordActivity();
+    }
+
+    private void OnPointerReleased(object? sender, PointerReleasedEventArgs e)
+    {
+        RecordActivity();
+    }
+
+    private void OnPointerMoved(object? sender, PointerEventArgs e)
+    {
+        RecordActivity();
+    }
+
+    private void OnPointerWheelChanged(object? sender, PointerWheelEventArgs e)
+    {
+        RecordActivity();
     }
 
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
-        if (DataContext is MainWindowViewModel vm)
-            vm.RecordActivity();
+        RecordActivity();
+    }
+
+    private void OnTextInput(object? sender, TextInputEventArgs e)
+    {
+        RecordActivity();
     }
 
     private void OnClosing(object? sender, WindowClosingEventArgs e)
     {
         if (DataContext is MainWindowViewModel vm)
             vm.Lock();
+    }
+
+    private void RecordActivity()
+    {
+        if (DataContext is MainWindowViewModel vm)
+            vm.RecordActivity();
     }
 }

@@ -27,6 +27,18 @@ public sealed partial class SettingsViewModel : ViewModelBase
         public string Label { get; }
     }
 
+    public sealed class SecondsDurationOption
+    {
+        public SecondsDurationOption(int seconds, string label)
+        {
+            Seconds = seconds;
+            Label = label;
+        }
+
+        public int Seconds { get; }
+        public string Label { get; }
+    }
+
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
@@ -36,9 +48,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool autoLockEnabled;
     [ObservableProperty] private AutoLockDurationOption? selectedAutoLockDuration;
     [ObservableProperty] private bool lockOnDeactivate;
-    [ObservableProperty] private string lockOnDeactivateSecondsText = "";
-    [ObservableProperty] private string clipboardClearSecondsText = "";
-    [ObservableProperty] private double clipboardClearSecondsValue;
+    [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
+    [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string transferStatus = "Preview an operation before applying it.";
@@ -89,6 +100,27 @@ public sealed partial class SettingsViewModel : ViewModelBase
         new(120, "2 Hours"),
     ];
 
+    public ObservableCollection<SecondsDurationOption> FocusLossLockDelayOptions { get; } =
+    [
+        new(0, "Off"),
+        new(5, "5 Seconds"),
+        new(10, "10 Seconds"),
+        new(20, "20 Seconds"),
+        new(30, "30 Seconds"),
+        new(60, "1 Minute"),
+        new(120, "2 Minutes"),
+    ];
+
+    public ObservableCollection<SecondsDurationOption> ClipboardClearTimeoutOptions { get; } =
+    [
+        new(5, "5 Seconds"),
+        new(15, "15 Seconds"),
+        new(30, "30 Seconds"),
+        new(60, "1 Minute"),
+        new(120, "2 Minutes"),
+        new(300, "5 Minutes"),
+    ];
+
     public ObservableCollection<VaultSecurityProfile> SecurityProfiles { get; } =
     [
         .. VaultSecurityProfiles.All
@@ -117,12 +149,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? "No active vault path." : _root.VaultPath;
     public string VaultStorageDisplay => GetVaultStorageDisplay();
     public double VaultStoragePercent => GetVaultStoragePercent();
-    public string ClipboardClearSecondsDisplay => $"{ClipboardClearSecondsText}s";
     public string EncryptionDisplay => "AES-256";
     public string ThemeModeLabel => SelectedThemeMode == AppThemeMode.Dark ? "Dark" : "Light";
     public string FocusLockSummary => LockOnDeactivate
-        ? $"The vault locks after the app stays out of focus for about {LockOnDeactivateSecondsText} seconds."
-        : "Switching away from the app will not immediately lock the vault.";
+        ? $"ShellKrypt locks after {SelectedFocusLossLockDelay?.Label?.ToLowerInvariant() ?? "the selected delay"} when the app loses focus."
+        : "ShellKrypt stays unlocked when the app is not focused.";
+    public string ClipboardClearSummary =>
+        $"Copied secrets are cleared after {SelectedClipboardClearDuration?.Label?.ToLowerInvariant() ?? "the selected timeout"}.";
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => "If the vault is locked and the master password is forgotten, the data cannot be recovered without a prior backup.";
     public string BackupRecommendationText => "Create an encrypted .skbx backup with a separate export passphrase before changing the master password or moving the vault.";
@@ -144,23 +177,15 @@ public sealed partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(FocusLockSummary));
     }
 
-    partial void OnLockOnDeactivateSecondsTextChanged(string value)
+    partial void OnSelectedFocusLossLockDelayChanged(SecondsDurationOption? value)
     {
-        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds))
-        {
-            Status = "Out-of-focus lock delay must be a whole number.";
-            OnPropertyChanged(nameof(FocusLockSummary));
+        if (value is null)
             return;
-        }
 
-        if (seconds < 1)
-        {
-            Status = "Out-of-focus lock delay must be at least 1 second.";
-            OnPropertyChanged(nameof(FocusLockSummary));
-            return;
-        }
-
-        _root.LockOnDeactivateSeconds = seconds;
+        LockOnDeactivate = value.Seconds > 0;
+        _root.LockOnDeactivate = LockOnDeactivate;
+        if (value.Seconds > 0)
+            _root.LockOnDeactivateSeconds = value.Seconds;
         Status = "Settings saved.";
         OnPropertyChanged(nameof(FocusLockSummary));
     }
@@ -186,39 +211,14 @@ public sealed partial class SettingsViewModel : ViewModelBase
     partial void OnMasterPasswordStatusChanged(string value) => OnPropertyChanged(nameof(HasMasterPasswordStatus));
     partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value) => OnPropertyChanged(nameof(SelectedSecurityProfileDescription));
 
-    partial void OnClipboardClearSecondsTextChanged(string value)
+    partial void OnSelectedClipboardClearDurationChanged(SecondsDurationOption? value)
     {
-        if (!int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out var seconds))
-        {
-            Status = "Clipboard timeout must be a whole number.";
+        if (value is null)
             return;
-        }
 
-        if (seconds < 1)
-        {
-            Status = "Clipboard timeout must be at least 1 second.";
-            return;
-        }
-
-        _root.ClipboardClearSeconds = seconds;
-        if (Math.Abs(ClipboardClearSecondsValue - seconds) > double.Epsilon)
-            ClipboardClearSecondsValue = seconds;
+        _root.ClipboardClearSeconds = value.Seconds;
         Status = "Settings saved.";
-    }
-
-    partial void OnClipboardClearSecondsValueChanged(double value)
-    {
-        var seconds = Math.Clamp((int)Math.Round(value), 1, 120);
-        var text = seconds.ToString(CultureInfo.InvariantCulture);
-
-        if (!string.Equals(ClipboardClearSecondsText, text, StringComparison.Ordinal))
-            ClipboardClearSecondsText = text;
-
-        if (_root.ClipboardClearSeconds != seconds)
-            _root.ClipboardClearSeconds = seconds;
-
-        Status = "Settings saved.";
-        OnPropertyChanged(nameof(ClipboardClearSecondsDisplay));
+        OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
     [RelayCommand]
@@ -705,13 +705,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
         AutoLockEnabled = _root.AutoLockEnabled;
         SelectedAutoLockDuration = ResolveAutoLockDuration(_root.AutoLockMinutes);
         LockOnDeactivate = _root.LockOnDeactivate;
-        LockOnDeactivateSecondsText = _root.LockOnDeactivateSeconds.ToString(CultureInfo.InvariantCulture);
-        ClipboardClearSecondsText = _root.ClipboardClearSeconds.ToString(CultureInfo.InvariantCulture);
-        ClipboardClearSecondsValue = Math.Clamp(_root.ClipboardClearSeconds, 5, 120);
+        SelectedFocusLossLockDelay = ResolveFocusLossLockDelay(_root.LockOnDeactivate, _root.LockOnDeactivateSeconds);
+        SelectedClipboardClearDuration = ResolveSecondsDuration(ClipboardClearTimeoutOptions, _root.ClipboardClearSeconds);
         SelectedThemeMode = _root.ThemeMode;
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(ThemeModeLabel));
         OnPropertyChanged(nameof(FocusLockSummary));
+        OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
     private AutoLockDurationOption ResolveAutoLockDuration(int minutes)
@@ -722,6 +722,25 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         var custom = new AutoLockDurationOption(minutes, $"{minutes} minutes");
         AutoLockDurations.Add(custom);
+        return custom;
+    }
+
+    private SecondsDurationOption ResolveFocusLossLockDelay(bool enabled, int seconds)
+    {
+        if (!enabled)
+            return FocusLossLockDelayOptions.First(option => option.Seconds == 0);
+
+        return ResolveSecondsDuration(FocusLossLockDelayOptions, seconds);
+    }
+
+    private static SecondsDurationOption ResolveSecondsDuration(ObservableCollection<SecondsDurationOption> options, int seconds)
+    {
+        var existing = options.FirstOrDefault(x => x.Seconds == seconds);
+        if (existing is not null)
+            return existing;
+
+        var custom = new SecondsDurationOption(seconds, $"{seconds} Seconds");
+        options.Add(custom);
         return custom;
     }
 

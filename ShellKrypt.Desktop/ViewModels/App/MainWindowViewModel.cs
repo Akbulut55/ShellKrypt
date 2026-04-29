@@ -6,7 +6,6 @@ using Avalonia;
 using Avalonia.Input.Platform;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
-using Avalonia.Threading;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
@@ -26,6 +25,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly VaultRegistryStore _vaultRegistryStore = new();
     private readonly ActivityLogStore _activityLogStore = new();
     private readonly ClipboardService _clipboardService = new();
+    private readonly SessionSecurityService _sessionSecurity;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly IWebLoginService _webLoginService;
@@ -33,8 +33,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly INoteService _noteService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
-    private readonly DispatcherTimer _autoLockTimer = new();
-    private readonly DispatcherTimer _focusLossLockTimer = new() { Interval = TimeSpan.FromSeconds(20) };
 
     public event EventHandler? ActivityChanged;
 
@@ -50,31 +48,22 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public MainWindowViewModel()
     {
+        _sessionSecurity = new SessionSecurityService(Lock);
         _webLoginService = new WebLoginService(_itemRepo);
         _cardService = new CardService(_itemRepo);
         _noteService = new NoteService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 
         var settings = _settingsStore.Load();
-        AutoLockEnabled = settings.AutoLockEnabled;
-        AutoLockMinutes = Math.Max(1, settings.AutoLockMinutes);
-        LockOnDeactivate = settings.LockOnDeactivate;
-        LockOnDeactivateSeconds = Math.Max(1, settings.LockOnDeactivateSeconds);
-        ClipboardClearSeconds = Math.Max(1, settings.ClipboardClearSeconds);
+        var sessionSecurity = settings.ToSessionSecuritySettings();
+        autoLockEnabled = sessionSecurity.AutoLockEnabled;
+        autoLockMinutes = sessionSecurity.AutoLockMinutes;
+        lockOnDeactivate = sessionSecurity.LockOnDeactivate;
+        lockOnDeactivateSeconds = sessionSecurity.LockOnDeactivateSeconds;
+        clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         themeMode = settings.ThemeMode;
 
-        _autoLockTimer.Tick += (_, _) =>
-        {
-            if (IsUnlocked && AutoLockEnabled)
-                Lock();
-        };
-
-        _focusLossLockTimer.Tick += (_, _) =>
-        {
-            StopFocusLossTimer();
-            if (IsUnlocked && LockOnDeactivate)
-                Lock();
-        };
+        _sessionSecurity.ApplySettings(sessionSecurity);
 
         Current = new WelcomeViewModel(this, _vaultRegistryStore);
         ApplyTheme(themeMode);
@@ -89,27 +78,11 @@ public partial class MainWindowViewModel : ViewModelBase
     public void SetVaultPath(string path) => _state.VaultPath = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetFullPath(path);
     public void AttachClipboard(IClipboard? clipboard) => _clipboardService.Attach(clipboard);
 
-    public void RecordActivity()
-    {
-        StopFocusLossTimer();
+    public void RecordActivity() => _sessionSecurity.RecordActivity();
 
-        if (!IsUnlocked || !AutoLockEnabled)
-            return;
+    public void HandleWindowActivated() => _sessionSecurity.HandleWindowActivated();
 
-        RestartAutoLockTimer();
-    }
-
-    public void HandleWindowActivated()
-    {
-        StopFocusLossTimer();
-        RecordActivity();
-    }
-
-    public void HandleWindowDeactivated()
-    {
-        if (IsUnlocked && LockOnDeactivate)
-            RestartFocusLossTimer();
-    }
+    public void HandleWindowDeactivated() => _sessionSecurity.HandleWindowDeactivated();
 
     public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryStore);
     public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService, _vaultRegistryStore);
@@ -129,15 +102,14 @@ public partial class MainWindowViewModel : ViewModelBase
             severity: "success",
             vaultPath: _state.VaultPath);
 
+        _sessionSecurity.SetUnlocked(true);
         Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
-        RestartAutoLockTimer();
     }
 
     public void Lock()
     {
         var vaultPath = _state.VaultPath;
-        StopAutoLockTimer();
-        StopFocusLossTimer();
+        _sessionSecurity.SetUnlocked(false);
         _ = _clipboardService.ClearAsync();
         _state.ClearSensitive();
         if (!string.IsNullOrWhiteSpace(vaultPath))
@@ -158,13 +130,12 @@ public partial class MainWindowViewModel : ViewModelBase
             return;
 
         Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
-        RestartAutoLockTimer();
+        _sessionSecurity.RecordActivity();
     }
 
     public async Task CopyToClipboardAsync(string text)
     {
-        var delay = TimeSpan.FromSeconds(Math.Max(1, ClipboardClearSeconds));
-        await _clipboardService.CopyAsync(text, delay);
+        await _clipboardService.CopyAsync(text, _sessionSecurity.ClipboardClearDelay);
     }
 
     public async Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName)
@@ -172,6 +143,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
             return null;
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var files = await storageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
             Title = title,
@@ -193,6 +165,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
             return null;
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var file = await storageProvider.SaveFilePickerAsync(new FilePickerSaveOptions
         {
             Title = title,
@@ -216,6 +189,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return false;
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var dialog = new ConfirmActionWindow(title, message, detail, confirmText);
         return await dialog.ShowDialog<bool>(mainWindow);
     }
@@ -225,6 +199,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return null;
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var dialog = new PasswordPromptWindow(title, message, detail, confirmText);
         return await dialog.ShowDialog<string?>(mainWindow);
     }
@@ -234,6 +209,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return (false, "", "");
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var dialog = new ImportVaultWindow(initialPath, initialDisplayName);
         var confirmed = await dialog.ShowDialog<bool>(mainWindow);
         return (confirmed, dialog.VaultPath, dialog.DisplayName);
@@ -244,6 +220,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return (false, displayName, description);
 
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var dialog = new EditVaultWindow(displayName, description, vaultPath);
         var confirmed = await dialog.ShowDialog<bool>(mainWindow);
         return (confirmed, dialog.DisplayName, dialog.Description);
@@ -262,60 +239,34 @@ public partial class MainWindowViewModel : ViewModelBase
         ActivityChanged?.Invoke(this, EventArgs.Empty);
     }
 
-    partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndUpdateTimer();
-    partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndUpdateTimer();
-    partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndUpdateTimer();
-    partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndUpdateTimer();
-    partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndUpdateTimer();
+    partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnThemeModeChanged(AppThemeMode value)
     {
         ApplyTheme(value);
-        SaveSettingsAndUpdateTimer();
+        SaveSettingsAndSyncSessionSecurity();
     }
 
-    private void SaveSettingsAndUpdateTimer()
+    private void SaveSettingsAndSyncSessionSecurity()
     {
         try
         {
-            _settingsStore.Save(new AppSettings
+            var appSettings = new AppSettings
             {
-                AutoLockEnabled = AutoLockEnabled,
-                AutoLockMinutes = Math.Max(1, AutoLockMinutes),
-                LockOnDeactivate = LockOnDeactivate,
-                LockOnDeactivateSeconds = Math.Max(1, LockOnDeactivateSeconds),
-                ClipboardClearSeconds = Math.Max(1, ClipboardClearSeconds),
-                ThemeMode = ThemeMode,
-            });
+                ThemeMode = ThemeMode
+            };
+            appSettings.ApplySessionSecuritySettings(BuildSessionSecuritySettings());
+            _settingsStore.Save(appSettings);
         }
         catch
         {
         }
 
-        if (IsUnlocked)
-            RestartAutoLockTimer();
+        _sessionSecurity.ApplySettings(BuildSessionSecuritySettings());
     }
-
-    private void RestartAutoLockTimer()
-    {
-        StopAutoLockTimer();
-
-        if (!IsUnlocked || !AutoLockEnabled || AutoLockMinutes < 1)
-            return;
-
-        _autoLockTimer.Interval = TimeSpan.FromMinutes(AutoLockMinutes);
-        _autoLockTimer.Start();
-    }
-
-    private void StopAutoLockTimer() => _autoLockTimer.Stop();
-
-    private void RestartFocusLossTimer()
-    {
-        StopFocusLossTimer();
-        _focusLossLockTimer.Interval = TimeSpan.FromSeconds(Math.Max(1, LockOnDeactivateSeconds));
-        _focusLossLockTimer.Start();
-    }
-
-    private void StopFocusLossTimer() => _focusLossLockTimer.Stop();
 
     private static void ApplyTheme(AppThemeMode mode)
     {
@@ -338,5 +289,17 @@ public partial class MainWindowViewModel : ViewModelBase
             return "Vault";
 
         return Path.GetFileNameWithoutExtension(vaultPath);
+    }
+
+    private SessionSecuritySettings BuildSessionSecuritySettings()
+    {
+        return new SessionSecuritySettings
+        {
+            AutoLockEnabled = AutoLockEnabled,
+            AutoLockMinutes = AutoLockMinutes,
+            LockOnDeactivate = LockOnDeactivate,
+            LockOnDeactivateSeconds = LockOnDeactivateSeconds,
+            ClipboardClearSeconds = ClipboardClearSeconds
+        }.Normalize();
     }
 }

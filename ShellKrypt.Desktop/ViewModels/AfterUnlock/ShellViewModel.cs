@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
 using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
@@ -44,7 +46,7 @@ public partial class ShellViewModel : ViewModelBase
         MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
-        Health = new HealthViewModel(_root, healthAuditService);
+        Health = new HealthViewModel(_root, this, healthAuditService);
         Settings = new SettingsViewModel(_root, this);
         Activity = new ActivityViewModel(_root, activityLogStore);
 
@@ -62,7 +64,22 @@ public partial class ShellViewModel : ViewModelBase
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
         ? "Vault"
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
-    public string VaultSubtitle => "Local encrypted workspace";
+    public string VaultSubtitle => "Current encrypted workspace";
+    public string VaultMonogram
+    {
+        get
+        {
+            var letters = VaultName
+                .Where(char.IsLetterOrDigit)
+                .Take(2)
+                .ToArray();
+
+            return letters.Length == 0
+                ? "VA"
+                : new string(letters).ToUpperInvariant();
+        }
+    }
+    public string VaultFooterLabel => "ACTIVE VAULT";
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
@@ -135,6 +152,12 @@ public partial class ShellViewModel : ViewModelBase
     }
 
     public void ShowWebLogins() => SelectNav("web");
+    public async Task<bool> ShowWebLoginForRemediationAsync(string itemId, bool generateReplacementPassword = false)
+    {
+        SelectNav("web");
+        return await WebLogins.OpenForRemediationAsync(itemId, generateReplacementPassword);
+    }
+
     public void ShowCards() => SelectNav("cards");
     public void ShowMarkdownNotes() => SelectNav("notes");
     public void ShowSecurityAudit() => SelectNav("audit");

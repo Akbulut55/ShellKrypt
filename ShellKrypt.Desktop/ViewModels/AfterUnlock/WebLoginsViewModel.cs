@@ -344,12 +344,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     [RelayCommand]
     private void GenerateAddPassword()
     {
-        var chars = new char[GeneratedLoginPasswordLength];
-
-        for (var i = 0; i < chars.Length; i++)
-            chars[i] = LoginPasswordChars[RandomNumberGenerator.GetInt32(LoginPasswordChars.Length)];
-
-        AddPassword = new string(chars);
+        AddPassword = GenerateStrongPassword();
         IsAddPasswordVisible = true;
         Error = "";
     }
@@ -648,6 +643,63 @@ public partial class WebLoginsViewModel : ViewModelBase
 
         CurrentPage++;
         RenderPage();
+    }
+
+    public async Task<bool> OpenForRemediationAsync(string itemId, bool generateReplacementPassword)
+    {
+        Error = "";
+
+        if (string.IsNullOrWhiteSpace(itemId) || _root.VaultPath is null)
+            return false;
+
+        if (_all.Count == 0)
+            await LoadAsync();
+
+        var row = _all.FirstOrDefault(entry => string.Equals(entry.Id, itemId, StringComparison.Ordinal));
+        if (row is null)
+        {
+            await LoadAsync();
+            row = _all.FirstOrDefault(entry => string.Equals(entry.Id, itemId, StringComparison.Ordinal));
+            if (row is null)
+                return false;
+        }
+
+        SearchText = "";
+        SelectedEmailFilter = "";
+        IsEmailFilterPopupOpen = false;
+
+        var index = _all.FindIndex(entry => string.Equals(entry.Id, itemId, StringComparison.Ordinal));
+        CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
+        RenderPage();
+
+        _selectedDetailsRow = row;
+        IsAddWebLoginMode = false;
+        IsLoginDeleteConfirming = false;
+        IsLoginDetailsEditing = true;
+        PopulateModalFromRow(row);
+
+        if (generateReplacementPassword)
+        {
+            AddPassword = GenerateStrongPassword();
+            IsAddPasswordVisible = true;
+        }
+        else
+        {
+            IsAddPasswordVisible = false;
+        }
+
+        IsAddWebLoginModalOpen = true;
+        return true;
+    }
+
+    private static string GenerateStrongPassword(int length = GeneratedLoginPasswordLength)
+    {
+        var chars = new char[length];
+
+        for (var i = 0; i < chars.Length; i++)
+            chars[i] = LoginPasswordChars[RandomNumberGenerator.GetInt32(LoginPasswordChars.Length)];
+
+        return new string(chars);
     }
 
 }

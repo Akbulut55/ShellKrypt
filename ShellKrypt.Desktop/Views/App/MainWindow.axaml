@@ -10,8 +10,10 @@
         x:DataType="vm:MainWindowViewModel"
         Icon="/Assets/main-logo.ico"
         Title="ShellKrypt"
+        Background="{StaticResource AppBackgroundBrush}"
         MinWidth="1200"
         MinHeight="780"
+        TransparencyLevelHint="None"
         WindowStartupLocation="CenterScreen">
 
     <Design.DataContext>

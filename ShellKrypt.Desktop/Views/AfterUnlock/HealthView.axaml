@@ -78,8 +78,7 @@
           </Border>
 
           <Grid Grid.Column="1"
-                RowDefinitions="Auto,Auto"
-                RowSpacing="18">
+                VerticalAlignment="Top">
             <Grid ColumnDefinitions="*,*,*"
                   ColumnSpacing="18">
               <Border Classes="audit-metric-card"
@@ -201,43 +200,6 @@
                 </StackPanel>
               </Border>
             </Grid>
-
-            <Border Grid.Row="1"
-                    Classes="audit-context-card">
-              <Grid ColumnDefinitions="Auto,*,Auto"
-                    ColumnSpacing="14">
-                <Border Width="42"
-                        Height="42"
-                        CornerRadius="12"
-                        Background="#223B36"
-                        VerticalAlignment="Center">
-                  <TextBlock Text="✓"
-                             HorizontalAlignment="Center"
-                             VerticalAlignment="Center"
-                             Foreground="{StaticResource SuccessBrush}"
-                             FontWeight="Black"
-                             FontSize="16"/>
-                </Border>
-                <StackPanel Grid.Column="1"
-                            Spacing="4">
-                  <TextBlock Text="Master Password Strength"
-                             FontSize="14"
-                             FontWeight="SemiBold"/>
-                  <TextBlock Text="{Binding MasterPasswordSummary}"
-                             Classes="page-subtitle"
-                             FontSize="12"/>
-                </StackPanel>
-                <StackPanel Grid.Column="2"
-                            Orientation="Horizontal"
-                            Spacing="4"
-                            VerticalAlignment="Center">
-                  <Border Width="8" Height="8" CornerRadius="999" Background="{StaticResource AccentBrush}"/>
-                  <Border Width="8" Height="8" CornerRadius="999" Background="{StaticResource AccentBrush}"/>
-                  <Border Width="8" Height="8" CornerRadius="999" Background="{StaticResource AccentBrush}"/>
-                  <Border Width="8" Height="8" CornerRadius="999" Background="{StaticResource AccentBrush}"/>
-                </StackPanel>
-              </Grid>
-            </Border>
           </Grid>
         </Grid>
 
@@ -252,20 +214,20 @@
                     <TextBlock Text="Detailed Findings"
                                FontSize="20"
                                FontWeight="Bold"/>
-                  <TextBlock Text="Address the highest-risk credentials first."
-                             Classes="page-subtitle"
-                             FontSize="12"/>
-                </StackPanel>
+                    <TextBlock Text="Address the highest-risk credentials first."
+                               Classes="page-subtitle"
+                               FontSize="12"/>
+                  </StackPanel>
 
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            Spacing="8"
-                            VerticalAlignment="Center">
-                  <Button Content="All Issues"
-                          Classes="audit-filter-chip"/>
-                  <Button Content="Breaches"
-                          Classes="audit-filter-chip"/>
-                </StackPanel>
+                  <StackPanel Grid.Column="1"
+                              Orientation="Horizontal"
+                              Spacing="8"
+                              VerticalAlignment="Center">
+                    <Button Content="All Issues"
+                            Classes="audit-filter-chip"/>
+                    <Button Content="Breaches"
+                            Classes="audit-filter-chip"/>
+                  </StackPanel>
                 </Grid>
               </Border>
 
@@ -321,6 +283,8 @@
                           <Button Grid.Column="2"
                                   Content="Remediate"
                                   Classes="audit-remediate-button"
+                                  Command="{Binding DataContext.RemediateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"
                                   VerticalAlignment="Center"/>
                         </Grid>
                       </Border>
@@ -334,10 +298,10 @@
                       Padding="24,12,24,24"
                       IsVisible="{Binding !HasIssues}">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="No findings right now"
+                  <TextBlock Text="{Binding EmptyIssuesTitle}"
                              FontSize="18"
                              FontWeight="Bold"/>
-                  <TextBlock Text="This vault does not currently have any weak, reused, or stale web login findings."
+                  <TextBlock Text="{Binding EmptyIssuesText}"
                              Classes="page-subtitle"
                              TextWrapping="Wrap"/>
                 </StackPanel>
@@ -349,10 +313,20 @@
                       Spacing="18">
             <Border Classes="audit-side-card">
               <StackPanel Spacing="14">
-                <TextBlock Text="Smart Suggestion"
-                           FontSize="15"
-                           FontWeight="Bold"
-                           Foreground="{StaticResource AccentBrush}"/>
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12">
+                  <TextBlock Text="Smart Suggestion"
+                             FontSize="15"
+                             FontWeight="Bold"
+                             Foreground="{StaticResource AccentBrush}"
+                             VerticalAlignment="Center"/>
+                  <Button Grid.Column="1"
+                          Content="Dismiss"
+                          Classes="audit-ghost-button"
+                          Command="{Binding DismissSuggestionCommand}"
+                          IsEnabled="{Binding CanDismissSuggestion}"
+                          VerticalAlignment="Top"/>
+                </Grid>
                 <TextBlock Text="{Binding SmartSuggestionTitle}"
                            FontSize="14"
                            FontWeight="SemiBold"
@@ -360,10 +334,10 @@
                 <TextBlock Text="{Binding SmartSuggestionText}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
-                <Button Content="Generate Unique Batch"
-                        Classes="audit-side-button"/>
-                <Button Content="Dismiss"
-                        Classes="audit-ghost-button"/>
+                <Button Content="Generate Replacement Password"
+                        Classes="audit-side-button"
+                        Command="{Binding GenerateUniqueBatchCommand}"
+                        IsEnabled="{Binding CanGenerateSuggestionPassword}"/>
               </StackPanel>
             </Border>
 
@@ -375,7 +349,7 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="●"
+                  <TextBlock Text="•"
                              Foreground="{StaticResource AccentBrush}"
                              FontSize="12"
                              VerticalAlignment="Center"/>
@@ -386,7 +360,7 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="●"
+                  <TextBlock Text="•"
                              Foreground="{StaticResource AccentBrush}"
                              FontSize="12"
                              VerticalAlignment="Center"
@@ -403,7 +377,7 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="●"
+                  <TextBlock Text="•"
                              Foreground="{StaticResource AccentBrush}"
                              FontSize="12"
                              VerticalAlignment="Center"
@@ -420,7 +394,7 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="●"
+                  <TextBlock Text="•"
                              Foreground="{StaticResource AccentBrush}"
                              FontSize="12"
                              VerticalAlignment="Center"
@@ -474,13 +448,15 @@
       <Setter Property="MinHeight" Value="40"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.audit-score-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
       <Setter Property="Padding" Value="26"/>
-      <Setter Property="MinHeight" Value="360"/>
+      <Setter Property="MinHeight" Value="320"/>
     </Style>
 
     <Style Selector="TextBlock.audit-kicker">
@@ -494,12 +470,9 @@
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
       <Setter Property="Padding" Value="20,18"/>
-    </Style>
-
-    <Style Selector="Border.audit-context-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="20,18"/>
+      <Setter Property="MinHeight" Value="168"/>
+      <Setter Property="MaxHeight" Value="168"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
     </Style>
 
     <Style Selector="Border.audit-list-shell">
@@ -518,6 +491,8 @@
       <Setter Property="MinHeight" Value="30"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.audit-issue-row">
@@ -538,6 +513,8 @@
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.audit-side-card">
@@ -557,6 +534,8 @@
       <Setter Property="MinHeight" Value="36"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.audit-ghost-button">
@@ -569,6 +548,8 @@
       <Setter Property="HorizontalAlignment" Value="Left"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.audit-lockdown-card">
@@ -588,6 +569,8 @@
       <Setter Property="MinHeight" Value="36"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="FontSize" Value="11"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

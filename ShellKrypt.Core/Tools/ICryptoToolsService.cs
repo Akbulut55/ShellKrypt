@@ -7,9 +7,24 @@ public sealed record PasswordGenerationOptions(
     bool IncludeNumbers,
     bool IncludeSymbols);
 
+public enum PasswordStrengthRating
+{
+    None,
+    Weak,
+    Fair,
+    Strong,
+    Secure
+}
+
+public sealed record PasswordStrengthAssessment(
+    double EntropyBits,
+    int Score,
+    PasswordStrengthRating Rating);
+
 public interface ICryptoToolsService
 {
     string? GeneratePassword(PasswordGenerationOptions options);
+    PasswordStrengthAssessment AssessPasswordStrength(string? password);
     string ComputeSha256(string input);
     string ComputeSha512(string input);
     string EncodeBase64(string input);

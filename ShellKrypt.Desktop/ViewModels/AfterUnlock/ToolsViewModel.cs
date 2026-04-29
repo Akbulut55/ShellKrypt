@@ -39,13 +39,36 @@ public partial class ToolsViewModel : ViewModelBase
     public string GeneratedPasswordDisplay => FormatPasswordForDisplay(GeneratedPassword);
     public string HashOutputDisplay => FormatUtilityOutputForDisplay(HashOutput);
     public string Base64OutputDisplay => FormatUtilityOutputForDisplay(Base64Output);
+    public int PasswordStrengthScore => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Score;
+    public string PasswordStrengthLabel => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
+    {
+        PasswordStrengthRating.None => "NO OPTIONS SELECTED",
+        PasswordStrengthRating.Weak => "WEAK / RISKY",
+        PasswordStrengthRating.Fair => "FAIR / IMPROVE",
+        PasswordStrengthRating.Strong => "GOOD / STRONG",
+        _ => "STRONG / SECURE"
+    };
+    public string PasswordStrengthBrush => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
+    {
+        PasswordStrengthRating.None => "#7b8a87",
+        PasswordStrengthRating.Weak => "#ff7a7a",
+        PasswordStrengthRating.Fair => "#ffb35a",
+        PasswordStrengthRating.Strong => "#74f0dd",
+        _ => "#4ff0df"
+    };
 
     partial void OnPasswordLengthChanged(double value)
     {
         OnPropertyChanged(nameof(PasswordLengthDisplay));
     }
 
-    partial void OnGeneratedPasswordChanged(string value) => OnPropertyChanged(nameof(GeneratedPasswordDisplay));
+    partial void OnGeneratedPasswordChanged(string value)
+    {
+        OnPropertyChanged(nameof(GeneratedPasswordDisplay));
+        OnPropertyChanged(nameof(PasswordStrengthScore));
+        OnPropertyChanged(nameof(PasswordStrengthLabel));
+        OnPropertyChanged(nameof(PasswordStrengthBrush));
+    }
     partial void OnHashOutputChanged(string value) => OnPropertyChanged(nameof(HashOutputDisplay));
     partial void OnBase64OutputChanged(string value) => OnPropertyChanged(nameof(Base64OutputDisplay));
     partial void OnHashInputChanged(string value)
@@ -70,8 +93,7 @@ public partial class ToolsViewModel : ViewModelBase
             IncludeNumbers: IncludeNumbers,
             IncludeSymbols: IncludeSymbols));
 
-        if (generated is not null)
-            GeneratedPassword = generated;
+        GeneratedPassword = generated ?? "";
     }
 
     [RelayCommand]

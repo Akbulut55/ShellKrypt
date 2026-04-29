@@ -8,6 +8,7 @@
         ShowInTaskbar="False"
         WindowDecorations="None"
         Title="Confirm Action"
+        TransparencyLevelHint="None"
         Background="{StaticResource SurfaceRaisedBrush}">
   <Border Background="{StaticResource SurfaceRaisedBrush}"
           CornerRadius="18"

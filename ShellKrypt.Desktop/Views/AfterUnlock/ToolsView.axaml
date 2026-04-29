@@ -45,15 +45,15 @@
                   VerticalAlignment="Center">
               <ProgressBar Minimum="0"
                            Maximum="100"
-                           Value="80"
+                           Value="{Binding PasswordStrengthScore}"
                            Height="6"
-                           Foreground="{StaticResource AccentBrush}"
+                           Foreground="{Binding PasswordStrengthBrush}"
                            Background="{StaticResource SurfaceBrush}"
                            VerticalAlignment="Center"/>
               <TextBlock Grid.Column="1"
-                         Text="STRONG / SECURE"
+                         Text="{Binding PasswordStrengthLabel}"
                          Classes="stitch-kicker"
-                         Foreground="{StaticResource AccentBrush}"
+                         Foreground="{Binding PasswordStrengthBrush}"
                          VerticalAlignment="Center"/>
             </Grid>
           </StackPanel>

@@ -6,7 +6,8 @@
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         Title="Import Vault"
-        Background="#900e0e0e">
+        TransparencyLevelHint="None"
+        Background="{StaticResource SurfaceRaisedBrush}">
   <Border Background="{StaticResource SurfaceRaisedBrush}"
           CornerRadius="18">
     <Grid RowDefinitions="Auto,Auto">
