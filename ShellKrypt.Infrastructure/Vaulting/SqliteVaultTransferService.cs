@@ -198,6 +198,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
             snapshot.Items.Count(x => x.Type == ItemType.Web),
             snapshot.Items.Count(x => x.Type == ItemType.Card),
             snapshot.Items.Count(x => x.Type == ItemType.Note),
+            snapshot.Items.Count(x => x.Type == ItemType.Authenticator),
             snapshot.Labels.Count,
             snapshot.Items.Count(x => x.Favorite));
     }
@@ -304,6 +305,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
             ItemType.Web => BuildWebDuplicateKey(payloadJson),
             ItemType.Card => BuildCardDuplicateKey(payloadJson),
             ItemType.Note => BuildNoteDuplicateKey(payloadJson),
+            ItemType.Authenticator => BuildAuthenticatorDuplicateKey(payloadJson),
             _ => $"{(int)type}|{payloadJson.Trim()}"
         };
     }
@@ -335,6 +337,16 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         var payload = JsonSerializer.Deserialize<NotePayload>(payloadJson, JsonOptions)
             ?? new NotePayload("", "");
         return string.Join("|", "note", NormalizeDuplicatePart(payload.Title));
+    }
+
+    private static string BuildAuthenticatorDuplicateKey(string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize<AuthenticatorPayload>(payloadJson, JsonOptions)
+            ?? new AuthenticatorPayload("", "", "", "", "", 6, 30, "", "", "", 0);
+        return string.Join("|",
+            "authenticator",
+            NormalizeDuplicatePart(payload.ServiceName),
+            NormalizeDuplicatePart(payload.KeyType));
     }
 
     private static string NormalizeDuplicatePart(string? value)

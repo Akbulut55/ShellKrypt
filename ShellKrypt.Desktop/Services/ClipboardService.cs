@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using Avalonia.Media.Imaging;
 using Avalonia.Input.Platform;
 
 namespace ShellKrypt.Desktop.Services;
@@ -61,6 +62,28 @@ public sealed class ClipboardService
             return;
 
         await SafeClearAsync(clipboard);
+    }
+
+    public async Task<Bitmap?> TryGetBitmapAsync()
+    {
+        IClipboard? clipboard;
+
+        lock (_gate)
+        {
+            clipboard = _clipboard;
+        }
+
+        if (clipboard is null)
+            return null;
+
+        try
+        {
+            return await clipboard.TryGetBitmapAsync();
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private async Task ClearAfterDelayAsync(

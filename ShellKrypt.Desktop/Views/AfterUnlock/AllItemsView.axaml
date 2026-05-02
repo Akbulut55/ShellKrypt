@@ -119,6 +119,10 @@
                       Classes="allitems-chip"
                       Classes.active="{Binding IsCardTypeActive}"
                       Command="{Binding ShowCardTypesCommand}"/>
+              <Button Content="{Binding AuthenticatorCount, StringFormat=Authenticator ({0})}"
+                      Classes="allitems-chip"
+                      Classes.active="{Binding IsAuthenticatorTypeActive}"
+                      Command="{Binding ShowAuthenticatorTypesCommand}"/>
               <Button Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
                       Classes="allitems-chip"
                       Classes.active="{Binding IsNoteTypeActive}"

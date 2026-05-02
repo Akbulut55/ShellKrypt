@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -25,12 +26,14 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly VaultRegistryStore _vaultRegistryStore = new();
     private readonly ActivityLogStore _activityLogStore = new();
     private readonly ClipboardService _clipboardService = new();
+    private readonly AuthenticatorQrImportService _authenticatorQrImportService = new();
     private readonly SessionSecurityService _sessionSecurity;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
     private readonly INoteService _noteService;
+    private readonly IAuthenticatorService _authenticatorService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
 
@@ -52,6 +55,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _webLoginService = new WebLoginService(_itemRepo);
         _cardService = new CardService(_itemRepo);
         _noteService = new NoteService(_itemRepo);
+        _authenticatorService = new AuthenticatorService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 
         var settings = _settingsStore.Load();
@@ -103,7 +107,7 @@ public partial class MainWindowViewModel : ViewModelBase
             vaultPath: _state.VaultPath);
 
         _sessionSecurity.SetUnlocked(true);
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
     }
 
     public void Lock()
@@ -129,13 +133,18 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
         _sessionSecurity.RecordActivity();
     }
 
     public async Task CopyToClipboardAsync(string text)
     {
         await _clipboardService.CopyAsync(text, _sessionSecurity.ClipboardClearDelay);
+    }
+
+    public async Task<Bitmap?> TryGetClipboardBitmapAsync()
+    {
+        return await _clipboardService.TryGetBitmapAsync();
     }
 
     public async Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName)

@@ -78,6 +78,7 @@ public sealed class AllItemEntry
         ItemType.Web => "LOGIN",
         ItemType.Card => "CARD",
         ItemType.Note => "MARKDOWN NOTE",
+        ItemType.Authenticator => "AUTHENTICATOR",
         _ => TypeLabel.ToUpperInvariant()
     };
 
@@ -86,6 +87,7 @@ public sealed class AllItemEntry
         ItemType.Web => "WB",
         ItemType.Card => "CC",
         ItemType.Note => "MD",
+        ItemType.Authenticator => "AU",
         _ => "IT"
     };
 
@@ -94,6 +96,7 @@ public sealed class AllItemEntry
         ItemType.Web => "#2A2F2E",
         ItemType.Card => "#3A3228",
         ItemType.Note => "#243637",
+        ItemType.Authenticator => "#23343B",
         _ => "#2A2A2A"
     };
 
@@ -102,6 +105,7 @@ public sealed class AllItemEntry
         ItemType.Web => "#57F1DB",
         ItemType.Card => "#FFD1AA",
         ItemType.Note => "#62FAE3",
+        ItemType.Authenticator => "#8FE7FF",
         _ => "#E5E2E1"
     };
 
@@ -110,6 +114,7 @@ public sealed class AllItemEntry
         ItemType.Web => "#223B36",
         ItemType.Card => "#4A3827",
         ItemType.Note => "#174544",
+        ItemType.Authenticator => "#1C3E4A",
         _ => "#2A2A2A"
     };
 
@@ -118,6 +123,7 @@ public sealed class AllItemEntry
         ItemType.Web => "#9CD1C6",
         ItemType.Card => "#FFD1AA",
         ItemType.Note => "#57F1DB",
+        ItemType.Authenticator => "#9FE8FF",
         _ => "#E5E2E1"
     };
 
@@ -227,6 +233,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     private int _webCount;
     private int _cardCount;
     private int _noteCount;
+    private int _authenticatorCount;
     private int _filteredCount;
     private int _weakPasswordCount;
     private int _reusedPasswordCount;
@@ -249,6 +256,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         ShowWebTypesCommand = new RelayCommand(ShowWebTypes);
         ShowCardTypesCommand = new RelayCommand(ShowCardTypes);
         ShowNoteTypesCommand = new RelayCommand(ShowNoteTypes);
+        ShowAuthenticatorTypesCommand = new RelayCommand(ShowAuthenticatorTypes);
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResetFiltersCommand = new RelayCommand(ResetFilters);
         CycleSortCommand = new RelayCommand(CycleSort);
@@ -270,6 +278,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public ICommand ShowWebTypesCommand { get; }
     public ICommand ShowCardTypesCommand { get; }
     public ICommand ShowNoteTypesCommand { get; }
+    public ICommand ShowAuthenticatorTypesCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand CycleSortCommand { get; }
@@ -332,6 +341,7 @@ public sealed class AllItemsViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsWebTypeActive));
                 OnPropertyChanged(nameof(IsCardTypeActive));
                 OnPropertyChanged(nameof(IsNoteTypeActive));
+                OnPropertyChanged(nameof(IsAuthenticatorTypeActive));
                 OnPropertyChanged(nameof(AddItemButtonText));
                 ApplyFilter();
             }
@@ -380,6 +390,12 @@ public sealed class AllItemsViewModel : ViewModelBase
     {
         get => _noteCount;
         private set => SetProperty(ref _noteCount, value);
+    }
+
+    public int AuthenticatorCount
+    {
+        get => _authenticatorCount;
+        private set => SetProperty(ref _authenticatorCount, value);
     }
 
     public int FilteredCount
@@ -456,6 +472,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public bool IsWebTypeActive => string.Equals(ActiveType, "web", StringComparison.Ordinal);
     public bool IsCardTypeActive => string.Equals(ActiveType, "card", StringComparison.Ordinal);
     public bool IsNoteTypeActive => string.Equals(ActiveType, "note", StringComparison.Ordinal);
+    public bool IsAuthenticatorTypeActive => string.Equals(ActiveType, "authenticator", StringComparison.Ordinal);
 
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
@@ -478,6 +495,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         "web" => "+ Add Login",
         "card" => "+ Add Card",
         "note" => "+ Add Note",
+        "authenticator" => "+ Add Authenticator",
         _ => "+ Add Item"
     };
 
@@ -505,6 +523,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     private void ShowWebTypes() => ActiveType = "web";
     private void ShowCardTypes() => ActiveType = "card";
     private void ShowNoteTypes() => ActiveType = "note";
+    private void ShowAuthenticatorTypes() => ActiveType = "authenticator";
 
     private async Task RefreshAsync()
     {
@@ -565,6 +584,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             "web" => ItemType.Web,
             "card" => ItemType.Card,
             "note" => ItemType.Note,
+            "authenticator" => ItemType.Authenticator,
             _ => SelectedRow?.Type ?? ItemType.Web
         };
 
@@ -583,6 +603,11 @@ public sealed class AllItemsViewModel : ViewModelBase
             case ItemType.Note:
                 _shell.ShowMarkdownNotes();
                 ExecuteCommand(_shell.MarkdownNotes.NewNoteCommand);
+                break;
+
+            case ItemType.Authenticator:
+                _shell.ShowAuthenticator();
+                ExecuteCommand(_shell.Authenticator.AddNewCommand);
                 break;
         }
     }
@@ -604,6 +629,10 @@ public sealed class AllItemsViewModel : ViewModelBase
                 break;
             case ItemType.Note:
                 _shell.ShowMarkdownNotes();
+                break;
+            case ItemType.Authenticator:
+                _shell.ShowAuthenticator();
+                _ = _shell.ShowAuthenticatorByIdAsync(row.Id);
                 break;
         }
     }
@@ -636,6 +665,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             WebCount = _allItems.Count(x => x.Type == ItemType.Web);
             CardCount = _allItems.Count(x => x.Type == ItemType.Card);
             NoteCount = _allItems.Count(x => x.Type == ItemType.Note);
+            AuthenticatorCount = _allItems.Count(x => x.Type == ItemType.Authenticator);
             WeakPasswordCount = _webPasswords.Count(IsWeakPassword);
             ReusedPasswordCount = CountReusedPasswords(_webPasswords);
             ExpiringSoonCardCount = _allItems.Count(x => x.IsCardExpiryUrgent);
@@ -689,6 +719,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             "web" => filtered.Where(x => x.Type == ItemType.Web),
             "card" => filtered.Where(x => x.Type == ItemType.Card),
             "note" => filtered.Where(x => x.Type == ItemType.Note),
+            "authenticator" => filtered.Where(x => x.Type == ItemType.Authenticator),
             _ => filtered
         };
 
@@ -704,6 +735,7 @@ public sealed class AllItemsViewModel : ViewModelBase
                     ItemType.Web => 0,
                     ItemType.Card => 1,
                     ItemType.Note => 2,
+                    ItemType.Authenticator => 3,
                     _ => 99
                 })
                 .ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase),
@@ -778,6 +810,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             ItemType.Web => BuildWebEntry(row, labels),
             ItemType.Card => BuildCardEntry(row, labels),
             ItemType.Note => BuildNoteEntry(row, labels),
+            ItemType.Authenticator => BuildAuthenticatorEntry(row, labels),
             _ => new AllItemEntry(
                 row.Header.Id,
                 row.Header.Type,
@@ -819,6 +852,45 @@ public sealed class AllItemsViewModel : ViewModelBase
             row.Header.CreatedAtUtc,
             row.Header.UpdatedAtUtc,
             copyValue);
+    }
+
+    private AllItemEntry BuildAuthenticatorEntry(VaultItemRow row, IReadOnlyList<string> labels)
+    {
+        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var payload = JsonSerializer.Deserialize<AuthenticatorPayload>(json, JsonOpts)
+            ?? new AuthenticatorPayload("", "", "", "", "", 6, 30, "", "", "", 0);
+
+        var keyType = payload.KeyType?.Trim().ToLowerInvariant() switch
+        {
+            "counter-based" or "counter" or "hotp" => "Counter based code",
+            _ => "Time based code"
+        };
+        var title = FirstNonEmpty(payload.ServiceName, payload.Issuer, "Authenticator");
+        var subtitle = keyType;
+        var identifier = payload.KeyType?.Trim().ToLowerInvariant() switch
+        {
+            "counter-based" or "counter" or "hotp" => $"Counter {Math.Max(0, payload.Counter)}",
+            _ => "Rotates every 30 seconds"
+        };
+        var searchText = BuildSearchText(
+            title,
+            subtitle,
+            identifier,
+            string.Join(" ", labels),
+            row.Header.Favorite ? "favorite" : string.Empty);
+
+        return new AllItemEntry(
+            row.Header.Id,
+            row.Header.Type,
+            title,
+            subtitle,
+            identifier,
+            labels,
+            searchText,
+            row.Header.Favorite,
+            row.Header.CreatedAtUtc,
+            row.Header.UpdatedAtUtc,
+            string.Empty);
     }
 
     private AllItemEntry BuildCardEntry(VaultItemRow row, IReadOnlyList<string> labels)

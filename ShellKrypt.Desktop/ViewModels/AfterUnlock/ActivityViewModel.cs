@@ -34,6 +34,7 @@ public sealed partial class ActivityItemVm : ObservableObject
     {
         "vault" => "Vault",
         "notes" => "Markdown Notes",
+        "authenticator" => "Authenticator",
         "settings" => "Settings",
         "transfer" => "Export",
         _ => "System"
@@ -64,6 +65,7 @@ public sealed partial class ActivityItemVm : ObservableObject
     {
         "vault" => "VA",
         "notes" => "MD",
+        "authenticator" => "AU",
         "settings" => "ST",
         "transfer" => "IO",
         _ => "SY"

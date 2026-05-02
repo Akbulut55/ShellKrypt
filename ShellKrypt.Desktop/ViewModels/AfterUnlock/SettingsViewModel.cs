@@ -695,10 +695,10 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     private static string FormatExportSummary(VaultSnapshotSummary summary)
-        => $"Items: {summary.ItemCount} | Web: {summary.WebCount} | Cards: {summary.CardCount} | Notes: {summary.NoteCount} | Labels: {summary.LabelCount} | Favorites: {summary.FavoriteCount}";
+        => $"Items: {summary.ItemCount} | Web: {summary.WebCount} | Cards: {summary.CardCount} | Notes: {summary.NoteCount} | Authenticator: {summary.AuthenticatorCount} | Labels: {summary.LabelCount} | Favorites: {summary.FavoriteCount}";
 
     private static string FormatImportSummary(VaultSnapshotSummary summary)
-        => $"Previewing import: {summary.ItemCount} items, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
+        => $"Previewing import: {summary.ItemCount} items, {summary.AuthenticatorCount} authenticator accounts, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
 
     private void LoadFromRootSettings()
     {

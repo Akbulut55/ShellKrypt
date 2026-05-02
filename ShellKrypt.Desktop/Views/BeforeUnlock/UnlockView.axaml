@@ -100,6 +100,7 @@
             <Button Content="Unlock Vault"
                     Classes="unlock-primary-button"
                     Command="{Binding UnlockCommand}"
+                    IsDefault="True"
                     HorizontalAlignment="Stretch"
                     IsEnabled="{Binding !IsBusy}"/>
 
@@ -277,18 +278,38 @@
     </Style>
 
     <Style Selector="Button.unlock-visibility-button">
-      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="8,0"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="MinWidth" Value="60"/>
       <Setter Property="Height" Value="32"/>
       <Setter Property="MinHeight" Value="32"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,0,2,0"/>
+    </Style>
+
+    <Style Selector="TextBox.unlock-password-box /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.unlock-password-box:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.unlock-password-box:focus /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style Selector="Button.unlock-link-button">

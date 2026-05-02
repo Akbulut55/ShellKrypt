@@ -1,0 +1,889 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.AuthenticatorView"
+             x:CompileBindings="False"
+             x:DataType="vm:AuthenticatorViewModel">
+
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="32"
+                  MaxWidth="1500"
+                  HorizontalAlignment="Stretch"
+                  Spacing="22">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="24">
+          <StackPanel Spacing="8">
+            <TextBlock Text="Authenticator"
+                       FontSize="28"
+                       FontWeight="SemiBold"
+                       LetterSpacing="-0.8"/>
+            <TextBlock Text="{Binding PageSubtitle}"
+                       Classes="page-subtitle"
+                       FontSize="13"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+
+          <Grid Grid.Column="1"
+                ColumnDefinitions="260,Auto"
+                ColumnSpacing="12"
+                VerticalAlignment="Center">
+            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Classes="auth-search"
+                     PlaceholderText="Search codes..."/>
+            <Button Grid.Column="1"
+                    Content="+ Add Code"
+                    Classes="auth-primary-button"
+                    Command="{Binding AddNewCommand}"/>
+          </Grid>
+        </Grid>
+
+        <Grid ColumnDefinitions="1.05*,0.95*"
+              ColumnSpacing="24">
+          <Border Classes="auth-list-shell"
+                  MaxHeight="680"
+                  VerticalAlignment="Top">
+            <Grid RowDefinitions="*,Auto">
+              <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto"
+                            IsVisible="{Binding HasEntries}">
+                <ItemsControl ItemsSource="{Binding FilteredEntries}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <StackPanel/>
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:AuthenticatorAccountVm">
+                      <Button Classes="auth-list-button"
+                              Command="{Binding DataContext.SelectEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              CommandParameter="{Binding}">
+                        <Border Classes="auth-list-item"
+                                Classes.active="{Binding IsSelected}">
+                          <Grid ColumnDefinitions="Auto,*,152"
+                                ColumnSpacing="14"
+                                MinHeight="58">
+                            <Border Width="40"
+                                    Height="40"
+                                    CornerRadius="20"
+                                    Background="{StaticResource AppBackgroundSoftBrush}">
+                              <TextBlock Text="{Binding Monogram}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         FontSize="12"
+                                         FontWeight="Black"/>
+                            </Border>
+
+                            <StackPanel Grid.Column="1"
+                                        Spacing="4"
+                                        VerticalAlignment="Center">
+                              <TextBlock Text="{Binding Name}"
+                                         FontSize="14"
+                                         FontWeight="SemiBold"
+                                         TextTrimming="CharacterEllipsis"/>
+                              <TextBlock Text="{Binding AccountSubtitle}"
+                                         Foreground="{StaticResource TextMutedBrush}"
+                                         FontSize="11"
+                                         TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+
+                            <Grid Grid.Column="2"
+                                  RowDefinitions="Auto,Auto"
+                                  RowSpacing="8"
+                                  Width="152"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center">
+                              <TextBlock Text="{Binding CurrentCodeDisplay}"
+                                         Classes="auth-list-code"
+                                         Grid.Row="0"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Center"/>
+                              <Grid Grid.Row="1"
+                                    ColumnDefinitions="44,*"
+                                    ColumnSpacing="8"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Center"
+                                    IsVisible="{Binding HasCountdown}">
+                                <TextBlock Text="{Binding RemainingDisplay}"
+                                           Foreground="{StaticResource TextMutedBrush}"
+                                           FontSize="11"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Center"/>
+                                <ProgressBar Grid.Column="1"
+                                             Classes="auth-mini-progress"
+                                             Minimum="0"
+                                             Maximum="100"
+                                             Value="{Binding ProgressPercent}"
+                                             VerticalAlignment="Center"/>
+                              </Grid>
+                              <TextBlock Grid.Row="1"
+                                         Text="{Binding CounterDisplay, StringFormat=Counter {0}}"
+                                         Foreground="{StaticResource TextMutedBrush}"
+                                         FontSize="11"
+                                         HorizontalAlignment="Right"
+                                         VerticalAlignment="Center"
+                                         IsVisible="{Binding !HasCountdown}"/>
+                            </Grid>
+                          </Grid>
+                        </Border>
+                      </Button>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+
+              <Border Padding="28,24"
+                      Background="Transparent"
+                      IsVisible="{Binding !HasEntries}">
+                <StackPanel Spacing="12"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                  <TextBlock Text="{Binding EmptyTitle}"
+                             FontSize="18"
+                             FontWeight="Bold"
+                             TextAlignment="Center"/>
+                  <TextBlock Text="{Binding EmptySubtitle}"
+                             Classes="page-subtitle"
+                             MaxWidth="360"
+                             TextAlignment="Center"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Row="1"
+                      Background="#1A1A1A"
+                      BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="0,1,0,0"
+                      Padding="18,12">
+                <Grid ColumnDefinitions="*,Auto,Auto"
+                      ColumnSpacing="12">
+                  <TextBlock Text="{Binding TotalCount, StringFormat=Codes: {0}}"
+                             Classes="auth-footer-meta"
+                             VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{Binding RefreshingSoonCount, StringFormat=Refreshing Soon: {0}}"
+                             Classes="auth-footer-meta"
+                             VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="2"
+                             Text="{Binding RecentlyUsedCount, StringFormat=Recently Used: {0}}"
+                             Classes="auth-footer-meta"
+                             VerticalAlignment="Center"/>
+                </Grid>
+              </Border>
+            </Grid>
+          </Border>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="18">
+            <Border Classes="auth-detail-card"
+                    IsVisible="{Binding HasSelection}">
+              <Grid>
+                <Border Background="{StaticResource AccentMutedBrush}"
+                        CornerRadius="8"
+                        Padding="10,4"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Top">
+                  <TextBlock Text="{Binding SelectedEntry.VerifiedLabel}"
+                             Foreground="{StaticResource AccentBrush}"
+                             FontSize="11"
+                             FontWeight="Black"/>
+                </Border>
+
+                <StackPanel Spacing="14"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center"
+                            Margin="0,14,0,0">
+                  <Border Width="64"
+                          Height="64"
+                          CornerRadius="32"
+                          Background="{StaticResource AppBackgroundSoftBrush}">
+                    <TextBlock Text="{Binding SelectedEntry.Monogram}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               FontSize="18"
+                               FontWeight="Black"/>
+                  </Border>
+
+                  <StackPanel Spacing="4"
+                              HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding SelectedEntry.Name}"
+                               FontSize="22"
+                               FontWeight="SemiBold"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding DetailSubtitle}"
+                               Classes="page-subtitle"
+                               TextAlignment="Center"/>
+                    <TextBlock Text="{Binding SelectedEntry.DetailHint}"
+                               Classes="page-subtitle"
+                               FontSize="12"
+                               TextAlignment="Center"/>
+                  </StackPanel>
+
+                  <Border Classes="auth-code-card">
+                    <StackPanel Spacing="12"
+                                HorizontalAlignment="Center">
+                      <TextBlock Text="{Binding SelectedEntry.CurrentCodeDisplay}"
+                                 Classes="auth-detail-code"
+                                 HorizontalAlignment="Center"/>
+                      <Grid ColumnDefinitions="52,*"
+                            ColumnSpacing="12"
+                            HorizontalAlignment="Stretch"
+                            IsVisible="{Binding SelectedEntry.HasCountdown}">
+                        <TextBlock Text="{Binding SelectedEntry.RemainingDisplay}"
+                                   Classes="auth-footer-meta"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center"/>
+                        <ProgressBar Grid.Column="1"
+                                     Classes="auth-detail-progress"
+                                     Minimum="0"
+                                     Maximum="100"
+                                     Value="{Binding SelectedEntry.ProgressPercent}"
+                                     VerticalAlignment="Center"/>
+                      </Grid>
+                      <TextBlock Text="{Binding SelectedEntry.ProgressLabel}"
+                                 Classes="auth-footer-meta"
+                                 HorizontalAlignment="Center"
+                                 IsVisible="{Binding !SelectedEntry.HasCountdown}"/>
+                    </StackPanel>
+                  </Border>
+
+                  <StackPanel Orientation="Horizontal"
+                              Spacing="10"
+                              HorizontalAlignment="Center">
+                    <Button Content="{Binding SelectedEntry.CopyButtonText}"
+                            Classes="auth-secondary-button auth-secondary-button-accent"
+                            Command="{Binding CopyCodeCommand}"
+                            IsEnabled="{Binding CanCopyCode}"/>
+                    <Button Content="Edit Code"
+                            Classes="auth-secondary-button"
+                            Command="{Binding BeginEditCommand}"
+                            IsEnabled="{Binding CanEditSelection}"/>
+                  </StackPanel>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <Border Classes="auth-detail-card"
+                    Padding="24"
+                    IsVisible="{Binding !HasSelection}">
+              <StackPanel Spacing="10"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <TextBlock Text="No authenticator selected"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           TextAlignment="Center"/>
+                <TextBlock Text="Select a code from the left to view the current value or import a QR screenshot to add a new one."
+                           Classes="page-subtitle"
+                           MaxWidth="340"
+                           TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="auth-info-card"
+                    IsVisible="{Binding HasSelection}">
+              <Grid ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="28"
+                    RowSpacing="22">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="SECRET KEY"
+                             Classes="auth-kicker"/>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
+                               Classes="auth-secret-text"
+                               TextWrapping="Wrap"/>
+                    <Button Grid.Column="1"
+                            Content="Show"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
+                            CommandParameter="{Binding SelectedEntry}"
+                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
+                    <Button Grid.Column="1"
+                            Content="Hide"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
+                            CommandParameter="{Binding SelectedEntry}"
+                            IsVisible="{Binding SelectedEntry.IsSecretVisible}"/>
+                  </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Spacing="6">
+                  <TextBlock Text="KEY TYPE"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.KeyTypeDisplay}"
+                             FontSize="13"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Spacing="6">
+                  <TextBlock Text="CODE FORMAT"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.DigitsDisplay}"
+                             FontFamily="Consolas"
+                             FontSize="13"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Grid.Column="1"
+                            Spacing="6">
+                  <TextBlock Text="ALGORITHM"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.RotationDisplay}"
+                             FontSize="13"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+
+    <Border Background="#B0000000"
+            IsVisible="{Binding IsEditorModalOpen}">
+      <Grid>
+        <Border Classes="auth-modal-card"
+                Width="720"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <StackPanel Spacing="22">
+            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                  ColumnSpacing="12">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding EditorModalTitle}"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Text="{Binding EditorModalSubtitle}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+
+              <Button Grid.Column="1"
+                      Content="Import QR Screenshot"
+                      Classes="auth-secondary-button auth-secondary-button-accent"
+                      Command="{Binding ImportQrScreenshotCommand}"/>
+
+              <Button Grid.Column="2"
+                      Content="Paste QR Image"
+                      Classes="auth-secondary-button auth-secondary-button-accent"
+                      Command="{Binding PasteQrImageCommand}"/>
+
+              <Button Grid.Column="3"
+                      Content="X"
+                      Classes="auth-close-button"
+                      Command="{Binding CancelEditorCommand}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="*,*"
+                  RowDefinitions="Auto,Auto"
+                  ColumnSpacing="16"
+                  RowSpacing="14">
+              <StackPanel Spacing="7">
+                <TextBlock Text="NAME"
+                           Classes="auth-kicker"/>
+                <TextBox Text="{Binding FormName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="auth-modal-input"
+                         PlaceholderText="GitHub"/>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1"
+                          Spacing="7">
+                <TextBlock Text="KEY TYPE"
+                           Classes="auth-kicker"/>
+                <ComboBox Classes="auth-modal-input"
+                          ItemsSource="{Binding KeyTypeOptions}"
+                          SelectedItem="{Binding SelectedFormKeyType, Mode=TwoWay}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}"/>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+              </StackPanel>
+
+              <StackPanel Grid.Row="1"
+                          Grid.ColumnSpan="2"
+                          Spacing="7">
+                <TextBlock Text="SECRET KEY"
+                           Classes="auth-kicker"/>
+                <Border Classes="auth-modal-input-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="auth-modal-input borderless"
+                             PasswordChar="*"
+                             IsVisible="{Binding !IsFormSecretVisible}"
+                             PlaceholderText="Base32 secret"/>
+                    <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="auth-modal-input borderless"
+                             IsVisible="{Binding IsFormSecretVisible}"
+                             PlaceholderText="Base32 secret"/>
+                    <Button Grid.Column="1"
+                            Content="{Binding FormSecretVisibilityText}"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleFormSecretVisibilityCommand}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,4,0"/>
+                  </Grid>
+                </Border>
+              </StackPanel>
+            </Grid>
+
+            <Border Background="#171F1E"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,12">
+              <StackPanel Spacing="10">
+                <CheckBox Content="Advanced options"
+                          IsChecked="{Binding IsAdvancedOptionsExpanded, Mode=TwoWay}"
+                          Classes="auth-advanced-toggle"/>
+                <TextBlock Text="{Binding AdvancedOptionsNote}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding IsAdvancedOptionsExpanded}"/>
+
+                <Grid ColumnDefinitions="*,*"
+                      RowDefinitions="Auto,Auto"
+                      ColumnSpacing="16"
+                      RowSpacing="14"
+                      IsVisible="{Binding IsAdvancedOptionsExpanded}">
+                  <StackPanel Spacing="7">
+                    <TextBlock Text="ALGORITHM"
+                               Classes="auth-kicker"/>
+                    <ComboBox Classes="auth-modal-input"
+                              ItemsSource="{Binding AlgorithmOptions}"
+                              SelectedItem="{Binding SelectedFormAlgorithm, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+
+                  <StackPanel Grid.Column="1"
+                              Spacing="7">
+                    <TextBlock Text="DIGITS"
+                               Classes="auth-kicker"/>
+                    <ComboBox Classes="auth-modal-input"
+                              ItemsSource="{Binding DigitsOptions}"
+                              SelectedItem="{Binding SelectedFormDigits, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </StackPanel>
+
+                  <StackPanel Grid.Row="1"
+                              Grid.ColumnSpan="2"
+                              Spacing="7"
+                              IsVisible="{Binding ShowAdvancedPeriod}">
+                    <TextBlock Text="VALID PERIOD (SECONDS)"
+                               Classes="auth-kicker"/>
+                    <TextBox Text="{Binding FormPeriodSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="auth-modal-input"
+                             PlaceholderText="Defaults to 30"/>
+                  </StackPanel>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <Border Background="#171F1E"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,12">
+              <TextBlock Text="{Binding SelectedTypeSummary}"
+                         Classes="page-subtitle"
+                         FontSize="12"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <TextBlock Text="{Binding Error}"
+                       Foreground="{StaticResource DangerBrush}"
+                       FontSize="12"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding HasError}"/>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+              <TextBlock Text="QR imports are decoded locally. Secrets stay encrypted inside the active vault."
+                         Classes="page-subtitle"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="Cancel"
+                      Classes="auth-secondary-button"
+                      Command="{Binding CancelEditorCommand}"/>
+              <Button Grid.Column="2"
+                      Content="{Binding SaveButtonText}"
+                      Classes="auth-primary-button"
+                      Command="{Binding SaveEditorCommand}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Border Background="#B0000000"
+            IsVisible="{Binding IsDeleteConfirmOpen}">
+      <Grid>
+        <Border Classes="auth-modal-card"
+                Width="560"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <StackPanel Spacing="20">
+            <Border Width="72"
+                    Height="72"
+                    CornerRadius="36"
+                    Background="{StaticResource AppBackgroundSoftBrush}"
+                    HorizontalAlignment="Center">
+              <TextBlock Text="!"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Foreground="{StaticResource DangerBrush}"
+                         FontSize="30"
+                         FontWeight="Bold"/>
+            </Border>
+
+            <StackPanel Spacing="10"
+                        HorizontalAlignment="Center">
+              <TextBlock Text="{Binding DeleteConfirmationText}"
+                         FontSize="28"
+                         FontWeight="SemiBold"
+                         TextAlignment="Center"/>
+              <TextBlock Text="Deleting this authenticator removes the encrypted secret from the current vault."
+                         Classes="page-subtitle"
+                         MaxWidth="420"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border Background="#261E1112"
+                    BorderBrush="#55FFB4AB"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="18,16">
+              <TextBlock Text="This action cannot be undone. Re-import the QR screenshot or enter the secret again if you need this code later."
+                         Foreground="{StaticResource DangerBrush}"
+                         FontSize="13"
+                         FontWeight="SemiBold"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+              <TextBlock Text="{Binding SelectedEntry.Name}"
+                         Classes="page-subtitle"
+                         FontSize="12"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="Cancel"
+                      Classes="auth-secondary-button"
+                      Command="{Binding CancelDeleteCommand}"/>
+              <Button Grid.Column="2"
+                      Content="Delete Code"
+                      Classes="auth-danger-button"
+                      Command="{Binding ConfirmDeleteCommand}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.auth-list-shell">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="Button.auth-list-button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+
+    <Style Selector="Border.auth-list-item">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16,14"/>
+      <Setter Property="Margin" Value="8,8,8,0"/>
+    </Style>
+
+    <Style Selector="Border.auth-list-item.active">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.auth-list-button:pointerover Border.auth-list-item">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-search">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="14,8"/>
+    </Style>
+
+    <Style Selector="Button.auth-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="20,0"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.auth-primary-button:pointerover">
+      <Setter Property="Background" Value="#63F5E1"/>
+    </Style>
+
+    <Style Selector="Button.auth-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.auth-secondary-button-accent">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.auth-danger-button">
+      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="22,0"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.auth-close-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-list-code">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="LetterSpacing" Value="2.4"/>
+    </Style>
+
+    <Style Selector="Border.auth-detail-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="26"/>
+      <Setter Property="MinHeight" Value="344"/>
+    </Style>
+
+    <Style Selector="Border.auth-code-card">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="24,22"/>
+      <Setter Property="Width" Value="360"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-detail-code">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="42"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="3"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Border.auth-info-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.1"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-secret-text">
+      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-shield-glyph">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Width" Value="40"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+
+    <Style Selector="Button.auth-inline-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="MinWidth" Value="60"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.auth-footer-meta">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="ProgressBar.auth-mini-progress">
+      <Setter Property="Height" Value="4"/>
+      <Setter Property="MinWidth" Value="72"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="ProgressBar.auth-detail-progress">
+      <Setter Property="Height" Value="6"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Border.auth-modal-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="#663C4A46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="28"/>
+    </Style>
+
+    <Style Selector="Border.auth-modal-input-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="Border.auth-modal-input-shell:focus-within">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="MinHeight" Value="42"/>
+    </Style>
+
+    <Style Selector="ComboBox.auth-modal-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="12,0"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input.borderless">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="14,10"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input.borderless:focus">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input.borderless /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input.borderless:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.auth-modal-input.borderless:focus /template/ Border#PART_BorderElement">
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

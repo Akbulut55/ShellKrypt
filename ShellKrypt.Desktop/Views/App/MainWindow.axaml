@@ -20,7 +20,144 @@
         <vm:MainWindowViewModel/>
     </Design.DataContext>
 
-    <Border Background="{StaticResource AppBackgroundBrush}">
-        <ContentControl Content="{Binding Current}"/>
-    </Border>
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <Grid RowDefinitions="40,*"
+              Background="{StaticResource AppBackgroundBrush}">
+            <Border Grid.Row="0"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="0,0,0,1"
+                    PointerPressed="OnTitleBarPointerPressed">
+                <Grid ColumnDefinitions="Auto,*,Auto"
+                      ColumnSpacing="12"
+                      Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                        <Border Width="20"
+                                Height="20"
+                                CornerRadius="10"
+                                Background="{StaticResource AccentGradientBrush}">
+                            <TextBlock Text="SK"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource AccentForegroundBrush}"
+                                       FontSize="8"
+                                       FontWeight="Black"/>
+                        </Border>
+                        <TextBlock Text="ShellKrypt"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Grid Grid.Column="1"
+                          IsHitTestVisible="False"/>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="0"
+                                HorizontalAlignment="Right">
+                        <Button Classes="window-caption-button"
+                                Click="OnMinimizeClicked">
+                            <TextBlock Text="&#xE921;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"/>
+                        </Button>
+                        <Button x:Name="MaximizeRestoreButton"
+                                Classes="window-caption-button"
+                                Click="OnMaximizeRestoreClicked">
+                            <TextBlock x:Name="MaximizeRestoreGlyph"
+                                       Text="&#xE922;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"/>
+                        </Button>
+                        <Button Classes="window-caption-button window-caption-button-close"
+                                Click="OnCloseClicked">
+                            <TextBlock Text="&#xE8BB;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"/>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="{StaticResource AppBackgroundBrush}">
+                <ContentControl Content="{Binding Current}"/>
+            </Border>
+        </Grid>
+
+        <Grid RowDefinitions="8,*,8"
+              ColumnDefinitions="8,*,8"
+              IsHitTestVisible="True">
+            <Border Grid.Row="0"
+                    Grid.Column="1"
+                    Background="#01000000"
+                    Cursor="SizeNorthSouth"
+                    PointerPressed="OnResizeTopPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="1"
+                    Background="#01000000"
+                    Cursor="SizeNorthSouth"
+                    PointerPressed="OnResizeBottomPressed"/>
+            <Border Grid.Row="1"
+                    Grid.Column="0"
+                    Background="#01000000"
+                    Cursor="SizeWestEast"
+                    PointerPressed="OnResizeLeftPressed"/>
+            <Border Grid.Row="1"
+                    Grid.Column="2"
+                    Background="#01000000"
+                    Cursor="SizeWestEast"
+                    PointerPressed="OnResizeRightPressed"/>
+            <Border Grid.Row="0"
+                    Grid.Column="0"
+                    Background="#01000000"
+                    Cursor="TopLeftCorner"
+                    PointerPressed="OnResizeTopLeftPressed"/>
+            <Border Grid.Row="0"
+                    Grid.Column="2"
+                    Background="#01000000"
+                    Cursor="TopRightCorner"
+                    PointerPressed="OnResizeTopRightPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="0"
+                    Background="#01000000"
+                    Cursor="BottomLeftCorner"
+                    PointerPressed="OnResizeBottomLeftPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="2"
+                    Background="#01000000"
+                    Cursor="BottomRightCorner"
+                    PointerPressed="OnResizeBottomRightPressed"/>
+        </Grid>
+    </Grid>
+
+    <Window.Styles>
+        <Style Selector="Button.window-caption-button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.window-caption-button:pointerover">
+            <Setter Property="Background" Value="#2A2D2E"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+
+        <Style Selector="Button.window-caption-button-close:pointerover">
+            <Setter Property="Background" Value="#C42B1C"/>
+            <Setter Property="Foreground" Value="#FFFFFF"/>
+        </Style>
+    </Window.Styles>
 </Window>

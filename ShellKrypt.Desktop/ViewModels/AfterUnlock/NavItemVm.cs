@@ -21,6 +21,7 @@ public sealed partial class NavItemVm : ObservableObject
             "WEB" => "WB",
             "CARDS" => "CC",
             "NOTES" => "SN",
+            "AUTH" => "AU",
             "TOOLS" => "TL",
             "HEALTH" => "HL",
             "SETTINGS" => "ST",
