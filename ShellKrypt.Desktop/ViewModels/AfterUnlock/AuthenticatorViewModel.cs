@@ -297,6 +297,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
     [ObservableProperty] private string error = string.Empty;
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private bool isEditorModalOpen;
+    [ObservableProperty] private bool isDetailsModalOpen;
     [ObservableProperty] private bool isEditingExisting;
     [ObservableProperty] private bool isDeleteConfirmOpen;
     [ObservableProperty] private bool isFormSecretVisible;
@@ -385,6 +386,12 @@ public partial class AuthenticatorViewModel : ViewModelBase
         OnPropertyChanged(nameof(CanCopyCode));
     }
 
+    partial void OnIsEditingExistingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(EditorModalTitle));
+        OnPropertyChanged(nameof(SaveButtonText));
+    }
+
     partial void OnSelectedFormKeyTypeChanged(AuthenticatorKeyTypeOption? value)
     {
         OnPropertyChanged(nameof(SelectedTypeSummary));
@@ -411,11 +418,32 @@ public partial class AuthenticatorViewModel : ViewModelBase
     private void AddNew()
     {
         Error = string.Empty;
+        IsDetailsModalOpen = false;
+        IsDeleteConfirmOpen = false;
         IsEditingExisting = false;
         ClearEditorForm();
         IsFormSecretVisible = false;
         IsAdvancedOptionsExpanded = false;
         IsEditorModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void OpenDetails()
+    {
+        if (SelectedEntry is null)
+            return;
+
+        Error = string.Empty;
+        IsEditorModalOpen = false;
+        IsDeleteConfirmOpen = false;
+        IsDetailsModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseDetails()
+    {
+        Error = string.Empty;
+        IsDetailsModalOpen = false;
     }
 
     [RelayCommand]
@@ -425,11 +453,19 @@ public partial class AuthenticatorViewModel : ViewModelBase
             return;
 
         Error = string.Empty;
+        IsDetailsModalOpen = false;
+        IsDeleteConfirmOpen = false;
         IsEditingExisting = true;
         PopulateEditorForm(SelectedEntry);
         IsFormSecretVisible = false;
         IsAdvancedOptionsExpanded = false;
         IsEditorModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void BeginDetailsEdit()
+    {
+        BeginEdit();
     }
 
     [RelayCommand]
@@ -531,7 +567,15 @@ public partial class AuthenticatorViewModel : ViewModelBase
             return;
 
         Error = string.Empty;
+        IsDetailsModalOpen = false;
+        IsEditorModalOpen = false;
         IsDeleteConfirmOpen = true;
+    }
+
+    [RelayCommand]
+    private void BeginDetailsDelete()
+    {
+        BeginDelete();
     }
 
     [RelayCommand]
@@ -614,6 +658,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
             }
 
             IsEditorModalOpen = false;
+            IsDetailsModalOpen = false;
         }
         catch (Exception ex)
         {
@@ -652,6 +697,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
             await _refreshAllItemsAsync(null);
             _root.LogActivity("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning");
             IsDeleteConfirmOpen = false;
+            IsDetailsModalOpen = false;
         }
         catch (Exception ex)
         {

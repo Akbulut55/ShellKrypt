@@ -11,6 +11,8 @@
         Icon="/Assets/main-logo.ico"
         Title="ShellKrypt"
         Background="{StaticResource AppBackgroundBrush}"
+        Width="1360"
+        Height="860"
         MinWidth="1200"
         MinHeight="780"
         TransparencyLevelHint="None"

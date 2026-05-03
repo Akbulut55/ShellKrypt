@@ -42,10 +42,21 @@
         <Grid ColumnDefinitions="1.05*,0.95*"
               ColumnSpacing="24">
           <Border Classes="auth-list-shell"
-                  MaxHeight="680"
+                  Height="{Binding Bounds.Height, ElementName=AuthenticatorDetailStack}"
                   VerticalAlignment="Top">
-            <Grid RowDefinitions="*,Auto">
-              <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+            <Grid RowDefinitions="Auto,*">
+              <Border Background="#1A1A1A"
+                      BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="0,0,0,1"
+                      CornerRadius="14,14,0,0"
+                      Padding="12,10">
+                <TextBlock Text="{Binding TotalCount, StringFormat=Codes: {0}}"
+                           Classes="auth-footer-meta"
+                           VerticalAlignment="Center"/>
+              </Border>
+
+              <ScrollViewer Grid.Row="1"
+                            HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto"
                             IsVisible="{Binding HasEntries}">
                 <ItemsControl ItemsSource="{Binding FilteredEntries}">
@@ -63,7 +74,8 @@
                                 Classes.active="{Binding IsSelected}">
                           <Grid ColumnDefinitions="Auto,*,152"
                                 ColumnSpacing="14"
-                                MinHeight="58">
+                                MinHeight="58"
+                                VerticalAlignment="Center">
                             <Border Width="40"
                                     Height="40"
                                     CornerRadius="20"
@@ -151,30 +163,11 @@
                 </StackPanel>
               </Border>
 
-              <Border Grid.Row="1"
-                      Background="#1A1A1A"
-                      BorderBrush="{StaticResource BorderBrushSoft}"
-                      BorderThickness="0,1,0,0"
-                      Padding="18,12">
-                <Grid ColumnDefinitions="*,Auto,Auto"
-                      ColumnSpacing="12">
-                  <TextBlock Text="{Binding TotalCount, StringFormat=Codes: {0}}"
-                             Classes="auth-footer-meta"
-                             VerticalAlignment="Center"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{Binding RefreshingSoonCount, StringFormat=Refreshing Soon: {0}}"
-                             Classes="auth-footer-meta"
-                             VerticalAlignment="Center"/>
-                  <TextBlock Grid.Column="2"
-                             Text="{Binding RecentlyUsedCount, StringFormat=Recently Used: {0}}"
-                             Classes="auth-footer-meta"
-                             VerticalAlignment="Center"/>
-                </Grid>
-              </Border>
             </Grid>
           </Border>
 
-          <StackPanel Grid.Column="1"
+          <StackPanel x:Name="AuthenticatorDetailStack"
+                      Grid.Column="1"
                       Spacing="18">
             <Border Classes="auth-detail-card"
                     IsVisible="{Binding HasSelection}">
@@ -255,9 +248,9 @@
                             Classes="auth-secondary-button auth-secondary-button-accent"
                             Command="{Binding CopyCodeCommand}"
                             IsEnabled="{Binding CanCopyCode}"/>
-                    <Button Content="Edit Code"
+                    <Button Content="Details"
                             Classes="auth-secondary-button"
-                            Command="{Binding BeginEditCommand}"
+                            Command="{Binding OpenDetailsCommand}"
                             IsEnabled="{Binding CanEditSelection}"/>
                   </StackPanel>
                 </StackPanel>
@@ -342,6 +335,165 @@
         </Grid>
       </StackPanel>
     </ScrollViewer>
+
+    <Border Background="#B0000000"
+            IsVisible="{Binding IsDetailsModalOpen}">
+      <Grid>
+        <Border Classes="auth-modal-card"
+                Width="640"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center">
+          <StackPanel Spacing="22">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+              <StackPanel Spacing="6">
+                <TextBlock Text="Authenticator Details"
+                           FontSize="24"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource AccentBrush}"/>
+                <TextBlock Text="Review the saved verification code stored in this encrypted vault."
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+
+              <Button Grid.Column="1"
+                      Content="X"
+                      Classes="auth-close-button"
+                      Command="{Binding CloseDetailsCommand}"/>
+            </Grid>
+
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="16"
+                  VerticalAlignment="Center">
+              <Border Width="56"
+                      Height="56"
+                      CornerRadius="28"
+                      Background="{StaticResource AppBackgroundSoftBrush}">
+                <TextBlock Text="{Binding SelectedEntry.Monogram}"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="16"
+                           FontWeight="Black"/>
+              </Border>
+
+              <StackPanel Grid.Column="1"
+                          Spacing="4"
+                          VerticalAlignment="Center">
+                <TextBlock Text="{Binding SelectedEntry.Name}"
+                           FontSize="22"
+                           FontWeight="SemiBold"/>
+                <TextBlock Text="{Binding SelectedEntry.DetailHint}"
+                           Classes="page-subtitle"
+                           FontSize="13"/>
+              </StackPanel>
+            </Grid>
+
+            <Border Classes="auth-code-card"
+                    Width="560"
+                    HorizontalAlignment="Stretch">
+              <StackPanel Spacing="12"
+                          HorizontalAlignment="Center">
+                <TextBlock Text="{Binding SelectedEntry.CurrentCodeDisplay}"
+                           Classes="auth-detail-code"
+                           HorizontalAlignment="Center"/>
+                <Grid ColumnDefinitions="52,*"
+                      ColumnSpacing="12"
+                      HorizontalAlignment="Stretch"
+                      IsVisible="{Binding SelectedEntry.HasCountdown}">
+                  <TextBlock Text="{Binding SelectedEntry.RemainingDisplay}"
+                             Classes="auth-footer-meta"
+                             HorizontalAlignment="Right"
+                             VerticalAlignment="Center"/>
+                  <ProgressBar Grid.Column="1"
+                               Classes="auth-detail-progress"
+                               Minimum="0"
+                               Maximum="100"
+                               Value="{Binding SelectedEntry.ProgressPercent}"
+                               VerticalAlignment="Center"/>
+                </Grid>
+                <TextBlock Text="{Binding SelectedEntry.ProgressLabel}"
+                           Classes="auth-footer-meta"
+                           HorizontalAlignment="Center"
+                           IsVisible="{Binding !SelectedEntry.HasCountdown}"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="auth-info-card">
+              <Grid ColumnDefinitions="*,*"
+                    RowDefinitions="Auto,Auto"
+                    ColumnSpacing="28"
+                    RowSpacing="22">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="SECRET KEY"
+                             Classes="auth-kicker"/>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
+                               Classes="auth-secret-text"
+                               TextWrapping="Wrap"/>
+                    <Button Grid.Column="1"
+                            Content="Show"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
+                            CommandParameter="{Binding SelectedEntry}"
+                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
+                    <Button Grid.Column="1"
+                            Content="Hide"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
+                            CommandParameter="{Binding SelectedEntry}"
+                            IsVisible="{Binding SelectedEntry.IsSecretVisible}"/>
+                  </Grid>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Spacing="6">
+                  <TextBlock Text="KEY TYPE"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.KeyTypeDisplay}"
+                             FontSize="13"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Spacing="6">
+                  <TextBlock Text="CODE FORMAT"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.DigitsDisplay}"
+                             FontFamily="Consolas"
+                             FontSize="13"/>
+                </StackPanel>
+
+                <StackPanel Grid.Row="1"
+                            Grid.Column="1"
+                            Spacing="6">
+                  <TextBlock Text="ALGORITHM"
+                             Classes="auth-kicker"/>
+                  <TextBlock Text="{Binding SelectedEntry.RotationDisplay}"
+                             FontSize="13"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="12">
+              <TextBlock Text="Fields are encrypted locally before being stored."
+                         Classes="page-subtitle"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         VerticalAlignment="Center"/>
+              <Button Grid.Column="1"
+                      Content="Delete"
+                      Classes="auth-danger-button"
+                      Command="{Binding BeginDetailsDeleteCommand}"/>
+              <Button Grid.Column="2"
+                      Content="Edit"
+                      Classes="auth-primary-button"
+                      Command="{Binding BeginDetailsEditCommand}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
 
     <Border Background="#B0000000"
             IsVisible="{Binding IsEditorModalOpen}">
@@ -608,6 +760,7 @@
       <Setter Property="CornerRadius" Value="14"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
     <Style Selector="Button.auth-list-button">
@@ -615,9 +768,10 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
-      <Setter Property="Margin" Value="0,0,0,8"/>
+      <Setter Property="Margin" Value="0,0,0,4"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Stretch"/>
       <Setter Property="FocusAdorner" Value="{x:Null}"/>
     </Style>
 
@@ -626,8 +780,8 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="16,14"/>
-      <Setter Property="Margin" Value="8,8,8,0"/>
+      <Setter Property="Padding" Value="12,14"/>
+      <Setter Property="Margin" Value="4,4"/>
     </Style>
 
     <Style Selector="Border.auth-list-item.active">
