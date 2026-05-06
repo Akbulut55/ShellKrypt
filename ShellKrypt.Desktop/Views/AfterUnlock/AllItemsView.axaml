@@ -123,6 +123,10 @@
                       Classes="allitems-chip"
                       Classes.active="{Binding IsAuthenticatorTypeActive}"
                       Command="{Binding ShowAuthenticatorTypesCommand}"/>
+              <Button Content="{Binding ApiKeyCount, StringFormat=API Keys ({0})}"
+                      Classes="allitems-chip"
+                      Classes.active="{Binding IsApiKeyTypeActive}"
+                      Command="{Binding ShowApiKeyTypesCommand}"/>
               <Button Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
                       Classes="allitems-chip"
                       Classes.active="{Binding IsNoteTypeActive}"

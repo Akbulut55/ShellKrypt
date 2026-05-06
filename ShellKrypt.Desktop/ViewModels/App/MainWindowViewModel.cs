@@ -34,6 +34,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ICardService _cardService;
     private readonly INoteService _noteService;
     private readonly IAuthenticatorService _authenticatorService;
+    private readonly IApiKeyService _apiKeyService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
 
@@ -56,6 +57,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _cardService = new CardService(_itemRepo);
         _noteService = new NoteService(_itemRepo);
         _authenticatorService = new AuthenticatorService(_itemRepo);
+        _apiKeyService = new ApiKeyService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 
         var settings = _settingsStore.Load();
@@ -107,7 +109,7 @@ public partial class MainWindowViewModel : ViewModelBase
             vaultPath: _state.VaultPath);
 
         _sessionSecurity.SetUnlocked(true);
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
     }
 
     public void Lock()
@@ -133,7 +135,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
         _sessionSecurity.RecordActivity();
     }
 

@@ -39,6 +39,20 @@ public sealed partial class SettingsViewModel : ViewModelBase
         public string Label { get; }
     }
 
+    public sealed class LanguageOption
+    {
+        public LanguageOption(string code, string label)
+        {
+            Code = code;
+            Label = label;
+        }
+
+        public string Code { get; }
+        public string Label { get; }
+
+        public override string ToString() => Label;
+    }
+
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
@@ -51,6 +65,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
     [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
     [ObservableProperty] private AppThemeMode selectedThemeMode;
+    [ObservableProperty] private LanguageOption? selectedLanguageOption;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string transferStatus = "Preview an operation before applying it.";
     [ObservableProperty] private bool isTransferBusy;
@@ -87,6 +102,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [
         AppThemeMode.Dark,
         AppThemeMode.Light
+    ];
+
+    public ObservableCollection<LanguageOption> LanguageOptions { get; } =
+    [
+        new("en", "English")
     ];
 
     public ObservableCollection<AutoLockDurationOption> AutoLockDurations { get; } =
@@ -134,6 +154,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         _shell = shell;
         CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
         LoadFromRootSettings();
+        SelectedLanguageOption = LanguageOptions[0];
         Status = "Settings save automatically.";
 
         var exportBaseName = GetVaultDisplayName();
@@ -206,6 +227,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
         _root.ThemeMode = value;
         Status = $"Theme switched to {value}.";
         OnPropertyChanged(nameof(ThemeModeLabel));
+    }
+
+    partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
+    {
+        if (value is not null)
+            Status = $"Language set to {value.Label}.";
     }
 
     partial void OnMasterPasswordStatusChanged(string value) => OnPropertyChanged(nameof(HasMasterPasswordStatus));
@@ -695,10 +722,10 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     private static string FormatExportSummary(VaultSnapshotSummary summary)
-        => $"Items: {summary.ItemCount} | Web: {summary.WebCount} | Cards: {summary.CardCount} | Notes: {summary.NoteCount} | Authenticator: {summary.AuthenticatorCount} | Labels: {summary.LabelCount} | Favorites: {summary.FavoriteCount}";
+        => $"Items: {summary.ItemCount} | Web: {summary.WebCount} | Cards: {summary.CardCount} | Notes: {summary.NoteCount} | Authenticator: {summary.AuthenticatorCount} | API Keys: {summary.ApiKeyCount} | Labels: {summary.LabelCount} | Favorites: {summary.FavoriteCount}";
 
     private static string FormatImportSummary(VaultSnapshotSummary summary)
-        => $"Previewing import: {summary.ItemCount} items, {summary.AuthenticatorCount} authenticator accounts, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
+        => $"Previewing import: {summary.ItemCount} items, {summary.AuthenticatorCount} authenticator accounts, {summary.ApiKeyCount} API keys, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
 
     private void LoadFromRootSettings()
     {

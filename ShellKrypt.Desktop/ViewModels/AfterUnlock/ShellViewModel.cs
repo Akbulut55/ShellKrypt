@@ -18,11 +18,12 @@ public partial class ShellViewModel : ViewModelBase
     {
         new NavItemVm("vault", "All Items"),
         new NavItemVm("web", "Web Logins"),
-        new NavItemVm("notes", "Markdown Notes"),
         new NavItemVm("cards", "Credit Cards"),
-        new NavItemVm("audit", "Security Audit"),
-        new NavItemVm("generator", "Generator"),
+        new NavItemVm("api", "API Keys"),
         new NavItemVm("auth", "Authenticator"),
+        new NavItemVm("notes", "Markdown Notes"),
+        new NavItemVm("generator", "Generator"),
+        new NavItemVm("audit", "Security Audit"),
         new NavItemVm("settings", "Settings"),
         new NavItemVm("activity", "Activity"),
     };
@@ -37,6 +38,7 @@ public partial class ShellViewModel : ViewModelBase
         ICardService cardService,
         INoteService noteService,
         IAuthenticatorService authenticatorService,
+        IApiKeyService apiKeyService,
         AuthenticatorQrImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
         ICryptoToolsService cryptoToolsService,
@@ -49,6 +51,7 @@ public partial class ShellViewModel : ViewModelBase
         MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
+        ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         Health = new HealthViewModel(_root, this, healthAuditService);
         Settings = new SettingsViewModel(_root, this);
@@ -61,6 +64,7 @@ public partial class ShellViewModel : ViewModelBase
     public MarkdownNotesViewModel MarkdownNotes { get; }
     public CardsViewModel Cards { get; }
     public AuthenticatorViewModel Authenticator { get; }
+    public ApiKeysViewModel ApiKeys { get; }
     public ToolsViewModel Tools { get; }
     public HealthViewModel Health { get; }
     public AllItemsViewModel AllItems { get; }
@@ -95,6 +99,7 @@ public partial class ShellViewModel : ViewModelBase
         "audit" => "Audit reuse, age, and password risk across the repository.",
         "generator" => "Generate and transform local secrets without leaving the vault.",
         "auth" => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
+        "api" => "API tokens, client secrets, project IDs, and provider metadata.",
         "settings" => "Manage security posture, import/export, and desktop behavior.",
         "activity" => "Activity log placeholder for future vault events.",
         _ => "Local encrypted vault workspace."
@@ -111,6 +116,7 @@ public partial class ShellViewModel : ViewModelBase
         "audit" => "Search security audit...",
         "generator" => "Search generator tools...",
         "auth" => "Search authenticator codes...",
+        "api" => "Search API keys...",
         "activity" => "Search activity...",
         _ => "Search all items..."
     };
@@ -132,6 +138,7 @@ public partial class ShellViewModel : ViewModelBase
             "generator" => Tools,
             "audit" => Health,
             "auth" => Authenticator,
+            "api" => ApiKeys,
             "settings" => Settings,
             "activity" => Activity,
             _ => AllItems
@@ -174,6 +181,12 @@ public partial class ShellViewModel : ViewModelBase
     {
         SelectNav("auth");
         return await Authenticator.OpenEntryByIdAsync(itemId);
+    }
+    public void ShowApiKeys() => SelectNav("api");
+    public async Task<bool> ShowApiKeyByIdAsync(string itemId)
+    {
+        SelectNav("api");
+        return await ApiKeys.OpenEntryByIdAsync(itemId);
     }
     public void ShowSettings() => SelectNav("settings");
     public void ShowActivity() => SelectNav("activity");

@@ -79,6 +79,7 @@ public sealed class AllItemEntry
         ItemType.Card => "CARD",
         ItemType.Note => "MARKDOWN NOTE",
         ItemType.Authenticator => "AUTHENTICATOR",
+        ItemType.ApiKey => "API KEY",
         _ => TypeLabel.ToUpperInvariant()
     };
 
@@ -88,6 +89,7 @@ public sealed class AllItemEntry
         ItemType.Card => "CC",
         ItemType.Note => "MD",
         ItemType.Authenticator => "AU",
+        ItemType.ApiKey => "AK",
         _ => "IT"
     };
 
@@ -97,6 +99,7 @@ public sealed class AllItemEntry
         ItemType.Card => "#3A3228",
         ItemType.Note => "#243637",
         ItemType.Authenticator => "#23343B",
+        ItemType.ApiKey => "#243334",
         _ => "#2A2A2A"
     };
 
@@ -106,6 +109,7 @@ public sealed class AllItemEntry
         ItemType.Card => "#FFD1AA",
         ItemType.Note => "#62FAE3",
         ItemType.Authenticator => "#8FE7FF",
+        ItemType.ApiKey => "#57F1DB",
         _ => "#E5E2E1"
     };
 
@@ -115,6 +119,7 @@ public sealed class AllItemEntry
         ItemType.Card => "#4A3827",
         ItemType.Note => "#174544",
         ItemType.Authenticator => "#1C3E4A",
+        ItemType.ApiKey => "#174544",
         _ => "#2A2A2A"
     };
 
@@ -124,6 +129,7 @@ public sealed class AllItemEntry
         ItemType.Card => "#FFD1AA",
         ItemType.Note => "#57F1DB",
         ItemType.Authenticator => "#9FE8FF",
+        ItemType.ApiKey => "#57F1DB",
         _ => "#E5E2E1"
     };
 
@@ -234,6 +240,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     private int _cardCount;
     private int _noteCount;
     private int _authenticatorCount;
+    private int _apiKeyCount;
     private int _filteredCount;
     private int _weakPasswordCount;
     private int _reusedPasswordCount;
@@ -257,6 +264,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         ShowCardTypesCommand = new RelayCommand(ShowCardTypes);
         ShowNoteTypesCommand = new RelayCommand(ShowNoteTypes);
         ShowAuthenticatorTypesCommand = new RelayCommand(ShowAuthenticatorTypes);
+        ShowApiKeyTypesCommand = new RelayCommand(ShowApiKeyTypes);
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResetFiltersCommand = new RelayCommand(ResetFilters);
         CycleSortCommand = new RelayCommand(CycleSort);
@@ -279,6 +287,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public ICommand ShowCardTypesCommand { get; }
     public ICommand ShowNoteTypesCommand { get; }
     public ICommand ShowAuthenticatorTypesCommand { get; }
+    public ICommand ShowApiKeyTypesCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand CycleSortCommand { get; }
@@ -342,6 +351,7 @@ public sealed class AllItemsViewModel : ViewModelBase
                 OnPropertyChanged(nameof(IsCardTypeActive));
                 OnPropertyChanged(nameof(IsNoteTypeActive));
                 OnPropertyChanged(nameof(IsAuthenticatorTypeActive));
+                OnPropertyChanged(nameof(IsApiKeyTypeActive));
                 OnPropertyChanged(nameof(AddItemButtonText));
                 ApplyFilter();
             }
@@ -396,6 +406,12 @@ public sealed class AllItemsViewModel : ViewModelBase
     {
         get => _authenticatorCount;
         private set => SetProperty(ref _authenticatorCount, value);
+    }
+
+    public int ApiKeyCount
+    {
+        get => _apiKeyCount;
+        private set => SetProperty(ref _apiKeyCount, value);
     }
 
     public int FilteredCount
@@ -473,6 +489,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public bool IsCardTypeActive => string.Equals(ActiveType, "card", StringComparison.Ordinal);
     public bool IsNoteTypeActive => string.Equals(ActiveType, "note", StringComparison.Ordinal);
     public bool IsAuthenticatorTypeActive => string.Equals(ActiveType, "authenticator", StringComparison.Ordinal);
+    public bool IsApiKeyTypeActive => string.Equals(ActiveType, "api", StringComparison.Ordinal);
 
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
@@ -496,6 +513,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         "card" => "+ Add Card",
         "note" => "+ Add Note",
         "authenticator" => "+ Add Authenticator",
+        "api" => "+ Add API Key",
         _ => "+ Add Item"
     };
 
@@ -524,6 +542,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     private void ShowCardTypes() => ActiveType = "card";
     private void ShowNoteTypes() => ActiveType = "note";
     private void ShowAuthenticatorTypes() => ActiveType = "authenticator";
+    private void ShowApiKeyTypes() => ActiveType = "api";
 
     private async Task RefreshAsync()
     {
@@ -585,6 +604,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             "card" => ItemType.Card,
             "note" => ItemType.Note,
             "authenticator" => ItemType.Authenticator,
+            "api" => ItemType.ApiKey,
             _ => SelectedRow?.Type ?? ItemType.Web
         };
 
@@ -608,6 +628,11 @@ public sealed class AllItemsViewModel : ViewModelBase
             case ItemType.Authenticator:
                 _shell.ShowAuthenticator();
                 ExecuteCommand(_shell.Authenticator.AddNewCommand);
+                break;
+
+            case ItemType.ApiKey:
+                _shell.ShowApiKeys();
+                ExecuteCommand(_shell.ApiKeys.AddNewCommand);
                 break;
         }
     }
@@ -633,6 +658,10 @@ public sealed class AllItemsViewModel : ViewModelBase
             case ItemType.Authenticator:
                 _shell.ShowAuthenticator();
                 _ = _shell.ShowAuthenticatorByIdAsync(row.Id);
+                break;
+            case ItemType.ApiKey:
+                _shell.ShowApiKeys();
+                _ = _shell.ShowApiKeyByIdAsync(row.Id);
                 break;
         }
     }
@@ -666,6 +695,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             CardCount = _allItems.Count(x => x.Type == ItemType.Card);
             NoteCount = _allItems.Count(x => x.Type == ItemType.Note);
             AuthenticatorCount = _allItems.Count(x => x.Type == ItemType.Authenticator);
+            ApiKeyCount = _allItems.Count(x => x.Type == ItemType.ApiKey);
             WeakPasswordCount = _webPasswords.Count(IsWeakPassword);
             ReusedPasswordCount = CountReusedPasswords(_webPasswords);
             ExpiringSoonCardCount = _allItems.Count(x => x.IsCardExpiryUrgent);
@@ -720,6 +750,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             "card" => filtered.Where(x => x.Type == ItemType.Card),
             "note" => filtered.Where(x => x.Type == ItemType.Note),
             "authenticator" => filtered.Where(x => x.Type == ItemType.Authenticator),
+            "api" => filtered.Where(x => x.Type == ItemType.ApiKey),
             _ => filtered
         };
 
@@ -736,6 +767,7 @@ public sealed class AllItemsViewModel : ViewModelBase
                     ItemType.Card => 1,
                     ItemType.Note => 2,
                     ItemType.Authenticator => 3,
+                    ItemType.ApiKey => 4,
                     _ => 99
                 })
                 .ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase),
@@ -811,6 +843,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             ItemType.Card => BuildCardEntry(row, labels),
             ItemType.Note => BuildNoteEntry(row, labels),
             ItemType.Authenticator => BuildAuthenticatorEntry(row, labels),
+            ItemType.ApiKey => BuildApiKeyEntry(row, labels),
             _ => new AllItemEntry(
                 row.Header.Id,
                 row.Header.Type,
@@ -949,6 +982,48 @@ public sealed class AllItemsViewModel : ViewModelBase
             copyValue);
     }
 
+    private AllItemEntry BuildApiKeyEntry(VaultItemRow row, IReadOnlyList<string> labels)
+    {
+        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var payload = JsonSerializer.Deserialize<ApiKeyPayload>(json, JsonOpts)
+            ?? new ApiKeyPayload("", "", "", "", Array.Empty<ApiKeyFieldPayload>());
+
+        var title = FirstNonEmpty(payload.Name, "Untitled API key");
+        var provider = FirstNonEmpty(payload.Provider, "Unknown provider");
+        var environment = FirstNonEmpty(payload.Environment, "Production");
+        var primaryField = payload.Fields
+            .OrderBy(field => field.SortOrder)
+            .FirstOrDefault(field => field.IsSensitive && field.IsCopyable)
+            ?? payload.Fields.OrderBy(field => field.SortOrder).FirstOrDefault(field => field.IsCopyable)
+            ?? payload.Fields.OrderBy(field => field.SortOrder).FirstOrDefault();
+        var fieldSummary = primaryField is null
+            ? "No fields"
+            : $"{primaryField.Label}: {MaskApiKeyValue(primaryField.Value)}";
+        var identifier = FirstNonEmpty(provider, environment, primaryField?.Label, "N/A");
+        var copyValue = FirstNonEmpty(primaryField?.Value, title);
+        var searchText = BuildSearchText(
+            title,
+            provider,
+            environment,
+            payload.Notes,
+            string.Join(" ", payload.Fields.Select(field => $"{field.Label} {field.FieldType} {field.Value}")),
+            string.Join(" ", labels),
+            row.Header.Favorite ? "favorite" : string.Empty);
+
+        return new AllItemEntry(
+            row.Header.Id,
+            row.Header.Type,
+            title,
+            fieldSummary,
+            identifier,
+            labels,
+            searchText,
+            row.Header.Favorite,
+            row.Header.CreatedAtUtc,
+            row.Header.UpdatedAtUtc,
+            copyValue);
+    }
+
     private static void ExecuteCommand(ICommand? command)
     {
         if (command is not null && command.CanExecute(null))
@@ -983,6 +1058,15 @@ public sealed class AllItemsViewModel : ViewModelBase
             return "****";
 
         return $"**** **** **** {digits[^4..]}";
+    }
+
+    private static string MaskApiKeyValue(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return "Encrypted API field";
+
+        var trimmed = value.Trim();
+        return trimmed.Length <= 4 ? "****" : $"**** **** {trimmed[^4..]}";
     }
 
     private static bool IsWeakPassword(string? password)

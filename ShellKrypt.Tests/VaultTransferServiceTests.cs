@@ -49,6 +49,7 @@ public sealed class VaultTransferServiceTests
         Assert.Equal(0, summary.CardCount);
         Assert.Equal(1, summary.NoteCount);
         Assert.Equal(0, summary.AuthenticatorCount);
+        Assert.Equal(0, summary.ApiKeyCount);
         Assert.Equal(1, summary.LabelCount);
         Assert.Equal(1, summary.FavoriteCount);
 
