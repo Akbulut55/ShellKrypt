@@ -156,6 +156,13 @@ public partial class WebLoginsViewModel : ViewModelBase
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
+    public bool HasRows => Rows.Count > 0;
+    public string EmptyTableTitle => _all.Count == 0
+        ? "No web logins saved yet"
+        : "No web logins match this view";
+    public string EmptyTableSubtitle => _all.Count == 0
+        ? "Add a website login to start storing encrypted credentials in this vault."
+        : "Adjust the search term or email filter to show more saved logins.";
     public bool HasEmailFilterOptions => EmailFilterOptions.Count > 0;
     public bool HasSelectedEmailFilter => !string.IsNullOrWhiteSpace(SelectedEmailFilter);
     public string EmailFilterButtonText => HasSelectedEmailFilter ? "FILTERED" : "FILTER";
@@ -596,6 +603,9 @@ public partial class WebLoginsViewModel : ViewModelBase
         OnPropertyChanged(nameof(PageSummary));
         OnPropertyChanged(nameof(CanGoPreviousPage));
         OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(HasRows));
+        OnPropertyChanged(nameof(EmptyTableTitle));
+        OnPropertyChanged(nameof(EmptyTableSubtitle));
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
     }

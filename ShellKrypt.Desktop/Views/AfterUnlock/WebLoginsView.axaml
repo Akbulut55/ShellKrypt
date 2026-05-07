@@ -91,7 +91,7 @@
       <Border Classes="web-table-shell"
               ClipToBounds="True">
         <Grid RowDefinitions="Auto,*,Auto">
-          <Border Background="#26353534"
+          <Border Background="{StaticResource SurfaceBrush}"
                   Padding="22,14">
             <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
                   ColumnSpacing="24">
@@ -109,101 +109,111 @@
             </Grid>
           </Border>
 
-          <ItemsControl Grid.Row="1"
-                        ItemsSource="{Binding Rows}">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:WebLoginRowVm">
-                <Border Classes="web-login-row">
-                  <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
-                        ColumnSpacing="24"
-                        MinHeight="78"
-                        Margin="22,0">
-                    <Grid ColumnDefinitions="Auto,*"
-                          ColumnSpacing="12"
-                          VerticalAlignment="Center">
-                      <Border Width="34"
-                              Height="34"
-                              CornerRadius="4"
-                              Background="{StaticResource SurfaceElevatedBrush}">
-                        <Grid>
-                          <Border Width="24"
-                                  Height="24"
-                                  CornerRadius="2"
-                                  Background="{StaticResource AppBackgroundSoftBrush}"
-                                  HorizontalAlignment="Center"
-                                  VerticalAlignment="Center"/>
-                          <TextBlock Text="{Binding IconLetter}"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center"
-                                     FontSize="12"
-                                     FontWeight="Black"
-                                     Foreground="{StaticResource AccentBrush}"/>
-                        </Grid>
-                      </Border>
+          <Grid Grid.Row="1"
+                MinHeight="390">
+            <ItemsControl ItemsSource="{Binding Rows}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="vm:WebLoginRowVm">
+                  <Border Classes="web-login-row">
+                    <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
+                          ColumnSpacing="24"
+                          MinHeight="78"
+                          Margin="22,0">
+                      <Grid ColumnDefinitions="Auto,*"
+                            ColumnSpacing="12"
+                            VerticalAlignment="Center">
+                        <Border Width="34"
+                                Height="34"
+                                CornerRadius="4"
+                                Background="{StaticResource SurfaceElevatedBrush}">
+                          <Grid>
+                            <Border Width="24"
+                                    Height="24"
+                                    CornerRadius="2"
+                                    Background="{StaticResource AppBackgroundSoftBrush}"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding IconLetter}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="12"
+                                       FontWeight="Black"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                          </Grid>
+                        </Border>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding Title}"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   TextWrapping="Wrap"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"/>
+                      </Grid>
 
                       <TextBlock Grid.Column="1"
-                                 Text="{Binding Title}"
-                                 FontSize="14"
-                                 FontWeight="SemiBold"
+                                 Text="{Binding UsernameDisplay}"
+                                 Classes="web-row-muted"
                                  TextWrapping="Wrap"
                                  TextTrimming="CharacterEllipsis"
                                  VerticalAlignment="Center"/>
-                    </Grid>
 
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding UsernameDisplay}"
-                               Classes="web-row-muted"
-                               TextWrapping="Wrap"
-                               TextTrimming="CharacterEllipsis"
-                               VerticalAlignment="Center"/>
+                      <Grid Grid.Column="2"
+                            ColumnDefinitions="*,Auto"
+                            ColumnSpacing="8"
+                            VerticalAlignment="Center">
+                        <TextBlock Text="{Binding PasswordDisplay}"
+                                   Classes="web-password"
+                                   TextTrimming="CharacterEllipsis"
+                                   VerticalAlignment="Center"/>
+                        <Button Grid.Column="1"
+                                Classes="web-inline-icon"
+                                Content="E"
+                                Command="{Binding DataContext.TogglePasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="Reveal password"/>
+                      </Grid>
 
-                    <Grid Grid.Column="2"
-                          ColumnDefinitions="*,Auto"
-                          ColumnSpacing="8"
-                          VerticalAlignment="Center">
-                      <TextBlock Text="{Binding PasswordDisplay}"
-                                 Classes="web-password"
+                      <TextBlock Grid.Column="3"
+                                 Text="{Binding UrlHost}"
+                                 Classes="web-url"
                                  TextTrimming="CharacterEllipsis"
+                                 TextAlignment="Center"
                                  VerticalAlignment="Center"/>
-                      <Button Grid.Column="1"
-                              Classes="web-inline-icon"
-                              Content="E"
-                              Command="{Binding DataContext.TogglePasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              ToolTip.Tip="Reveal password"/>
+
+                      <StackPanel Grid.Column="4"
+                                  Orientation="Horizontal"
+                                  HorizontalAlignment="Right"
+                                  VerticalAlignment="Center"
+                                  Spacing="8">
+                        <Button Classes="web-action"
+                                Content="Details"
+                                Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="View login details"/>
+                        <Button Classes="web-action"
+                                Content="Copy Password"
+                                Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="Copy password"/>
+                      </StackPanel>
                     </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
-                    <TextBlock Grid.Column="3"
-                               Text="{Binding UrlHost}"
-                               Classes="web-url"
-                               TextTrimming="CharacterEllipsis"
-                               TextAlignment="Center"
-                               VerticalAlignment="Center"/>
-
-                    <StackPanel Grid.Column="4"
-                                Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center"
-                                Spacing="8">
-                      <Button Classes="web-action"
-                              Content="Details"
-                              Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              ToolTip.Tip="View login details"/>
-                      <Button Classes="web-action"
-                              Content="Copy Password"
-                              Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              ToolTip.Tip="Copy password"/>
-                    </StackPanel>
-                  </Grid>
-                </Border>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
+            <StackPanel Classes="web-empty-table"
+                        IsVisible="{Binding !HasRows}">
+              <TextBlock Text="{Binding EmptyTableTitle}"
+                         Classes="web-empty-title"/>
+              <TextBlock Text="{Binding EmptyTableSubtitle}"
+                         Classes="web-empty-subtitle"/>
+            </StackPanel>
+          </Grid>
 
           <Border Grid.Row="2"
-                  Background="#26353534"
+                  Background="{StaticResource SurfaceBrush}"
                   Padding="22,14">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   ColumnSpacing="10">
@@ -544,13 +554,33 @@
     </Style>
 
     <Style Selector="Border.web-login-row">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#1a3c4a46"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="#171f1d"/>
       <Setter Property="BorderThickness" Value="0,0,0,1"/>
     </Style>
 
     <Style Selector="Border.web-login-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    </Style>
+
+    <Style Selector="StackPanel.web-empty-table">
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Spacing" Value="10"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-empty-title">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-empty-subtitle">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MaxWidth" Value="460"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style Selector="Border.web-bento-card">

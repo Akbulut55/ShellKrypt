@@ -118,7 +118,7 @@
         <Border Classes="cards-table-shell"
                 ClipToBounds="True">
           <Grid RowDefinitions="Auto,*,Auto">
-            <Border Background="#26353534"
+            <Border Background="{StaticResource SurfaceBrush}"
                     Padding="22,14">
               <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
                     ColumnSpacing="18">
@@ -134,129 +134,139 @@
               </Grid>
             </Border>
 
-            <ItemsControl Grid.Row="1"
-                          ItemsSource="{Binding Rows}">
-              <ItemsControl.ItemTemplate>
-                <DataTemplate x:DataType="vm:CardRowVm">
-                  <Border Classes="cards-row">
-                    <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
-                          ColumnSpacing="18"
-                          Margin="22,0"
-                          MinHeight="78">
-                      <Grid ColumnDefinitions="Auto,*"
-                            ColumnSpacing="12"
-                            VerticalAlignment="Center">
-                        <Border Width="34"
-                                Height="34"
-                                CornerRadius="4"
-                                Background="{StaticResource SurfaceElevatedBrush}">
-                          <Grid>
-                            <Border Width="24"
-                                    Height="24"
-                                    CornerRadius="2"
-                                    Background="{StaticResource AppBackgroundSoftBrush}"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            <TextBlock Text="C"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="12"
-                                       FontWeight="Black"
-                                       Foreground="{StaticResource AccentBrush}"/>
-                          </Grid>
-                        </Border>
+            <Grid Grid.Row="1"
+                  MinHeight="390">
+              <ItemsControl ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:CardRowVm">
+                    <Border Classes="cards-row">
+                      <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
+                            ColumnSpacing="18"
+                            Margin="22,0"
+                            MinHeight="78">
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12"
+                              VerticalAlignment="Center">
+                          <Border Width="34"
+                                  Height="34"
+                                  CornerRadius="4"
+                                  Background="{StaticResource SurfaceElevatedBrush}">
+                            <Grid>
+                              <Border Width="24"
+                                      Height="24"
+                                      CornerRadius="2"
+                                      Background="{StaticResource AppBackgroundSoftBrush}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+                              <TextBlock Text="C"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"
+                                         FontSize="12"
+                                         FontWeight="Black"
+                                         Foreground="{StaticResource AccentBrush}"/>
+                            </Grid>
+                          </Border>
+
+                          <StackPanel Grid.Column="1"
+                                      Spacing="4"
+                                      VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}"
+                                       FontSize="14"
+                                       FontWeight="SemiBold"
+                                       TextWrapping="Wrap"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding SubtitleDisplay}"
+                                       Classes="cards-row-subtitle"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </StackPanel>
+                        </Grid>
 
                         <StackPanel Grid.Column="1"
-                                    Spacing="4"
+                                    Spacing="6"
                                     VerticalAlignment="Center">
-                          <TextBlock Text="{Binding Title}"
+                          <TextBlock Text="{Binding BankDisplay}"
                                      FontSize="14"
                                      FontWeight="SemiBold"
-                                     TextWrapping="Wrap"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Text="{Binding SubtitleDisplay}"
-                                     Classes="cards-row-subtitle"
-                                     TextTrimming="CharacterEllipsis"/>
+                                     TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2"
+                                    Spacing="6"
+                                    VerticalAlignment="Center">
+                          <TextBlock Text="{Binding NumberDisplay}"
+                                     Classes="cards-number"
+                                     TextWrapping="Wrap"/>
+                        </StackPanel>
+
+                        <Button Grid.Column="3"
+                                Content="E"
+                                Classes="cards-reveal-button"
+                                Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                ToolTip.Tip="{Binding SecretsActionLabel}"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="4"
+                                    Spacing="6"
+                                    VerticalAlignment="Center">
+                          <Grid ColumnDefinitions="Auto,Auto"
+                                ColumnSpacing="6">
+                            <TextBlock Text="{Binding ExpiryDisplay}"
+                                       Classes="cards-expiry"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="!"
+                                       Foreground="{StaticResource DangerBrush}"
+                                       FontWeight="Black"
+                                       IsVisible="{Binding IsExpiryUrgent}"/>
+                          </Grid>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="5"
+                                    Spacing="6"
+                                    VerticalAlignment="Center">
+                          <Border Classes="cards-issuer-chip"
+                                  Padding="9,3"
+                                  HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding IssuerDisplay}"
+                                       FontSize="11"
+                                       FontWeight="Black"
+                                       Foreground="{StaticResource TextMutedBrush}"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </Border>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="6"
+                                    Orientation="Horizontal"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center"
+                                    Spacing="8">
+                          <Button Content="Details"
+                                  Classes="cards-action"
+                                  Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"/>
+                          <Button Content="Copy Card Number"
+                                  Classes="cards-action"
+                                  Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"/>
                         </StackPanel>
                       </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-                      <StackPanel Grid.Column="1"
-                                  Spacing="6"
-                                  VerticalAlignment="Center">
-                        <TextBlock Text="{Binding BankDisplay}"
-                                   FontSize="14"
-                                   FontWeight="SemiBold"
-                                   TextWrapping="Wrap"/>
-                      </StackPanel>
-
-                      <StackPanel Grid.Column="2"
-                                  Spacing="6"
-                                  VerticalAlignment="Center">
-                        <TextBlock Text="{Binding NumberDisplay}"
-                                   Classes="cards-number"
-                                   TextWrapping="Wrap"/>
-                      </StackPanel>
-
-                      <Button Grid.Column="3"
-                              Content="E"
-                              Classes="cards-reveal-button"
-                              Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                              CommandParameter="{Binding}"
-                              ToolTip.Tip="{Binding SecretsActionLabel}"
-                              HorizontalAlignment="Center"
-                              VerticalAlignment="Center"/>
-
-                      <StackPanel Grid.Column="4"
-                                  Spacing="6"
-                                  VerticalAlignment="Center">
-                        <Grid ColumnDefinitions="Auto,Auto"
-                              ColumnSpacing="6">
-                          <TextBlock Text="{Binding ExpiryDisplay}"
-                                     Classes="cards-expiry"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="!"
-                                     Foreground="{StaticResource DangerBrush}"
-                                     FontWeight="Black"
-                                     IsVisible="{Binding IsExpiryUrgent}"/>
-                        </Grid>
-                      </StackPanel>
-
-                      <StackPanel Grid.Column="5"
-                                  Spacing="6"
-                                  VerticalAlignment="Center">
-                        <Border Classes="cards-issuer-chip"
-                                Padding="9,3"
-                                HorizontalAlignment="Left">
-                          <TextBlock Text="{Binding IssuerDisplay}"
-                                     FontSize="11"
-                                     FontWeight="Black"
-                                     Foreground="{StaticResource TextMutedBrush}"
-                                     TextTrimming="CharacterEllipsis"/>
-                        </Border>
-                      </StackPanel>
-
-                      <StackPanel Grid.Column="6"
-                                  Orientation="Horizontal"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Center"
-                                  Spacing="8">
-                        <Button Content="Details"
-                                Classes="cards-action"
-                                Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
-                        <Button Content="Copy Card Number"
-                                Classes="cards-action"
-                                Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
-                      </StackPanel>
-                    </Grid>
-                  </Border>
-                </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+              <StackPanel Classes="cards-empty-table"
+                          IsVisible="{Binding !HasRows}">
+                <TextBlock Text="{Binding EmptyTableTitle}"
+                           Classes="cards-empty-title"/>
+                <TextBlock Text="{Binding EmptyTableSubtitle}"
+                           Classes="cards-empty-subtitle"/>
+              </StackPanel>
+            </Grid>
 
             <Border Grid.Row="2"
-                    Background="#26353534"
+                    Background="{StaticResource SurfaceBrush}"
                     Padding="22,14">
               <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                     ColumnSpacing="10">
@@ -822,13 +832,33 @@
     </Style>
 
     <Style Selector="Border.cards-row">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#1a3c4a46"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="#171f1d"/>
       <Setter Property="BorderThickness" Value="0,0,0,1"/>
     </Style>
 
     <Style Selector="Border.cards-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    </Style>
+
+    <Style Selector="StackPanel.cards-empty-table">
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Spacing" Value="10"/>
+    </Style>
+
+    <Style Selector="TextBlock.cards-empty-title">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBlock.cards-empty-subtitle">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MaxWidth" Value="460"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style Selector="TextBlock.cards-row-subtitle">

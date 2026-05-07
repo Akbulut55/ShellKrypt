@@ -343,6 +343,13 @@ public partial class CardsViewModel : ViewModelBase
     public string PageSummary => $"{CurrentPage} / {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
+    public bool HasRows => Rows.Count > 0;
+    public string EmptyTableTitle => _all.Count == 0
+        ? "No credit cards saved yet"
+        : "No credit cards match this view";
+    public string EmptyTableSubtitle => _all.Count == 0
+        ? "Add a credit card to keep encrypted payment details in this vault."
+        : "Adjust the search, network filter, or sort option to show more cards.";
     public string CardModalTitle => IsAddCardMode
         ? "Add Credit Card"
         : IsCardDeleteConfirming
@@ -425,6 +432,9 @@ public partial class CardsViewModel : ViewModelBase
         OnPropertyChanged(nameof(PageSummary));
         OnPropertyChanged(nameof(CanGoPreviousPage));
         OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(HasRows));
+        OnPropertyChanged(nameof(EmptyTableTitle));
+        OnPropertyChanged(nameof(EmptyTableSubtitle));
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
     }

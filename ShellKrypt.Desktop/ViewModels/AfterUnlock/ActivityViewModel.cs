@@ -104,9 +104,12 @@ public sealed partial class ActivityItemVm : ObservableObject
 
 public partial class ActivityViewModel : ViewModelBase
 {
+    private const int PageSize = 10;
+
     private readonly MainWindowViewModel _root;
     private readonly ActivityLogStore _store;
     private readonly List<ActivityItemVm> _allItems = new();
+    private readonly List<ActivityItemVm> _filteredItems = new();
 
     public ObservableCollection<ActivityItemVm> Items { get; } = new();
 
@@ -114,6 +117,7 @@ public partial class ActivityViewModel : ViewModelBase
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private string activeCategory = "all";
     [ObservableProperty] private string error = "";
+    [ObservableProperty] private int currentPage = 1;
 
     public ActivityViewModel(MainWindowViewModel root, ActivityLogStore store)
     {
@@ -124,8 +128,15 @@ public partial class ActivityViewModel : ViewModelBase
     }
 
     public bool HasItems => Items.Count > 0;
+    public bool HasFilteredItems => _filteredItems.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public int TotalEvents => _allItems.Count;
+    public int FilteredEventCount => _filteredItems.Count;
+    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredItems.Count / (double)PageSize));
+    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public string ItemsSummary => $"Showing {Items.Count} of {FilteredEventCount} events";
+    public bool CanGoPreviousPage => CurrentPage > 1;
+    public bool CanGoNextPage => CurrentPage < TotalPages;
     public int TodayCount => _allItems.Count(item => IsToday(item.Entry.TimestampUtc));
     public int WarningCount => _allItems.Count(item => item.Severity is "warning" or "danger");
     public int VaultEventCount => _allItems.Count(item => string.Equals(item.Category, "vault", StringComparison.Ordinal));
@@ -153,9 +164,20 @@ public partial class ActivityViewModel : ViewModelBase
     public string SelectedIntegrityHash => SelectedItem is null ? "Unavailable" : ComputeIntegrityHash(SelectedItem.Entry);
     public string SecurityNoteText => "Auditing is enabled locally. Activity logs stay on this device only.";
 
-    partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnSearchTextChanged(string value) => ApplyFilter(resetPage: true);
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+    partial void OnCurrentPageChanged(int value)
+    {
+        RenderPage();
+        OnPropertyChanged(nameof(PageSummary));
+        OnPropertyChanged(nameof(ItemsSummary));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
+
     partial void OnSelectedItemChanged(ActivityItemVm? value)
     {
         OnPropertyChanged(nameof(HasSelectedItem));
@@ -180,7 +202,7 @@ public partial class ActivityViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsTransferFilterActive));
         OnPropertyChanged(nameof(EmptyStateTitle));
         OnPropertyChanged(nameof(EmptyStateSubtitle));
-        ApplyFilter();
+        ApplyFilter(resetPage: true);
     }
 
     [RelayCommand]
@@ -200,6 +222,20 @@ public partial class ActivityViewModel : ViewModelBase
 
     [RelayCommand]
     private void Refresh() => ReloadFromStore();
+
+    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
+    private void PreviousPage()
+    {
+        if (CanGoPreviousPage)
+            CurrentPage--;
+    }
+
+    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
+    private void NextPage()
+    {
+        if (CanGoNextPage)
+            CurrentPage++;
+    }
 
     [RelayCommand]
     private async Task ClearAsync()
@@ -249,7 +285,7 @@ public partial class ActivityViewModel : ViewModelBase
             foreach (var entry in _store.Load().OrderByDescending(x => x.TimestampUtc, StringComparer.Ordinal))
                 _allItems.Add(new ActivityItemVm(entry));
 
-            ApplyFilter();
+            ApplyFilter(resetPage: false);
             OnPropertyChanged(nameof(TotalEvents));
             OnPropertyChanged(nameof(TodayCount));
             OnPropertyChanged(nameof(WarningCount));
@@ -261,9 +297,9 @@ public partial class ActivityViewModel : ViewModelBase
         }
     }
 
-    private void ApplyFilter()
+    private void ApplyFilter(bool resetPage)
     {
-        Items.Clear();
+        _filteredItems.Clear();
 
         IEnumerable<ActivityItemVm> items = _allItems;
 
@@ -279,13 +315,39 @@ public partial class ActivityViewModel : ViewModelBase
                 item.VaultDisplay.Contains(query, StringComparison.OrdinalIgnoreCase));
         }
 
-        foreach (var item in items)
+        _filteredItems.AddRange(items);
+
+        var targetPage = resetPage ? 1 : Math.Clamp(CurrentPage, 1, TotalPages);
+        if (CurrentPage != targetPage)
+            CurrentPage = targetPage;
+        else
+            RenderPage();
+
+        OnPropertyChanged(nameof(FilteredEventCount));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(PageSummary));
+        OnPropertyChanged(nameof(ItemsSummary));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(HasItems));
+        OnPropertyChanged(nameof(HasFilteredItems));
+        OnPropertyChanged(nameof(EmptyStateTitle));
+        OnPropertyChanged(nameof(EmptyStateSubtitle));
+        PreviousPageCommand.NotifyCanExecuteChanged();
+        NextPageCommand.NotifyCanExecuteChanged();
+    }
+
+    private void RenderPage()
+    {
+        Items.Clear();
+
+        foreach (var item in _filteredItems.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
             Items.Add(item);
 
         SelectedItem = Items.FirstOrDefault();
         OnPropertyChanged(nameof(HasItems));
-        OnPropertyChanged(nameof(EmptyStateTitle));
-        OnPropertyChanged(nameof(EmptyStateSubtitle));
+        OnPropertyChanged(nameof(HasFilteredItems));
+        OnPropertyChanged(nameof(ItemsSummary));
     }
 
     private static bool IsToday(string timestampUtc)
