@@ -1,5 +1,6 @@
 ﻿using System;
 using Avalonia;
+using Avalonia.Win32;
 
 namespace ShellKrypt.Desktop
 {
@@ -16,6 +17,19 @@ namespace ShellKrypt.Desktop
         public static AppBuilder BuildAvaloniaApp()
             => AppBuilder.Configure<App>()
                 .UsePlatformDetect()
+                .With(new Win32PlatformOptions
+                {
+                    OverlayPopups = true,
+                    CompositionMode =
+                    [
+                        Win32CompositionMode.RedirectionSurface
+                    ],
+                    RenderingMode =
+                    [
+                        Win32RenderingMode.AngleEgl,
+                        Win32RenderingMode.Software
+                    ]
+                })
                 .WithInterFont()
                 .LogToTrace();
     }

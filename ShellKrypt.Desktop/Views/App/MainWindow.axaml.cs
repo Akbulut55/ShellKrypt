@@ -12,7 +12,6 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        WindowDecorations = Avalonia.Controls.WindowDecorations.None;
         Opened += OnOpened;
         Activated += OnActivated;
         Deactivated += OnDeactivated;
