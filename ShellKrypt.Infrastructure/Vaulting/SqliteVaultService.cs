@@ -212,9 +212,16 @@ public sealed class SqliteVaultService : IVaultService
             FOREIGN KEY (labelId) REFERENCES labels(id) ON DELETE CASCADE
         );
 
+        CREATE TABLE IF NOT EXISTS activity_logs (
+            id TEXT PRIMARY KEY,
+            timestampUtc TEXT NOT NULL,
+            encryptedPayload BLOB NOT NULL
+        );
+
         CREATE UNIQUE INDEX IF NOT EXISTS idx_labels_name ON labels(name COLLATE NOCASE);
         CREATE INDEX IF NOT EXISTS idx_item_labels_itemId ON item_labels(itemId);
         CREATE INDEX IF NOT EXISTS idx_item_labels_labelId ON item_labels(labelId);
+        CREATE INDEX IF NOT EXISTS idx_activity_logs_timestampUtc ON activity_logs(timestampUtc DESC);
         """;
         await cmd.ExecuteNonQueryAsync(ct);
     }

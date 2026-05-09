@@ -103,6 +103,7 @@ public partial class ToolsViewModel : ViewModelBase
             return;
 
         await _root.CopyToClipboardAsync(GeneratedPassword);
+        _root.LogActivity("generator", "Generated password copied", "Copied a generated password from the password generator.", "info", affectedItem: "Password Generator");
     }
 
     [RelayCommand]

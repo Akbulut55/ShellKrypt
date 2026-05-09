@@ -7,4 +7,7 @@ public sealed record ActivityLogEntry(
     string Title,
     string Detail,
     string Severity,
-    string? VaultPath);
+    string? VaultPath)
+{
+    public string? AffectedItem { get; init; }
+}

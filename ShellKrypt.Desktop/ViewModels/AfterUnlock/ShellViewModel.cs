@@ -25,7 +25,7 @@ public partial class ShellViewModel : ViewModelBase
         new NavItemVm("generator", "Generator"),
         new NavItemVm("audit", "Security Audit"),
         new NavItemVm("settings", "Settings"),
-        new NavItemVm("activity", "Activity"),
+        new NavItemVm("activity", "Activity Logs"),
     };
 
     [ObservableProperty] private NavItemVm? selectedNav;
@@ -101,7 +101,7 @@ public partial class ShellViewModel : ViewModelBase
         "auth" => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
         "api" => "API tokens, client secrets, project IDs, and provider metadata.",
         "settings" => "Manage security posture, import/export, and desktop behavior.",
-        "activity" => "Activity log placeholder for future vault events.",
+        "activity" => "Activity logs placeholder for future vault events.",
         _ => "Local encrypted vault workspace."
     };
     public bool IsSettingsSelected => SelectedNav?.Key == "settings";

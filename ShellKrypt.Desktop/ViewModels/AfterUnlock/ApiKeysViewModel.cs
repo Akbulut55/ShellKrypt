@@ -474,7 +474,7 @@ public partial class ApiKeysViewModel : ViewModelBase
         }
 
         await _root.CopyToClipboardAsync(field.Value);
-        _root.LogActivity("api_keys", "API key field copied", $"Copied {field.Label}.", "info");
+        _root.LogActivity("api_keys", "API key field copied", $"Copied {field.Label}.", "info", affectedItem: field.Label);
     }
 
     [RelayCommand]
@@ -489,7 +489,7 @@ public partial class ApiKeysViewModel : ViewModelBase
         }
 
         await _root.CopyToClipboardAsync(row.PrimaryCopyValue);
-        _root.LogActivity("api_keys", "API key copied", $"Copied {row.PrimaryFieldLabel} for {row.Name}.", "info");
+        _root.LogActivity("api_keys", "API key copied", $"Copied {row.PrimaryFieldLabel} for {row.Name}.", "info", affectedItem: row.Name);
     }
 
     [RelayCommand]
@@ -530,7 +530,7 @@ public partial class ApiKeysViewModel : ViewModelBase
             SelectedProviderFilter = AllProviderFilter;
             SelectedSortOption = SortNewest;
             ApplyFilter();
-            _root.LogActivity("api_keys", "API key added", $"Added {entry.Name}.", "success");
+            _root.LogActivity("api_keys", "API key added", $"Added {entry.Name}.", "success", affectedItem: entry.Name);
         }
         catch (Exception ex)
         {
@@ -571,7 +571,7 @@ public partial class ApiKeysViewModel : ViewModelBase
             IsApiKeyDeleteConfirming = false;
             PopulateFormFromRow(_selectedDetailsRow);
             ApplyFilter(resetPage: false);
-            _root.LogActivity("api_keys", "API key updated", $"Updated {entry.Name}.", "info");
+            _root.LogActivity("api_keys", "API key updated", $"Updated {entry.Name}.", "info", affectedItem: entry.Name);
         }
         catch (Exception ex)
         {
@@ -611,7 +611,7 @@ public partial class ApiKeysViewModel : ViewModelBase
             IsAddApiKeyMode = true;
             ClearForm();
             ApplyFilter(resetPage: false);
-            _root.LogActivity("api_keys", "API key deleted", $"Deleted {deleted.Name}.", "warning");
+            _root.LogActivity("api_keys", "API key deleted", $"Deleted {deleted.Name}.", "warning", affectedItem: deleted.Name);
         }
         catch (Exception ex)
         {

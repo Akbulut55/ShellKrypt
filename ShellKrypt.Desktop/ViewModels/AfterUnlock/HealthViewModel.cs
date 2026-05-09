@@ -213,7 +213,7 @@ public partial class HealthViewModel : ViewModelBase
         _dismissedIssueStore.Dismiss(_root.VaultPath, issue.Fingerprint);
         _dismissedSuggestionFingerprints.Add(issue.Fingerprint);
         NotifySuggestionStateChanged();
-        _root.LogActivity("audit", "Security suggestion dismissed", $"Dismissed {issue.Title} from Smart Suggestion.", "info");
+        _root.LogActivity("audit", "Security suggestion dismissed", $"Dismissed {issue.Title} from Smart Suggestion.", "info", affectedItem: issue.Title);
     }
 
     private async Task LoadAsync()
@@ -255,7 +255,7 @@ public partial class HealthViewModel : ViewModelBase
             OldCount = result.OldCount;
             TotalIssueCount = result.Issues.Count;
             LastCheckedText = result.CheckedAtUtc.ToString("u");
-            _root.LogActivity("settings", "Security audit refreshed", $"Reviewed {result.AnalyzedCount} web login records.", "info");
+            _root.LogActivity("audit", "Security audit refreshed", $"Reviewed {result.AnalyzedCount} web login records.", "info", affectedItem: "Security Audit");
             OnPropertyChanged(nameof(HasIssues));
         }
         catch (Exception ex)

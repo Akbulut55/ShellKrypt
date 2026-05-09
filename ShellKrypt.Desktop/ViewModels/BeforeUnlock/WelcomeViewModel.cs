@@ -209,7 +209,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(entry.VaultPath);
             Status = "Vault imported into the local manager.";
-            _root.LogActivity("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath);
+            _root.LogActivity("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath, displayName);
         }
         catch (Exception ex)
         {
@@ -250,7 +250,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(targetPath);
             Status = "Vault duplicated.";
-            _root.LogActivity("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath);
+            _root.LogActivity("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath, $"{SelectedVault.DisplayLabel} Copy");
         }
         catch (Exception ex)
         {
@@ -294,7 +294,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults();
             Status = $"{displayName} was removed from the local vault list.";
-            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path);
+            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)
         {
@@ -357,7 +357,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             RemoveTarget = null;
             ReloadVaults();
             Status = $"{displayName} was removed from the local vault list.";
-            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path);
+            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)
         {
@@ -485,7 +485,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             ClearDeleteOverlay();
             ReloadVaults();
             Status = $"{vault.DisplayLabel} was deleted permanently.";
-            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath);
+            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)
         {
@@ -526,7 +526,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             ReloadVaults(vault.VaultPath);
             Status = "Vault metadata saved.";
-            _root.LogActivity("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath);
+            _root.LogActivity("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath, displayName);
         }
         catch (Exception ex)
         {
@@ -550,7 +550,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             _vaultRegistry.SetDefaultVault(vault.VaultPath);
             ReloadVaults(vault.VaultPath);
             Status = "Default vault updated.";
-            _root.LogActivity("vault", "Default vault changed", $"Marked {vault.DisplayLabel} as the default vault.", "info", vault.VaultPath);
+            _root.LogActivity("vault", "Default vault changed", $"Marked {vault.DisplayLabel} as the default vault.", "info", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)
         {

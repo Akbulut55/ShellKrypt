@@ -45,10 +45,14 @@
                     Classes="activity-chip"
                     Classes.active="{Binding IsVaultFilterActive}"
                     Command="{Binding ShowVaultCommand}"/>
-            <Button Content="Notes"
+            <Button Content="Items"
                     Classes="activity-chip"
-                    Classes.active="{Binding IsNotesFilterActive}"
-                    Command="{Binding ShowNotesCommand}"/>
+                    Classes.active="{Binding IsItemsFilterActive}"
+                    Command="{Binding ShowItemsCommand}"/>
+            <Button Content="Audit"
+                    Classes="activity-chip"
+                    Classes.active="{Binding IsAuditFilterActive}"
+                    Command="{Binding ShowAuditCommand}"/>
             <Button Content="Export"
                     Classes="activity-chip"
                     Classes.active="{Binding IsTransferFilterActive}"
@@ -269,24 +273,33 @@
                   </StackPanel>
                 </Border>
 
-                <Button Content="Export Full Report"
-                        Classes="activity-report-button"
-                        Command="{Binding ExportSelectedCommand}"/>
               </StackPanel>
             </Border>
 
-            <Border Classes="activity-note-card">
-              <StackPanel Spacing="8">
-                <TextBlock Text="SECURITY NOTE"
+            <Border Classes="activity-detail-card">
+              <StackPanel Spacing="14">
+                <TextBlock Text="LOG MANAGEMENT"
+                           Foreground="{StaticResource AccentBrush}"
                            FontSize="11"
                            FontWeight="Black"
                            LetterSpacing="2.2"/>
-                <TextBlock Text="{Binding SecurityNoteText}"
+                <TextBlock Text="Export or clear all activity logs stored for this vault."
                            Classes="page-subtitle"
                            FontSize="12"
                            TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="10">
+                  <Button Content="Export Report"
+                          Classes="activity-report-button"
+                          Command="{Binding ExportReportCommand}"/>
+                  <Button Grid.Column="1"
+                          Content="Clear Logs"
+                          Classes="activity-report-button"
+                          Command="{Binding ClearCommand}"/>
+                </Grid>
               </StackPanel>
             </Border>
+
           </StackPanel>
         </Grid>
 
@@ -457,10 +470,5 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Border.activity-note-card">
-      <Setter Property="Background" Value="#101a4f47"/>
-      <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="18"/>
-    </Style>
   </UserControl.Styles>
 </UserControl>

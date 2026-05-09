@@ -329,6 +329,7 @@ public partial class WebLoginsViewModel : ViewModelBase
         }
 
         await _root.CopyToClipboardAsync(row.Password);
+        _root.LogActivity("web", "Web login password copied", $"Copied password for {row.Title}.", "info", affectedItem: row.Title);
     }
 
     [RelayCommand]
@@ -388,6 +389,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
             ApplyFilter();
+            _root.LogActivity("web", "Web login added", $"Added {entry.Title}.", "success", affectedItem: entry.Title);
         }
         catch (Exception ex)
         {
@@ -421,6 +423,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             IsLoginDeleteConfirming = false;
             RefreshEmailFilterOptions();
             ApplyFilter(resetPage: false);
+            _root.LogActivity("web", "Web login updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
         }
         catch (Exception ex)
         {
@@ -447,6 +450,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             IsLoginDetailsEditing = false;
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
+            _root.LogActivity("web", "Web login deleted", $"Deleted {row.Title}.", "warning", affectedItem: row.Title);
         }
         catch (Exception ex)
         {

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
@@ -29,15 +30,22 @@ public sealed partial class ActivityItemVm : ObservableObject
     public string VaultDisplay => string.IsNullOrWhiteSpace(Entry.VaultPath) ? "ShellKrypt" : Path.GetFileNameWithoutExtension(Entry.VaultPath);
     public string SessionIdDisplay => $"SES-{Id[..4].ToUpperInvariant()}";
     public string TimestampColumnDisplay => FormatColumnTimestamp(Entry.TimestampUtc);
-    public string AffectedItemDisplay => string.IsNullOrWhiteSpace(Entry.VaultPath) ? Detail : VaultDisplay;
+    public string AffectedItemDisplay => !string.IsNullOrWhiteSpace(Entry.AffectedItem)
+        ? Entry.AffectedItem
+        : string.IsNullOrWhiteSpace(Entry.VaultPath) ? Detail : VaultDisplay;
     public string CategoryLabel => Entry.Category switch
     {
         "vault" => "Vault",
+        "web" => "Web Logins",
+        "cards" => "Credit Cards",
         "notes" => "Markdown Notes",
         "authenticator" => "Authenticator",
         "api_keys" => "API Keys",
+        "audit" => "Security Audit",
+        "generator" => "Generator",
         "settings" => "Settings",
         "transfer" => "Export",
+        "activity" => "Activity Logs",
         _ => "System"
     };
     public string TimestampDisplay => FormatTimestamp(Entry.TimestampUtc);
@@ -65,11 +73,16 @@ public sealed partial class ActivityItemVm : ObservableObject
     public string IconGlyph => Entry.Category switch
     {
         "vault" => "VA",
+        "web" => "WB",
+        "cards" => "CC",
         "notes" => "MD",
         "authenticator" => "AU",
         "api_keys" => "AK",
+        "audit" => "SE",
+        "generator" => "GE",
         "settings" => "ST",
         "transfer" => "IO",
+        "activity" => "AC",
         _ => "SY"
     };
 
@@ -105,6 +118,11 @@ public sealed partial class ActivityItemVm : ObservableObject
 public partial class ActivityViewModel : ViewModelBase
 {
     private const int PageSize = 10;
+
+    private static readonly JsonSerializerOptions ReportJsonOptions = new()
+    {
+        WriteIndented = true
+    };
 
     private readonly MainWindowViewModel _root;
     private readonly ActivityLogStore _store;
@@ -142,14 +160,15 @@ public partial class ActivityViewModel : ViewModelBase
     public int VaultEventCount => _allItems.Count(item => string.Equals(item.Category, "vault", StringComparison.Ordinal));
     public bool IsAllFilterActive => ActiveCategory == "all";
     public bool IsVaultFilterActive => ActiveCategory == "vault";
-    public bool IsNotesFilterActive => ActiveCategory == "notes";
+    public bool IsItemsFilterActive => ActiveCategory == "items";
+    public bool IsAuditFilterActive => ActiveCategory == "audit";
     public bool IsSettingsFilterActive => ActiveCategory == "settings";
     public bool IsTransferFilterActive => ActiveCategory == "transfer";
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
         ? "No activity recorded yet"
         : "No activity matches this search";
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Vault lifecycle actions, note changes, and import or export operations will appear here."
+        ? "Vault lifecycle actions, item changes, copied secrets, scans, and import or export operations for this vault will appear here."
         : "Try a different term or clear the current activity filter.";
     public bool HasSelectedItem => SelectedItem is not null;
     public string SelectedEventId => SelectedItem?.Id ?? "No event selected";
@@ -162,8 +181,6 @@ public partial class ActivityViewModel : ViewModelBase
     public string SelectedVaultPath => SelectedItem?.Entry.VaultPath ?? "ShellKrypt local session";
     public string SelectedDetail => SelectedItem?.Detail ?? "Select an event to inspect its metadata.";
     public string SelectedIntegrityHash => SelectedItem is null ? "Unavailable" : ComputeIntegrityHash(SelectedItem.Entry);
-    public string SecurityNoteText => "Auditing is enabled locally. Activity logs stay on this device only.";
-
     partial void OnSearchTextChanged(string value) => ApplyFilter(resetPage: true);
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
@@ -197,7 +214,8 @@ public partial class ActivityViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(IsAllFilterActive));
         OnPropertyChanged(nameof(IsVaultFilterActive));
-        OnPropertyChanged(nameof(IsNotesFilterActive));
+        OnPropertyChanged(nameof(IsItemsFilterActive));
+        OnPropertyChanged(nameof(IsAuditFilterActive));
         OnPropertyChanged(nameof(IsSettingsFilterActive));
         OnPropertyChanged(nameof(IsTransferFilterActive));
         OnPropertyChanged(nameof(EmptyStateTitle));
@@ -212,7 +230,10 @@ public partial class ActivityViewModel : ViewModelBase
     private void ShowVault() => ActiveCategory = "vault";
 
     [RelayCommand]
-    private void ShowNotes() => ActiveCategory = "notes";
+    private void ShowItems() => ActiveCategory = "items";
+
+    [RelayCommand]
+    private void ShowAudit() => ActiveCategory = "audit";
 
     [RelayCommand]
     private void ShowSettings() => ActiveCategory = "settings";
@@ -244,36 +265,42 @@ public partial class ActivityViewModel : ViewModelBase
 
         var confirmed = await _root.ConfirmDangerousActionAsync(
             "Clear Activity Log?",
-            "Clear the local activity history?",
-            "This only deletes the local activity feed. Vault items remain untouched.",
+            "Clear this vault's activity history?",
+            "This only deletes activity entries for the current vault. Vault items remain untouched.",
             "Clear Activity");
 
         if (!confirmed)
             return;
 
-        _store.Clear();
+        _store.Clear(_root.VaultPath, _root.IsUnlocked ? _root.VaultKey : null);
         ReloadFromStore();
-        _root.LogActivity("system", "Activity log cleared", "The local activity feed was cleared.", "warning");
+        _root.LogActivity("activity", "Activity logs cleared", "The current vault activity feed was cleared.", "warning", affectedItem: CurrentVaultDisplayName);
     }
 
     [RelayCommand]
-    private async Task ExportSelectedAsync()
+    private async Task ExportReportAsync()
     {
-        if (SelectedItem is null)
+        Error = string.Empty;
+
+        if (_allItems.Count == 0)
+        {
+            Error = "No activity logs to export.";
+            return;
+        }
+
+        var suggestedName = $"ShellKrypt-{SanitizeFileName(CurrentVaultDisplayName)}-activity-{DateTimeOffset.Now:yyyyMMdd-HHmmss}.json";
+        var exportPath = await _root.PickSaveFileAsync(
+            "Export activity logs report",
+            suggestedName,
+            ".json",
+            [".json"],
+            "JSON report");
+
+        if (string.IsNullOrWhiteSpace(exportPath))
             return;
 
-        var payload =
-            $"Event ID: {SelectedEventId}{Environment.NewLine}" +
-            $"Timestamp: {SelectedTimestamp}{Environment.NewLine}" +
-            $"Category: {SelectedCategory}{Environment.NewLine}" +
-            $"Status: {SelectedStatus}{Environment.NewLine}" +
-            $"Affected Item: {SelectedAffectedItem}{Environment.NewLine}" +
-            $"Vault Path: {SelectedVaultPath}{Environment.NewLine}" +
-            $"Detail: {SelectedDetail}{Environment.NewLine}" +
-            $"Integrity Hash: {SelectedIntegrityHash}";
-
-        await _root.CopyToClipboardAsync(payload);
-        _root.LogActivity("settings", "Activity report copied", $"Copied metadata for {SelectedItem.Title}.", "info");
+        await File.WriteAllTextAsync(exportPath, BuildActivityReportJson());
+        _root.LogActivity("activity", "Activity report exported", $"Saved {_allItems.Count} activity log entries to {exportPath}.", "info", affectedItem: Path.GetFileName(exportPath));
     }
 
     public void ReloadFromStore()
@@ -282,7 +309,7 @@ public partial class ActivityViewModel : ViewModelBase
         {
             Error = string.Empty;
             _allItems.Clear();
-            foreach (var entry in _store.Load().OrderByDescending(x => x.TimestampUtc, StringComparer.Ordinal))
+            foreach (var entry in _store.Load(_root.VaultPath, _root.IsUnlocked ? _root.VaultKey : null).OrderByDescending(x => x.TimestampUtc, StringComparer.Ordinal))
                 _allItems.Add(new ActivityItemVm(entry));
 
             ApplyFilter(resetPage: false);
@@ -303,7 +330,9 @@ public partial class ActivityViewModel : ViewModelBase
 
         IEnumerable<ActivityItemVm> items = _allItems;
 
-        if (!string.Equals(ActiveCategory, "all", StringComparison.Ordinal))
+        if (string.Equals(ActiveCategory, "items", StringComparison.Ordinal))
+            items = items.Where(item => IsItemCategory(item.Category));
+        else if (!string.Equals(ActiveCategory, "all", StringComparison.Ordinal))
             items = items.Where(item => string.Equals(item.Category, ActiveCategory, StringComparison.Ordinal));
 
         if (!string.IsNullOrWhiteSpace(SearchText))
@@ -365,7 +394,63 @@ public partial class ActivityViewModel : ViewModelBase
     private static string ComputeIntegrityHash(ActivityLogEntry entry)
     {
         using var sha = SHA256.Create();
-        var bytes = Encoding.UTF8.GetBytes($"{entry.Id}|{entry.TimestampUtc}|{entry.Category}|{entry.Title}|{entry.Detail}|{entry.Severity}|{entry.VaultPath}");
+        var bytes = Encoding.UTF8.GetBytes($"{entry.Id}|{entry.TimestampUtc}|{entry.Category}|{entry.Title}|{entry.Detail}|{entry.Severity}|{entry.VaultPath}|{entry.AffectedItem}");
         return Convert.ToHexString(sha.ComputeHash(bytes)).ToLowerInvariant();
     }
+
+    private static bool IsItemCategory(string category)
+        => category is "web" or "cards" or "api_keys" or "authenticator" or "notes";
+
+    private string BuildActivityReportJson()
+    {
+        var report = new ActivityLogReport(
+            ReportType: "ShellKrypt Activity Logs Report",
+            Vault: CurrentVaultDisplayName,
+            GeneratedAt: DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture),
+            TotalEvents: _allItems.Count,
+            Events: _allItems
+                .OrderByDescending(item => item.Entry.TimestampUtc, StringComparer.Ordinal)
+                .Select(item => new ActivityLogReportEvent(
+                    Id: item.Id,
+                    TimestampUtc: item.Entry.TimestampUtc,
+                    TimestampLocal: FormatMetadataTimestamp(item.Entry.TimestampUtc),
+                    Category: item.CategoryLabel,
+                    Status: item.SeverityChipText,
+                    Event: item.Title,
+                    AffectedItem: item.AffectedItemDisplay,
+                    Detail: item.Detail,
+                    IntegrityHash: ComputeIntegrityHash(item.Entry)))
+                .ToArray());
+
+        return JsonSerializer.Serialize(report, ReportJsonOptions);
+    }
+
+    private static string SanitizeFileName(string fileName)
+    {
+        var invalid = Path.GetInvalidFileNameChars();
+        var sanitized = new string(fileName.Select(ch => invalid.Contains(ch) ? '-' : ch).ToArray()).Trim();
+        return string.IsNullOrWhiteSpace(sanitized) ? "vault" : sanitized;
+    }
+
+    private string CurrentVaultDisplayName => string.IsNullOrWhiteSpace(_root.VaultPath)
+        ? "Current vault"
+        : Path.GetFileNameWithoutExtension(_root.VaultPath);
+
+    private sealed record ActivityLogReport(
+        string ReportType,
+        string Vault,
+        string GeneratedAt,
+        int TotalEvents,
+        IReadOnlyList<ActivityLogReportEvent> Events);
+
+    private sealed record ActivityLogReportEvent(
+        string Id,
+        string TimestampUtc,
+        string TimestampLocal,
+        string Category,
+        string Status,
+        string Event,
+        string AffectedItem,
+        string Detail,
+        string IntegrityHash);
 }

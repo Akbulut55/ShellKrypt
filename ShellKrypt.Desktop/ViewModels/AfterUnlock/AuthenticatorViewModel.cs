@@ -557,7 +557,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
         SelectedEntry.Apply(updated);
         RefreshSnapshots();
         await _refreshAllItemsAsync(updated.Id);
-        _root.LogActivity("authenticator", "Authenticator code copied", $"Copied code for {updated.Name}.", "info");
+        _root.LogActivity("authenticator", "Authenticator code copied", $"Copied code for {updated.Name}.", "info", affectedItem: updated.Name);
     }
 
     [RelayCommand]
@@ -644,7 +644,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
                 SelectedEntry.Apply(updated);
                 RefreshSnapshots();
                 await _refreshAllItemsAsync(updated.Id);
-                _root.LogActivity("authenticator", "Authenticator updated", $"Updated {updated.Name}.", "info");
+                _root.LogActivity("authenticator", "Authenticator updated", $"Updated {updated.Name}.", "info", affectedItem: updated.Name);
             }
             else
             {
@@ -654,7 +654,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
                 RefreshSnapshots();
                 ApplyFilter(selectEntryId: added.Id);
                 await _refreshAllItemsAsync(added.Id);
-                _root.LogActivity("authenticator", "Authenticator added", $"Added {added.Name}.", "success");
+                _root.LogActivity("authenticator", "Authenticator added", $"Added {added.Name}.", "success", affectedItem: added.Name);
             }
 
             IsEditorModalOpen = false;
@@ -695,7 +695,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
             _allEntries.Remove(deleted);
             ApplyFilter();
             await _refreshAllItemsAsync(null);
-            _root.LogActivity("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning");
+            _root.LogActivity("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning", affectedItem: deleted.Name);
             IsDeleteConfirmOpen = false;
             IsDetailsModalOpen = false;
         }

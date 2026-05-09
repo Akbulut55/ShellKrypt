@@ -494,53 +494,6 @@
           </StackPanel>
         </Grid>
 
-        <Border Classes="settings-integrity-card">
-          <Grid ColumnDefinitions="Auto,*,Auto"
-                ColumnSpacing="24">
-            <Border Width="136"
-                    Height="136"
-                    CornerRadius="18"
-                    ClipToBounds="True">
-              <Image Source="avares://ShellKrypt.Desktop/Assets/settings-integrity-chip.png"
-                     Stretch="UniformToFill"/>
-            </Border>
-
-            <StackPanel Grid.Column="1"
-                        Spacing="10"
-                        VerticalAlignment="Center">
-              <TextBlock Text="Architectural Integrity"
-                         FontSize="24"
-                         FontWeight="Bold"/>
-              <TextBlock Text="{Binding IntegrityStatusText}"
-                         Classes="page-subtitle"
-                         TextWrapping="Wrap"
-                         MaxWidth="780"/>
-              <StackPanel Orientation="Horizontal"
-                          Spacing="14">
-                <StackPanel Orientation="Horizontal"
-                            Spacing="6">
-                  <Border Width="7" Height="7" CornerRadius="999" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
-                  <TextBlock Text="E2E READY" Classes="settings-mini-label"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal"
-                            Spacing="6">
-                  <Border Width="7" Height="7" CornerRadius="999" Background="{StaticResource AccentBrush}" VerticalAlignment="Center"/>
-                  <TextBlock Text="LOCAL ONLY" Classes="settings-mini-label"/>
-                </StackPanel>
-              </StackPanel>
-            </StackPanel>
-
-            <Button Grid.Column="2"
-                    Content="View Audit Log"
-                    Classes="settings-secondary-button"
-                    Command="{Binding ViewAuditCommand}"
-                    VerticalAlignment="Center"/>
-          </Grid>
-        </Border>
-
-        <TextBlock Text="{Binding TransferStatus}"
-                   Classes="page-subtitle"
-                   TextWrapping="Wrap"/>
       </StackPanel>
     </ScrollViewer>
   </Grid>
@@ -634,10 +587,5 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Border.settings-integrity-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="CornerRadius" Value="18"/>
-      <Setter Property="Padding" Value="24"/>
-    </Style>
   </UserControl.Styles>
 </UserControl>

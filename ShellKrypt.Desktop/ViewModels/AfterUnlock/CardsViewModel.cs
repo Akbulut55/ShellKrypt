@@ -537,6 +537,7 @@ public partial class CardsViewModel : ViewModelBase
         }
 
         await _root.CopyToClipboardAsync(digits);
+        _root.LogActivity("cards", "Card number copied", $"Copied card number for {row.Title}.", "info", affectedItem: row.Title);
     }
 
     [RelayCommand]
@@ -597,6 +598,7 @@ public partial class CardsViewModel : ViewModelBase
             SelectedNetworkFilter = AllNetworkFilter;
             SelectedSortOption = SortNewest;
             ApplyFilter();
+            _root.LogActivity("cards", "Credit card added", $"Added {entry.Title}.", "success", affectedItem: entry.Title);
         }
         catch (Exception ex)
         {
@@ -652,6 +654,7 @@ public partial class CardsViewModel : ViewModelBase
             IsCardDeleteConfirming = false;
             PopulateModalFromRow(row);
             ApplyFilter(resetPage: false);
+            _root.LogActivity("cards", "Credit card updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
         }
         catch (Exception ex)
         {
@@ -679,6 +682,7 @@ public partial class CardsViewModel : ViewModelBase
             IsAddCardMode = true;
             ClearAddCardForm();
             IsAddCardModalOpen = false;
+            _root.LogActivity("cards", "Credit card deleted", $"Deleted {row.Title}.", "warning", affectedItem: row.Title);
         }
         catch (Exception ex)
         {

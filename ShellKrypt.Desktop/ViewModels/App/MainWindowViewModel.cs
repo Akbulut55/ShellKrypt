@@ -106,7 +106,8 @@ public partial class MainWindowViewModel : ViewModelBase
             title: "Vault unlocked",
             detail: $"Opened {GetVaultDisplayName(_state.VaultPath)}.",
             severity: "success",
-            vaultPath: _state.VaultPath);
+            vaultPath: _state.VaultPath,
+            affectedItem: GetVaultDisplayName(_state.VaultPath));
 
         _sessionSecurity.SetUnlocked(true);
         Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
@@ -115,9 +116,6 @@ public partial class MainWindowViewModel : ViewModelBase
     public void Lock()
     {
         var vaultPath = _state.VaultPath;
-        _sessionSecurity.SetUnlocked(false);
-        _ = _clipboardService.ClearAsync();
-        _state.ClearSensitive();
         if (!string.IsNullOrWhiteSpace(vaultPath))
         {
             LogActivity(
@@ -125,8 +123,13 @@ public partial class MainWindowViewModel : ViewModelBase
                 title: "Vault locked",
                 detail: $"Locked {GetVaultDisplayName(vaultPath)}.",
                 severity: "info",
-                vaultPath: vaultPath);
+                vaultPath: vaultPath,
+                affectedItem: GetVaultDisplayName(vaultPath));
         }
+
+        _sessionSecurity.SetUnlocked(false);
+        _ = _clipboardService.ClearAsync();
+        _state.ClearSensitive();
         GoWelcome();
     }
 
@@ -237,16 +240,28 @@ public partial class MainWindowViewModel : ViewModelBase
         return (confirmed, dialog.DisplayName, dialog.Description);
     }
 
-    public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null)
+    public void LogActivity(
+        string category,
+        string title,
+        string detail,
+        string severity = "info",
+        string? vaultPath = null,
+        string? affectedItem = null)
     {
-        _activityLogStore.Append(new ActivityLogEntry(
+        var targetVaultPath = string.IsNullOrWhiteSpace(vaultPath) ? VaultPath : vaultPath;
+        var entry = new ActivityLogEntry(
             Id: Guid.NewGuid().ToString("N"),
             TimestampUtc: DateTimeOffset.UtcNow.ToString("O"),
             Category: string.IsNullOrWhiteSpace(category) ? "system" : category.Trim().ToLowerInvariant(),
             Title: title.Trim(),
             Detail: detail.Trim(),
             Severity: string.IsNullOrWhiteSpace(severity) ? "info" : severity.Trim().ToLowerInvariant(),
-            VaultPath: string.IsNullOrWhiteSpace(vaultPath) ? VaultPath : vaultPath));
+            VaultPath: targetVaultPath)
+        {
+            AffectedItem = string.IsNullOrWhiteSpace(affectedItem) ? null : affectedItem.Trim()
+        };
+
+        _activityLogStore.Append(entry, _state.VaultKey);
         ActivityChanged?.Invoke(this, EventArgs.Empty);
     }
 

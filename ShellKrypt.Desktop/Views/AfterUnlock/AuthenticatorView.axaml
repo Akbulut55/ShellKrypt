@@ -145,7 +145,8 @@
                 </ItemsControl>
               </ScrollViewer>
 
-              <Border Padding="28,24"
+              <Border Grid.Row="1"
+                      Padding="28,24"
                       Background="Transparent"
                       IsVisible="{Binding !HasEntries}">
                 <StackPanel Spacing="12"

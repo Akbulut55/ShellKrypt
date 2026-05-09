@@ -67,7 +67,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private LanguageOption? selectedLanguageOption;
     [ObservableProperty] private string status = "";
-    [ObservableProperty] private string transferStatus = "Preview an operation before applying it.";
+    [ObservableProperty] private string transferStatus = "";
     [ObservableProperty] private bool isTransferBusy;
     [ObservableProperty] private string currentMasterPassword = "";
     [ObservableProperty] private string newMasterPassword = "";
@@ -184,8 +184,6 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string SecurityStatusText => AutoLockEnabled
         ? $"Auto-lock enabled • {SelectedAutoLockDuration?.Label ?? "Configured"}"
         : "Auto-lock disabled";
-    public string IntegrityStatusText => "ShellKrypt uses zero-knowledge local encryption. Settings stay on-device.";
-
     partial void OnAutoLockEnabledChanged(bool value)
     {
         _root.AutoLockEnabled = value;
@@ -342,7 +340,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             await _transferService.ExportEncryptedAsync(vaultPath, vaultKey, EncryptedExportPath, ExportPassphrase);
             TransferStatus = $"Encrypted backup saved to {EncryptedExportPath}.";
-            _root.LogActivity("transfer", "Encrypted backup exported", $"Saved an encrypted backup to {EncryptedExportPath}.", "success", vaultPath);
+            _root.LogActivity("transfer", "Encrypted backup exported", $"Saved an encrypted backup to {EncryptedExportPath}.", "success", vaultPath, Path.GetFileName(EncryptedExportPath));
         });
     }
 
@@ -374,7 +372,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             await _transferService.ExportPlaintextJsonAsync(vaultPath, vaultKey, PlaintextExportPath);
             TransferStatus = $"Plaintext JSON export saved to {PlaintextExportPath}.";
-            _root.LogActivity("transfer", "Plaintext export created", $"Saved a plaintext JSON export to {PlaintextExportPath}.", "warning", vaultPath);
+            _root.LogActivity("transfer", "Plaintext export created", $"Saved a plaintext JSON export to {PlaintextExportPath}.", "warning", vaultPath, Path.GetFileName(PlaintextExportPath));
         });
     }
 
@@ -433,7 +431,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportEncryptedAsync(EncryptedImportPath, EncryptedImportPassphrase, vaultPath, vaultKey);
             _root.ReloadShell();
             TransferStatus = "Encrypted backup restored into the current vault.";
-            _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup from {EncryptedImportPath}.", "success", vaultPath);
+            _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup from {EncryptedImportPath}.", "success", vaultPath, Path.GetFileName(EncryptedImportPath));
         });
     }
 
@@ -491,7 +489,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportCsvAsync(vaultPath, vaultKey, CsvImportPath, SelectedCsvDuplicateStrategy);
             _root.ReloadShell();
             TransferStatus = $"CSV import finished using {SelectedCsvDuplicateStrategy}.";
-            _root.LogActivity("transfer", "CSV import completed", $"Imported items from {CsvImportPath} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath);
+            _root.LogActivity("transfer", "CSV import completed", $"Imported items from {CsvImportPath} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath, Path.GetFileName(CsvImportPath));
         });
     }
 
@@ -556,7 +554,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             ConfirmNewMasterPassword = "";
             MasterPasswordStatus = "Master password updated. Existing vault contents were re-wrapped in place.";
             TransferStatus = "Master password changed successfully.";
-            _root.LogActivity("vault", "Master password changed", $"Updated the master password for {GetVaultDisplayName()}.", "success", _root.VaultPath);
+            _root.LogActivity("vault", "Master password changed", $"Updated the master password for {GetVaultDisplayName()}.", "success", _root.VaultPath, GetVaultDisplayName());
             await LoadCurrentSecurityProfileAsync();
         });
     }
@@ -629,7 +627,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             DeleteSidecarIfExists(vaultPath, "-journal");
             File.Delete(vaultPath);
             _vaultRegistry.RemoveVault(vaultPath);
-            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {displayName}.", "danger", vaultPath);
+            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {displayName}.", "danger", vaultPath, displayName);
             _root.Lock();
         });
     }

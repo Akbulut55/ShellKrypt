@@ -385,7 +385,8 @@ public partial class MarkdownNotesViewModel : ViewModelBase
             "notes",
             previous ? "Markdown note unstarred" : "Markdown note starred",
             $"{SelectedNote.Title} was {(previous ? "removed from" : "added to")} starred notes.",
-            "info");
+            "info",
+            affectedItem: SelectedNote.Title);
     }
 
     [RelayCommand]
@@ -415,6 +416,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         }
 
         await _root.CopyToClipboardAsync(EditorContent);
+        _root.LogActivity("notes", "Markdown note copied", $"Copied markdown for {EditorTitle}.", "info", affectedItem: EditorTitle);
     }
 
     [RelayCommand]
@@ -440,7 +442,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                 IsCreatingNote = false;
                 SelectedNote = vm;
                 await _refreshAllItemsAsync(entry.Id);
-                _root.LogActivity("notes", "Markdown note created", $"Saved {entry.Title}.", "success");
+                _root.LogActivity("notes", "Markdown note created", $"Saved {entry.Title}.", "success", affectedItem: entry.Title);
             }
             else
             {
@@ -455,7 +457,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                 IsEditing = false;
                 ActiveDocumentView = "preview";
                 await _refreshAllItemsAsync(entry.Id);
-                _root.LogActivity("notes", "Markdown note updated", $"Updated {entry.Title}.", "info");
+                _root.LogActivity("notes", "Markdown note updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
             }
 
             RefreshFilteredNotes();
@@ -486,7 +488,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
             var deletedTitle = SelectedNote.Title;
             var deletedId = SelectedNote.Id;
             await _noteService.DeleteAsync(_root.VaultPath, deletedId);
-            _root.LogActivity("notes", "Markdown note deleted", $"Deleted {deletedTitle}.", "warning");
+            _root.LogActivity("notes", "Markdown note deleted", $"Deleted {deletedTitle}.", "warning", affectedItem: deletedTitle);
 
             Notes.Remove(SelectedNote);
             RefreshFilteredNotes(false);
