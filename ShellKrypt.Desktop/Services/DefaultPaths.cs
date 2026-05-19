@@ -6,10 +6,10 @@ namespace ShellKrypt.Desktop.Services;
 
 public static class DefaultPaths
 {
+    public const string AppRootOverrideEnvironmentVariable = "SHELLKRYPT_APPROOT";
+
     public static string AppRoot =>
-        Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ShellKrypt");
+        ResolveAppRoot();
 
     public static string VaultsRoot => Path.Combine(AppRoot, "Vaults");
     public static string ExportsRoot => Path.Combine(AppRoot, "Exports");
@@ -88,5 +88,16 @@ public static class DefaultPaths
             return ".dat";
 
         return trimmed.StartsWith(".", StringComparison.Ordinal) ? trimmed : $".{trimmed}";
+    }
+
+    private static string ResolveAppRoot()
+    {
+        var overridePath = Environment.GetEnvironmentVariable(AppRootOverrideEnvironmentVariable);
+        if (!string.IsNullOrWhiteSpace(overridePath))
+            return Path.GetFullPath(overridePath);
+
+        return Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ShellKrypt");
     }
 }

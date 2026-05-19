@@ -32,7 +32,9 @@ public sealed class HealthAuditService : IHealthAuditService
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Web))
         {
-            var payload = JsonSerializer.Deserialize<WebPayload>(AesGcmBlob.Decrypt(vaultKey, row.EncryptedPayload), JsonOpts);
+            var payload = JsonSerializer.Deserialize<WebPayload>(
+                VaultPayloadProtector.DecryptItemPayload(vaultKey, row.Header, row.EncryptedPayload),
+                JsonOpts);
             if (payload is null)
                 continue;
 

@@ -28,7 +28,7 @@ public sealed class ApiKeyService : IApiKeyService
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.ApiKey))
         {
-            var payload = DecryptPayload(vaultKey, row.EncryptedPayload);
+            var payload = DecryptPayload(vaultKey, row.Header, row.EncryptedPayload);
             if (payload is null)
                 continue;
 
@@ -49,7 +49,7 @@ public sealed class ApiKeyService : IApiKeyService
             UpdatedAtUtc: now);
         var payload = ToPayload(input);
 
-        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -70,7 +70,7 @@ public sealed class ApiKeyService : IApiKeyService
             UpdatedAtUtc: DateTimeOffset.UtcNow.ToString("O"));
         var payload = ToPayload(input);
 
-        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -78,11 +78,11 @@ public sealed class ApiKeyService : IApiKeyService
     public Task DeleteAsync(string vaultPath, string id, CancellationToken ct = default)
         => _repo.DeleteAsync(vaultPath, id, ct);
 
-    private static byte[] EncryptPayload(byte[] vaultKey, ApiKeyPayload payload)
-        => AesGcmBlob.Encrypt(vaultKey, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
+    private static byte[] EncryptPayload(byte[] vaultKey, VaultItemHeader header, ApiKeyPayload payload)
+        => VaultPayloadProtector.EncryptItemPayload(vaultKey, header, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
 
-    private static ApiKeyPayload? DecryptPayload(byte[] vaultKey, byte[] encryptedPayload)
-        => JsonSerializer.Deserialize<ApiKeyPayload>(AesGcmBlob.Decrypt(vaultKey, encryptedPayload), JsonOpts);
+    private static ApiKeyPayload? DecryptPayload(byte[] vaultKey, VaultItemHeader header, byte[] encryptedPayload)
+        => JsonSerializer.Deserialize<ApiKeyPayload>(VaultPayloadProtector.DecryptItemPayload(vaultKey, header, encryptedPayload), JsonOpts);
 
     private static ApiKeyPayload ToPayload(ApiKeyInput input)
     {

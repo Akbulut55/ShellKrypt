@@ -4,12 +4,13 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.RegularExpressions;
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Infrastructure.Crypto;
 
 namespace ShellKrypt.Desktop.Services;
 
-public sealed class ActivityLogStore
+public sealed partial class ActivityLogStore
 {
     private const int MaxEntries = 400;
 
@@ -24,31 +25,20 @@ public sealed class ActivityLogStore
         if (!string.IsNullOrWhiteSpace(vaultPath) && vaultKey is { Length: > 0 })
             return LoadVaultEntries(vaultPath, vaultKey);
 
-        var entries = LoadGlobalEntries();
-        if (string.IsNullOrWhiteSpace(vaultPath))
-            return entries;
-
-        var normalizedVaultPath = NormalizePath(vaultPath);
-        return entries
-            .Where(entry => string.Equals(NormalizePath(entry.VaultPath), normalizedVaultPath, StringComparison.OrdinalIgnoreCase))
-            .ToList();
+        return [];
     }
 
     public void Append(ActivityLogEntry entry, byte[]? vaultKey = null)
     {
+        entry = SanitizeEntry(entry);
+
         if (!string.IsNullOrWhiteSpace(entry.VaultPath) && vaultKey is { Length: > 0 })
         {
             AppendVaultEntry(entry, vaultKey);
             return;
         }
 
-        var entries = LoadGlobalEntries()
-            .OrderByDescending(x => x.TimestampUtc, StringComparer.Ordinal)
-            .Take(MaxEntries - 1)
-            .ToList();
-
-        entries.Insert(0, entry);
-        Save(entries);
+        // Activity logs are vault-scoped and encrypted. Events without a vault key are intentionally not persisted.
     }
 
     public void Clear(string? vaultPath = null, byte[]? vaultKey = null)
@@ -59,34 +49,7 @@ public sealed class ActivityLogStore
             return;
         }
 
-        if (string.IsNullOrWhiteSpace(vaultPath))
-        {
-            Save([]);
-            return;
-        }
-
-        var normalizedVaultPath = NormalizePath(vaultPath);
-        var remaining = LoadGlobalEntries()
-            .Where(entry => !string.Equals(NormalizePath(entry.VaultPath), normalizedVaultPath, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        Save(remaining);
-    }
-
-    private static IReadOnlyList<ActivityLogEntry> LoadGlobalEntries()
-    {
-        try
-        {
-            if (!File.Exists(DefaultPaths.ActivityLogPath))
-                return [];
-
-            return JsonSerializer.Deserialize<List<ActivityLogEntry>>(File.ReadAllText(DefaultPaths.ActivityLogPath), JsonOptions)
-                   ?? [];
-        }
-        catch
-        {
-            return [];
-        }
+        // Legacy global activity logs are quarantined by leaving them unread and unwritten.
     }
 
     private static IReadOnlyList<ActivityLogEntry> LoadVaultEntries(string vaultPath, byte[] vaultKey)
@@ -115,7 +78,7 @@ public sealed class ActivityLogStore
                     var id = reader.GetString(0);
                     var timestampUtc = reader.GetString(1);
                     var payloadBytes = reader.GetFieldValue<byte[]>(2);
-                    var json = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, payloadBytes));
+                    var json = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, payloadBytes, ActivityLogAssociatedData(id)));
                     var payload = JsonSerializer.Deserialize<ActivityLogPayload>(json, JsonOptions);
                     if (payload is null)
                         continue;
@@ -158,7 +121,7 @@ public sealed class ActivityLogStore
             entry.Severity,
             entry.AffectedItem);
 
-        var encryptedPayload = AesGcmBlob.Encrypt(vaultKey, Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload, JsonOptions)));
+        var encryptedPayload = AesGcmBlob.Encrypt(vaultKey, Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload, JsonOptions)), ActivityLogAssociatedData(entry.Id));
 
         var insert = conn.CreateCommand();
         insert.CommandText = """
@@ -232,15 +195,6 @@ public sealed class ActivityLogStore
         cmd.ExecuteNonQuery();
     }
 
-    private static void Save(IReadOnlyList<ActivityLogEntry> entries)
-    {
-        var dir = Path.GetDirectoryName(DefaultPaths.ActivityLogPath);
-        if (!string.IsNullOrWhiteSpace(dir))
-            Directory.CreateDirectory(dir);
-
-        File.WriteAllText(DefaultPaths.ActivityLogPath, JsonSerializer.Serialize(entries, JsonOptions));
-    }
-
     private static string NormalizePath(string? vaultPath)
     {
         if (string.IsNullOrWhiteSpace(vaultPath))
@@ -255,6 +209,28 @@ public sealed class ActivityLogStore
             return vaultPath.Trim();
         }
     }
+
+    private static byte[] ActivityLogAssociatedData(string id)
+        => AesGcmBlob.CreateAssociatedData("activity-log", "v1", id);
+
+    private static ActivityLogEntry SanitizeEntry(ActivityLogEntry entry)
+        => entry with
+        {
+            Detail = SanitizeLogText(entry.Detail),
+            AffectedItem = string.IsNullOrWhiteSpace(entry.AffectedItem) ? entry.AffectedItem : SanitizeLogText(entry.AffectedItem)
+        };
+
+    private static string SanitizeLogText(string value)
+    {
+        var sanitized = SensitiveAssignmentRegex().Replace(value ?? string.Empty, match => $"{match.Groups[1].Value}=[redacted]");
+        return CardLikeNumberRegex().Replace(sanitized, "[redacted-number]");
+    }
+
+    [GeneratedRegex(@"\b(password|passphrase|secret|token|api[-_ ]?key|cvc|cvv)\s*[:=]\s*[^,\s;]+", RegexOptions.IgnoreCase)]
+    private static partial Regex SensitiveAssignmentRegex();
+
+    [GeneratedRegex(@"\b(?:\d[ -]?){12,19}\b")]
+    private static partial Regex CardLikeNumberRegex();
 
     private sealed record ActivityLogPayload(
         string Category,

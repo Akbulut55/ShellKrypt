@@ -64,6 +64,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool lockOnDeactivate;
     [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
     [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
+    [ObservableProperty] private bool clipboardCopyEnabled;
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private LanguageOption? selectedLanguageOption;
     [ObservableProperty] private string status = "";
@@ -82,6 +83,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     [ObservableProperty] private string plaintextExportPath = "";
     [ObservableProperty] private bool confirmPlaintextExport;
+    [ObservableProperty] private string plaintextExportConfirmationText = "";
 
     [ObservableProperty] private string encryptedImportPath = "";
     [ObservableProperty] private string encryptedImportPassphrase = "";
@@ -159,7 +161,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         var exportBaseName = GetVaultDisplayName();
         EncryptedExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Backup", ".skbx");
-        PlaintextExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Export", ".json");
+        PlaintextExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} DECRYPTED Plaintext Export", ".json");
         SelectedSecurityProfile = VaultSecurityProfiles.Default;
         _ = LoadCurrentSecurityProfileAsync();
     }
@@ -175,8 +177,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string FocusLockSummary => LockOnDeactivate
         ? $"ShellKrypt locks after {SelectedFocusLossLockDelay?.Label?.ToLowerInvariant() ?? "the selected delay"} when the app loses focus."
         : "ShellKrypt stays unlocked when the app is not focused.";
-    public string ClipboardClearSummary =>
-        $"Copied secrets are cleared after {SelectedClipboardClearDuration?.Label?.ToLowerInvariant() ?? "the selected timeout"}.";
+    public string ClipboardClearSummary => ClipboardCopyEnabled
+        ? $"Copied secrets are cleared after {SelectedClipboardClearDuration?.Label?.ToLowerInvariant() ?? "the selected timeout"}."
+        : "Copy actions are disabled. Clipboard clearing is best-effort and not a security boundary.";
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => "If the vault is locked and the master password is forgotten, the data cannot be recovered without a prior backup.";
     public string BackupRecommendationText => "Create an encrypted .skbx backup with a separate export passphrase before changing the master password or moving the vault.";
@@ -243,6 +246,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         _root.ClipboardClearSeconds = value.Seconds;
         Status = "Settings saved.";
+        OnPropertyChanged(nameof(ClipboardClearSummary));
+    }
+
+    partial void OnClipboardCopyEnabledChanged(bool value)
+    {
+        _root.ClipboardCopyEnabled = value;
+        Status = value ? "Clipboard copy enabled." : "Clipboard copy disabled.";
         OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
@@ -340,7 +350,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             await _transferService.ExportEncryptedAsync(vaultPath, vaultKey, EncryptedExportPath, ExportPassphrase);
             TransferStatus = $"Encrypted backup saved to {EncryptedExportPath}.";
-            _root.LogActivity("transfer", "Encrypted backup exported", $"Saved an encrypted backup to {EncryptedExportPath}.", "success", vaultPath, Path.GetFileName(EncryptedExportPath));
+            _root.LogActivity("transfer", "Encrypted backup exported", $"Saved an encrypted backup named {Path.GetFileName(EncryptedExportPath)}.", "success", vaultPath, Path.GetFileName(EncryptedExportPath));
         });
     }
 
@@ -362,6 +372,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
             return;
         }
 
+        if (!string.Equals(PlaintextExportConfirmationText.Trim(), "EXPORT", StringComparison.Ordinal))
+        {
+            TransferStatus = "Type EXPORT to confirm this decrypted JSON export.";
+            return;
+        }
+
         await RunTransferAsync(async () =>
         {
             if (string.IsNullOrWhiteSpace(ExportSummary))
@@ -371,8 +387,10 @@ public sealed partial class SettingsViewModel : ViewModelBase
             }
 
             await _transferService.ExportPlaintextJsonAsync(vaultPath, vaultKey, PlaintextExportPath);
-            TransferStatus = $"Plaintext JSON export saved to {PlaintextExportPath}.";
-            _root.LogActivity("transfer", "Plaintext export created", $"Saved a plaintext JSON export to {PlaintextExportPath}.", "warning", vaultPath, Path.GetFileName(PlaintextExportPath));
+            TransferStatus = $"Plaintext JSON export saved to {Path.GetFileName(PlaintextExportPath)}. This file is decrypted; protect it and delete it when finished.";
+            _root.LogActivity("transfer", "Plaintext export created", $"Saved a decrypted JSON export named {Path.GetFileName(PlaintextExportPath)}.", "warning", vaultPath, Path.GetFileName(PlaintextExportPath));
+            ConfirmPlaintextExport = false;
+            PlaintextExportConfirmationText = "";
         });
     }
 
@@ -422,6 +440,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         await RunTransferAsync(async () =>
         {
+            await _root.ClearClipboardAsync();
             if (string.IsNullOrWhiteSpace(EncryptedImportSummary))
             {
                 var summary = await _transferService.GetEncryptedImportSummaryAsync(EncryptedImportPath, EncryptedImportPassphrase);
@@ -431,7 +450,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportEncryptedAsync(EncryptedImportPath, EncryptedImportPassphrase, vaultPath, vaultKey);
             _root.ReloadShell();
             TransferStatus = "Encrypted backup restored into the current vault.";
-            _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup from {EncryptedImportPath}.", "success", vaultPath, Path.GetFileName(EncryptedImportPath));
+            _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup named {Path.GetFileName(EncryptedImportPath)}.", "success", vaultPath, Path.GetFileName(EncryptedImportPath));
         });
     }
 
@@ -475,6 +494,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         await RunTransferAsync(async () =>
         {
+            await _root.ClearClipboardAsync();
             if (CsvPreviewRows.Count == 0)
             {
                 var preview = await _transferService.PreviewCsvImportAsync(vaultPath, vaultKey, CsvImportPath);
@@ -489,7 +509,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             await _transferService.ImportCsvAsync(vaultPath, vaultKey, CsvImportPath, SelectedCsvDuplicateStrategy);
             _root.ReloadShell();
             TransferStatus = $"CSV import finished using {SelectedCsvDuplicateStrategy}.";
-            _root.LogActivity("transfer", "CSV import completed", $"Imported items from {CsvImportPath} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath, Path.GetFileName(CsvImportPath));
+            _root.LogActivity("transfer", "CSV import completed", $"Imported items from {Path.GetFileName(CsvImportPath)} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath, Path.GetFileName(CsvImportPath));
         });
     }
 
@@ -587,7 +607,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
             return;
         }
 
-        var vaultPath = _root.VaultPath!;
+        var vaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!);
         var displayName = Path.GetFileNameWithoutExtension(vaultPath);
 
         var confirmed = await _root.ConfirmDangerousActionAsync(
@@ -622,12 +642,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
             SqliteConnection.ClearAllPools();
 
+            await _root.ClearClipboardAsync();
             DeleteSidecarIfExists(vaultPath, "-wal");
             DeleteSidecarIfExists(vaultPath, "-shm");
             DeleteSidecarIfExists(vaultPath, "-journal");
             File.Delete(vaultPath);
             _vaultRegistry.RemoveVault(vaultPath);
-            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {displayName}.", "danger", vaultPath, displayName);
+            _root.SetVaultPath("");
             _root.Lock();
         });
     }
@@ -732,6 +753,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         LockOnDeactivate = _root.LockOnDeactivate;
         SelectedFocusLossLockDelay = ResolveFocusLossLockDelay(_root.LockOnDeactivate, _root.LockOnDeactivateSeconds);
         SelectedClipboardClearDuration = ResolveSecondsDuration(ClipboardClearTimeoutOptions, _root.ClipboardClearSeconds);
+        ClipboardCopyEnabled = _root.ClipboardCopyEnabled;
         SelectedThemeMode = _root.ThemeMode;
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(ThemeModeLabel));

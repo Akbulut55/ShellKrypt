@@ -3,6 +3,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Konscious.Security.Cryptography;
+using Microsoft.Data.Sqlite;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Crypto;
@@ -15,11 +16,22 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
     private const int PackageVersion = 1;
     private const int KeySize = 32;
     private const int SaltSize = 16;
+    private const long MaxEncryptedPackageBytes = 64L * 1024 * 1024;
+    private const long MaxCsvBytes = 8L * 1024 * 1024;
+    private const int MaxSnapshotJsonBytes = 64 * 1024 * 1024;
+    private const int MaxSnapshotItems = 10000;
+    private const int MaxSnapshotLabels = 2000;
+    private const int MaxSnapshotItemLabels = 50000;
+    private const int MaxPayloadJsonChars = 1024 * 1024;
+    private const int MaxCsvRows = 10000;
+    private const int MaxCsvColumns = 64;
+    private const int MaxCsvFieldChars = 16384;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
+        WriteIndented = true,
+        MaxDepth = 64
     };
 
     public async Task<VaultSnapshotSummary> GetExportSummaryAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
@@ -27,12 +39,16 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
 
     public async Task ExportPlaintextJsonAsync(string vaultPath, byte[] vaultKey, string outputPath, CancellationToken ct = default)
     {
+        outputPath = VaultFileGuard.EnsureNotActiveVaultTarget(vaultPath, outputPath, "Plaintext export");
+        outputPath = VaultFileGuard.EnsureExtension(outputPath, VaultFileGuard.JsonExtension, "Plaintext export");
         var snapshot = await BuildSnapshotAsync(vaultPath, vaultKey, ct);
         await WriteTextAsync(outputPath, JsonSerializer.Serialize(snapshot, JsonOptions), ct);
     }
 
     public async Task ExportEncryptedAsync(string vaultPath, byte[] vaultKey, string outputPath, string exportPassphrase, CancellationToken ct = default)
     {
+        outputPath = VaultFileGuard.EnsureNotActiveVaultTarget(vaultPath, outputPath, "Encrypted backup");
+        outputPath = VaultFileGuard.EnsureExtension(outputPath, VaultFileGuard.BackupExtension, "Encrypted backup");
         var snapshot = await BuildSnapshotAsync(vaultPath, vaultKey, ct);
         var snapshotBytes = JsonSerializer.SerializeToUtf8Bytes(snapshot, JsonOptions);
         var package = await CreateEncryptedPackageAsync(snapshotBytes, exportPassphrase, ct);
@@ -44,54 +60,22 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
 
     public async Task ImportEncryptedAsync(string packagePath, string exportPassphrase, string vaultPath, byte[] vaultKey, CancellationToken ct = default)
     {
+        VaultFileGuard.EnsureDifferentPaths(packagePath, vaultPath, "Encrypted backup import cannot read from the active vault file.");
         var snapshot = await ReadEncryptedSnapshotAsync(packagePath, exportPassphrase, ct);
         await ImportSnapshotAsync(vaultPath, vaultKey, snapshot, ct);
     }
 
     public async Task ImportSnapshotAsync(string vaultPath, byte[] vaultKey, VaultSnapshot snapshot, CancellationToken ct = default)
     {
-        if (snapshot.Version != PackageVersion)
-            throw new NotSupportedException($"Unsupported snapshot version {snapshot.Version}.");
-
-        var labelMap = new Dictionary<string, string>(StringComparer.Ordinal);
-        var existingItemIds = (await _repo.ListAsync(vaultPath, vaultKey, ct))
-            .Select(x => x.Header.Id)
-            .ToHashSet(StringComparer.Ordinal);
-
-        foreach (var label in snapshot.Labels)
-        {
-            var stored = await _repo.UpsertLabelAsync(vaultPath, vaultKey, label.Name, label.Color, ct);
-            labelMap[label.Id] = stored.Id;
-        }
-
-        foreach (var item in snapshot.Items)
-        {
-            if (existingItemIds.Contains(item.Id))
-                await _repo.DeleteAsync(vaultPath, item.Id, ct);
-
-            var header = new VaultItemHeader(item.Id, item.Type, item.Favorite, item.CreatedAtUtc, item.UpdatedAtUtc);
-            var payload = Encoding.UTF8.GetBytes(item.PayloadJson);
-            var encryptedPayload = AesGcmBlob.Encrypt(vaultKey, payload);
-            await _repo.InsertAsync(vaultPath, header, encryptedPayload, ct);
-            existingItemIds.Add(item.Id);
-        }
-
-        foreach (var item in snapshot.Items)
-        {
-            var labelIds = snapshot.ItemLabels
-                .Where(x => x.ItemId == item.Id)
-                .Select(x => labelMap.TryGetValue(x.LabelId, out var mappedId) ? mappedId : null)
-                .Where(x => !string.IsNullOrWhiteSpace(x))
-                .Cast<string>()
-                .ToArray();
-
-            if (labelIds.Length > 0)
-                await _repo.SetItemLabelsAsync(vaultPath, item.Id, labelIds, ct);
-        }
+        ValidateSnapshot(snapshot);
+        await ImportSnapshotTransactionalAsync(vaultPath, vaultKey, snapshot, ct);
     }
 
     public async Task<VaultCsvImportPreview> PreviewCsvImportAsync(string vaultPath, byte[] vaultKey, string csvPath, CancellationToken ct = default)
     {
+        VaultFileGuard.EnsureDifferentPaths(csvPath, vaultPath, "CSV import cannot read from the active vault file.");
+        csvPath = VaultFileGuard.EnsureExtension(csvPath, VaultFileGuard.CsvExtension, "CSV import file");
+        EnsureFileSize(csvPath, MaxCsvBytes, "CSV import file");
         var snapshot = await BuildSnapshotAsync(vaultPath, vaultKey, ct);
         var existingKeys = BuildDuplicateKeySet(snapshot);
         var csvText = await File.ReadAllTextAsync(csvPath, ct);
@@ -128,12 +112,16 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
 
     public async Task ImportCsvAsync(string vaultPath, byte[] vaultKey, string csvPath, VaultCsvDuplicateStrategy strategy, CancellationToken ct = default)
     {
+        VaultFileGuard.EnsureDifferentPaths(csvPath, vaultPath, "CSV import cannot read from the active vault file.");
+        csvPath = VaultFileGuard.EnsureExtension(csvPath, VaultFileGuard.CsvExtension, "CSV import file");
+        EnsureFileSize(csvPath, MaxCsvBytes, "CSV import file");
         var snapshot = await BuildSnapshotAsync(vaultPath, vaultKey, ct);
         var duplicateKeyToId = BuildDuplicateKeyMap(snapshot);
         var csvText = await File.ReadAllTextAsync(csvPath, ct);
         var candidates = ParseCsvCandidates(csvText);
 
         var seenKeys = new HashSet<string>(duplicateKeyToId.Keys, StringComparer.Ordinal);
+        var actions = new List<CsvImportAction>();
 
         foreach (var candidate in candidates)
         {
@@ -144,22 +132,279 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
             if (duplicateDetected && strategy == VaultCsvDuplicateStrategy.SkipDuplicates)
                 continue;
 
+            string? deleteItemId = null;
             if (duplicateDetected && strategy == VaultCsvDuplicateStrategy.OverwriteDuplicates && duplicateKeyToId.TryGetValue(candidate.DuplicateKey, out var existingId))
             {
-                await _repo.DeleteAsync(vaultPath, existingId, ct);
+                deleteItemId = existingId;
                 duplicateKeyToId.Remove(candidate.DuplicateKey);
                 seenKeys.Remove(candidate.DuplicateKey);
             }
 
-            var header = new VaultItemHeader(candidate.Id, candidate.Type, false, candidate.CreatedAtUtc, candidate.UpdatedAtUtc);
-            var encryptedPayload = AesGcmBlob.Encrypt(vaultKey, Encoding.UTF8.GetBytes(candidate.PayloadJson));
-            await _repo.InsertAsync(vaultPath, header, encryptedPayload, ct);
+            actions.Add(new CsvImportAction(candidate, deleteItemId));
             duplicateKeyToId[candidate.DuplicateKey] = candidate.Id;
             seenKeys.Add(candidate.DuplicateKey);
         }
+
+        await ImportCsvTransactionalAsync(vaultPath, vaultKey, actions, ct);
     }
 
     private readonly IItemRepository _repo = new SqliteItemRepository();
+
+    private static async Task ImportSnapshotTransactionalAsync(string vaultPath, byte[] vaultKey, VaultSnapshot snapshot, CancellationToken ct)
+    {
+        vaultPath = VaultFileGuard.EnsureExistingVaultFile(vaultPath);
+        await using var conn = await OpenVaultConnectionAsync(vaultPath, ct);
+        await EnsureLabelSchemaAsync(conn, vaultKey, ct);
+        await using var tx = (SqliteTransaction)await conn.BeginTransactionAsync(ct);
+
+        try
+        {
+            var labelMap = await UpsertSnapshotLabelsAsync(conn, tx, vaultKey, snapshot.Labels, ct);
+            var existingItemIds = await ReadItemIdsAsync(conn, tx, ct);
+
+            foreach (var item in snapshot.Items)
+            {
+                if (existingItemIds.Contains(item.Id))
+                    await DeleteItemAsync(conn, tx, item.Id, ct);
+
+                var header = new VaultItemHeader(item.Id, item.Type, item.Favorite, item.CreatedAtUtc, item.UpdatedAtUtc);
+                await InsertItemAsync(conn, tx, vaultKey, header, item.PayloadJson, ct);
+                existingItemIds.Add(item.Id);
+            }
+
+            foreach (var item in snapshot.Items)
+            {
+                var labelIds = snapshot.ItemLabels
+                    .Where(x => x.ItemId == item.Id)
+                    .Select(x => labelMap.TryGetValue(x.LabelId, out var mappedId) ? mappedId : null)
+                    .Where(x => !string.IsNullOrWhiteSpace(x))
+                    .Cast<string>()
+                    .Distinct(StringComparer.Ordinal)
+                    .ToArray();
+
+                foreach (var labelId in labelIds)
+                    await InsertItemLabelAsync(conn, tx, item.Id, labelId, ct);
+            }
+
+            await tx.CommitAsync(ct);
+        }
+        catch
+        {
+            await tx.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
+    private static async Task ImportCsvTransactionalAsync(string vaultPath, byte[] vaultKey, IReadOnlyList<CsvImportAction> actions, CancellationToken ct)
+    {
+        if (actions.Count == 0)
+            return;
+
+        vaultPath = VaultFileGuard.EnsureExistingVaultFile(vaultPath);
+        await using var conn = await OpenVaultConnectionAsync(vaultPath, ct);
+        await using var tx = (SqliteTransaction)await conn.BeginTransactionAsync(ct);
+
+        try
+        {
+            foreach (var action in actions)
+            {
+                if (!string.IsNullOrWhiteSpace(action.DeleteItemId))
+                    await DeleteItemAsync(conn, tx, action.DeleteItemId, ct);
+
+                var candidate = action.Candidate;
+                var header = new VaultItemHeader(candidate.Id, candidate.Type, false, candidate.CreatedAtUtc, candidate.UpdatedAtUtc);
+                await InsertItemAsync(conn, tx, vaultKey, header, candidate.PayloadJson, ct);
+            }
+
+            await tx.CommitAsync(ct);
+        }
+        catch
+        {
+            await tx.RollbackAsync(CancellationToken.None);
+            throw;
+        }
+    }
+
+    private static async Task<Dictionary<string, string>> UpsertSnapshotLabelsAsync(
+        SqliteConnection conn,
+        SqliteTransaction tx,
+        byte[] vaultKey,
+        IReadOnlyList<VaultSnapshotLabel> labels,
+        CancellationToken ct)
+    {
+        var labelMap = new Dictionary<string, string>(StringComparer.Ordinal);
+        var existing = await ReadStoredLabelsAsync(conn, tx, ct);
+
+        foreach (var label in labels)
+        {
+            var normalized = NormalizeLabelName(label.Name);
+            if (normalized is null)
+                continue;
+
+            var match = existing.FirstOrDefault(row =>
+                string.Equals(
+                    NormalizeLabelName(VaultPayloadProtector.DecryptLabelName(vaultKey, row.Id, row.EncryptedName, row.LegacyName)),
+                    normalized,
+                    StringComparison.OrdinalIgnoreCase));
+
+            if (match is not null)
+            {
+                labelMap[label.Id] = match.Id;
+                continue;
+            }
+
+            var id = Guid.NewGuid().ToString("N");
+            var insert = conn.CreateCommand();
+            insert.Transaction = tx;
+            insert.CommandText = """
+            INSERT INTO labels (id, encryptedName, name, color)
+            VALUES ($id, $encryptedName, $lookup, $color);
+            """;
+            insert.Parameters.AddWithValue("$id", id);
+            insert.Parameters.Add("$encryptedName", SqliteType.Blob).Value = VaultPayloadProtector.EncryptLabelName(vaultKey, id, normalized);
+            insert.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(normalized));
+            insert.Parameters.AddWithValue("$color", string.IsNullOrWhiteSpace(label.Color) ? DBNull.Value : label.Color);
+            await insert.ExecuteNonQueryAsync(ct);
+
+            existing.Add(new StoredLabelRow(id, VaultPayloadProtector.EncryptLabelName(vaultKey, id, normalized), ComputeLabelLookupKey(normalized), label.Color));
+            labelMap[label.Id] = id;
+        }
+
+        return labelMap;
+    }
+
+    private static async Task<HashSet<string>> ReadItemIdsAsync(SqliteConnection conn, SqliteTransaction tx, CancellationToken ct)
+    {
+        var ids = new HashSet<string>(StringComparer.Ordinal);
+        var cmd = conn.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = "SELECT id FROM items;";
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+            ids.Add(reader.GetString(0));
+
+        return ids;
+    }
+
+    private static async Task DeleteItemAsync(SqliteConnection conn, SqliteTransaction tx, string itemId, CancellationToken ct)
+    {
+        var cmd = conn.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = "DELETE FROM items WHERE id = $id;";
+        cmd.Parameters.AddWithValue("$id", itemId);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertItemAsync(
+        SqliteConnection conn,
+        SqliteTransaction tx,
+        byte[] vaultKey,
+        VaultItemHeader header,
+        string payloadJson,
+        CancellationToken ct)
+    {
+        var encryptedPayload = VaultPayloadProtector.EncryptItemPayload(vaultKey, header, Encoding.UTF8.GetBytes(payloadJson));
+        var cmd = conn.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = """
+        INSERT INTO items (id, type, favorite, createdAtUtc, updatedAtUtc, encryptedPayload)
+        VALUES ($id, $type, $fav, $created, $updated, $payload);
+        """;
+        cmd.Parameters.AddWithValue("$id", header.Id);
+        cmd.Parameters.AddWithValue("$type", (int)header.Type);
+        cmd.Parameters.AddWithValue("$fav", header.Favorite ? 1 : 0);
+        cmd.Parameters.AddWithValue("$created", header.CreatedAtUtc);
+        cmd.Parameters.AddWithValue("$updated", header.UpdatedAtUtc);
+        cmd.Parameters.Add("$payload", SqliteType.Blob).Value = encryptedPayload;
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task InsertItemLabelAsync(SqliteConnection conn, SqliteTransaction tx, string itemId, string labelId, CancellationToken ct)
+    {
+        var cmd = conn.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = """
+        INSERT OR IGNORE INTO item_labels (itemId, labelId)
+        VALUES ($itemId, $labelId);
+        """;
+        cmd.Parameters.AddWithValue("$itemId", itemId);
+        cmd.Parameters.AddWithValue("$labelId", labelId);
+        await cmd.ExecuteNonQueryAsync(ct);
+    }
+
+    private static async Task<SqliteConnection> OpenVaultConnectionAsync(string vaultPath, CancellationToken ct)
+    {
+        var builder = new SqliteConnectionStringBuilder
+        {
+            DataSource = vaultPath,
+            Mode = SqliteOpenMode.ReadWrite,
+            Pooling = false
+        };
+
+        var conn = new SqliteConnection(builder.ToString());
+        await conn.OpenAsync(ct);
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = """
+        PRAGMA foreign_keys = ON;
+        PRAGMA journal_mode=DELETE;
+        """;
+        await cmd.ExecuteNonQueryAsync(ct);
+        return conn;
+    }
+
+    private static async Task EnsureLabelSchemaAsync(SqliteConnection conn, byte[] vaultKey, CancellationToken ct)
+    {
+        var columns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var pragma = conn.CreateCommand();
+        pragma.CommandText = "PRAGMA table_info(labels);";
+        await using (var reader = await pragma.ExecuteReaderAsync(ct))
+        {
+            while (await reader.ReadAsync(ct))
+                columns.Add(reader.GetString(1));
+        }
+
+        if (!columns.Contains("encryptedName"))
+        {
+            var alter = conn.CreateCommand();
+            alter.CommandText = "ALTER TABLE labels ADD COLUMN encryptedName BLOB;";
+            await alter.ExecuteNonQueryAsync(ct);
+        }
+
+        var rows = await ReadStoredLabelsAsync(conn, null, ct);
+        foreach (var row in rows.Where(row => row.EncryptedName is null && !string.IsNullOrWhiteSpace(row.LegacyName)))
+        {
+            var update = conn.CreateCommand();
+            update.CommandText = """
+            UPDATE labels
+            SET encryptedName = $encryptedName,
+                name = $lookup
+            WHERE id = $id;
+            """;
+            update.Parameters.AddWithValue("$id", row.Id);
+            update.Parameters.Add("$encryptedName", SqliteType.Blob).Value = VaultPayloadProtector.EncryptLabelName(vaultKey, row.Id, row.LegacyName!);
+            update.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(row.LegacyName!));
+            await update.ExecuteNonQueryAsync(ct);
+        }
+    }
+
+    private static async Task<List<StoredLabelRow>> ReadStoredLabelsAsync(SqliteConnection conn, SqliteTransaction? tx, CancellationToken ct)
+    {
+        var labels = new List<StoredLabelRow>();
+        var cmd = conn.CreateCommand();
+        cmd.Transaction = tx;
+        cmd.CommandText = "SELECT id, encryptedName, name, color FROM labels ORDER BY id ASC;";
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            labels.Add(new StoredLabelRow(
+                reader.GetString(0),
+                reader.IsDBNull(1) ? null : reader.GetFieldValue<byte[]>(1),
+                reader.IsDBNull(2) ? null : reader.GetString(2),
+                reader.IsDBNull(3) ? null : reader.GetString(3)));
+        }
+
+        return labels;
+    }
 
     private async Task<VaultSnapshot> BuildSnapshotAsync(string vaultPath, byte[] vaultKey, CancellationToken ct)
     {
@@ -171,7 +416,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
 
         foreach (var row in rows)
         {
-            var payloadJson = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, row.EncryptedPayload));
+            var payloadJson = Encoding.UTF8.GetString(VaultPayloadProtector.DecryptItemPayload(vaultKey, row.Header, row.EncryptedPayload));
             items.Add(new VaultSnapshotItem(
                 row.Header.Id,
                 row.Header.Type,
@@ -218,12 +463,15 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         if (string.IsNullOrWhiteSpace(passphrase))
             throw new ArgumentException("Export passphrase is required.", nameof(passphrase));
 
+        if (plaintext.Length > MaxSnapshotJsonBytes)
+            throw new InvalidOperationException("Vault snapshot is too large to export.");
+
         var kdf = DefaultKdf();
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
         var derivedKey = await DeriveKeyAsync(passphrase, salt, kdf, ct);
         try
         {
-            var encrypted = AesGcmBlob.Encrypt(derivedKey, plaintext);
+            var encrypted = AesGcmBlob.Encrypt(derivedKey, plaintext, BackupAssociatedData());
             return new VaultEncryptedPackage(
                 PackageVersion,
                 DateTimeOffset.UtcNow.ToString("O"),
@@ -237,8 +485,56 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         }
     }
 
+    private static void ValidateSnapshot(VaultSnapshot snapshot)
+    {
+        if (snapshot.Version != PackageVersion)
+            throw new NotSupportedException($"Unsupported snapshot version {snapshot.Version}.");
+
+        if (snapshot.Items.Count > MaxSnapshotItems)
+            throw new InvalidOperationException($"Snapshot contains too many items. Limit: {MaxSnapshotItems}.");
+
+        if (snapshot.Labels.Count > MaxSnapshotLabels)
+            throw new InvalidOperationException($"Snapshot contains too many labels. Limit: {MaxSnapshotLabels}.");
+
+        if (snapshot.ItemLabels.Count > MaxSnapshotItemLabels)
+            throw new InvalidOperationException($"Snapshot contains too many item-label links. Limit: {MaxSnapshotItemLabels}.");
+
+        var itemIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var item in snapshot.Items)
+        {
+            if (string.IsNullOrWhiteSpace(item.Id))
+                throw new InvalidOperationException("Snapshot contains an item without an id.");
+
+            if (!itemIds.Add(item.Id))
+                throw new InvalidOperationException("Snapshot contains duplicate item ids.");
+
+            if (item.PayloadJson.Length > MaxPayloadJsonChars)
+                throw new InvalidOperationException("Snapshot contains an item payload that is too large.");
+
+            _ = BuildDuplicateKey(item.Type, item.PayloadJson);
+        }
+
+        var labelIds = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var label in snapshot.Labels)
+        {
+            if (string.IsNullOrWhiteSpace(label.Id))
+                throw new InvalidOperationException("Snapshot contains a label without an id.");
+
+            if (!labelIds.Add(label.Id))
+                throw new InvalidOperationException("Snapshot contains duplicate label ids.");
+
+            if ((label.Name?.Length ?? 0) > MaxCsvFieldChars)
+                throw new InvalidOperationException("Snapshot contains a label name that is too large.");
+        }
+    }
+
     private static async Task<VaultSnapshot> ReadEncryptedSnapshotAsync(string packagePath, string passphrase, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(passphrase))
+            throw new ArgumentException("Import passphrase is required.", nameof(passphrase));
+
+        packagePath = VaultFileGuard.EnsureExtension(packagePath, VaultFileGuard.BackupExtension, "Encrypted backup file");
+        EnsureFileSize(packagePath, MaxEncryptedPackageBytes, "Encrypted backup file");
         var json = await File.ReadAllTextAsync(packagePath, ct);
         var package = JsonSerializer.Deserialize<VaultEncryptedPackage>(json, JsonOptions)
             ?? throw new InvalidOperationException("Encrypted export file is empty or invalid.");
@@ -246,14 +542,28 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         if (package.Version != PackageVersion)
             throw new NotSupportedException($"Unsupported package version {package.Version}.");
 
-        var salt = Convert.FromBase64String(package.SaltBase64);
-        var encrypted = Convert.FromBase64String(package.CiphertextBase64);
+        if (!VaultKdfPolicy.IsValidStored(package.Kdf, out var kdfError))
+            throw new InvalidOperationException(kdfError);
+
+        var salt = DecodeBase64Field(package.SaltBase64, "Backup salt");
+        if (salt.Length != SaltSize)
+            throw new InvalidOperationException("Backup salt is invalid.");
+
+        var encrypted = DecodeBase64Field(package.CiphertextBase64, "Backup ciphertext");
+        if (encrypted.Length < AesGcmBlob.NonceSize + AesGcmBlob.TagSize)
+            throw new InvalidOperationException("Backup ciphertext is invalid.");
+
         var derivedKey = await DeriveKeyAsync(passphrase, salt, package.Kdf, ct);
         try
         {
-            var plaintext = AesGcmBlob.Decrypt(derivedKey, encrypted);
-            return JsonSerializer.Deserialize<VaultSnapshot>(plaintext, JsonOptions)
+            var plaintext = AesGcmBlob.Decrypt(derivedKey, encrypted, BackupAssociatedData());
+            if (plaintext.Length > MaxSnapshotJsonBytes)
+                throw new InvalidOperationException("Encrypted export payload is too large.");
+
+            var snapshot = JsonSerializer.Deserialize<VaultSnapshot>(plaintext, JsonOptions)
                 ?? throw new InvalidOperationException("Encrypted export payload is empty or invalid.");
+            ValidateSnapshot(snapshot);
+            return snapshot;
         }
         finally
         {
@@ -261,10 +571,63 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         }
     }
 
+    private static void EnsureFileSize(string path, long maxBytes, string label)
+    {
+        var fullPath = VaultFileGuard.NormalizeFullPath(path);
+        if (!File.Exists(fullPath))
+            throw new FileNotFoundException($"{label} was not found.", fullPath);
+
+        var bytes = new FileInfo(fullPath).Length;
+        if (bytes > maxBytes)
+            throw new InvalidOperationException($"{label} is too large. Limit: {FormatBytes(maxBytes)}.");
+    }
+
+    private static byte[] DecodeBase64Field(string value, string label)
+    {
+        try
+        {
+            return Convert.FromBase64String(value);
+        }
+        catch (FormatException ex)
+        {
+            throw new InvalidOperationException($"{label} is not valid Base64.", ex);
+        }
+    }
+
+    private static byte[] BackupAssociatedData()
+        => AesGcmBlob.CreateAssociatedData("vault-backup", "v1");
+
+    private static string? NormalizeLabelName(string name)
+    {
+        var normalized = name?.Trim();
+        return string.IsNullOrWhiteSpace(normalized) ? null : normalized;
+    }
+
+    private static string ComputeLabelLookupKey(string name)
+    {
+        var normalized = NormalizeLabelName(name) ?? string.Empty;
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalized.ToUpperInvariant()));
+        return Convert.ToHexString(hash);
+    }
+
+    private static string FormatBytes(long bytes)
+    {
+        string[] units = ["B", "KB", "MB", "GB"];
+        decimal display = bytes;
+        var unitIndex = 0;
+        while (display >= 1024 && unitIndex < units.Length - 1)
+        {
+            display /= 1024;
+            unitIndex++;
+        }
+
+        return $"{display:0.#} {units[unitIndex]}";
+    }
+
     private static VaultKdfParams DefaultKdf()
     {
         var p = Math.Max(1, Environment.ProcessorCount / 2);
-        return new VaultKdfParams(65536, 3, p);
+        return VaultKdfPolicy.Normalize(new VaultKdfParams(65536, 3, p));
     }
 
     private static Task<byte[]> DeriveKeyAsync(string passphrase, byte[] salt, VaultKdfParams p, CancellationToken ct)
@@ -559,6 +922,36 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         var field = new StringBuilder();
         var inQuotes = false;
 
+        void Append(char value)
+        {
+            if (field.Length >= MaxCsvFieldChars)
+                throw new InvalidDataException($"CSV field exceeds the {MaxCsvFieldChars} character limit.");
+
+            field.Append(value);
+        }
+
+        void AddField()
+        {
+            if (row.Count >= MaxCsvColumns)
+                throw new InvalidDataException($"CSV rows cannot exceed {MaxCsvColumns} columns.");
+
+            row.Add(field.ToString());
+            field.Clear();
+        }
+
+        void AddRow()
+        {
+            if (row.Any(x => !string.IsNullOrWhiteSpace(x)))
+            {
+                if (records.Count >= MaxCsvRows + 1)
+                    throw new InvalidDataException($"CSV import cannot exceed {MaxCsvRows} data rows.");
+
+                records.Add(row.ToList());
+            }
+
+            row.Clear();
+        }
+
         for (var i = 0; i < csvText.Length; i++)
         {
             var ch = csvText[i];
@@ -578,7 +971,7 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
                 }
                 else
                 {
-                    field.Append(ch);
+                    Append(ch);
                 }
                 continue;
             }
@@ -589,34 +982,29 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
                     inQuotes = true;
                     break;
                 case ',':
-                    row.Add(field.ToString());
-                    field.Clear();
+                    AddField();
                     break;
                 case '\r':
-                    row.Add(field.ToString());
-                    field.Clear();
+                    AddField();
                     if (i + 1 < csvText.Length && csvText[i + 1] == '\n')
                         i++;
-                    if (row.Any(x => !string.IsNullOrWhiteSpace(x)))
-                        records.Add(row.ToList());
-                    row.Clear();
+                    AddRow();
                     break;
                 case '\n':
-                    row.Add(field.ToString());
-                    field.Clear();
-                    if (row.Any(x => !string.IsNullOrWhiteSpace(x)))
-                        records.Add(row.ToList());
-                    row.Clear();
+                    AddField();
+                    AddRow();
                     break;
                 default:
-                    field.Append(ch);
+                    Append(ch);
                     break;
             }
         }
 
-        row.Add(field.ToString());
-        if (row.Any(x => !string.IsNullOrWhiteSpace(x)))
-            records.Add(row.ToList());
+        if (inQuotes)
+            throw new InvalidDataException("CSV contains an unterminated quoted field.");
+
+        AddField();
+        AddRow();
 
         return records;
     }
@@ -640,4 +1028,12 @@ public sealed class SqliteVaultTransferService : IVaultTransferService
         public VaultCsvImportRowPreview ToPreview(VaultCsvRowStatus status, string? message)
             => new(LineNumber, Type, Title, SecondaryText, status, message);
     }
+
+    private sealed record CsvImportAction(CsvCandidate Candidate, string? DeleteItemId);
+
+    private sealed record StoredLabelRow(
+        string Id,
+        byte[]? EncryptedName,
+        string? LegacyName,
+        string? Color);
 }

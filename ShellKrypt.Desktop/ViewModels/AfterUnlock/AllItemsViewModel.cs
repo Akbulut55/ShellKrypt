@@ -861,7 +861,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private AllItemEntry BuildWebEntry(VaultItemRow row, IReadOnlyList<string> labels)
     {
-        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts)
             ?? new WebPayload("", "", "", "", "");
 
@@ -889,7 +889,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private AllItemEntry BuildAuthenticatorEntry(VaultItemRow row, IReadOnlyList<string> labels)
     {
-        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<AuthenticatorPayload>(json, JsonOpts)
             ?? new AuthenticatorPayload("", "", "", "", "", 6, 30, "", "", "", 0);
 
@@ -928,7 +928,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private AllItemEntry BuildCardEntry(VaultItemRow row, IReadOnlyList<string> labels)
     {
-        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<CardPayload>(json, JsonOpts)
             ?? new CardPayload("", "", "", 0, 0, "", "");
 
@@ -958,7 +958,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private AllItemEntry BuildNoteEntry(VaultItemRow row, IReadOnlyList<string> labels)
     {
-        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<NotePayload>(json, JsonOpts)
             ?? new NotePayload("", "");
 
@@ -984,7 +984,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private AllItemEntry BuildApiKeyEntry(VaultItemRow row, IReadOnlyList<string> labels)
     {
-        var json = AesGcmBlob.Decrypt(_root.VaultKey, row.EncryptedPayload);
+        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
         var payload = JsonSerializer.Deserialize<ApiKeyPayload>(json, JsonOpts)
             ?? new ApiKeyPayload("", "", "", "", Array.Empty<ApiKeyFieldPayload>());
 

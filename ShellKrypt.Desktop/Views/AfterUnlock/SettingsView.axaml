@@ -104,7 +104,7 @@
                       <TextBlock Text="Clear clipboard after timeout"
                                  FontSize="14"
                                  FontWeight="SemiBold"/>
-                      <TextBlock Text="Automatically purges copied secrets from the OS clipboard."
+                      <TextBlock Text="Best-effort clearing for copied secrets in the OS clipboard."
                                  Classes="page-subtitle"
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
@@ -114,16 +114,20 @@
                                  TextWrapping="Wrap"
                                  Opacity="0.82"/>
                     </StackPanel>
-                    <ComboBox Grid.Column="1"
-                              Width="170"
-                              ItemsSource="{Binding ClipboardClearTimeoutOptions}"
-                              SelectedItem="{Binding SelectedClipboardClearDuration}">
-                      <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                          <TextBlock Text="{Binding Label}"/>
-                        </DataTemplate>
-                      </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <StackPanel Grid.Column="1"
+                                Spacing="8"
+                                Width="170">
+                      <CheckBox Content="Allow copy"
+                                IsChecked="{Binding ClipboardCopyEnabled}"/>
+                      <ComboBox ItemsSource="{Binding ClipboardClearTimeoutOptions}"
+                                SelectedItem="{Binding SelectedClipboardClearDuration}">
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding Label}"/>
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
+                    </StackPanel>
                   </Grid>
                 </Border>
 
@@ -474,6 +478,8 @@
                     </Grid>
                     <CheckBox Content="I understand plaintext JSON exports are not encrypted."
                               IsChecked="{Binding ConfirmPlaintextExport}"/>
+                    <TextBox Text="{Binding PlaintextExportConfirmationText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="Type EXPORT to confirm decrypted export"/>
                     <Button Content="Export Plaintext JSON"
                             Classes="settings-danger-link"
                             Command="{Binding ExportPlaintextCommand}"/>

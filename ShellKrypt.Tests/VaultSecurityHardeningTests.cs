@@ -1,5 +1,6 @@
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -80,6 +81,77 @@ public sealed class VaultSecurityHardeningTests
         Assert.True(minimumMixed.IsValid);
         Assert.True(strongPassphrase.IsValid);
         Assert.True(strongSecret.IsValid);
+    }
+
+    [Fact]
+    public async Task UnlockAsync_ReturnsCorruptedMetadataError_ForInvalidKdf()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var vaultPath = workspace.FilePath("vault.skvault");
+
+        await vaultService.CreateAsync(vaultPath, "Vault Master Passphrase 2026");
+
+        await using var conn = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = vaultPath,
+            Mode = SqliteOpenMode.ReadWrite,
+            Pooling = false
+        }.ToString());
+        await conn.OpenAsync();
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = "UPDATE vault_meta SET kdfMemoryKb = 1 WHERE id = 1;";
+        await cmd.ExecuteNonQueryAsync();
+
+        var unlock = await vaultService.UnlockAsync(vaultPath, "Vault Master Passphrase 2026");
+
+        Assert.False(unlock.Success);
+        Assert.Contains("KDF", unlock.Error, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task ItemPayloadEnvelope_BindsEncryptedPayloadToItemIdentity()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var repo = new SqliteItemRepository();
+        var service = new WebLoginService(repo);
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
+
+        var first = await service.AddAsync(vaultPath, vaultKey, new WebLoginInput("First", "", "one", "", "secret-one", ""));
+        var second = await service.AddAsync(vaultPath, vaultKey, new WebLoginInput("Second", "", "two", "", "secret-two", ""));
+
+        await using var conn = new SqliteConnection(new SqliteConnectionStringBuilder
+        {
+            DataSource = vaultPath,
+            Mode = SqliteOpenMode.ReadWrite,
+            Pooling = false
+        }.ToString());
+        await conn.OpenAsync();
+
+        var swap = conn.CreateCommand();
+        swap.CommandText = """
+        UPDATE items
+        SET encryptedPayload = (SELECT encryptedPayload FROM items WHERE id = $second)
+        WHERE id = $first;
+        """;
+        swap.Parameters.AddWithValue("$first", first.Id);
+        swap.Parameters.AddWithValue("$second", second.Id);
+        await swap.ExecuteNonQueryAsync();
+
+        await Assert.ThrowsAnyAsync<System.Security.Cryptography.CryptographicException>(() => service.ListAsync(vaultPath, vaultKey));
+    }
+
+    private static async Task<byte[]> CreateAndUnlockVaultAsync(SqliteVaultService vaultService, string vaultPath, string masterPassword)
+    {
+        await vaultService.CreateAsync(vaultPath, masterPassword);
+        var result = await vaultService.UnlockAsync(vaultPath, masterPassword);
+
+        if (!result.Success || result.VaultKey is null)
+            throw new InvalidOperationException(result.Error ?? "Unable to unlock vault.");
+
+        return result.VaultKey;
     }
 
     private sealed class TempWorkspace : IDisposable

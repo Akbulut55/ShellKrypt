@@ -48,6 +48,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private bool lockOnDeactivate;
     [ObservableProperty] private int lockOnDeactivateSeconds;
     [ObservableProperty] private int clipboardClearSeconds;
+    [ObservableProperty] private bool clipboardCopyEnabled;
     [ObservableProperty] private AppThemeMode themeMode;
 
     public MainWindowViewModel()
@@ -67,6 +68,7 @@ public partial class MainWindowViewModel : ViewModelBase
         lockOnDeactivate = sessionSecurity.LockOnDeactivate;
         lockOnDeactivateSeconds = sessionSecurity.LockOnDeactivateSeconds;
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
+        clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
         themeMode = settings.ThemeMode;
 
         _sessionSecurity.ApplySettings(sessionSecurity);
@@ -81,7 +83,14 @@ public partial class MainWindowViewModel : ViewModelBase
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
     public ActivityLogStore ActivityLogStore => _activityLogStore;
 
-    public void SetVaultPath(string path) => _state.VaultPath = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetFullPath(path);
+    public void SetVaultPath(string path)
+    {
+        var nextPath = string.IsNullOrWhiteSpace(path) ? null : System.IO.Path.GetFullPath(path);
+        if (!string.Equals(_state.VaultPath, nextPath, StringComparison.OrdinalIgnoreCase))
+            _ = _clipboardService.ClearAsync();
+
+        _state.VaultPath = nextPath;
+    }
     public void AttachClipboard(IClipboard? clipboard) => _clipboardService.Attach(clipboard);
 
     public void RecordActivity() => _sessionSecurity.RecordActivity();
@@ -144,7 +153,15 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task CopyToClipboardAsync(string text)
     {
+        if (!_sessionSecurity.Settings.ClipboardCopyEnabled)
+            return;
+
         await _clipboardService.CopyAsync(text, _sessionSecurity.ClipboardClearDelay);
+    }
+
+    public async Task ClearClipboardAsync()
+    {
+        await _clipboardService.ClearAsync();
     }
 
     public async Task<Bitmap?> TryGetClipboardBitmapAsync()
@@ -261,8 +278,14 @@ public partial class MainWindowViewModel : ViewModelBase
             AffectedItem = string.IsNullOrWhiteSpace(affectedItem) ? null : affectedItem.Trim()
         };
 
-        _activityLogStore.Append(entry, _state.VaultKey);
-        ActivityChanged?.Invoke(this, EventArgs.Empty);
+        try
+        {
+            _activityLogStore.Append(entry, _state.VaultKey);
+            ActivityChanged?.Invoke(this, EventArgs.Empty);
+        }
+        catch
+        {
+        }
     }
 
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
@@ -270,6 +293,7 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnClipboardCopyEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnThemeModeChanged(AppThemeMode value)
     {
         ApplyTheme(value);
@@ -325,7 +349,8 @@ public partial class MainWindowViewModel : ViewModelBase
             AutoLockMinutes = AutoLockMinutes,
             LockOnDeactivate = LockOnDeactivate,
             LockOnDeactivateSeconds = LockOnDeactivateSeconds,
-            ClipboardClearSeconds = ClipboardClearSeconds
+            ClipboardClearSeconds = ClipboardClearSeconds,
+            ClipboardCopyEnabled = ClipboardCopyEnabled
         }.Normalize();
     }
 }

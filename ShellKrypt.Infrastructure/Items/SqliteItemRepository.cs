@@ -49,7 +49,7 @@ public sealed class SqliteItemRepository : IItemRepository
             {
                 builder.Labels.Add(new VaultLabelRow(
                     reader.GetString(6),
-                    DecryptLabelName(vaultKey, reader.IsDBNull(7) ? null : reader.GetFieldValue<byte[]>(7), reader.IsDBNull(8) ? null : reader.GetString(8)),
+                    VaultPayloadProtector.DecryptLabelName(vaultKey, reader.GetString(6), reader.IsDBNull(7) ? null : reader.GetFieldValue<byte[]>(7), reader.IsDBNull(8) ? null : reader.GetString(8)),
                     reader.IsDBNull(9) ? null : reader.GetString(9)));
             }
         }
@@ -78,7 +78,7 @@ public sealed class SqliteItemRepository : IItemRepository
         {
             labels.Add(new VaultLabelRow(
                 reader.GetString(0),
-                DecryptLabelName(vaultKey, reader.IsDBNull(1) ? null : reader.GetFieldValue<byte[]>(1), reader.IsDBNull(2) ? null : reader.GetString(2)),
+                VaultPayloadProtector.DecryptLabelName(vaultKey, reader.GetString(0), reader.IsDBNull(1) ? null : reader.GetFieldValue<byte[]>(1), reader.IsDBNull(2) ? null : reader.GetString(2)),
                 reader.IsDBNull(3) ? null : reader.GetString(3)));
         }
 
@@ -99,7 +99,7 @@ public sealed class SqliteItemRepository : IItemRepository
         var existing = await ReadStoredLabelsAsync(conn, ct);
         var match = existing.FirstOrDefault(label =>
             string.Equals(
-                NormalizeLabelName(DecryptLabelName(vaultKey, label.EncryptedName, label.LegacyName)),
+                NormalizeLabelName(VaultPayloadProtector.DecryptLabelName(vaultKey, label.Id, label.EncryptedName, label.LegacyName)),
                 normalized,
                 StringComparison.OrdinalIgnoreCase));
 
@@ -118,7 +118,7 @@ public sealed class SqliteItemRepository : IItemRepository
         VALUES ($id, $encryptedName, $lookup, $color);
         """;
         insert.Parameters.AddWithValue("$id", id);
-        insert.Parameters.Add("$encryptedName", SqliteType.Blob).Value = EncryptLabelName(vaultKey, normalized);
+        insert.Parameters.Add("$encryptedName", SqliteType.Blob).Value = VaultPayloadProtector.EncryptLabelName(vaultKey, id, normalized);
         insert.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(normalized));
         insert.Parameters.AddWithValue("$color", string.IsNullOrWhiteSpace(color) ? DBNull.Value : color);
         await insert.ExecuteNonQueryAsync(ct);
@@ -270,14 +270,14 @@ public sealed class SqliteItemRepository : IItemRepository
             WHERE id = $id;
             """;
             update.Parameters.AddWithValue("$id", row.Id);
-            update.Parameters.Add("$encryptedName", SqliteType.Blob).Value = EncryptLabelName(vaultKey, row.LegacyName!);
+            update.Parameters.Add("$encryptedName", SqliteType.Blob).Value = VaultPayloadProtector.EncryptLabelName(vaultKey, row.Id, row.LegacyName!);
             update.Parameters.AddWithValue("$lookup", ComputeLabelLookupKey(row.LegacyName!));
             await update.ExecuteNonQueryAsync(ct);
         }
 
         foreach (var row in rows.Where(row => row.EncryptedName is { Length: > 0 }))
         {
-            var decryptedName = DecryptLabelName(vaultKey, row.EncryptedName, row.LegacyName);
+            var decryptedName = VaultPayloadProtector.DecryptLabelName(vaultKey, row.Id, row.EncryptedName, row.LegacyName);
             var expectedLookup = ComputeLabelLookupKey(decryptedName);
             if (string.Equals(row.LegacyName, expectedLookup, StringComparison.Ordinal))
                 continue;
@@ -317,22 +317,11 @@ public sealed class SqliteItemRepository : IItemRepository
         return labels;
     }
 
-    private static byte[] EncryptLabelName(byte[] vaultKey, string name)
-        => AesGcmBlob.Encrypt(vaultKey, Encoding.UTF8.GetBytes(name));
-
     private static string ComputeLabelLookupKey(string name)
     {
         var normalized = NormalizeLabelName(name) ?? string.Empty;
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(normalized.ToUpperInvariant()));
         return Convert.ToHexString(hash);
-    }
-
-    private static string DecryptLabelName(byte[] vaultKey, byte[]? encryptedName, string? legacyName)
-    {
-        if (encryptedName is { Length: > 0 })
-            return Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, encryptedName));
-
-        return legacyName ?? string.Empty;
     }
 
     private static VaultItemRow SortLabels(VaultItemRow row)

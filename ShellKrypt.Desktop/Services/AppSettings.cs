@@ -7,6 +7,7 @@ public sealed class AppSettings
     public bool LockOnDeactivate { get; set; } = false;
     public int LockOnDeactivateSeconds { get; set; } = 20;
     public int ClipboardClearSeconds { get; set; } = 15;
+    public bool ClipboardCopyEnabled { get; set; } = true;
     public AppThemeMode ThemeMode { get; set; } = AppThemeMode.Dark;
 
     public SessionSecuritySettings ToSessionSecuritySettings()
@@ -17,7 +18,8 @@ public sealed class AppSettings
             AutoLockMinutes = AutoLockMinutes,
             LockOnDeactivate = LockOnDeactivate,
             LockOnDeactivateSeconds = LockOnDeactivateSeconds,
-            ClipboardClearSeconds = ClipboardClearSeconds
+            ClipboardClearSeconds = ClipboardClearSeconds,
+            ClipboardCopyEnabled = ClipboardCopyEnabled
         }.Normalize();
     }
 
@@ -29,5 +31,6 @@ public sealed class AppSettings
         LockOnDeactivate = normalized.LockOnDeactivate;
         LockOnDeactivateSeconds = normalized.LockOnDeactivateSeconds;
         ClipboardClearSeconds = normalized.ClipboardClearSeconds;
+        ClipboardCopyEnabled = normalized.ClipboardCopyEnabled;
     }
 }

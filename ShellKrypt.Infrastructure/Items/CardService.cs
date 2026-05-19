@@ -29,7 +29,7 @@ public sealed class CardService : ICardService
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Card))
         {
-            var payload = DecryptPayload(vaultKey, row.EncryptedPayload);
+            var payload = DecryptPayload(vaultKey, row.Header, row.EncryptedPayload);
             if (payload is null)
                 continue;
 
@@ -50,7 +50,7 @@ public sealed class CardService : ICardService
             UpdatedAtUtc: now);
         var payload = ToPayload(input);
 
-        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -71,7 +71,7 @@ public sealed class CardService : ICardService
             UpdatedAtUtc: DateTimeOffset.UtcNow.ToString("O"));
         var payload = ToPayload(input);
 
-        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -79,11 +79,11 @@ public sealed class CardService : ICardService
     public Task DeleteAsync(string vaultPath, string id, CancellationToken ct = default)
         => _repo.DeleteAsync(vaultPath, id, ct);
 
-    private static byte[] EncryptPayload(byte[] vaultKey, CardPayload payload)
-        => AesGcmBlob.Encrypt(vaultKey, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
+    private static byte[] EncryptPayload(byte[] vaultKey, VaultItemHeader header, CardPayload payload)
+        => VaultPayloadProtector.EncryptItemPayload(vaultKey, header, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
 
-    private static CardPayload? DecryptPayload(byte[] vaultKey, byte[] encryptedPayload)
-        => JsonSerializer.Deserialize<CardPayload>(AesGcmBlob.Decrypt(vaultKey, encryptedPayload), JsonOpts);
+    private static CardPayload? DecryptPayload(byte[] vaultKey, VaultItemHeader header, byte[] encryptedPayload)
+        => JsonSerializer.Deserialize<CardPayload>(VaultPayloadProtector.DecryptItemPayload(vaultKey, header, encryptedPayload), JsonOpts);
 
     private static CardPayload ToPayload(CardInput input)
         => new(

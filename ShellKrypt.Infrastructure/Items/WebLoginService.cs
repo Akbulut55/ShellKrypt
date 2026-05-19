@@ -25,7 +25,7 @@ public sealed class WebLoginService : IWebLoginService
 
         foreach (var row in rows.Where(row => row.Header.Type == ItemType.Web))
         {
-            var payload = DecryptPayload(vaultKey, row.EncryptedPayload);
+            var payload = DecryptPayload(vaultKey, row.Header, row.EncryptedPayload);
             if (payload is null)
                 continue;
 
@@ -46,7 +46,7 @@ public sealed class WebLoginService : IWebLoginService
             UpdatedAtUtc: now);
         var payload = ToPayload(input);
 
-        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.InsertAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -67,7 +67,7 @@ public sealed class WebLoginService : IWebLoginService
             UpdatedAtUtc: DateTimeOffset.UtcNow.ToString("O"));
         var payload = ToPayload(input);
 
-        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, payload), ct);
+        await _repo.UpdateAsync(vaultPath, header, EncryptPayload(vaultKey, header, payload), ct);
 
         return ToEntry(header, payload);
     }
@@ -75,11 +75,11 @@ public sealed class WebLoginService : IWebLoginService
     public Task DeleteAsync(string vaultPath, string id, CancellationToken ct = default)
         => _repo.DeleteAsync(vaultPath, id, ct);
 
-    private static byte[] EncryptPayload(byte[] vaultKey, WebPayload payload)
-        => AesGcmBlob.Encrypt(vaultKey, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
+    private static byte[] EncryptPayload(byte[] vaultKey, VaultItemHeader header, WebPayload payload)
+        => VaultPayloadProtector.EncryptItemPayload(vaultKey, header, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
 
-    private static WebPayload? DecryptPayload(byte[] vaultKey, byte[] encryptedPayload)
-        => JsonSerializer.Deserialize<WebPayload>(AesGcmBlob.Decrypt(vaultKey, encryptedPayload), JsonOpts);
+    private static WebPayload? DecryptPayload(byte[] vaultKey, VaultItemHeader header, byte[] encryptedPayload)
+        => JsonSerializer.Deserialize<WebPayload>(VaultPayloadProtector.DecryptItemPayload(vaultKey, header, encryptedPayload), JsonOpts);
 
     private static WebPayload ToPayload(WebLoginInput input)
         => new(

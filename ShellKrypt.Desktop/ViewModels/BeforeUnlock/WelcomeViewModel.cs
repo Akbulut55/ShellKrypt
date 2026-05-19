@@ -190,6 +190,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             if (!confirmed)
                 return;
 
+            path = VaultFileGuard.EnsureExistingVaultFile(path);
             if (!File.Exists(path))
             {
                 Error = "That vault file does not exist.";
@@ -236,10 +237,12 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
         try
         {
-            var targetPath = DefaultPaths.GetSuggestedVaultPath($"{SelectedVault.DisplayLabel} Copy");
-            File.Copy(SelectedVault.VaultPath, targetPath, overwrite: false);
-            CopySidecarIfExists(SelectedVault.VaultPath, targetPath, "-wal");
-            CopySidecarIfExists(SelectedVault.VaultPath, targetPath, "-shm");
+            var sourcePath = VaultFileGuard.EnsureExistingVaultFile(SelectedVault.VaultPath);
+            var targetPath = VaultFileGuard.EnsureVaultFilePath(DefaultPaths.GetSuggestedVaultPath($"{SelectedVault.DisplayLabel} Copy"));
+            VaultFileGuard.EnsureDifferentPaths(sourcePath, targetPath, "Vault duplicate target must be different from the source vault.");
+            File.Copy(sourcePath, targetPath, overwrite: false);
+            CopySidecarIfExists(sourcePath, targetPath, "-wal");
+            CopySidecarIfExists(sourcePath, targetPath, "-shm");
 
             _vaultRegistry.UpsertVault(
                 targetPath,
@@ -456,7 +459,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            var unlockResult = await _vaultService.UnlockAsync(vault.VaultPath, DeletePassword);
+            var deletePath = VaultFileGuard.EnsureSafeVaultDeletionTarget(vault.VaultPath);
+            var unlockResult = await _vaultService.UnlockAsync(deletePath, DeletePassword);
             if (!unlockResult.Success)
             {
                 DeleteOverlayError = unlockResult.Error ?? "Wrong master password.";
@@ -468,18 +472,19 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
             SqliteConnection.ClearAllPools();
 
-            DeleteSidecarIfExists(vault.VaultPath, "-wal");
-            DeleteSidecarIfExists(vault.VaultPath, "-shm");
-            DeleteSidecarIfExists(vault.VaultPath, "-journal");
-            File.Delete(vault.VaultPath);
+            await _root.ClearClipboardAsync();
+            DeleteSidecarIfExists(deletePath, "-wal");
+            DeleteSidecarIfExists(deletePath, "-shm");
+            DeleteSidecarIfExists(deletePath, "-journal");
+            File.Delete(deletePath);
 
-            if (!_vaultRegistry.RemoveVault(vault.VaultPath))
+            if (!_vaultRegistry.RemoveVault(deletePath))
             {
                 Error = "That vault is no longer registered.";
                 return;
             }
 
-            if (string.Equals(_root.VaultPath, vault.VaultPath, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(_root.VaultPath, deletePath, StringComparison.OrdinalIgnoreCase))
                 _root.SetVaultPath("");
 
             ClearDeleteOverlay();

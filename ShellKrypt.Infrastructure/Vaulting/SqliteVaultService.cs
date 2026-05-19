@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Konscious.Security.Cryptography;
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Infrastructure.Crypto;
 
 namespace ShellKrypt.Infrastructure.Vaulting;
 
@@ -16,14 +17,14 @@ public sealed class SqliteVaultService : IVaultService
 
     private const int KeySize = 32;
     private const int SaltSize = 16;
-    private const int NonceSize = 12;
-    private const int TagSize = 16;
 
     private static VaultKdfParams DefaultKdf()
-        => NormalizeKdf(VaultSecurityProfiles.Default.Kdf);
+        => VaultKdfPolicy.Normalize(VaultSecurityProfiles.Default.Kdf);
 
     public async Task CreateAsync(string vaultPath, string masterPassword, VaultKdfParams? kdf = null, CancellationToken ct = default)
     {
+        vaultPath = VaultFileGuard.EnsureVaultFilePath(vaultPath, nameof(vaultPath));
+
         var validation = VaultMasterPasswordPolicy.Validate(masterPassword);
         if (!validation.IsValid)
             throw new ArgumentException(validation.Message, nameof(masterPassword));
@@ -39,14 +40,14 @@ public sealed class SqliteVaultService : IVaultService
         await ConfigureConnectionAsync(conn, ct);
         await CreateSchemaAsync(conn, ct);
 
-        var effectiveKdf = NormalizeKdf(kdf ?? DefaultKdf());
+        var effectiveKdf = VaultKdfPolicy.Normalize(kdf ?? DefaultKdf());
         var salt = RandomNumberGenerator.GetBytes(SaltSize);
 
         var derivedKey = await DeriveKeyAsync(masterPassword, salt, effectiveKdf, ct);
         try
         {
             var vaultKey = RandomNumberGenerator.GetBytes(KeySize);
-            var encryptedVaultKey = EncryptAesGcm(derivedKey, vaultKey);
+            var encryptedVaultKey = VaultPayloadProtector.EncryptVaultKey(derivedKey, vaultKey);
 
             await InsertVaultMetaAsync(conn, effectiveKdf, salt, encryptedVaultKey, ct);
 
@@ -60,6 +61,15 @@ public sealed class SqliteVaultService : IVaultService
 
     public async Task<UnlockResult> UnlockAsync(string vaultPath, string masterPassword, CancellationToken ct = default)
     {
+        try
+        {
+            vaultPath = VaultFileGuard.EnsureVaultFilePath(vaultPath, nameof(vaultPath));
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return UnlockResult.Fail(ex.Message);
+        }
+
         if (!File.Exists(vaultPath))
             return UnlockResult.Fail("Vault file not found.");
 
@@ -70,16 +80,30 @@ public sealed class SqliteVaultService : IVaultService
         await conn.OpenAsync(ct);
         await ConfigureConnectionAsync(conn, ct);
 
-        var meta = await ReadVaultMetaAsync(conn, ct);
-        if (meta is null)
-            return UnlockResult.Fail("Vault metadata missing or corrupted.");
+        (VaultKdfParams Kdf, byte[] Salt, byte[] EncryptedVaultKey) meta;
+        try
+        {
+            var read = await ReadVaultMetaAsync(conn, ct);
+            if (read is null)
+                return UnlockResult.Fail("Vault metadata missing or corrupted.");
 
-        var derivedKey = await DeriveKeyAsync(masterPassword, meta.Value.Salt, meta.Value.Kdf, ct);
+            meta = read.Value;
+        }
+        catch (InvalidDataException ex)
+        {
+            return UnlockResult.Fail(ex.Message);
+        }
+        catch (SqliteException)
+        {
+            return UnlockResult.Fail("Vault database is corrupted or unsupported.");
+        }
+
+        var derivedKey = await DeriveKeyAsync(masterPassword, meta.Salt, meta.Kdf, ct);
         try
         {
             try
             {
-                var vaultKey = DecryptAesGcm(derivedKey, meta.Value.EncryptedVaultKey);
+                var vaultKey = VaultPayloadProtector.DecryptVaultKey(derivedKey, meta.EncryptedVaultKey);
                 return UnlockResult.Ok(vaultKey);
             }
             catch (CryptographicException)
@@ -100,6 +124,15 @@ public sealed class SqliteVaultService : IVaultService
         VaultKdfParams? newKdf = null,
         CancellationToken ct = default)
     {
+        try
+        {
+            vaultPath = VaultFileGuard.EnsureVaultFilePath(vaultPath, nameof(vaultPath));
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return ChangeMasterPasswordResult.Fail(ex.Message);
+        }
+
         if (!File.Exists(vaultPath))
             return ChangeMasterPasswordResult.Fail("Vault file not found.");
 
@@ -114,17 +147,31 @@ public sealed class SqliteVaultService : IVaultService
         await conn.OpenAsync(ct);
         await ConfigureConnectionAsync(conn, ct);
 
-        var meta = await ReadVaultMetaAsync(conn, ct);
-        if (meta is null)
-            return ChangeMasterPasswordResult.Fail("Vault metadata missing or corrupted.");
+        (VaultKdfParams Kdf, byte[] Salt, byte[] EncryptedVaultKey) meta;
+        try
+        {
+            var read = await ReadVaultMetaAsync(conn, ct);
+            if (read is null)
+                return ChangeMasterPasswordResult.Fail("Vault metadata missing or corrupted.");
 
-        var currentDerivedKey = await DeriveKeyAsync(currentMasterPassword, meta.Value.Salt, meta.Value.Kdf, ct);
+            meta = read.Value;
+        }
+        catch (InvalidDataException ex)
+        {
+            return ChangeMasterPasswordResult.Fail(ex.Message);
+        }
+        catch (SqliteException)
+        {
+            return ChangeMasterPasswordResult.Fail("Vault database is corrupted or unsupported.");
+        }
+
+        var currentDerivedKey = await DeriveKeyAsync(currentMasterPassword, meta.Salt, meta.Kdf, ct);
         try
         {
             byte[] vaultKey;
             try
             {
-                vaultKey = DecryptAesGcm(currentDerivedKey, meta.Value.EncryptedVaultKey);
+                vaultKey = VaultPayloadProtector.DecryptVaultKey(currentDerivedKey, meta.EncryptedVaultKey);
             }
             catch (CryptographicException)
             {
@@ -133,12 +180,12 @@ public sealed class SqliteVaultService : IVaultService
 
             try
             {
-                var effectiveKdf = NormalizeKdf(newKdf ?? DefaultKdf());
+                var effectiveKdf = VaultKdfPolicy.Normalize(newKdf ?? DefaultKdf());
                 var newSalt = RandomNumberGenerator.GetBytes(SaltSize);
                 var newDerivedKey = await DeriveKeyAsync(newMasterPassword, newSalt, effectiveKdf, ct);
                 try
                 {
-                    var rewrappedVaultKey = EncryptAesGcm(newDerivedKey, vaultKey);
+                    var rewrappedVaultKey = VaultPayloadProtector.EncryptVaultKey(newDerivedKey, vaultKey);
                     await UpdateVaultMetaAsync(conn, effectiveKdf, newSalt, rewrappedVaultKey, ct);
                     return ChangeMasterPasswordResult.Ok();
                 }
@@ -160,6 +207,15 @@ public sealed class SqliteVaultService : IVaultService
 
     public async Task<VaultKdfParams?> GetKdfParamsAsync(string vaultPath, CancellationToken ct = default)
     {
+        try
+        {
+            vaultPath = VaultFileGuard.EnsureVaultFilePath(vaultPath, nameof(vaultPath));
+        }
+        catch
+        {
+            return null;
+        }
+
         if (!File.Exists(vaultPath))
             return null;
 
@@ -167,8 +223,15 @@ public sealed class SqliteVaultService : IVaultService
         await conn.OpenAsync(ct);
         await ConfigureConnectionAsync(conn, ct);
 
-        var meta = await ReadVaultMetaAsync(conn, ct);
-        return meta?.Kdf;
+        try
+        {
+            var meta = await ReadVaultMetaAsync(conn, ct);
+            return meta?.Kdf;
+        }
+        catch
+        {
+            return null;
+        }
     }
 
     private static async Task CreateSchemaAsync(SqliteConnection conn, CancellationToken ct)
@@ -307,7 +370,7 @@ public sealed class SqliteVaultService : IVaultService
     {
         var cmd = conn.CreateCommand();
         cmd.CommandText = """
-        SELECT kdfMemoryKb, kdfIterations, kdfParallelism, salt, encryptedVaultKey
+        SELECT version, kdfMemoryKb, kdfIterations, kdfParallelism, salt, encryptedVaultKey
         FROM vault_meta WHERE id = 1 LIMIT 1;
         """;
 
@@ -315,13 +378,27 @@ public sealed class SqliteVaultService : IVaultService
         if (!await reader.ReadAsync(ct))
             return null;
 
-        var mem = reader.GetInt32(0);
-        var iters = reader.GetInt32(1);
-        var par = reader.GetInt32(2);
-        var salt = (byte[])reader["salt"];
-        var evk = (byte[])reader["encryptedVaultKey"];
+        var version = reader.GetInt32(0);
+        if (version != Version)
+            throw new InvalidDataException("Vault format version is unsupported.");
 
-        return (new VaultKdfParams(mem, iters, par), salt, evk);
+        var mem = reader.GetInt32(1);
+        var iters = reader.GetInt32(2);
+        var par = reader.GetInt32(3);
+        var salt = reader.GetFieldValue<byte[]>(4);
+        var evk = reader.GetFieldValue<byte[]>(5);
+
+        if (salt.Length != SaltSize)
+            throw new InvalidDataException("Vault metadata salt is corrupted.");
+
+        if (evk.Length < AesGcmBlob.NonceSize + AesGcmBlob.TagSize)
+            throw new InvalidDataException("Vault key metadata is corrupted.");
+
+        var kdf = new VaultKdfParams(mem, iters, par);
+        if (!VaultKdfPolicy.IsValidStored(kdf, out var kdfError))
+            throw new InvalidDataException(kdfError);
+
+        return (kdf, salt, evk);
     }
 
     private static Task<byte[]> DeriveKeyAsync(string masterPassword, byte[] salt, VaultKdfParams p, CancellationToken ct)
@@ -339,58 +416,4 @@ public sealed class SqliteVaultService : IVaultService
         }, ct);
     }
 
-    private static VaultKdfParams NormalizeKdf(VaultKdfParams p)
-    {
-        var parallelism = Math.Clamp(p.Parallelism, 1, Math.Max(1, Environment.ProcessorCount));
-        return new VaultKdfParams(
-            MemoryKb: Math.Max(32768, p.MemoryKb),
-            Iterations: Math.Max(3, p.Iterations),
-            Parallelism: parallelism);
-    }
-
-    private static byte[] EncryptAesGcm(byte[] key, byte[] plaintext)
-    {
-        var nonce = RandomNumberGenerator.GetBytes(NonceSize);
-        var tag = new byte[TagSize];
-        var ciphertext = new byte[plaintext.Length];
-
-        using var aes = new AesGcm(key, TagSize);
-        aes.Encrypt(nonce, plaintext, ciphertext, tag);
-
-        return Pack(nonce, tag, ciphertext);
-    }
-
-    private static byte[] DecryptAesGcm(byte[] key, byte[] packed)
-    {
-        Unpack(packed, out var nonce, out var tag, out var ciphertext);
-
-        var plaintext = new byte[ciphertext.Length];
-        using var aes = new AesGcm(key, TagSize);
-        aes.Decrypt(nonce, ciphertext, tag, plaintext);
-
-        return plaintext;
-    }
-
-    private static byte[] Pack(byte[] nonce, byte[] tag, byte[] ciphertext)
-    {
-        var blob = new byte[nonce.Length + tag.Length + ciphertext.Length];
-        Buffer.BlockCopy(nonce, 0, blob, 0, nonce.Length);
-        Buffer.BlockCopy(tag, 0, blob, nonce.Length, tag.Length);
-        Buffer.BlockCopy(ciphertext, 0, blob, nonce.Length + tag.Length, ciphertext.Length);
-        return blob;
-    }
-
-    private static void Unpack(byte[] blob, out byte[] nonce, out byte[] tag, out byte[] ciphertext)
-    {
-        if (blob.Length < NonceSize + TagSize)
-            throw new CryptographicException("Invalid ciphertext blob.");
-
-        nonce = new byte[NonceSize];
-        tag = new byte[TagSize];
-        ciphertext = new byte[blob.Length - NonceSize - TagSize];
-
-        Buffer.BlockCopy(blob, 0, nonce, 0, NonceSize);
-        Buffer.BlockCopy(blob, NonceSize, tag, 0, TagSize);
-        Buffer.BlockCopy(blob, NonceSize + TagSize, ciphertext, 0, ciphertext.Length);
-    }
 }

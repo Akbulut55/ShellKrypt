@@ -118,7 +118,7 @@ public partial class HealthViewModel : ViewModelBase
         !_dismissedSuggestionFingerprints.Contains(issue.Fingerprint));
     public bool CanGenerateSuggestionPassword => PrimarySuggestionIssue is not null && !IsBusy;
     public bool CanDismissSuggestion => PrimarySuggestionIssue is not null && !IsBusy;
-    public string ChecklistClipboardText => $"Clear clipboard ({Math.Max(1, _root.ClipboardClearSeconds)}s)";
+    public string ChecklistClipboardText => $"Clear clipboard ({Math.Max(SessionSecuritySettings.MinClipboardClearSeconds, _root.ClipboardClearSeconds)}s)";
     public bool HasClipboardTimeout => _root.ClipboardClearSeconds > 0;
     public bool HasAutoLock => _root.AutoLockEnabled;
     public bool HasFocusLock => _root.LockOnDeactivate;

@@ -300,7 +300,8 @@ public partial class ActivityViewModel : ViewModelBase
             return;
 
         await File.WriteAllTextAsync(exportPath, BuildActivityReportJson());
-        _root.LogActivity("activity", "Activity report exported", $"Saved {_allItems.Count} activity log entries to {exportPath}.", "info", affectedItem: Path.GetFileName(exportPath));
+        Error = "Activity report exported as plaintext JSON. Protect it and delete it when finished.";
+        _root.LogActivity("activity", "Activity report exported", $"Saved {_allItems.Count} activity log entries to {Path.GetFileName(exportPath)}.", "info", affectedItem: Path.GetFileName(exportPath));
     }
 
     public void ReloadFromStore()
@@ -404,7 +405,7 @@ public partial class ActivityViewModel : ViewModelBase
     private string BuildActivityReportJson()
     {
         var report = new ActivityLogReport(
-            ReportType: "ShellKrypt Activity Logs Report",
+            ReportType: "ShellKrypt Plaintext Activity Logs Report",
             Vault: CurrentVaultDisplayName,
             GeneratedAt: DateTimeOffset.Now.ToString("O", CultureInfo.InvariantCulture),
             TotalEvents: _allItems.Count,
