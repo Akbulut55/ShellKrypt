@@ -340,7 +340,7 @@ public partial class CardsViewModel : ViewModelBase
         : $"{ExpiredCardsCount} cards are already expired";
     public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} cards";
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
-    public string PageSummary => $"{CurrentPage} / {TotalPages}";
+    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
     public bool HasRows => Rows.Count > 0;

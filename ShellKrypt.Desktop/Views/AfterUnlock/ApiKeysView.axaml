@@ -95,30 +95,29 @@
           </Grid>
         </Border>
 
-        <Border Classes="api-table-shell"
+        <Border Classes="table-shell"
                 ClipToBounds="True">
           <Grid RowDefinitions="Auto,*,Auto">
-            <Border Background="{StaticResource SurfaceBrush}"
-                    Padding="22,14">
+            <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.35*,1.05*,0.95*,1.25*,0.9*,250"
                     ColumnSpacing="18">
                 <TextBlock Text="KEY IDENTITY"
-                           Classes="api-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="1"
                            Text="PROVIDER"
-                           Classes="api-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="2"
                            Text="ENVIRONMENT"
-                           Classes="api-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="3"
                            Text="PRIMARY FIELD"
-                           Classes="api-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="4"
                            Text="UPDATED"
-                           Classes="api-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="5"
                            Text="ACTIONS"
-                           Classes="api-table-header"
+                           Classes="table-header-text"
                            HorizontalAlignment="Right"/>
               </Grid>
             </Border>
@@ -129,7 +128,7 @@
                             IsVisible="{Binding HasRows}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:ApiKeyRowVm">
-                    <Border Classes="api-row">
+                    <Border Classes="table-row">
                       <Grid ColumnDefinitions="1.35*,1.05*,0.95*,1.25*,0.9*,250"
                             ColumnSpacing="18"
                             Margin="22,0"
@@ -214,11 +213,11 @@
                                     VerticalAlignment="Center"
                                     Spacing="8">
                           <Button Content="Details"
-                                  Classes="api-action"
+                                  Classes="table-action-button"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                           <Button Content="Copy Secret"
-                                  Classes="api-action"
+                                  Classes="table-action-button"
                                   Command="{Binding DataContext.CopyPrimarySecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -228,35 +227,34 @@
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
 
-              <StackPanel Classes="api-empty-table"
+              <StackPanel Classes="table-empty"
                           IsVisible="{Binding !HasRows}">
                 <TextBlock Text="{Binding EmptyTitle}"
-                           Classes="api-empty-title"/>
+                           Classes="table-empty-title"/>
                 <TextBlock Text="{Binding EmptySubtitle}"
-                           Classes="api-empty-subtitle"/>
+                           Classes="table-empty-subtitle"/>
               </StackPanel>
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="{StaticResource SurfaceBrush}"
-                    Padding="22,14">
+                    Classes="table-footer-row">
               <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                     ColumnSpacing="10">
                 <TextBlock Text="{Binding ItemsSummary}"
-                           Classes="api-footer-text"
+                           Classes="table-footer-text"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="1"
                         Content="Previous"
-                        Classes="api-page-button"
+                        Classes="table-page-button"
                         Command="{Binding PreviousPageCommand}"
                         IsEnabled="{Binding CanGoPreviousPage}"/>
                 <TextBlock Grid.Column="2"
                            Text="{Binding PageSummary}"
-                           Classes="api-footer-text"
+                           Classes="table-footer-text"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="3"
                         Content="Next"
-                        Classes="api-page-button"
+                        Classes="table-page-button"
                         Command="{Binding NextPageCommand}"
                         IsEnabled="{Binding CanGoNextPage}"/>
               </Grid>
@@ -266,7 +264,7 @@
       </StackPanel>
     </ScrollViewer>
 
-    <Border Background="#b0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsApiKeyModalOpen}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
@@ -578,52 +576,8 @@
     </Style>
 
     <Style Selector="Button.api-add-button:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-      <Setter Property="BorderBrush" Value="#63f5e1"/>
-    </Style>
-
-    <Style Selector="Border.api-table-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
-    <Style Selector="TextBlock.api-table-header">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.6"/>
-    </Style>
-
-    <Style Selector="Border.api-row">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="#171f1d"/>
-      <Setter Property="BorderThickness" Value="0,0,0,1"/>
-    </Style>
-
-    <Style Selector="Border.api-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-    </Style>
-
-    <Style Selector="StackPanel.api-empty-table">
-      <Setter Property="HorizontalAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Spacing" Value="10"/>
-    </Style>
-
-    <Style Selector="TextBlock.api-empty-title">
-      <Setter Property="FontSize" Value="18"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="TextBlock.api-empty-subtitle">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="MaxWidth" Value="460"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.api-row-subtitle">
@@ -643,52 +597,9 @@
       <Setter Property="CornerRadius" Value="4"/>
     </Style>
 
-    <Style Selector="Button.api-action">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="4"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="MinWidth" Value="64"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.api-action:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.api-page-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Height" Value="28"/>
-      <Setter Property="MinHeight" Value="28"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.api-page-button:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="TextBlock.api-footer-text">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-    </Style>
-
     <Style Selector="Border.api-modal-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
     </Style>
@@ -702,7 +613,7 @@
 
     <Style Selector="TextBox.api-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -720,7 +631,7 @@
 
     <Style Selector="TextBox.api-modal-input:pointerover">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="CornerRadius" Value="8"/>
     </Style>
 
@@ -731,7 +642,7 @@
 
     <Style Selector="ComboBox.api-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -748,7 +659,7 @@
 
     <Style Selector="Border.api-modal-input-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="0"/>
@@ -891,7 +802,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="Height" Value="42"/>

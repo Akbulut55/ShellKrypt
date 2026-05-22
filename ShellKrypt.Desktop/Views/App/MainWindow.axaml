@@ -98,42 +98,42 @@
               IsHitTestVisible="True">
             <Border Grid.Row="0"
                     Grid.Column="1"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="SizeNorthSouth"
                     PointerPressed="OnResizeTopPressed"/>
             <Border Grid.Row="2"
                     Grid.Column="1"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="SizeNorthSouth"
                     PointerPressed="OnResizeBottomPressed"/>
             <Border Grid.Row="1"
                     Grid.Column="0"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="SizeWestEast"
                     PointerPressed="OnResizeLeftPressed"/>
             <Border Grid.Row="1"
                     Grid.Column="2"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="SizeWestEast"
                     PointerPressed="OnResizeRightPressed"/>
             <Border Grid.Row="0"
                     Grid.Column="0"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="TopLeftCorner"
                     PointerPressed="OnResizeTopLeftPressed"/>
             <Border Grid.Row="0"
                     Grid.Column="2"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="TopRightCorner"
                     PointerPressed="OnResizeTopRightPressed"/>
             <Border Grid.Row="2"
                     Grid.Column="0"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="BottomLeftCorner"
                     PointerPressed="OnResizeBottomLeftPressed"/>
             <Border Grid.Row="2"
                     Grid.Column="2"
-                    Background="#01000000"
+                    Background="{StaticResource ResizeHitTestBrush}"
                     Cursor="BottomRightCorner"
                     PointerPressed="OnResizeBottomRightPressed"/>
         </Grid>
@@ -149,19 +149,19 @@
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius" Value="0"/>
-            <Setter Property="Foreground" Value="#CCCCCC"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonForegroundBrush}"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
         <Style Selector="Button.window-caption-button:pointerover">
-            <Setter Property="Background" Value="#2A2D2E"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource CaptionButtonHoverBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
         </Style>
 
         <Style Selector="Button.window-caption-button-close:pointerover">
-            <Setter Property="Background" Value="#C42B1C"/>
-            <Setter Property="Foreground" Value="#FFFFFF"/>
+            <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
         </Style>
     </Window.Styles>
 </Window>

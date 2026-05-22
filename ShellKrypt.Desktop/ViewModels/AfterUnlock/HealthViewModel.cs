@@ -24,29 +24,29 @@ public sealed partial class HealthIssueVm : ObservableObject
 
     public string SeverityBadgeBackground => Severity switch
     {
-        "CRITICAL" => "#93000a",
-        "HIGH" => "#93000a",
-        "MEDIUM" => "#744000",
-        "LOW" => "#353534",
-        _ => "#353534"
+        "CRITICAL" => "DangerMutedBrush",
+        "HIGH" => "DangerMutedBrush",
+        "MEDIUM" => "WarningMutedBrush",
+        "LOW" => "InfoMutedBrush",
+        _ => "InfoMutedBrush"
     };
 
     public string SeverityBadgeForeground => Severity switch
     {
-        "CRITICAL" => "#ffdad6",
-        "HIGH" => "#ffdad6",
-        "MEDIUM" => "#ffd1aa",
-        "LOW" => "#bacac5",
-        _ => "#bacac5"
+        "CRITICAL" => "DangerBrush",
+        "HIGH" => "DangerBrush",
+        "MEDIUM" => "WarningForegroundBrush",
+        "LOW" => "InfoBrush",
+        _ => "InfoBrush"
     };
 
     public string SeverityAccentBrush => Severity switch
     {
-        "CRITICAL" => "#ffb4ab",
-        "HIGH" => "#ffb4ab",
-        "MEDIUM" => "#ffac5a",
-        "LOW" => "#859490",
-        _ => "#859490"
+        "CRITICAL" => "DangerBrush",
+        "HIGH" => "DangerBrush",
+        "MEDIUM" => "WarningBrush",
+        "LOW" => "BorderBrushStrong",
+        _ => "BorderBrushStrong"
     };
 
     public string IconGlyph => Category.ToUpperInvariant() switch

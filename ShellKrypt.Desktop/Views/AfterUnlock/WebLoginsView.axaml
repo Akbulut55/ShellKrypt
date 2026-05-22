@@ -88,23 +88,22 @@
         </StackPanel>
       </Grid>
 
-      <Border Classes="web-table-shell"
+      <Border Classes="table-shell"
               ClipToBounds="True">
         <Grid RowDefinitions="Auto,*,Auto">
-          <Border Background="{StaticResource SurfaceBrush}"
-                  Padding="22,14">
+          <Border Classes="table-header-row">
             <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
                   ColumnSpacing="24">
-              <TextBlock Text="TITLE" Classes="web-table-header"/>
-              <TextBlock Grid.Column="1" Text="USERNAME" Classes="web-table-header"/>
-              <TextBlock Grid.Column="2" Text="PASSWORD" Classes="web-table-header"/>
+              <TextBlock Text="TITLE" Classes="table-header-text"/>
+              <TextBlock Grid.Column="1" Text="USERNAME" Classes="table-header-text"/>
+              <TextBlock Grid.Column="2" Text="PASSWORD" Classes="table-header-text"/>
               <TextBlock Grid.Column="3"
                          Text="URL"
-                         Classes="web-table-header"
+                         Classes="table-header-text"
                          TextAlignment="Center"/>
               <TextBlock Grid.Column="4"
                          Text="ACTIONS"
-                         Classes="web-table-header"
+                         Classes="table-header-text"
                          HorizontalAlignment="Right"/>
             </Grid>
           </Border>
@@ -114,7 +113,7 @@
             <ItemsControl ItemsSource="{Binding Rows}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:WebLoginRowVm">
-                  <Border Classes="web-login-row">
+                  <Border Classes="table-row">
                     <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
                           ColumnSpacing="24"
                           MinHeight="78"
@@ -186,12 +185,12 @@
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Center"
                                   Spacing="8">
-                        <Button Classes="web-action"
+                        <Button Classes="table-action-button"
                                 Content="Details"
                                 Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="View login details"/>
-                        <Button Classes="web-action"
+                        <Button Classes="table-action-button"
                                 Content="Copy Password"
                                 Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
@@ -203,35 +202,34 @@
               </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <StackPanel Classes="web-empty-table"
+            <StackPanel Classes="table-empty"
                         IsVisible="{Binding !HasRows}">
               <TextBlock Text="{Binding EmptyTableTitle}"
-                         Classes="web-empty-title"/>
+                         Classes="table-empty-title"/>
               <TextBlock Text="{Binding EmptyTableSubtitle}"
-                         Classes="web-empty-subtitle"/>
+                         Classes="table-empty-subtitle"/>
             </StackPanel>
           </Grid>
 
           <Border Grid.Row="2"
-                  Background="{StaticResource SurfaceBrush}"
-                  Padding="22,14">
+                  Classes="table-footer-row">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   ColumnSpacing="10">
               <TextBlock Text="{Binding ItemsSummary}"
-                         Classes="web-footer-text"
+                         Classes="table-footer-text"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
                       Content="Previous"
-                      Classes="web-page-button"
+                      Classes="table-page-button"
                       Command="{Binding PreviousPageCommand}"
                       IsEnabled="{Binding CanGoPreviousPage}"/>
               <TextBlock Grid.Column="2"
                          Text="{Binding PageSummary}"
-                         Classes="web-footer-text"
+                         Classes="table-footer-text"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="3"
                       Content="Next"
-                      Classes="web-page-button"
+                      Classes="table-page-button"
                       Command="{Binding NextPageCommand}"
                       IsEnabled="{Binding CanGoNextPage}"/>
             </Grid>
@@ -266,7 +264,7 @@
       </StackPanel>
     </ScrollViewer>
 
-    <Border Background="#b0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsAddWebLoginModalOpen}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
@@ -462,13 +460,6 @@
       <Setter Property="CornerRadius" Value="999"/>
     </Style>
 
-    <Style Selector="Border.web-table-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
     <Style Selector="TextBox.web-search">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -504,11 +495,10 @@
 
     <Style Selector="Border.web-email-filter-popup">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="14"/>
-      <Setter Property="BoxShadow" Value="0 18 42 0 #80000000"/>
     </Style>
 
     <Style Selector="Button.web-email-filter-option">
@@ -549,38 +539,8 @@
     </Style>
 
     <Style Selector="Button.web-add-login-button:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-      <Setter Property="BorderBrush" Value="#63f5e1"/>
-    </Style>
-
-    <Style Selector="Border.web-login-row">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="#171f1d"/>
-      <Setter Property="BorderThickness" Value="0,0,0,1"/>
-    </Style>
-
-    <Style Selector="Border.web-login-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-    </Style>
-
-    <Style Selector="StackPanel.web-empty-table">
-      <Setter Property="HorizontalAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Spacing" Value="10"/>
-    </Style>
-
-    <Style Selector="TextBlock.web-empty-title">
-      <Setter Property="FontSize" Value="18"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="TextBlock.web-empty-subtitle">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="MaxWidth" Value="460"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="Border.web-bento-card">
@@ -592,14 +552,14 @@
 
     <Style Selector="Border.web-modal-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
     </Style>
 
     <Style Selector="Border.web-modal-input-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="0"/>
@@ -614,7 +574,7 @@
 
     <Style Selector="TextBox.web-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -682,8 +642,8 @@
     </Style>
 
     <Style Selector="Button.web-modal-field-action.primary:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-      <Setter Property="BorderBrush" Value="#63f5e1"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="Button.web-modal-secondary-button">
@@ -710,7 +670,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="Height" Value="42"/>
@@ -721,7 +681,7 @@
     </Style>
 
     <Style Selector="Button.web-modal-danger-button:pointerover">
-      <Setter Property="Background" Value="#ff8f8f"/>
+      <Setter Property="Background" Value="{StaticResource DangerHoverBrush}"/>
     </Style>
 
     <Style Selector="Button.web-modal-primary-button">
@@ -740,20 +700,13 @@
     </Style>
 
     <Style Selector="Button.web-modal-primary-button:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.web-kicker">
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="LetterSpacing" Value="2.2"/>
-    </Style>
-
-    <Style Selector="TextBlock.web-table-header">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.6"/>
     </Style>
 
     <Style Selector="TextBlock.web-row-muted">
@@ -779,44 +732,6 @@
     <Style Selector="TextBlock.web-footer-text">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.web-page-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Height" Value="28"/>
-      <Setter Property="MinHeight" Value="28"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-page-button:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-action">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="4"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="MinWidth" Value="64"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-action:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
     </Style>
 
     <Style Selector="Button.web-inline-icon">

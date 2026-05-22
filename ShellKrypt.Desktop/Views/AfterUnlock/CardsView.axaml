@@ -115,21 +115,20 @@
           </Grid>
         </Border>
 
-        <Border Classes="cards-table-shell"
+        <Border Classes="table-shell"
                 ClipToBounds="True">
           <Grid RowDefinitions="Auto,*,Auto">
-            <Border Background="{StaticResource SurfaceBrush}"
-                    Padding="22,14">
+            <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
                     ColumnSpacing="18">
-                <TextBlock Text="CARD IDENTITY" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="1" Text="BANK" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="2" Text="NUMBER" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="4" Text="EXPIRY" Classes="cards-table-header"/>
-                <TextBlock Grid.Column="5" Text="ISSUER" Classes="cards-table-header"/>
+                <TextBlock Text="CARD IDENTITY" Classes="table-header-text"/>
+                <TextBlock Grid.Column="1" Text="BANK" Classes="table-header-text"/>
+                <TextBlock Grid.Column="2" Text="NUMBER" Classes="table-header-text"/>
+                <TextBlock Grid.Column="4" Text="EXPIRY" Classes="table-header-text"/>
+                <TextBlock Grid.Column="5" Text="ISSUER" Classes="table-header-text"/>
                 <TextBlock Grid.Column="6"
                            Text="ACTIONS"
-                           Classes="cards-table-header"
+                           Classes="table-header-text"
                            HorizontalAlignment="Right"/>
               </Grid>
             </Border>
@@ -139,7 +138,7 @@
               <ItemsControl ItemsSource="{Binding Rows}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:CardRowVm">
-                    <Border Classes="cards-row">
+                    <Border Classes="table-row">
                       <Grid ColumnDefinitions="1.45*,1.2*,1.35*,42,0.75*,0.8*,260"
                             ColumnSpacing="18"
                             Margin="22,0"
@@ -242,11 +241,11 @@
                                     VerticalAlignment="Center"
                                     Spacing="8">
                           <Button Content="Details"
-                                  Classes="cards-action"
+                                  Classes="table-action-button"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                           <Button Content="Copy Card Number"
-                                  Classes="cards-action"
+                                  Classes="table-action-button"
                                   Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -256,35 +255,34 @@
                 </ItemsControl.ItemTemplate>
               </ItemsControl>
 
-              <StackPanel Classes="cards-empty-table"
+              <StackPanel Classes="table-empty"
                           IsVisible="{Binding !HasRows}">
                 <TextBlock Text="{Binding EmptyTableTitle}"
-                           Classes="cards-empty-title"/>
+                           Classes="table-empty-title"/>
                 <TextBlock Text="{Binding EmptyTableSubtitle}"
-                           Classes="cards-empty-subtitle"/>
+                           Classes="table-empty-subtitle"/>
               </StackPanel>
             </Grid>
 
             <Border Grid.Row="2"
-                    Background="{StaticResource SurfaceBrush}"
-                    Padding="22,14">
+                    Classes="table-footer-row">
               <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                     ColumnSpacing="10">
                 <TextBlock Text="{Binding ItemsSummary}"
-                           Classes="cards-footer-text"
+                           Classes="table-footer-text"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="1"
                         Content="Previous"
-                        Classes="cards-page-button"
+                        Classes="table-page-button"
                         Command="{Binding PreviousPageCommand}"
                         IsEnabled="{Binding CanGoPreviousPage}"/>
                 <TextBlock Grid.Column="2"
                            Text="{Binding PageSummary}"
-                           Classes="cards-footer-text"
+                           Classes="table-footer-text"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="3"
                         Content="Next"
-                        Classes="cards-page-button"
+                        Classes="table-page-button"
                         Command="{Binding NextPageCommand}"
                         IsEnabled="{Binding CanGoNextPage}"/>
               </Grid>
@@ -294,7 +292,7 @@
       </StackPanel>
     </ScrollViewer>
 
-    <Border Background="#b0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsAddCardModalOpen}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
@@ -635,27 +633,20 @@
     </Style>
 
     <Style Selector="Button.cards-add-button:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-      <Setter Property="BorderBrush" Value="#63f5e1"/>
-    </Style>
-
-    <Style Selector="Border.cards-table-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="Border.cards-modal-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
     </Style>
 
     <Style Selector="Border.cards-modal-input-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="0"/>
@@ -670,7 +661,7 @@
 
     <Style Selector="TextBox.cards-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -682,13 +673,13 @@
 
     <Style Selector="TextBox.cards-modal-input:pointerover">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="CornerRadius" Value="8"/>
     </Style>
 
     <Style Selector="ComboBox.cards-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -791,7 +782,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="Height" Value="42"/>
@@ -802,7 +793,7 @@
     </Style>
 
     <Style Selector="Button.cards-modal-danger-button:pointerover">
-      <Setter Property="Background" Value="#ff8f8f"/>
+      <Setter Property="Background" Value="{StaticResource DangerHoverBrush}"/>
     </Style>
 
     <Style Selector="Button.cards-modal-primary-button">
@@ -821,44 +812,7 @@
     </Style>
 
     <Style Selector="Button.cards-modal-primary-button:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-    </Style>
-
-    <Style Selector="TextBlock.cards-table-header">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.6"/>
-    </Style>
-
-    <Style Selector="Border.cards-row">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="#171f1d"/>
-      <Setter Property="BorderThickness" Value="0,0,0,1"/>
-    </Style>
-
-    <Style Selector="Border.cards-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-    </Style>
-
-    <Style Selector="StackPanel.cards-empty-table">
-      <Setter Property="HorizontalAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Spacing" Value="10"/>
-    </Style>
-
-    <Style Selector="TextBlock.cards-empty-title">
-      <Setter Property="FontSize" Value="18"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="TextBlock.cards-empty-subtitle">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="MaxWidth" Value="460"/>
-      <Setter Property="TextAlignment" Value="Center"/>
-      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.cards-row-subtitle">
@@ -883,27 +837,6 @@
       <Setter Property="CornerRadius" Value="4"/>
     </Style>
 
-    <Style Selector="Button.cards-action">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="4"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="MinWidth" Value="64"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.cards-action:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
     <Style Selector="Button.cards-reveal-button">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
@@ -924,28 +857,6 @@
     <Style Selector="Button.cards-reveal-button:pointerover">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.cards-page-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Height" Value="28"/>
-      <Setter Property="MinHeight" Value="28"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.cards-page-button:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="TextBlock.cards-footer-text">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
     </Style>
 
   </UserControl.Styles>

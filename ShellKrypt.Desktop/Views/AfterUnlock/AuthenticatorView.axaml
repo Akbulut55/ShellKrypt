@@ -45,7 +45,7 @@
                   Height="{Binding Bounds.Height, ElementName=AuthenticatorDetailStack}"
                   VerticalAlignment="Top">
             <Grid RowDefinitions="Auto,*">
-              <Border Background="#1A1A1A"
+              <Border Background="{StaticResource TableHeaderBrush}"
                       BorderBrush="{StaticResource BorderBrushSoft}"
                       BorderThickness="0,0,0,1"
                       CornerRadius="14,14,0,0"
@@ -337,7 +337,7 @@
       </StackPanel>
     </ScrollViewer>
 
-    <Border Background="#B0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsDetailsModalOpen}">
       <Grid>
         <Border Classes="auth-modal-card"
@@ -496,7 +496,7 @@
       </Grid>
     </Border>
 
-    <Border Background="#B0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsEditorModalOpen}">
       <Grid>
         <Border Classes="auth-modal-card"
@@ -587,7 +587,7 @@
               </StackPanel>
             </Grid>
 
-            <Border Background="#171F1E"
+            <Border Background="{StaticResource SurfaceBrush}"
                     BorderBrush="{StaticResource BorderBrushSoft}"
                     BorderThickness="1"
                     CornerRadius="10"
@@ -650,7 +650,7 @@
               </StackPanel>
             </Border>
 
-            <Border Background="#171F1E"
+            <Border Background="{StaticResource SurfaceBrush}"
                     BorderBrush="{StaticResource BorderBrushSoft}"
                     BorderThickness="1"
                     CornerRadius="10"
@@ -688,7 +688,7 @@
       </Grid>
     </Border>
 
-    <Border Background="#B0000000"
+    <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsDeleteConfirmOpen}">
       <Grid>
         <Border Classes="auth-modal-card"
@@ -722,8 +722,8 @@
                          TextWrapping="Wrap"/>
             </StackPanel>
 
-            <Border Background="#261E1112"
-                    BorderBrush="#55FFB4AB"
+            <Border Background="{StaticResource DangerPanelBrush}"
+                    BorderBrush="{StaticResource DangerBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="18,16">
@@ -821,7 +821,7 @@
     </Style>
 
     <Style Selector="Button.auth-primary-button:pointerover">
-      <Setter Property="Background" Value="#63F5E1"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="Button.auth-secondary-button">
@@ -845,7 +845,7 @@
 
     <Style Selector="Button.auth-danger-button">
       <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="8"/>
@@ -974,7 +974,7 @@
 
     <Style Selector="Border.auth-modal-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663C4A46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
       <Setter Property="Padding" Value="28"/>
@@ -982,7 +982,7 @@
 
     <Style Selector="Border.auth-modal-input-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
     </Style>
@@ -993,7 +993,7 @@
 
     <Style Selector="TextBox.auth-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -1004,7 +1004,7 @@
 
     <Style Selector="ComboBox.auth-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333C4A46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>

@@ -3,12 +3,15 @@
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              xmlns:vaulting="using:ShellKrypt.Core.Vaulting"
              x:Class="ShellKrypt.Desktop.Views.SettingsView"
+             x:Name="Root"
              x:CompileBindings="False"
              x:DataType="vm:SettingsViewModel">
 
   <Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
+                  VerticalScrollBarVisibility="Auto"
+                  BringIntoViewOnFocusChange="False"
+                  ScrollChanged="OnSettingsScrollChanged">
       <StackPanel Margin="28,24,28,28"
                   MaxWidth="1500"
                   Spacing="24">
@@ -31,7 +34,7 @@
                   <Border Width="36"
                           Height="36"
                           CornerRadius="10"
-                          Background="#1A4F47">
+                          Background="{StaticResource AccentMutedBrush}">
                     <TextBlock Text="S"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
@@ -57,16 +60,49 @@
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
                     </StackPanel>
-                    <ComboBox Grid.Column="1"
-                              Width="170"
-                              ItemsSource="{Binding AutoLockDurations}"
-                              SelectedItem="{Binding SelectedAutoLockDuration}">
-                      <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                          <TextBlock Text="{Binding Label}"/>
-                        </DataTemplate>
-                      </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <Grid Grid.Column="1"
+                          Width="170">
+                      <Button x:Name="AutoLockPickerButton"
+                              Classes="settings-picker-button"
+                              Command="{Binding ToggleAutoLockPickerCommand}">
+                        <Grid ColumnDefinitions="*,Auto"
+                              HorizontalAlignment="Stretch">
+                          <TextBlock Text="{Binding SelectedAutoLockDurationLabel}"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="&#xE70D;"
+                                     FontFamily="Segoe MDL2 Assets"
+                                     FontSize="10"
+                                     Margin="10,0,0,0"
+                                     VerticalAlignment="Center"
+                                     Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                      </Button>
+
+                      <Popup IsOpen="{Binding IsAutoLockPickerOpen, Mode=TwoWay}"
+                             PlacementTarget="{Binding #AutoLockPickerButton}"
+                             Placement="BottomEdgeAlignedLeft"
+                             PlacementConstraintAdjustment="SlideX"
+                             VerticalOffset="4"
+                             IsLightDismissEnabled="True">
+                        <Border Classes="settings-picker-popup"
+                                Width="170">
+                          <ItemsControl ItemsSource="{Binding AutoLockDurations}"
+                                        HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Classes="settings-picker-option"
+                                        Classes.active="{Binding IsSelected}"
+                                        Command="{Binding #Root.DataContext.SelectAutoLockDurationCommand}"
+                                        CommandParameter="{Binding}"/>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </Border>
+                      </Popup>
+                    </Grid>
                   </Grid>
                 </Border>
 
@@ -83,16 +119,49 @@
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
                     </StackPanel>
-                    <ComboBox Grid.Column="1"
-                              Width="170"
-                              ItemsSource="{Binding FocusLossLockDelayOptions}"
-                              SelectedItem="{Binding SelectedFocusLossLockDelay}">
-                      <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                          <TextBlock Text="{Binding Label}"/>
-                        </DataTemplate>
-                      </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    <Grid Grid.Column="1"
+                          Width="170">
+                      <Button x:Name="FocusLockPickerButton"
+                              Classes="settings-picker-button"
+                              Command="{Binding ToggleFocusLockPickerCommand}">
+                        <Grid ColumnDefinitions="*,Auto"
+                              HorizontalAlignment="Stretch">
+                          <TextBlock Text="{Binding SelectedFocusLossLockDelayLabel}"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="&#xE70D;"
+                                     FontFamily="Segoe MDL2 Assets"
+                                     FontSize="10"
+                                     Margin="10,0,0,0"
+                                     VerticalAlignment="Center"
+                                     Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                      </Button>
+
+                      <Popup IsOpen="{Binding IsFocusLockPickerOpen, Mode=TwoWay}"
+                             PlacementTarget="{Binding #FocusLockPickerButton}"
+                             Placement="BottomEdgeAlignedLeft"
+                             PlacementConstraintAdjustment="SlideX"
+                             VerticalOffset="4"
+                             IsLightDismissEnabled="True">
+                        <Border Classes="settings-picker-popup"
+                                Width="170">
+                          <ItemsControl ItemsSource="{Binding FocusLossLockDelayOptions}"
+                                        HorizontalAlignment="Stretch">
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Classes="settings-picker-option"
+                                        Classes.active="{Binding IsSelected}"
+                                        Command="{Binding #Root.DataContext.SelectFocusLossLockDelayCommand}"
+                                        CommandParameter="{Binding}"/>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
+                        </Border>
+                      </Popup>
+                    </Grid>
                   </Grid>
                 </Border>
 
@@ -119,14 +188,48 @@
                                 Width="170">
                       <CheckBox Content="Allow copy"
                                 IsChecked="{Binding ClipboardCopyEnabled}"/>
-                      <ComboBox ItemsSource="{Binding ClipboardClearTimeoutOptions}"
-                                SelectedItem="{Binding SelectedClipboardClearDuration}">
-                        <ComboBox.ItemTemplate>
-                          <DataTemplate>
-                            <TextBlock Text="{Binding Label}"/>
-                          </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                      </ComboBox>
+                      <Grid>
+                        <Button x:Name="ClipboardClearPickerButton"
+                                Classes="settings-picker-button"
+                                Command="{Binding ToggleClipboardClearPickerCommand}">
+                          <Grid ColumnDefinitions="*,Auto"
+                                HorizontalAlignment="Stretch">
+                            <TextBlock Text="{Binding SelectedClipboardClearDurationLabel}"
+                                       VerticalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="&#xE70D;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10"
+                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{StaticResource TextMutedBrush}"/>
+                          </Grid>
+                        </Button>
+
+                        <Popup IsOpen="{Binding IsClipboardClearPickerOpen, Mode=TwoWay}"
+                               PlacementTarget="{Binding #ClipboardClearPickerButton}"
+                               Placement="BottomEdgeAlignedLeft"
+                               PlacementConstraintAdjustment="SlideX"
+                               VerticalOffset="4"
+                               IsLightDismissEnabled="True">
+                          <Border Classes="settings-picker-popup"
+                                  Width="170">
+                            <ItemsControl ItemsSource="{Binding ClipboardClearTimeoutOptions}"
+                                          HorizontalAlignment="Stretch">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                  <Button Content="{Binding Label}"
+                                          Classes="settings-picker-option"
+                                          Classes.active="{Binding IsSelected}"
+                                          Command="{Binding #Root.DataContext.SelectClipboardClearDurationCommand}"
+                                          CommandParameter="{Binding}"/>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </Border>
+                        </Popup>
+                      </Grid>
                     </StackPanel>
                   </Grid>
                 </Border>
@@ -247,10 +350,47 @@
                                FontSize="14"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <ComboBox Grid.Column="1"
-                              Width="110"
-                              ItemsSource="{Binding ThemeModes}"
-                              SelectedItem="{Binding SelectedThemeMode}"/>
+                    <Grid Grid.Column="1"
+                          Width="110">
+                      <Button x:Name="ThemePickerButton"
+                              Classes="settings-picker-button"
+                              Command="{Binding ToggleThemePickerCommand}">
+                        <Grid ColumnDefinitions="*,Auto"
+                              HorizontalAlignment="Stretch">
+                          <TextBlock Text="{Binding ThemeModeLabel}"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="&#xE70D;"
+                                     FontFamily="Segoe MDL2 Assets"
+                                     FontSize="10"
+                                     Margin="10,0,0,0"
+                                     VerticalAlignment="Center"
+                                     Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                      </Button>
+
+                      <Popup IsOpen="{Binding IsThemePickerOpen, Mode=TwoWay}"
+                             PlacementTarget="{Binding #ThemePickerButton}"
+                             Placement="BottomEdgeAlignedLeft"
+                             PlacementConstraintAdjustment="SlideX"
+                             VerticalOffset="4"
+                             IsLightDismissEnabled="True">
+                        <Border Classes="settings-picker-popup"
+                                Width="110">
+                          <StackPanel>
+                            <Button Content="Dark"
+                                    Classes="settings-picker-option"
+                                    Classes.active="{Binding IsDarkThemeSelected}"
+                                    Command="{Binding SelectDarkThemeCommand}"/>
+                            <Button Content="Light"
+                                    Classes="settings-picker-option"
+                                    Classes.active="{Binding IsLightThemeSelected}"
+                                    Command="{Binding SelectLightThemeCommand}"/>
+                          </StackPanel>
+                        </Border>
+                      </Popup>
+                    </Grid>
                   </Grid>
                 </Border>
 
@@ -266,10 +406,43 @@
                                  Classes="page-subtitle"
                                  FontSize="12"/>
                     </StackPanel>
-                    <ComboBox Grid.Column="1"
-                              Width="140"
-                              ItemsSource="{Binding LanguageOptions}"
-                              SelectedItem="{Binding SelectedLanguageOption}"/>
+                    <Grid Grid.Column="1"
+                          Width="140">
+                      <Button x:Name="LanguagePickerButton"
+                              Classes="settings-picker-button"
+                              Command="{Binding ToggleLanguagePickerCommand}">
+                        <Grid ColumnDefinitions="*,Auto"
+                              HorizontalAlignment="Stretch">
+                          <TextBlock Text="{Binding SelectedLanguageLabel}"
+                                     VerticalAlignment="Center"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="&#xE70D;"
+                                     FontFamily="Segoe MDL2 Assets"
+                                     FontSize="10"
+                                     Margin="10,0,0,0"
+                                     VerticalAlignment="Center"
+                                     Foreground="{StaticResource TextMutedBrush}"/>
+                        </Grid>
+                      </Button>
+
+                      <Popup IsOpen="{Binding IsLanguagePickerOpen, Mode=TwoWay}"
+                             PlacementTarget="{Binding #LanguagePickerButton}"
+                             Placement="BottomEdgeAlignedLeft"
+                             PlacementConstraintAdjustment="SlideX"
+                             VerticalOffset="4"
+                             IsLightDismissEnabled="True">
+                        <Border Classes="settings-picker-popup"
+                                Width="140">
+                          <StackPanel>
+                            <Button Content="English"
+                                    Classes="settings-picker-option"
+                                    Classes.active="{Binding IsEnglishLanguageSelected}"
+                                    Command="{Binding SelectEnglishLanguageCommand}"/>
+                          </StackPanel>
+                        </Border>
+                      </Popup>
+                    </Grid>
                   </Grid>
                 </Border>
               </StackPanel>
@@ -325,7 +498,7 @@
 
                     <StackPanel Orientation="Horizontal"
                                 Spacing="8">
-                      <Border Background="#1A4F47"
+                      <Border Background="{StaticResource AccentMutedBrush}"
                               CornerRadius="999"
                               Padding="10,4">
                         <TextBlock Text="ENCRYPTED"
@@ -558,6 +731,68 @@
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-button">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-button:pressed">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    </Style>
+
+    <Style Selector="Border.settings-picker-popup">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-option">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="FocusAdorner" Value="{x:Null}"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-option:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-option.active">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.settings-picker-option.active:pointerover">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Border.settings-vault-card">

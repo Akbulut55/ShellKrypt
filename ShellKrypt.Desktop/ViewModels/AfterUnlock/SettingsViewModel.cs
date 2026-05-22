@@ -15,7 +15,7 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class SettingsViewModel : ViewModelBase
 {
-    public sealed class AutoLockDurationOption
+    public sealed partial class AutoLockDurationOption : ObservableObject
     {
         public AutoLockDurationOption(int minutes, string label)
         {
@@ -25,9 +25,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         public int Minutes { get; }
         public string Label { get; }
+
+        [ObservableProperty] private bool isSelected;
     }
 
-    public sealed class SecondsDurationOption
+    public sealed partial class SecondsDurationOption : ObservableObject
     {
         public SecondsDurationOption(int seconds, string label)
         {
@@ -37,6 +39,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         public int Seconds { get; }
         public string Label { get; }
+
+        [ObservableProperty] private bool isSelected;
     }
 
     public sealed class LanguageOption
@@ -65,8 +69,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
     [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
     [ObservableProperty] private bool clipboardCopyEnabled;
+    [ObservableProperty] private bool isAutoLockPickerOpen;
+    [ObservableProperty] private bool isFocusLockPickerOpen;
+    [ObservableProperty] private bool isClipboardClearPickerOpen;
     [ObservableProperty] private AppThemeMode selectedThemeMode;
     [ObservableProperty] private LanguageOption? selectedLanguageOption;
+    [ObservableProperty] private bool isThemePickerOpen;
+    [ObservableProperty] private bool isLanguagePickerOpen;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string transferStatus = "";
     [ObservableProperty] private bool isTransferBusy;
@@ -173,7 +182,14 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string VaultStorageDisplay => GetVaultStorageDisplay();
     public double VaultStoragePercent => GetVaultStoragePercent();
     public string EncryptionDisplay => "AES-256";
+    public string SelectedAutoLockDurationLabel => SelectedAutoLockDuration?.Label ?? "5 Minutes";
+    public string SelectedFocusLossLockDelayLabel => SelectedFocusLossLockDelay?.Label ?? "Off";
+    public string SelectedClipboardClearDurationLabel => SelectedClipboardClearDuration?.Label ?? "1 Minute";
     public string ThemeModeLabel => SelectedThemeMode == AppThemeMode.Dark ? "Dark" : "Light";
+    public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? "English";
+    public bool IsDarkThemeSelected => SelectedThemeMode == AppThemeMode.Dark;
+    public bool IsLightThemeSelected => SelectedThemeMode == AppThemeMode.Light;
+    public bool IsEnglishLanguageSelected => SelectedLanguageOption?.Code == "en";
     public string FocusLockSummary => LockOnDeactivate
         ? $"ShellKrypt locks after {SelectedFocusLossLockDelay?.Label?.ToLowerInvariant() ?? "the selected delay"} when the app loses focus."
         : "ShellKrypt stays unlocked when the app is not focused.";
@@ -209,6 +225,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
         if (value.Seconds > 0)
             _root.LockOnDeactivateSeconds = value.Seconds;
         Status = "Settings saved.";
+        MarkSelected(FocusLossLockDelayOptions, value);
+        OnPropertyChanged(nameof(SelectedFocusLossLockDelayLabel));
         OnPropertyChanged(nameof(FocusLockSummary));
     }
 
@@ -220,6 +238,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
         _root.AutoLockMinutes = value.Minutes;
         _root.AutoLockEnabled = value.Minutes > 0;
         Status = "Settings saved.";
+        MarkSelected(AutoLockDurations, value);
+        OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));
         OnPropertyChanged(nameof(SecurityStatusText));
     }
 
@@ -228,12 +248,146 @@ public sealed partial class SettingsViewModel : ViewModelBase
         _root.ThemeMode = value;
         Status = $"Theme switched to {value}.";
         OnPropertyChanged(nameof(ThemeModeLabel));
+        OnPropertyChanged(nameof(IsDarkThemeSelected));
+        OnPropertyChanged(nameof(IsLightThemeSelected));
     }
 
     partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
     {
         if (value is not null)
             Status = $"Language set to {value.Label}.";
+
+        OnPropertyChanged(nameof(SelectedLanguageLabel));
+        OnPropertyChanged(nameof(IsEnglishLanguageSelected));
+    }
+
+    partial void OnIsThemePickerOpenChanged(bool value)
+    {
+        if (value)
+            ClosePickersExcept(nameof(IsThemePickerOpen));
+    }
+
+    partial void OnIsLanguagePickerOpenChanged(bool value)
+    {
+        if (value)
+            ClosePickersExcept(nameof(IsLanguagePickerOpen));
+    }
+
+    partial void OnIsAutoLockPickerOpenChanged(bool value)
+    {
+        if (value)
+            ClosePickersExcept(nameof(IsAutoLockPickerOpen));
+    }
+
+    partial void OnIsFocusLockPickerOpenChanged(bool value)
+    {
+        if (value)
+            ClosePickersExcept(nameof(IsFocusLockPickerOpen));
+    }
+
+    partial void OnIsClipboardClearPickerOpenChanged(bool value)
+    {
+        if (value)
+            ClosePickersExcept(nameof(IsClipboardClearPickerOpen));
+    }
+
+    [RelayCommand]
+    private void ToggleAutoLockPicker() => IsAutoLockPickerOpen = !IsAutoLockPickerOpen;
+
+    [RelayCommand]
+    private void SelectAutoLockDuration(AutoLockDurationOption? option)
+    {
+        if (option is null)
+            return;
+
+        SelectedAutoLockDuration = option;
+        IsAutoLockPickerOpen = false;
+    }
+
+    [RelayCommand]
+    private void ToggleFocusLockPicker() => IsFocusLockPickerOpen = !IsFocusLockPickerOpen;
+
+    [RelayCommand]
+    private void SelectFocusLossLockDelay(SecondsDurationOption? option)
+    {
+        if (option is null)
+            return;
+
+        SelectedFocusLossLockDelay = option;
+        IsFocusLockPickerOpen = false;
+    }
+
+    [RelayCommand]
+    private void ToggleClipboardClearPicker() => IsClipboardClearPickerOpen = !IsClipboardClearPickerOpen;
+
+    [RelayCommand]
+    private void SelectClipboardClearDuration(SecondsDurationOption? option)
+    {
+        if (option is null)
+            return;
+
+        SelectedClipboardClearDuration = option;
+        IsClipboardClearPickerOpen = false;
+    }
+
+    [RelayCommand]
+    private void ToggleThemePicker() => IsThemePickerOpen = !IsThemePickerOpen;
+
+    [RelayCommand]
+    private void SelectDarkTheme() => SelectThemeMode(AppThemeMode.Dark);
+
+    [RelayCommand]
+    private void SelectLightTheme() => SelectThemeMode(AppThemeMode.Light);
+
+    private void SelectThemeMode(AppThemeMode mode)
+    {
+        SelectedThemeMode = mode;
+        IsThemePickerOpen = false;
+    }
+
+    [RelayCommand]
+    private void ToggleLanguagePicker() => IsLanguagePickerOpen = !IsLanguagePickerOpen;
+
+    [RelayCommand]
+    private void SelectEnglishLanguage()
+    {
+        SelectedLanguageOption = LanguageOptions.FirstOrDefault(option => option.Code == "en") ?? LanguageOptions[0];
+        IsLanguagePickerOpen = false;
+    }
+
+    private void ClosePickersExcept(string openPickerName)
+    {
+        if (openPickerName != nameof(IsAutoLockPickerOpen))
+            IsAutoLockPickerOpen = false;
+        if (openPickerName != nameof(IsFocusLockPickerOpen))
+            IsFocusLockPickerOpen = false;
+        if (openPickerName != nameof(IsClipboardClearPickerOpen))
+            IsClipboardClearPickerOpen = false;
+        if (openPickerName != nameof(IsThemePickerOpen))
+            IsThemePickerOpen = false;
+        if (openPickerName != nameof(IsLanguagePickerOpen))
+            IsLanguagePickerOpen = false;
+    }
+
+    public void ClosePickers()
+    {
+        IsAutoLockPickerOpen = false;
+        IsFocusLockPickerOpen = false;
+        IsClipboardClearPickerOpen = false;
+        IsThemePickerOpen = false;
+        IsLanguagePickerOpen = false;
+    }
+
+    private static void MarkSelected(ObservableCollection<AutoLockDurationOption> options, AutoLockDurationOption? selected)
+    {
+        foreach (var option in options)
+            option.IsSelected = ReferenceEquals(option, selected);
+    }
+
+    private static void MarkSelected(ObservableCollection<SecondsDurationOption> options, SecondsDurationOption? selected)
+    {
+        foreach (var option in options)
+            option.IsSelected = ReferenceEquals(option, selected);
     }
 
     partial void OnMasterPasswordStatusChanged(string value) => OnPropertyChanged(nameof(HasMasterPasswordStatus));
@@ -246,6 +400,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
         _root.ClipboardClearSeconds = value.Seconds;
         Status = "Settings saved.";
+        MarkSelected(ClipboardClearTimeoutOptions, value);
+        OnPropertyChanged(nameof(SelectedClipboardClearDurationLabel));
         OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
@@ -756,6 +912,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
         ClipboardCopyEnabled = _root.ClipboardCopyEnabled;
         SelectedThemeMode = _root.ThemeMode;
         OnPropertyChanged(nameof(SecurityStatusText));
+        OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));
+        OnPropertyChanged(nameof(SelectedFocusLossLockDelayLabel));
+        OnPropertyChanged(nameof(SelectedClipboardClearDurationLabel));
         OnPropertyChanged(nameof(ThemeModeLabel));
         OnPropertyChanged(nameof(FocusLockSummary));
         OnPropertyChanged(nameof(ClipboardClearSummary));

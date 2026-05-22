@@ -273,7 +273,7 @@
       </StackPanel>
     </Grid>
 
-    <Border Background="#70000000"
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
             IsVisible="{Binding IsDeleteOverlayOpen}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
@@ -307,8 +307,8 @@
                          TextWrapping="Wrap"
                          HorizontalAlignment="Center"/>
 
-              <Border Background="#262525"
-                      BorderBrush="#8d6860"
+              <Border Background="{StaticResource DangerPanelBrush}"
+                      BorderBrush="{StaticResource DangerBorderBrush}"
                       BorderThickness="1"
                       CornerRadius="16"
                       Padding="22,18">
@@ -403,7 +403,7 @@
       </Grid>
     </Border>
 
-    <Border Background="#70000000"
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
             IsVisible="{Binding IsRemoveOverlayOpen}"
             HorizontalAlignment="Stretch"
             VerticalAlignment="Stretch">
@@ -435,8 +435,8 @@
                        TextWrapping="Wrap"
                        HorizontalAlignment="Center"/>
 
-            <Border Background="#262525"
-                    BorderBrush="#8d6860"
+            <Border Background="{StaticResource DangerPanelBrush}"
+                    BorderBrush="{StaticResource DangerBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
                     Padding="22,18">
@@ -548,7 +548,7 @@
     </Style>
 
     <Style Selector="Border.welcome-missing-badge">
-      <Setter Property="Background" Value="#3A2426"/>
+      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
       <Setter Property="CornerRadius" Value="999"/>
       <Setter Property="Padding" Value="10,4"/>
     </Style>
@@ -594,7 +594,7 @@
     </Style>
 
     <Style Selector="Button.welcome-row-danger">
-      <Setter Property="Background" Value="#3A2426"/>
+      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
@@ -610,14 +610,14 @@
 
     <Style Selector="Border.welcome-modal-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="#663c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="18"/>
     </Style>
 
     <Style Selector="Border.welcome-modal-input-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="0"/>
@@ -625,7 +625,7 @@
 
     <Style Selector="TextBox.welcome-modal-input">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="#333c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
@@ -716,7 +716,7 @@
 
     <Style Selector="Button.welcome-modal-danger-button">
       <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="#050505"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>

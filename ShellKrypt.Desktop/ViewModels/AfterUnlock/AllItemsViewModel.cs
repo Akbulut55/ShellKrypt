@@ -95,42 +95,42 @@ public sealed class AllItemEntry
 
     public string IconBackground => Type switch
     {
-        ItemType.Web => "#2A2F2E",
-        ItemType.Card => "#3A3228",
-        ItemType.Note => "#243637",
-        ItemType.Authenticator => "#23343B",
-        ItemType.ApiKey => "#243334",
-        _ => "#2A2A2A"
+        ItemType.Web => "TypeWebBackgroundBrush",
+        ItemType.Card => "TypeCardBackgroundBrush",
+        ItemType.Note => "TypeNoteBackgroundBrush",
+        ItemType.Authenticator => "TypeAuthenticatorBackgroundBrush",
+        ItemType.ApiKey => "TypeApiKeyBackgroundBrush",
+        _ => "InfoMutedBrush"
     };
 
     public string IconForeground => Type switch
     {
-        ItemType.Web => "#57F1DB",
-        ItemType.Card => "#FFD1AA",
-        ItemType.Note => "#62FAE3",
-        ItemType.Authenticator => "#8FE7FF",
-        ItemType.ApiKey => "#57F1DB",
-        _ => "#E5E2E1"
+        ItemType.Web => "TypeWebForegroundBrush",
+        ItemType.Card => "TypeCardForegroundBrush",
+        ItemType.Note => "TypeNoteForegroundBrush",
+        ItemType.Authenticator => "TypeAuthenticatorForegroundBrush",
+        ItemType.ApiKey => "TypeApiKeyForegroundBrush",
+        _ => "TextPrimaryBrush"
     };
 
     public string TypeBadgeBackground => Type switch
     {
-        ItemType.Web => "#223B36",
-        ItemType.Card => "#4A3827",
-        ItemType.Note => "#174544",
-        ItemType.Authenticator => "#1C3E4A",
-        ItemType.ApiKey => "#174544",
-        _ => "#2A2A2A"
+        ItemType.Web => "TypeWebBackgroundBrush",
+        ItemType.Card => "TypeCardBackgroundBrush",
+        ItemType.Note => "TypeNoteBackgroundBrush",
+        ItemType.Authenticator => "TypeAuthenticatorBackgroundBrush",
+        ItemType.ApiKey => "TypeApiKeyBackgroundBrush",
+        _ => "InfoMutedBrush"
     };
 
     public string TypeBadgeForeground => Type switch
     {
-        ItemType.Web => "#9CD1C6",
-        ItemType.Card => "#FFD1AA",
-        ItemType.Note => "#57F1DB",
-        ItemType.Authenticator => "#9FE8FF",
-        ItemType.ApiKey => "#57F1DB",
-        _ => "#E5E2E1"
+        ItemType.Web => "TypeWebForegroundBrush",
+        ItemType.Card => "TypeCardForegroundBrush",
+        ItemType.Note => "TypeNoteForegroundBrush",
+        ItemType.Authenticator => "TypeAuthenticatorForegroundBrush",
+        ItemType.ApiKey => "TypeApiKeyForegroundBrush",
+        _ => "TextPrimaryBrush"
     };
 
     public string FavoriteGlyph => Favorite ? "★" : string.Empty;
@@ -422,6 +422,7 @@ public sealed class AllItemsViewModel : ViewModelBase
             if (SetProperty(ref _filteredCount, value))
             {
                 OnPropertyChanged(nameof(TotalPages));
+                OnPropertyChanged(nameof(PageSummary));
                 OnPropertyChanged(nameof(CanGoPrevious));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(FooterSummary));
@@ -494,6 +495,7 @@ public sealed class AllItemsViewModel : ViewModelBase
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(Math.Max(FilteredCount, 1) / (double)PageSize));
+    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPrevious => CurrentPage > 1;
     public bool CanGoNext => CurrentPage < TotalPages;
     public string TotalItemsDeltaText => CreatedThisMonthCount <= 0 ? "0 items this month" : $"+{CreatedThisMonthCount} items this month";
@@ -812,6 +814,7 @@ public sealed class AllItemsViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRows));
         OnPropertyChanged(nameof(CanGoPrevious));
         OnPropertyChanged(nameof(CanGoNext));
+        OnPropertyChanged(nameof(PageSummary));
         OnPropertyChanged(nameof(FooterSummary));
     }
 

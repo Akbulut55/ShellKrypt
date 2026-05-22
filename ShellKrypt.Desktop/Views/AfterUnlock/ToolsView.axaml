@@ -47,13 +47,13 @@
                            Maximum="100"
                            Value="{Binding PasswordStrengthScore}"
                            Height="6"
-                           Foreground="{Binding PasswordStrengthBrush}"
+                           Foreground="{Binding PasswordStrengthBrush, Converter={StaticResource ThemeResourceBrushConverter}}"
                            Background="{StaticResource SurfaceBrush}"
                            VerticalAlignment="Center"/>
               <TextBlock Grid.Column="1"
                          Text="{Binding PasswordStrengthLabel}"
                          Classes="stitch-kicker"
-                         Foreground="{Binding PasswordStrengthBrush}"
+                         Foreground="{Binding PasswordStrengthBrush, Converter={StaticResource ThemeResourceBrushConverter}}"
                          VerticalAlignment="Center"/>
             </Grid>
           </StackPanel>
@@ -302,7 +302,7 @@
     <Style Selector="Border.stitch-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="BorderBrush" Value="#143c4a46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
@@ -350,8 +350,8 @@
     </Style>
 
     <Style Selector="Button.stitch-action-primary:pointerover">
-      <Setter Property="Background" Value="#63f5e1"/>
-      <Setter Property="BorderBrush" Value="#63f5e1"/>
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="SelectableTextBlock.stitch-password-output">

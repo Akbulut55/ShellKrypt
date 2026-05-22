@@ -19,7 +19,7 @@
           <Border Width="68"
                   Height="68"
                   CornerRadius="34"
-                  Background="#261e1112"
+                  Background="{StaticResource DangerPanelBrush}"
                   HorizontalAlignment="Center">
             <TextBlock Text="!"
                        HorizontalAlignment="Center"
@@ -39,8 +39,8 @@
         <StackPanel Grid.Row="1"
                     Spacing="16"
                     Margin="32,0,32,28">
-          <Border Background="#261e1112"
-                  BorderBrush="#55ffb4ab"
+          <Border Background="{StaticResource DangerPanelBrush}"
+                  BorderBrush="{StaticResource DangerBorderBrush}"
                   BorderThickness="1"
                   CornerRadius="12"
                   Padding="16,14">
@@ -87,7 +87,7 @@
 
     <Style Selector="Button.dialog-danger-button">
       <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="#350809"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>

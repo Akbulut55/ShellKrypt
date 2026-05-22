@@ -90,7 +90,7 @@
                     <Border Width="36"
                             Height="36"
                             CornerRadius="10"
-                            Background="#3A2426">
+                            Background="{StaticResource DangerMutedBrush}">
                       <TextBlock Text="RP"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
@@ -99,7 +99,7 @@
                                  FontSize="11"/>
                     </Border>
                     <Border Grid.Column="1"
-                            Background="#261e1112"
+                            Background="{StaticResource DangerPanelBrush}"
                             CornerRadius="999"
                             Padding="10,4"
                             HorizontalAlignment="Right">
@@ -130,7 +130,7 @@
                     <Border Width="36"
                             Height="36"
                             CornerRadius="10"
-                            Background="#3A3228">
+                            Background="{StaticResource WarningMutedBrush}">
                       <TextBlock Text="WP"
                                  HorizontalAlignment="Center"
                                  VerticalAlignment="Center"
@@ -139,7 +139,7 @@
                                  FontSize="11"/>
                     </Border>
                     <Border Grid.Column="1"
-                            Background="#3A3228"
+                            Background="{StaticResource WarningMutedBrush}"
                             CornerRadius="999"
                             Padding="10,4"
                             HorizontalAlignment="Right">
@@ -245,12 +245,12 @@
                           <Border Width="48"
                                   Height="48"
                                   CornerRadius="12"
-                                  Background="{Binding SeverityBadgeBackground}"
+                                  Background="{Binding SeverityBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                   VerticalAlignment="Center">
                             <TextBlock Text="{Binding IconGlyph}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{Binding SeverityBadgeForeground}"
+                                       Foreground="{Binding SeverityBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                        FontWeight="Black"
                                        FontSize="11"/>
                           </Border>
@@ -264,12 +264,12 @@
                                          FontSize="14"
                                          FontWeight="Bold"
                                          TextWrapping="Wrap"/>
-                              <Border Background="{Binding SeverityBadgeBackground}"
+                              <Border Background="{Binding SeverityBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                       CornerRadius="999"
                                       Padding="10,4"
                                       VerticalAlignment="Center">
                                 <TextBlock Text="{Binding Severity}"
-                                           Foreground="{Binding SeverityBadgeForeground}"
+                                           Foreground="{Binding SeverityBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                            FontSize="10"
                                            FontWeight="Black"/>
                               </Border>
@@ -497,7 +497,7 @@
 
     <Style Selector="Border.audit-issue-row">
       <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="#183C4A46"/>
+      <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
       <Setter Property="BorderThickness" Value="0,0,0,1"/>
       <Setter Property="Padding" Value="24,18"/>
     </Style>
@@ -505,7 +505,7 @@
     <Style Selector="Button.audit-remediate-button">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="#223B36"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentMutedBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="16,0"/>
@@ -524,7 +524,7 @@
     </Style>
 
     <Style Selector="Button.audit-side-button">
-      <Setter Property="Background" Value="#223B36"/>
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>

@@ -7,7 +7,7 @@
              x:DataType="vm:MarkdownNotesViewModel">
     <Grid Background="{StaticResource AppBackgroundBrush}">
     <Grid ColumnDefinitions="380,*">
-      <Border Background="#1C1B1B" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,1,0">
+      <Border Background="{StaticResource SidebarBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,1,0">
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Padding="20,26,20,18">
             <StackPanel Spacing="10">
@@ -101,7 +101,7 @@
       </Border>
 
       <Grid Grid.Column="1" Background="{StaticResource AppBackgroundBrush}" RowDefinitions="Auto,*,Auto">
-        <Border Background="#171717" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,28,34,24" IsVisible="{Binding HasEditor}">
+        <Border Background="{StaticResource SurfaceBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,28,34,24" IsVisible="{Binding HasEditor}">
           <Grid ColumnDefinitions="*,Auto" ColumnSpacing="18">
             <Grid ColumnDefinitions="Auto,*" ColumnSpacing="16">
               <Border Width="46" Height="46" CornerRadius="10" Background="{StaticResource SurfaceRaisedBrush}" VerticalAlignment="Top">
@@ -157,7 +157,7 @@
                               <TextBlock Text="{Binding Text}" Classes="notesMarkdownH3" IsVisible="{Binding IsHeading3}" TextWrapping="Wrap"/>
                               <TextBlock Text="{Binding Text}" Classes="notesMarkdownParagraph" IsVisible="{Binding IsParagraph}" TextWrapping="Wrap"/>
 
-                              <Border Background="#101918" BorderBrush="{StaticResource AccentBrush}" BorderThickness="4,0,0,0" CornerRadius="10" Padding="16,14" IsVisible="{Binding IsQuote}">
+                              <Border Background="{StaticResource QuoteBackgroundBrush}" BorderBrush="{StaticResource AccentBrush}" BorderThickness="4,0,0,0" CornerRadius="10" Padding="16,14" IsVisible="{Binding IsQuote}">
                                 <TextBlock Text="{Binding Text}" FontSize="14" FontStyle="Italic" LineHeight="22" TextWrapping="Wrap"/>
                               </Border>
 
@@ -216,7 +216,7 @@
           </StackPanel>
         </Border>
 
-        <Border Grid.Row="2" Background="#1C1B1B" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,14" IsVisible="{Binding HasEditor}">
+        <Border Grid.Row="2" Background="{StaticResource SidebarBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,14" IsVisible="{Binding HasEditor}">
           <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
             <TextBlock Text="MARKDOWN HELP" Classes="notesKicker" VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1" Text="# Heading   |   ## Section   |   - List   |   &gt; Quote   |   ``` code ```" Classes="notesFooterStatus" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
@@ -402,15 +402,15 @@
     </Style>
 
     <Style Selector="Border.notesErrorBanner">
-      <Setter Property="Background" Value="#261e1112"/>
-      <Setter Property="BorderBrush" Value="#55ffb4ab"/>
+      <Setter Property="Background" Value="{StaticResource DangerPanelBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource DangerBorderBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="16,12"/>
     </Style>
 
     <Style Selector="Border.notesPreviewPlaceholder">
-      <Setter Property="Background" Value="#151515"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>

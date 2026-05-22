@@ -50,11 +50,11 @@ public partial class ToolsViewModel : ViewModelBase
     };
     public string PasswordStrengthBrush => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
     {
-        PasswordStrengthRating.None => "#7b8a87",
-        PasswordStrengthRating.Weak => "#ff7a7a",
-        PasswordStrengthRating.Fair => "#ffb35a",
-        PasswordStrengthRating.Strong => "#74f0dd",
-        _ => "#4ff0df"
+        PasswordStrengthRating.None => "StrengthNoneBrush",
+        PasswordStrengthRating.Weak => "StrengthWeakBrush",
+        PasswordStrengthRating.Fair => "StrengthFairBrush",
+        PasswordStrengthRating.Strong => "StrengthStrongBrush",
+        _ => "StrengthSecureBrush"
     };
 
     partial void OnPasswordLengthChanged(double value)

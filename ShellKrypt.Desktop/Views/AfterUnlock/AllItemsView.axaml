@@ -135,26 +135,25 @@
           </Grid>
         </Border>
 
-        <Border Classes="allitems-table-shell">
+        <Border Classes="table-shell">
           <Grid RowDefinitions="Auto,*,Auto">
-            <Border Background="{StaticResource SurfaceRaisedBrush}"
-                    Padding="22,14">
+            <Border Classes="table-header-row">
               <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
                     ColumnSpacing="18">
                 <TextBlock Text="NAME"
-                           Classes="allitems-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="1"
                            Text="TYPE"
-                           Classes="allitems-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="2"
                            Text="USERNAME / ID"
-                           Classes="allitems-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="3"
                            Text="LAST MODIFIED"
-                           Classes="allitems-table-header"/>
+                           Classes="table-header-text"/>
                 <TextBlock Grid.Column="4"
                            Text=""
-                           Classes="allitems-table-header"/>
+                           Classes="table-header-text"/>
               </Grid>
             </Border>
 
@@ -164,7 +163,7 @@
                             IsVisible="{Binding HasRows}">
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:AllItemEntry">
-                    <Border Classes="allitems-row">
+                    <Border Classes="table-row">
                       <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
                             ColumnSpacing="18"
                             Margin="22,0"
@@ -175,11 +174,11 @@
                           <Border Width="38"
                                   Height="38"
                                   CornerRadius="10"
-                                  Background="{StaticResource SurfaceElevatedBrush}">
+                                  Background="{Binding IconBackground, Converter={StaticResource ThemeResourceBrushConverter}}">
                             <TextBlock Text="{Binding IconGlyph}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{Binding IconForeground}"
+                                       Foreground="{Binding IconForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                        FontWeight="Black"
                                        FontSize="11"/>
                           </Border>
@@ -198,13 +197,13 @@
                         </Grid>
 
                         <Border Grid.Column="1"
-                                Background="{Binding TypeBadgeBackground}"
+                                Background="{Binding TypeBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                 CornerRadius="999"
                                 Padding="10,5"
                                 HorizontalAlignment="Left"
                                 VerticalAlignment="Center">
                           <TextBlock Text="{Binding DisplayTypeLabel}"
-                                     Foreground="{Binding TypeBadgeForeground}"
+                                     Foreground="{Binding TypeBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                      FontSize="10"
                                      FontWeight="Black"/>
                         </Border>
@@ -228,7 +227,7 @@
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center">
                           <Button Content="View"
-                                  Classes="allitems-inline-button"
+                                  Classes="table-action-button"
                                   Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -241,18 +240,14 @@
               <Border Padding="30,30"
                       Background="Transparent"
                       IsVisible="{Binding !HasRows}">
-                <StackPanel Spacing="12"
-                            VerticalAlignment="Center">
+                <StackPanel Classes="table-empty">
                   <TextBlock Text="{Binding EmptyStateTitle}"
-                             FontSize="18"
-                             FontWeight="Bold"/>
+                             Classes="table-empty-title"/>
                   <TextBlock Text="{Binding EmptyStateSubtitle}"
-                             Classes="page-subtitle"
-                             MaxWidth="520"
-                             TextWrapping="Wrap"/>
+                             Classes="table-empty-subtitle"/>
                   <Grid ColumnDefinitions="Auto,Auto"
                         ColumnSpacing="10"
-                        HorizontalAlignment="Left">
+                        HorizontalAlignment="Center">
                     <Button Content="{Binding AddItemButtonText}"
                             Classes="allitems-add-button"
                             Command="{Binding AddItemCommand}"/>
@@ -266,48 +261,32 @@
             </Grid>
 
             <Border Grid.Row="2"
-                    Padding="22,18">
-              <Grid ColumnDefinitions="*,Auto"
-                    ColumnSpacing="16">
-                <StackPanel Spacing="4">
+                    Classes="table-footer-row">
+              <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                    ColumnSpacing="10">
+                <StackPanel Spacing="4"
+                            VerticalAlignment="Center">
                   <TextBlock Text="{Binding FooterSummary}"
-                             Classes="allitems-footer-text"/>
+                             Classes="table-footer-text"/>
                   <TextBlock Text="{Binding Error}"
                              Foreground="{StaticResource DangerBrush}"
                              FontSize="12"
                              IsVisible="{Binding HasError}"/>
                 </StackPanel>
-
-                <StackPanel Grid.Column="1"
-                            Orientation="Horizontal"
-                            Spacing="8"
-                            VerticalAlignment="Center">
-                  <Button Content="Previous"
-                          Classes="allitems-page-button"
-                          Command="{Binding GoPreviousPageCommand}"
-                          IsEnabled="{Binding CanGoPrevious}"/>
-                  <ItemsControl ItemsSource="{Binding PageChips}">
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <StackPanel Orientation="Horizontal"
-                                    Spacing="8"/>
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                      <DataTemplate x:DataType="vm:PageChipVm">
-                        <Button Content="{Binding Label}"
-                                Classes="allitems-page-button"
-                                Classes.active="{Binding IsCurrent}"
-                                Command="{Binding DataContext.GoToPageCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"/>
-                      </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                  </ItemsControl>
-                  <Button Content="Next"
-                          Classes="allitems-page-button"
-                          Command="{Binding GoNextPageCommand}"
-                          IsEnabled="{Binding CanGoNext}"/>
-                </StackPanel>
+                <Button Grid.Column="1"
+                        Content="Previous"
+                        Classes="table-page-button"
+                        Command="{Binding GoPreviousPageCommand}"
+                        IsEnabled="{Binding CanGoPrevious}"/>
+                <TextBlock Grid.Column="2"
+                           Text="{Binding PageSummary}"
+                           Classes="table-footer-text"
+                           VerticalAlignment="Center"/>
+                <Button Grid.Column="3"
+                        Content="Next"
+                        Classes="table-page-button"
+                        Command="{Binding GoNextPageCommand}"
+                        IsEnabled="{Binding CanGoNext}"/>
               </Grid>
             </Border>
           </Grid>
@@ -384,7 +363,7 @@
     </Style>
 
     <Style Selector="TextBlock.allitems-stat-watermark">
-      <Setter Property="Foreground" Value="#0fffffff"/>
+      <Setter Property="Foreground" Value="{StaticResource WatermarkBrush}"/>
       <Setter Property="FontSize" Value="96"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="Margin" Value="0,0,-12,-20"/>
@@ -448,31 +427,8 @@
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
     </Style>
 
-    <Style Selector="Border.allitems-table-shell">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="ClipToBounds" Value="True"/>
-    </Style>
-
-    <Style Selector="TextBlock.allitems-table-header">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.2"/>
-    </Style>
-
     <Style Selector="ItemsControl.allitems-list">
       <Setter Property="Background" Value="Transparent"/>
-    </Style>
-
-    <Style Selector="Border.allitems-row">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="#183C4A46"/>
-      <Setter Property="BorderThickness" Value="0,0,0,1"/>
-    </Style>
-
-    <Style Selector="Border.allitems-row:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.allitems-cell-subtitle">
@@ -480,46 +436,5 @@
       <Setter Property="FontSize" Value="11"/>
     </Style>
 
-    <Style Selector="Button.allitems-inline-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="TextBlock.allitems-footer-text">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="Button.allitems-page-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="MinWidth" Value="32"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.allitems-page-button.active">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-    </Style>
   </UserControl.Styles>
 </UserControl>

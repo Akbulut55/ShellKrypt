@@ -2,26 +2,82 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ShellKrypt.Desktop.App"
              xmlns:local="using:ShellKrypt.Desktop"
+             xmlns:services="using:ShellKrypt.Desktop.Services"
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
+        <services:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
         <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0e0e0e"/>
         <SolidColorBrush x:Key="SurfaceBrush" Color="#201f1f"/>
         <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#2a2a2a"/>
         <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#353534"/>
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#353534"/>
         <SolidColorBrush x:Key="SidebarBrush" Color="#1c1b1b"/>
         <SolidColorBrush x:Key="BorderBrushSoft" Color="#333c4a46"/>
         <SolidColorBrush x:Key="BorderBrushStrong" Color="#66859490"/>
         <SolidColorBrush x:Key="WindowOutlineBrush" Color="#272626"/>
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="#e5e2e1"/>
         <SolidColorBrush x:Key="TextMutedBrush" Color="#bacac5"/>
+        <SolidColorBrush x:Key="TextInverseBrush" Color="#050505"/>
         <SolidColorBrush x:Key="AccentBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#63f5e1"/>
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#2dd4bf"/>
         <SolidColorBrush x:Key="AccentMutedBrush" Color="#1a4f47"/>
         <SolidColorBrush x:Key="AccentForegroundBrush" Color="#003731"/>
         <SolidColorBrush x:Key="SuccessBrush" Color="#9cd1c6"/>
+        <SolidColorBrush x:Key="SuccessMutedBrush" Color="#174544"/>
+        <SolidColorBrush x:Key="SuccessForegroundBrush" Color="#57f1db"/>
         <SolidColorBrush x:Key="WarningBrush" Color="#ffd1aa"/>
+        <SolidColorBrush x:Key="WarningMutedBrush" Color="#3a3228"/>
+        <SolidColorBrush x:Key="WarningForegroundBrush" Color="#ffd1aa"/>
         <SolidColorBrush x:Key="DangerBrush" Color="#ffb4ab"/>
+        <SolidColorBrush x:Key="DangerMutedBrush" Color="#3a2426"/>
+        <SolidColorBrush x:Key="DangerPanelBrush" Color="#261e1112"/>
+        <SolidColorBrush x:Key="DangerBorderBrush" Color="#55ffb4ab"/>
+        <SolidColorBrush x:Key="DangerForegroundBrush" Color="#050505"/>
+        <SolidColorBrush x:Key="DangerHoverBrush" Color="#ff8f8f"/>
+        <SolidColorBrush x:Key="InfoBrush" Color="#bacac5"/>
+        <SolidColorBrush x:Key="InfoMutedBrush" Color="#2a2a2a"/>
+        <SolidColorBrush x:Key="TableShellBrush" Color="#0e0e0e"/>
+        <SolidColorBrush x:Key="TableHeaderBrush" Color="#201f1f"/>
+        <SolidColorBrush x:Key="TableRowBrush" Color="#2a2a2a"/>
+        <SolidColorBrush x:Key="TableRowHoverBrush" Color="#353534"/>
+        <SolidColorBrush x:Key="TableRowSelectedBrush" Color="#353534"/>
+        <SolidColorBrush x:Key="TableBorderBrush" Color="#171f1d"/>
+        <SolidColorBrush x:Key="TableFooterBrush" Color="#201f1f"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0e0e0e"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#333c4a46"/>
+        <SolidColorBrush x:Key="InputHoverBorderBrush" Color="#333c4a46"/>
+        <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="ModalCardBrush" Color="#201f1f"/>
+        <SolidColorBrush x:Key="ModalBorderBrush" Color="#663c4a46"/>
+        <SolidColorBrush x:Key="OverlayScrimBrush" Color="#b0000000"/>
+        <SolidColorBrush x:Key="OverlaySoftScrimBrush" Color="#70000000"/>
+        <SolidColorBrush x:Key="ResizeHitTestBrush" Color="#01000000"/>
+        <SolidColorBrush x:Key="WatermarkBrush" Color="#0fffffff"/>
+        <SolidColorBrush x:Key="QuoteBackgroundBrush" Color="#101918"/>
+        <SolidColorBrush x:Key="HeroGlowPrimaryBrush" Color="#1800ffff"/>
+        <SolidColorBrush x:Key="HeroGlowSecondaryBrush" Color="#101a4f47"/>
+        <SolidColorBrush x:Key="CaptionButtonForegroundBrush" Color="#cccccc"/>
+        <SolidColorBrush x:Key="CaptionButtonHoverBrush" Color="#2a2d2e"/>
+        <SolidColorBrush x:Key="CaptionButtonHoverForegroundBrush" Color="#ffffff"/>
+        <SolidColorBrush x:Key="CaptionButtonCloseHoverBrush" Color="#c42b1c"/>
+        <SolidColorBrush x:Key="TypeWebBackgroundBrush" Color="#223b36"/>
+        <SolidColorBrush x:Key="TypeWebForegroundBrush" Color="#9cd1c6"/>
+        <SolidColorBrush x:Key="TypeCardBackgroundBrush" Color="#4a3827"/>
+        <SolidColorBrush x:Key="TypeCardForegroundBrush" Color="#ffd1aa"/>
+        <SolidColorBrush x:Key="TypeNoteBackgroundBrush" Color="#174544"/>
+        <SolidColorBrush x:Key="TypeNoteForegroundBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="TypeAuthenticatorBackgroundBrush" Color="#1c3e4a"/>
+        <SolidColorBrush x:Key="TypeAuthenticatorForegroundBrush" Color="#9fe8ff"/>
+        <SolidColorBrush x:Key="TypeApiKeyBackgroundBrush" Color="#174544"/>
+        <SolidColorBrush x:Key="TypeApiKeyForegroundBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="StrengthNoneBrush" Color="#7b8a87"/>
+        <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ff7a7a"/>
+        <SolidColorBrush x:Key="StrengthFairBrush" Color="#ffb35a"/>
+        <SolidColorBrush x:Key="StrengthStrongBrush" Color="#74f0dd"/>
+        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#4ff0df"/>
         <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Offset="0" Color="#57f1db"/>
             <GradientStop Offset="1" Color="#2dd4bf"/>
@@ -33,7 +89,12 @@
     </Application.DataTemplates>
 
     <Application.Styles>
-        <FluentTheme />
+        <FluentTheme>
+            <FluentTheme.Palettes>
+                <ColorPaletteResources x:Key="Dark" Accent="#57f1db"/>
+                <ColorPaletteResources x:Key="Light" Accent="#19cdb6"/>
+            </FluentTheme.Palettes>
+        </FluentTheme>
 
         <Style Selector="Window">
             <Setter Property="Background" Value="{StaticResource AppBackgroundBrush}"/>
@@ -155,7 +216,7 @@
         </Style>
 
         <Style Selector="Button.primary:pointerover">
-            <Setter Property="Background" Value="#63f5e1"/>
+            <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
         </Style>
 
         <Style Selector="Button.subtle">
@@ -165,7 +226,7 @@
         </Style>
 
         <Style Selector="Button.danger">
-            <Setter Property="Background" Value="#3a2426"/>
+            <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
         </Style>
@@ -209,8 +270,144 @@
         </Style>
 
         <Style Selector="TextBox.search">
-            <Setter Property="Background" Value="#111111"/>
+            <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
             <Setter Property="Padding" Value="14,9"/>
+        </Style>
+
+        <Style Selector="Border.table-shell">
+            <Setter Property="Background" Value="{StaticResource TableShellBrush}"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="ClipToBounds" Value="True"/>
+        </Style>
+
+        <Style Selector="Border.table-header-row">
+            <Setter Property="Background" Value="{StaticResource TableHeaderBrush}"/>
+            <Setter Property="Padding" Value="22,14"/>
+        </Style>
+
+        <Style Selector="Border.table-row">
+            <Setter Property="Background" Value="{StaticResource TableRowBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="CornerRadius" Value="0"/>
+        </Style>
+
+        <Style Selector="Border.table-row:pointerover">
+            <Setter Property="Background" Value="{StaticResource TableRowHoverBrush}"/>
+        </Style>
+
+        <Style Selector="ListBox.table-list">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <Style Selector="ListBox.table-list ListBoxItem">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <Style Selector="ListBox.table-list ListBoxItem:selected Border.table-row">
+            <Setter Property="Background" Value="{StaticResource TableRowSelectedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
+        </Style>
+
+        <Style Selector="ListBox.table-list ListBoxItem:pointerover Border.table-row">
+            <Setter Property="Background" Value="{StaticResource TableRowHoverBrush}"/>
+        </Style>
+
+        <Style Selector="Border.table-footer-row">
+            <Setter Property="Background" Value="{StaticResource TableFooterBrush}"/>
+            <Setter Property="Padding" Value="22,14"/>
+        </Style>
+
+        <Style Selector="TextBlock.table-header-text">
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Black"/>
+            <Setter Property="LetterSpacing" Value="2.4"/>
+        </Style>
+
+        <Style Selector="TextBlock.table-footer-text">
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="StackPanel.table-empty">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Spacing" Value="10"/>
+        </Style>
+
+        <Style Selector="TextBlock.table-empty-title">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="TextBlock.table-empty-subtitle">
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="MaxWidth" Value="460"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style Selector="Button.table-action-button">
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="4"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Black"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="MinWidth" Value="64"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.table-action-button:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Button.table-page-button">
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="MinWidth" Value="84"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.table-page-button:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Button.table-page-button:disabled">
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="Opacity" Value="0.72"/>
+        </Style>
+
+        <Style Selector="Button.table-page-button.active">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
         </Style>
 
         <Style Selector="ComboBox">
@@ -220,6 +417,34 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="8"/>
             <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="MaxDropDownHeight" Value="220"/>
+            <Setter Property="AutoScrollToSelectedItem" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox /template/ Popup#PART_Popup">
+            <Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
+            <Setter Property="PlacementConstraintAdjustment" Value="SlideX,ResizeY"/>
+            <Setter Property="VerticalOffset" Value="4"/>
+        </Style>
+
+        <Style Selector="ComboBoxItem">
+            <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        </Style>
+
+        <Style Selector="ComboBoxItem:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="ComboBoxItem:selected">
+            <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
         </Style>
 
         <Style Selector="CheckBox">

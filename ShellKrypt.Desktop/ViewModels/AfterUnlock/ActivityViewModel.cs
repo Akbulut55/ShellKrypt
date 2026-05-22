@@ -58,17 +58,17 @@ public sealed partial class ActivityItemVm : ObservableObject
     };
     public string SeverityForeground => Entry.Severity switch
     {
-        "warning" => "#FFD1AA",
-        "success" => "#57F1DB",
-        "danger" => "#FFB4AB",
-        _ => "#BACAC5"
+        "warning" => "WarningForegroundBrush",
+        "success" => "SuccessForegroundBrush",
+        "danger" => "DangerBrush",
+        _ => "InfoBrush"
     };
     public string SeverityBackground => Entry.Severity switch
     {
-        "warning" => "#3A3228",
-        "success" => "#174544",
-        "danger" => "#3A2426",
-        _ => "#2A2A2A"
+        "warning" => "WarningMutedBrush",
+        "success" => "SuccessMutedBrush",
+        "danger" => "DangerMutedBrush",
+        _ => "InfoMutedBrush"
     };
     public string IconGlyph => Entry.Category switch
     {
@@ -117,7 +117,7 @@ public sealed partial class ActivityItemVm : ObservableObject
 
 public partial class ActivityViewModel : ViewModelBase
 {
-    private const int PageSize = 10;
+    private const int PageSize = 8;
 
     private static readonly JsonSerializerOptions ReportJsonOptions = new()
     {
@@ -175,8 +175,8 @@ public partial class ActivityViewModel : ViewModelBase
     public string SelectedTimestamp => SelectedItem is null ? "No timestamp" : FormatMetadataTimestamp(SelectedItem.Entry.TimestampUtc);
     public string SelectedCategory => SelectedItem?.CategoryLabel ?? "System";
     public string SelectedStatus => SelectedItem?.SeverityChipText ?? "Info";
-    public string SelectedStatusForeground => SelectedItem?.SeverityForeground ?? "#BACAC5";
-    public string SelectedStatusBackground => SelectedItem?.SeverityBackground ?? "#2A2A2A";
+    public string SelectedStatusForeground => SelectedItem?.SeverityForeground ?? "InfoBrush";
+    public string SelectedStatusBackground => SelectedItem?.SeverityBackground ?? "InfoMutedBrush";
     public string SelectedAffectedItem => SelectedItem?.AffectedItemDisplay ?? "No item selected";
     public string SelectedVaultPath => SelectedItem?.Entry.VaultPath ?? "ShellKrypt local session";
     public string SelectedDetail => SelectedItem?.Detail ?? "Select an event to inspect its metadata.";
