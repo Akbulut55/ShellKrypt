@@ -10,7 +10,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Application.Activity;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -125,7 +125,7 @@ public partial class ActivityViewModel : ViewModelBase
     };
 
     private readonly MainWindowViewModel _root;
-    private readonly ActivityLogStore _store;
+    private readonly ActivityLogService _store;
     private readonly List<ActivityItemVm> _allItems = new();
     private readonly List<ActivityItemVm> _filteredItems = new();
 
@@ -137,7 +137,7 @@ public partial class ActivityViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
     [ObservableProperty] private int currentPage = 1;
 
-    public ActivityViewModel(MainWindowViewModel root, ActivityLogStore store)
+    public ActivityViewModel(MainWindowViewModel root, ActivityLogService store)
     {
         _root = root;
         _store = store;

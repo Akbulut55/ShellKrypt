@@ -22,9 +22,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ShellKrypt.Application\ShellKrypt.Application.csproj" />
     <ProjectReference Include="..\ShellKrypt.Core\ShellKrypt.Core.csproj" />
     <ProjectReference Include="..\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj" />
     <ProjectReference Include="..\ShellKrypt.Infrastructure\ShellKrypt.Infrastructure.csproj" />
+    <ProjectReference Include="..\ShellKrypt.Mobile\ShellKrypt.Mobile.csproj" />
+    <ProjectReference Include="..\ShellKrypt.UI.Shared\ShellKrypt.UI.Shared.csproj" />
   </ItemGroup>
 
 </Project>

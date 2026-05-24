@@ -249,7 +249,8 @@ public sealed partial class CardRowVm : ObservableObject
 public partial class CardsViewModel : ViewModelBase
 {
     private const int PageSize = 5;
-    private const string AllNetworkFilter = "Network: All";
+    private const string AllBankFilter = "Bank: All";
+    private const string AllCardTypeFilter = "Type: All";
     private const string SortNewest = "Sort: Newest";
     private const string SortExpiry = "Exp. Date";
     private const string SortAlphabetical = "Alphabetical";
@@ -266,18 +267,8 @@ public partial class CardsViewModel : ViewModelBase
     private string _lastAutoAddIssuer = DefaultIssuer;
 
     public ObservableCollection<CardRowVm> Rows { get; } = new();
-    public ObservableCollection<string> NetworkFilters { get; } = new()
-    {
-        AllNetworkFilter,
-        "Visa",
-        "Mastercard",
-        "Amex",
-        "Discover",
-        "JCB",
-        "UnionPay",
-        "Diners Club",
-        "Card"
-    };
+    public ObservableCollection<string> BankFilters { get; } = new() { AllBankFilter };
+    public ObservableCollection<string> CardTypeFilters { get; } = new() { AllCardTypeFilter };
     public ObservableCollection<string> IssuerOptions { get; } = new()
     {
         "Visa",
@@ -306,7 +297,8 @@ public partial class CardsViewModel : ViewModelBase
     };
 
     [ObservableProperty] private string searchText = "";
-    [ObservableProperty] private string selectedNetworkFilter = AllNetworkFilter;
+    [ObservableProperty] private string selectedBankFilter = AllBankFilter;
+    [ObservableProperty] private string selectedCardTypeFilter = AllCardTypeFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
     [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isAddCardModalOpen;
@@ -349,7 +341,7 @@ public partial class CardsViewModel : ViewModelBase
         : "No credit cards match this view";
     public string EmptyTableSubtitle => _all.Count == 0
         ? "Add a credit card to keep encrypted payment details in this vault."
-        : "Adjust the search, network filter, or sort option to show more cards.";
+        : "Adjust the search, bank filter, card type filter, or sort option to show more cards.";
     public string CardModalTitle => IsAddCardMode
         ? "Add Credit Card"
         : IsCardDeleteConfirming
@@ -383,7 +375,8 @@ public partial class CardsViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnSelectedNetworkFilterChanged(string value) => ApplyFilter();
+    partial void OnSelectedBankFilterChanged(string value) => ApplyFilter();
+    partial void OnSelectedCardTypeFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
     partial void OnIsAddCardModeChanged(bool value) => NotifyCardModalModeChanged();
     partial void OnIsCardDetailsEditingChanged(bool value) => NotifyCardModalModeChanged();
@@ -595,7 +588,9 @@ public partial class CardsViewModel : ViewModelBase
             ClearAddCardForm();
             IsAddCardModalOpen = false;
             SearchText = "";
-            SelectedNetworkFilter = AllNetworkFilter;
+            RefreshCardFilters();
+            SelectedBankFilter = AllBankFilter;
+            SelectedCardTypeFilter = AllCardTypeFilter;
             SelectedSortOption = SortNewest;
             ApplyFilter();
             _root.LogActivity("cards", "Credit card added", $"Added {entry.Title}.", "success", affectedItem: entry.Title);
@@ -653,6 +648,7 @@ public partial class CardsViewModel : ViewModelBase
             IsCardDetailsEditing = false;
             IsCardDeleteConfirming = false;
             PopulateModalFromRow(row);
+            RefreshCardFilters();
             ApplyFilter(resetPage: false);
             _root.LogActivity("cards", "Credit card updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
         }
@@ -693,6 +689,7 @@ public partial class CardsViewModel : ViewModelBase
     private void RemoveRow(CardRowVm row)
     {
         _all.Remove(row);
+        RefreshCardFilters();
         ApplyFilter(resetPage: false);
     }
 
@@ -808,6 +805,7 @@ public partial class CardsViewModel : ViewModelBase
             var entries = await _cardService.ListAsync(_root.VaultPath, _root.VaultKey);
             _all.AddRange(entries.Select(ToRow));
 
+            RefreshCardFilters();
             ApplyFilter();
         }
         catch (Exception ex)
@@ -843,11 +841,18 @@ public partial class CardsViewModel : ViewModelBase
         IEnumerable<CardRowVm> filtered = _all;
         var q = SearchText?.Trim();
 
-        if (!string.IsNullOrWhiteSpace(SelectedNetworkFilter) &&
-            !string.Equals(SelectedNetworkFilter, AllNetworkFilter, StringComparison.OrdinalIgnoreCase))
+        if (!string.IsNullOrWhiteSpace(SelectedBankFilter) &&
+            !string.Equals(SelectedBankFilter, AllBankFilter, StringComparison.OrdinalIgnoreCase))
         {
             filtered = filtered.Where(r =>
-                string.Equals(r.IssuerDisplay, SelectedNetworkFilter, StringComparison.OrdinalIgnoreCase));
+                string.Equals(r.BankDisplay, SelectedBankFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (!string.IsNullOrWhiteSpace(SelectedCardTypeFilter) &&
+            !string.Equals(SelectedCardTypeFilter, AllCardTypeFilter, StringComparison.OrdinalIgnoreCase))
+        {
+            filtered = filtered.Where(r =>
+                string.Equals(r.CardType, SelectedCardTypeFilter, StringComparison.OrdinalIgnoreCase));
         }
 
         if (!string.IsNullOrWhiteSpace(q))
@@ -906,6 +911,41 @@ public partial class CardsViewModel : ViewModelBase
         OnPropertyChanged(nameof(ExpiringSoonSummary));
         OnPropertyChanged(nameof(ExpiredCardsSummary));
         OnPropertyChanged(nameof(ItemsSummary));
+    }
+
+    private void RefreshCardFilters()
+    {
+        var selectedBank = SelectedBankFilter;
+        var selectedType = SelectedCardTypeFilter;
+
+        BankFilters.Clear();
+        BankFilters.Add(AllBankFilter);
+        foreach (var bank in _all
+                     .Select(row => row.BankDisplay)
+                     .Where(bank => !string.IsNullOrWhiteSpace(bank))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(bank => bank, StringComparer.OrdinalIgnoreCase))
+        {
+            BankFilters.Add(bank);
+        }
+
+        CardTypeFilters.Clear();
+        CardTypeFilters.Add(AllCardTypeFilter);
+        foreach (var type in CardTypeOptions
+                     .Concat(_all.Select(row => row.CardType))
+                     .Where(type => !string.IsNullOrWhiteSpace(type))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(type => type, StringComparer.OrdinalIgnoreCase))
+        {
+            CardTypeFilters.Add(type);
+        }
+
+        SelectedBankFilter = BankFilters.Any(bank => string.Equals(bank, selectedBank, StringComparison.OrdinalIgnoreCase))
+            ? selectedBank
+            : AllBankFilter;
+        SelectedCardTypeFilter = CardTypeFilters.Any(type => string.Equals(type, selectedType, StringComparison.OrdinalIgnoreCase))
+            ? selectedType
+            : AllCardTypeFilter;
     }
 
     private static DateTimeOffset ParseTimestamp(string value)

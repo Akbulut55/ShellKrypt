@@ -1,0 +1,14 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ShellKrypt.UI.Shared.Controls.SectionHeader"
+             x:Name="Root"
+             x:CompileBindings="False">
+  <StackPanel Spacing="4">
+    <TextBlock Text="{Binding Title, ElementName=Root}"
+               FontSize="28"
+               FontWeight="SemiBold"/>
+    <TextBlock Text="{Binding Subtitle, ElementName=Root}"
+               Classes="page-subtitle"
+               TextWrapping="Wrap"/>
+  </StackPanel>
+</UserControl>

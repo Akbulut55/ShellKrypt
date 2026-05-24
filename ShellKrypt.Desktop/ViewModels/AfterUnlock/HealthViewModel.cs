@@ -1,7 +1,8 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Settings;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.Services;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -64,7 +65,7 @@ public partial class HealthViewModel : ViewModelBase
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
     private readonly IHealthAuditService _healthAuditService;
-    private readonly DismissedAuditIssueStore _dismissedIssueStore = new();
+    private readonly AuditDismissalService _dismissedIssueStore;
     private HashSet<string> _dismissedSuggestionFingerprints = new(StringComparer.OrdinalIgnoreCase);
 
     public ObservableCollection<HealthIssueVm> Issues { get; } = new();
@@ -78,11 +79,16 @@ public partial class HealthViewModel : ViewModelBase
     [ObservableProperty] private int totalIssueCount;
     [ObservableProperty] private string lastCheckedText = "Never";
 
-    public HealthViewModel(MainWindowViewModel root, ShellViewModel shell, IHealthAuditService healthAuditService)
+    public HealthViewModel(
+        MainWindowViewModel root,
+        ShellViewModel shell,
+        IHealthAuditService healthAuditService,
+        AuditDismissalService dismissedIssueStore)
     {
         _root = root;
         _shell = shell;
         _healthAuditService = healthAuditService;
+        _dismissedIssueStore = dismissedIssueStore;
         Issues.CollectionChanged += OnIssuesChanged;
         _ = RefreshAsync();
     }
@@ -96,12 +102,12 @@ public partial class HealthViewModel : ViewModelBase
     public string HealthScoreDisplay => $"{HealthScore}%";
     public string HealthScoreTitle => HealthScore switch
     {
-        >= 85 => "Vault is generally secure",
+        >= 85 => "Vault posture looks good",
         >= 60 => "Vault needs attention",
         _ => "Immediate action required"
     };
     public string HealthScoreSubtitle => TotalIssueCount > 0
-        ? $"{TotalIssueCount} vulnerabilities need immediate remediation"
+        ? $"{TotalIssueCount} findings need review"
         : "No active findings right now";
     public string SmartSuggestionTitle => PrimarySuggestionIssue is not null
         ? PrimarySuggestionIssue.Title

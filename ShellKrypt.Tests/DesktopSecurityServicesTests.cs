@@ -1,8 +1,13 @@
 using System.Security.Cryptography;
 using System.Text;
+using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Settings;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
+using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
 
@@ -45,10 +50,10 @@ public sealed class DesktopSecurityServicesTests
 
             await web.AddAsync(vaultPath, unlock.VaultKey!, new WebLoginInput("Metadata Test", "https://example.test", "user", "", secret, "notes"));
 
-            new AppSettingsStore().Save(new AppSettings { ClipboardClearSeconds = 1, ClipboardCopyEnabled = false });
-            new VaultRegistryStore().UpsertVault(vaultPath, "Metadata Test", "Local metadata only", isDefault: true);
-            new DismissedAuditIssueStore().Dismiss(vaultPath, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(secret))));
-            new ActivityLogStore().Append(
+            new AppSettingsService(new FileAppSettingsStore()).Save(new AppSettings { ClipboardClearSeconds = 1, ClipboardCopyEnabled = false });
+            new VaultRegistryService(new FileVaultRegistryStore()).UpsertVault(vaultPath, "Metadata Test", "Local metadata only", isDefault: true);
+            new AuditDismissalService(new FileDismissedAuditIssueStore()).Dismiss(vaultPath, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(secret))));
+            new ActivityLogService(new SqliteActivityLogStore()).Append(
                 new ActivityLogEntry(
                     Guid.NewGuid().ToString("N"),
                     DateTimeOffset.UtcNow.ToString("O"),
@@ -87,7 +92,7 @@ public sealed class DesktopSecurityServicesTests
             var vaultKey = RandomNumberGenerator.GetBytes(32);
             var vaultPath = workspace.FilePath("logs.skvault");
             await new SqliteVaultService().CreateAsync(vaultPath, "Vault Master Passphrase 2026");
-            var store = new ActivityLogStore();
+            var store = new ActivityLogService(new SqliteActivityLogStore());
 
             store.Append(
                 new ActivityLogEntry(

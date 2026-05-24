@@ -5,7 +5,7 @@
              x:CompileBindings="False"
              x:DataType="vm:HealthViewModel">
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="28,24,28,28"
                   MaxWidth="1500"

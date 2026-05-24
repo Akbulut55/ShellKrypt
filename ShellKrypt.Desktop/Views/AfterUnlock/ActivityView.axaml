@@ -6,7 +6,7 @@
              x:DataType="vm:ActivityViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="32"
                   MaxWidth="1500"
@@ -18,25 +18,21 @@
                        FontSize="28"
                        FontWeight="SemiBold"
                        LetterSpacing="-0.8"/>
-            <TextBlock Text="Real-time monitoring of all security events and access requests."
+            <TextBlock Text="Review encrypted vault activity events and plaintext report exports."
                        Classes="page-subtitle"
                        FontSize="13"/>
           </StackPanel>
         </Grid>
 
-        <Grid ColumnDefinitions="440,*,Auto"
-              ColumnSpacing="12"
-              VerticalAlignment="Center">
+        <WrapPanel Orientation="Horizontal">
           <Border Classes="activity-search-shell">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="activity-search-box"
                      PlaceholderText="Search audit logs..."/>
           </Border>
 
-          <StackPanel Grid.Column="2"
-                      Orientation="Horizontal"
-                      Spacing="8"
-                      VerticalAlignment="Center">
+          <WrapPanel Orientation="Horizontal"
+                     VerticalAlignment="Center">
             <Button Content="All"
                     Classes="activity-chip"
                     Classes.active="{Binding IsAllFilterActive}"
@@ -61,10 +57,11 @@
                     Classes="activity-chip"
                     Classes.active="{Binding IsSettingsFilterActive}"
                     Command="{Binding ShowSettingsCommand}"/>
-          </StackPanel>
-        </Grid>
+          </WrapPanel>
+        </WrapPanel>
 
         <Grid ColumnDefinitions="*,330"
+              MinWidth="940"
               ColumnSpacing="22">
           <Border Classes="table-shell"
                   ClipToBounds="True">
@@ -310,6 +307,8 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="0"/>
       <Setter Property="Height" Value="38"/>
+      <Setter Property="Width" Value="360"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
     </Style>
 
     <Style Selector="TextBox.activity-search-box">
@@ -334,6 +333,7 @@
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Margin" Value="0,0,8,12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>

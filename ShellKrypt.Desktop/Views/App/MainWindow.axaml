@@ -14,8 +14,8 @@
         TransparencyBackgroundFallback="{StaticResource AppBackgroundBrush}"
         Width="1360"
         Height="860"
-        MinWidth="1200"
-        MinHeight="780"
+        MinWidth="940"
+        MinHeight="660"
         TransparencyLevelHint="None"
         WindowDecorations="None"
         WindowStartupLocation="CenterScreen">

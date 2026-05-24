@@ -234,6 +234,7 @@ public partial class ApiKeysViewModel : ViewModelBase
     internal const string DefaultFieldType = "API Key";
 
     private const int PageSize = 5;
+    private const string AllEnvironmentFilter = "Env: All";
     private const string AllProviderFilter = "Provider: All";
     private const string SortNewest = "Sort: Newest";
     private const string SortProvider = "Provider";
@@ -247,6 +248,7 @@ public partial class ApiKeysViewModel : ViewModelBase
     private ApiKeyRowVm? _selectedDetailsRow;
 
     public ObservableCollection<ApiKeyRowVm> Rows { get; } = new();
+    public ObservableCollection<string> EnvironmentFilters { get; } = new() { AllEnvironmentFilter };
     public ObservableCollection<string> ProviderFilters { get; } = new() { AllProviderFilter };
     public ObservableCollection<string> SortOptions { get; } = new()
     {
@@ -280,6 +282,7 @@ public partial class ApiKeysViewModel : ViewModelBase
     public ObservableCollection<ApiKeyFieldRowVm> FormFields { get; } = new();
 
     [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private string selectedEnvironmentFilter = AllEnvironmentFilter;
     [ObservableProperty] private string selectedProviderFilter = AllProviderFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
     [ObservableProperty] private int currentPage = 1;
@@ -345,6 +348,7 @@ public partial class ApiKeysViewModel : ViewModelBase
         : "Try a different provider, name, environment, or field label.";
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
+    partial void OnSelectedEnvironmentFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedProviderFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
     partial void OnCurrentPageChanged(int value)
@@ -527,6 +531,7 @@ public partial class ApiKeysViewModel : ViewModelBase
             ClearForm();
             IsApiKeyModalOpen = false;
             SearchText = "";
+            SelectedEnvironmentFilter = AllEnvironmentFilter;
             SelectedProviderFilter = AllProviderFilter;
             SelectedSortOption = SortNewest;
             ApplyFilter();
@@ -652,6 +657,7 @@ public partial class ApiKeysViewModel : ViewModelBase
             return false;
 
         SearchText = "";
+        SelectedEnvironmentFilter = AllEnvironmentFilter;
         SelectedProviderFilter = AllProviderFilter;
         SelectedSortOption = SortNewest;
         ApplyFilter();
@@ -696,6 +702,12 @@ public partial class ApiKeysViewModel : ViewModelBase
     {
         IEnumerable<ApiKeyRowVm> filtered = _all;
         var query = SearchText?.Trim();
+
+        if (!string.IsNullOrWhiteSpace(SelectedEnvironmentFilter) &&
+            !string.Equals(SelectedEnvironmentFilter, AllEnvironmentFilter, StringComparison.OrdinalIgnoreCase))
+        {
+            filtered = filtered.Where(row => string.Equals(row.EnvironmentDisplay, SelectedEnvironmentFilter, StringComparison.OrdinalIgnoreCase));
+        }
 
         if (!string.IsNullOrWhiteSpace(SelectedProviderFilter) &&
             !string.Equals(SelectedProviderFilter, AllProviderFilter, StringComparison.OrdinalIgnoreCase))
@@ -807,9 +819,21 @@ public partial class ApiKeysViewModel : ViewModelBase
 
     private void RefreshProviderFilters()
     {
+        var previousEnvironment = SelectedEnvironmentFilter;
         var previous = SelectedProviderFilter;
+        EnvironmentFilters.Clear();
+        EnvironmentFilters.Add(AllEnvironmentFilter);
         ProviderFilters.Clear();
         ProviderFilters.Add(AllProviderFilter);
+
+        foreach (var environment in _all
+                     .Select(row => row.EnvironmentDisplay)
+                     .Where(environment => !string.IsNullOrWhiteSpace(environment))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(environment => environment, StringComparer.OrdinalIgnoreCase))
+        {
+            EnvironmentFilters.Add(environment);
+        }
 
         foreach (var provider in _all
                      .Select(row => row.ProviderDisplay)
@@ -820,6 +844,9 @@ public partial class ApiKeysViewModel : ViewModelBase
             ProviderFilters.Add(provider);
         }
 
+        SelectedEnvironmentFilter = EnvironmentFilters.Any(environment => string.Equals(environment, previousEnvironment, StringComparison.OrdinalIgnoreCase))
+            ? previousEnvironment
+            : AllEnvironmentFilter;
         SelectedProviderFilter = ProviderFilters.Any(provider => string.Equals(provider, previous, StringComparison.OrdinalIgnoreCase))
             ? previous
             : AllProviderFilter;

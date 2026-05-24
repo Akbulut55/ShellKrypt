@@ -4,6 +4,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Items;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Desktop.Services;
@@ -30,10 +34,11 @@ public partial class ShellViewModel : ViewModelBase
 
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
+    [ObservableProperty] private bool isSidebarCollapsed;
 
     public ShellViewModel(
         MainWindowViewModel root,
-        IItemRepository repo,
+        IVaultItemSummaryService vaultItemSummaryService,
         IWebLoginService webLoginService,
         ICardService cardService,
         INoteService noteService,
@@ -42,20 +47,22 @@ public partial class ShellViewModel : ViewModelBase
         AuthenticatorQrImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
         ICryptoToolsService cryptoToolsService,
-        ActivityLogStore activityLogStore)
+        ActivityLogService activityLogService,
+        AuditDismissalService auditDismissalService,
+        VaultRegistryService vaultRegistryService)
     {
         _root = root;
 
-        AllItems = new AllItemsViewModel(_root, this, repo);
+        AllItems = new AllItemsViewModel(_root, this, vaultItemSummaryService);
         WebLogins = new WebLoginsViewModel(_root, webLoginService, AllItems.RefreshAfterMutationAsync);
         MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
-        Health = new HealthViewModel(_root, this, healthAuditService);
-        Settings = new SettingsViewModel(_root, this);
-        Activity = new ActivityViewModel(_root, activityLogStore);
+        Health = new HealthViewModel(_root, this, healthAuditService, auditDismissalService);
+        Settings = new SettingsViewModel(_root, this, vaultRegistryService);
+        Activity = new ActivityViewModel(_root, activityLogService);
 
         SelectNav("vault");
     }
@@ -89,6 +96,9 @@ public partial class ShellViewModel : ViewModelBase
         }
     }
     public string VaultFooterLabel => "ACTIVE VAULT";
+    public bool IsSidebarExpanded => !IsSidebarCollapsed;
+    public double SidebarWidth => IsSidebarCollapsed ? 96 : 236;
+    public string SidebarToggleToolTip => IsSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar";
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
@@ -96,12 +106,12 @@ public partial class ShellViewModel : ViewModelBase
         "web" => "Credentials, account URLs, and saved login details.",
         "notes" => "Encrypted markdown notes and vault reference material.",
         "cards" => "Sensitive payment details protected in the vault.",
-        "audit" => "Audit reuse, age, and password risk across the repository.",
+        "audit" => "Audit reuse, age, and password risk across the vault.",
         "generator" => "Generate and transform local secrets without leaving the vault.",
         "auth" => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
         "api" => "API tokens, client secrets, project IDs, and provider metadata.",
-        "settings" => "Manage security posture, import/export, and desktop behavior.",
-        "activity" => "Activity logs placeholder for future vault events.",
+        "settings" => "Manage vault security, import/export, and desktop behavior.",
+        "activity" => "Review vault activity events and plaintext report exports.",
         _ => "Local encrypted vault workspace."
     };
     public bool IsSettingsSelected => SelectedNav?.Key == "settings";
@@ -150,6 +160,16 @@ public partial class ShellViewModel : ViewModelBase
         OnPropertyChanged(nameof(ShowAddItemAction));
         OnPropertyChanged(nameof(SearchPlaceholder));
     }
+
+    partial void OnIsSidebarCollapsedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsSidebarExpanded));
+        OnPropertyChanged(nameof(SidebarWidth));
+        OnPropertyChanged(nameof(SidebarToggleToolTip));
+    }
+
+    [RelayCommand]
+    private void ToggleSidebar() => IsSidebarCollapsed = !IsSidebarCollapsed;
 
     [RelayCommand]
     private void Lock() => _root.Lock();

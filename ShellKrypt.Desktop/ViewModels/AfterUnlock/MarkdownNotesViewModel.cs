@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Markdown;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.Services;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -99,9 +100,13 @@ public sealed partial class NoteItemVm : ObservableObject
 
 public partial class MarkdownNotesViewModel : ViewModelBase
 {
+    private static readonly TimeSpan AutoSaveDelay = TimeSpan.FromSeconds(3);
+
     private readonly MainWindowViewModel _root;
     private readonly INoteService _noteService;
     private readonly Func<string?, Task> _refreshAllItemsAsync;
+    private CancellationTokenSource? _autoSaveCts;
+    private bool _suppressAutoSave;
 
     public ObservableCollection<NoteItemVm> Notes { get; } = new();
     public ObservableCollection<NoteItemVm> FilteredNotes { get; } = new();
@@ -118,6 +123,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private bool isCreatingNote;
     [ObservableProperty] private bool isEditing;
     [ObservableProperty] private string activeDocumentView = "preview";
+    [ObservableProperty] private string autoSaveStatus = "";
 
     public MarkdownNotesViewModel(MainWindowViewModel root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
     {
@@ -201,6 +207,9 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         : $"Last edited {FormatEditorTimestamp(SelectedNote.UpdatedAtUtc)} | {EditorContent.Length:N0} characters";
 
     public string EditorStats => $"{EditorContent.Length:N0} characters | {CountWords(EditorContent):N0} words | {CountLines(EditorContent):N0} lines";
+    public string EditorStatusLine => string.IsNullOrWhiteSpace(AutoSaveStatus)
+        ? EditorStats
+        : $"{EditorStats} - {AutoSaveStatus}";
 
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
         ? ActiveFilter == "favorites"
@@ -218,27 +227,37 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     partial void OnSelectedNoteChanged(NoteItemVm? value)
     {
+        CancelPendingAutoSave();
         UpdateSelectionState();
 
-        if (value is null)
+        _suppressAutoSave = true;
+        try
         {
-            if (!IsCreatingNote)
+            if (value is null)
             {
-                EditorTitle = string.Empty;
-                EditorContent = string.Empty;
+                if (!IsCreatingNote)
+                {
+                    EditorTitle = string.Empty;
+                    EditorContent = string.Empty;
+                    IsEditing = false;
+                    ActiveDocumentView = "preview";
+                }
+            }
+            else
+            {
+                IsCreatingNote = false;
                 IsEditing = false;
                 ActiveDocumentView = "preview";
+                EditorTitle = value.Title;
+                EditorContent = value.Content;
             }
         }
-        else
+        finally
         {
-            IsCreatingNote = false;
-            IsEditing = false;
-            ActiveDocumentView = "preview";
-            EditorTitle = value.Title;
-            EditorContent = value.Content;
+            _suppressAutoSave = false;
         }
 
+        AutoSaveStatus = string.Empty;
         NotifyEditorStateChanged();
     }
 
@@ -246,14 +265,17 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(CanSave));
         OnPropertyChanged(nameof(PreviewDocumentTitle));
+        ScheduleAutoSave();
     }
 
     partial void OnEditorContentChanged(string value)
     {
         OnPropertyChanged(nameof(EditorStats));
+        OnPropertyChanged(nameof(EditorStatusLine));
         OnPropertyChanged(nameof(SelectedNoteMeta));
         OnPropertyChanged(nameof(CanCopySelection));
         RefreshPreviewContent();
+        ScheduleAutoSave();
     }
 
     partial void OnNoteCountChanged(int value)
@@ -283,6 +305,11 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasError));
     }
 
+    partial void OnAutoSaveStatusChanged(string value)
+    {
+        OnPropertyChanged(nameof(EditorStatusLine));
+    }
+
     partial void OnIsBusyChanged(bool value)
     {
         OnPropertyChanged(nameof(CanDeleteSelection));
@@ -300,6 +327,9 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     partial void OnIsEditingChanged(bool value)
     {
+        if (!value)
+            CancelPendingAutoSave();
+
         OnPropertyChanged(nameof(CanStartEditing));
         OnPropertyChanged(nameof(CanSave));
         OnPropertyChanged(nameof(ShowEditButton));
@@ -392,13 +422,23 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [RelayCommand]
     private void NewNote()
     {
+        CancelPendingAutoSave();
         Error = string.Empty;
         IsCreatingNote = true;
         IsEditing = true;
         ActiveDocumentView = "source";
         SelectedNote = null;
-        EditorTitle = string.Empty;
-        EditorContent = string.Empty;
+        _suppressAutoSave = true;
+        try
+        {
+            EditorTitle = string.Empty;
+            EditorContent = string.Empty;
+        }
+        finally
+        {
+            _suppressAutoSave = false;
+        }
+        AutoSaveStatus = string.Empty;
         NotifyEditorStateChanged();
         OnPropertyChanged(nameof(CanCopySelection));
         OnPropertyChanged(nameof(CanSave));
@@ -422,12 +462,40 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [RelayCommand]
     private async Task SaveAsync()
     {
+        CancelPendingAutoSave();
+        await SaveCoreAsync(keepEditing: false, logActivity: true, isAutoSave: false);
+    }
+
+    private async Task SaveCoreAsync(bool keepEditing, bool logActivity, bool isAutoSave, CancellationToken ct = default)
+    {
         Error = string.Empty;
 
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(EditorTitle)) { Error = "Title is required."; return; }
+        if (_root.VaultPath is null)
+        {
+            if (!isAutoSave)
+                Error = "No vault selected.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(EditorTitle))
+        {
+            if (isAutoSave)
+                AutoSaveStatus = "Autosave paused: title required.";
+            else
+                Error = "Title is required.";
+            return;
+        }
+
+        if (isAutoSave && !HasUnsavedEditorChanges())
+            return;
 
         IsBusy = true;
+        if (isAutoSave)
+            AutoSaveStatus = "Autosaving...";
+
+        var titleSnapshot = EditorTitle;
+        var contentSnapshot = EditorContent;
+
         try
         {
             if (SelectedNote is null)
@@ -435,14 +503,24 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                 var entry = await _noteService.AddAsync(
                     _root.VaultPath,
                     _root.VaultKey,
-                    new NoteInput(EditorTitle, EditorContent, Favorite: false));
+                    new NoteInput(titleSnapshot, contentSnapshot, Favorite: false),
+                    ct);
 
                 var vm = new NoteItemVm(entry.Id, entry.Title, entry.Content, entry.Favorite, entry.CreatedAtUtc, entry.UpdatedAtUtc);
                 Notes.Insert(0, vm);
                 IsCreatingNote = false;
                 SelectedNote = vm;
+                if (keepEditing)
+                {
+                    IsEditing = true;
+                    ActiveDocumentView = "source";
+                    EditorTitle = titleSnapshot;
+                    EditorContent = contentSnapshot;
+                }
+
                 await _refreshAllItemsAsync(entry.Id);
-                _root.LogActivity("notes", "Markdown note created", $"Saved {entry.Title}.", "success", affectedItem: entry.Title);
+                if (logActivity)
+                    _root.LogActivity("notes", "Markdown note created", $"Saved {entry.Title}.", "success", affectedItem: entry.Title);
             }
             else
             {
@@ -451,22 +529,38 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                     _root.VaultKey,
                     SelectedNote.Id,
                     SelectedNote.CreatedAtUtc,
-                    new NoteInput(EditorTitle, EditorContent, SelectedNote.IsFavorite));
+                    new NoteInput(titleSnapshot, contentSnapshot, SelectedNote.IsFavorite),
+                    ct);
 
                 SelectedNote.Apply(entry);
-                IsEditing = false;
-                ActiveDocumentView = "preview";
+                if (!keepEditing)
+                {
+                    IsEditing = false;
+                    ActiveDocumentView = "preview";
+                }
+
                 await _refreshAllItemsAsync(entry.Id);
-                _root.LogActivity("notes", "Markdown note updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
+                if (logActivity)
+                    _root.LogActivity("notes", "Markdown note updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
             }
+
+            if (isAutoSave)
+                AutoSaveStatus = $"Autosaved at {DateTime.Now:HH:mm:ss}";
 
             RefreshFilteredNotes();
             OnPropertyChanged(nameof(SelectedNoteMeta));
             OnPropertyChanged(nameof(SaveButtonText));
         }
+        catch (OperationCanceledException) when (isAutoSave)
+        {
+            AutoSaveStatus = string.Empty;
+        }
         catch (Exception ex)
         {
-            Error = ex.Message;
+            if (isAutoSave)
+                AutoSaveStatus = "Autosave failed.";
+            else
+                Error = ex.Message;
         }
         finally
         {
@@ -477,6 +571,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [RelayCommand]
     private async Task DeleteAsync()
     {
+        CancelPendingAutoSave();
         Error = string.Empty;
 
         if (_root.VaultPath is null) { Error = "No vault selected."; return; }
@@ -516,6 +611,68 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             IsBusy = false;
         }
+    }
+
+    private void ScheduleAutoSave()
+    {
+        if (_suppressAutoSave || !IsEditing)
+            return;
+
+        CancelPendingAutoSave(clearStatus: false);
+
+        if (!HasUnsavedEditorChanges())
+        {
+            AutoSaveStatus = string.Empty;
+            return;
+        }
+
+        AutoSaveStatus = "Autosave pending...";
+        _autoSaveCts = new CancellationTokenSource();
+        _ = DebouncedAutoSaveAsync(_autoSaveCts.Token);
+    }
+
+    private async Task DebouncedAutoSaveAsync(CancellationToken ct)
+    {
+        try
+        {
+            await Task.Delay(AutoSaveDelay, ct);
+
+            while (IsBusy)
+                await Task.Delay(250, ct);
+
+            if (!IsEditing || !HasUnsavedEditorChanges())
+                return;
+
+            await SaveCoreAsync(keepEditing: true, logActivity: false, isAutoSave: true, ct);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+    }
+
+    private void CancelPendingAutoSave(bool clearStatus = true)
+    {
+        _autoSaveCts?.Cancel();
+        _autoSaveCts?.Dispose();
+        _autoSaveCts = null;
+
+        if (clearStatus)
+            AutoSaveStatus = string.Empty;
+    }
+
+    private bool HasUnsavedEditorChanges()
+    {
+        if (!IsCreatingNote && SelectedNote is null)
+            return false;
+
+        if (string.IsNullOrWhiteSpace(EditorTitle))
+            return false;
+
+        if (SelectedNote is null)
+            return IsCreatingNote && (!string.IsNullOrWhiteSpace(EditorTitle) || !string.IsNullOrWhiteSpace(EditorContent));
+
+        return !string.Equals(EditorTitle.Trim(), SelectedNote.Title, StringComparison.Ordinal) ||
+               !string.Equals(EditorContent, SelectedNote.Content, StringComparison.Ordinal);
     }
 
     private void UpdateNoteCount()
@@ -594,6 +751,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(SelectedNoteMeta));
         OnPropertyChanged(nameof(EditorStats));
+        OnPropertyChanged(nameof(EditorStatusLine));
         OnPropertyChanged(nameof(HasEditor));
         OnPropertyChanged(nameof(CanDeleteSelection));
         OnPropertyChanged(nameof(CanCopySelection));

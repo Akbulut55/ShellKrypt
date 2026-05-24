@@ -1,0 +1,517 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Mobile.ViewModels"
+             x:Class="ShellKrypt.Mobile.Views.MobileShellView"
+             x:CompileBindings="False"
+             x:DataType="vm:MobileShellViewModel">
+  <Grid Background="{StaticResource AppBackgroundBrush}"
+        RowDefinitions="Auto,*,Auto">
+    <Border Background="{StaticResource SidebarBrush}"
+            BorderBrush="{StaticResource WindowOutlineBrush}"
+            BorderThickness="0,0,0,1"
+            Padding="14,12">
+      <Grid ColumnDefinitions="Auto,*,Auto"
+            ColumnSpacing="10">
+        <Button Content="Back"
+                Classes="mobile-icon-button"
+                Command="{Binding GoBackCommand}"
+                IsVisible="{Binding ShowBackButton}"/>
+
+        <StackPanel Grid.Column="1"
+                    Spacing="1"
+                    VerticalAlignment="Center">
+          <TextBlock Text="{Binding AppTitle}"
+                     Foreground="{StaticResource AccentBrush}"
+                     FontSize="18"
+                     FontWeight="Black"/>
+          <TextBlock Text="{Binding PageTitle}"
+                     Foreground="{StaticResource TextMutedBrush}"
+                     FontSize="11"
+                     TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+
+        <Button Grid.Column="2"
+                Content="Lock"
+                Classes="mobile-icon-button"
+                Command="{Binding LockCommand}"
+                IsVisible="{Binding ShowLockButton}"/>
+      </Grid>
+    </Border>
+
+    <ScrollViewer Grid.Row="1"
+                  HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <Grid Margin="16">
+        <StackPanel Spacing="16"
+                    IsVisible="{Binding IsWelcomeVisible}">
+          <Border Classes="mobile-hero-card">
+            <StackPanel Spacing="12">
+              <TextBlock Text="ShellKrypt"
+                         FontSize="34"
+                         FontWeight="Black"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <TextBlock Text="Local-only encrypted vault for phone-sized screens."
+                         Classes="mobile-muted"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="No cloud account. No password recovery. Backups stay user-controlled."
+                         Classes="mobile-muted"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Status}"
+                         Classes="mobile-sensitive"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasStatus}"/>
+            </StackPanel>
+          </Border>
+
+          <Button Content="Open Existing Vault"
+                  Classes="mobile-primary"
+                  Command="{Binding ShowUnlockCommand}"/>
+          <Button Content="Create New Vault"
+                  Classes="mobile-secondary"
+                  Command="{Binding CreateVaultCommand}"/>
+        </StackPanel>
+
+        <StackPanel Spacing="16"
+                    IsVisible="{Binding IsCreateVisible}">
+          <TextBlock Text="{Binding PageTitle}"
+                     Classes="mobile-page-title"/>
+          <TextBlock Text="{Binding PageSubtitle}"
+                     Classes="mobile-muted"
+                     TextWrapping="Wrap"/>
+
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="MASTER PASSWORD"
+                         Classes="mobile-kicker"/>
+              <TextBox Text="{Binding MasterPassword, Mode=TwoWay}"
+                       PasswordChar="*"
+                       PlaceholderText="Master password"/>
+              <TextBox Text="{Binding ConfirmMasterPassword, Mode=TwoWay}"
+                       PasswordChar="*"
+                       PlaceholderText="Confirm master password"/>
+              <TextBlock Text="{Binding Error}"
+                         Classes="mobile-error"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasError}"/>
+              <TextBlock Text="{Binding Status}"
+                         Classes="mobile-sensitive"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasStatus}"/>
+              <Button Content="Create Vault"
+                      Classes="mobile-primary"
+                      Command="{Binding SaveNewVaultCommand}"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Spacing="16"
+                    IsVisible="{Binding IsUnlockVisible}">
+          <TextBlock Text="{Binding PageTitle}"
+                     Classes="mobile-page-title"/>
+          <TextBlock Text="{Binding PageSubtitle}"
+                     Classes="mobile-muted"
+                     TextWrapping="Wrap"/>
+
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="MASTER PASSWORD"
+                         Classes="mobile-kicker"/>
+              <TextBox Text="{Binding MasterPassword, Mode=TwoWay}"
+                       PasswordChar="*"
+                       PlaceholderText="Master password"/>
+              <TextBlock Text="{Binding Error}"
+                         Classes="mobile-error"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasError}"/>
+              <TextBlock Text="{Binding Status}"
+                         Classes="mobile-sensitive"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasStatus}"/>
+              <Button Content="Unlock Vault"
+                      Classes="mobile-primary"
+                      Command="{Binding UnlockCommand}"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <StackPanel Spacing="14"
+                    IsVisible="{Binding IsMainVisible}">
+          <StackPanel Spacing="4">
+            <TextBlock Text="{Binding PageTitle}"
+                       Classes="mobile-page-title"/>
+            <TextBlock Text="{Binding PageSubtitle}"
+                       Classes="mobile-muted"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+
+          <StackPanel Spacing="10"
+                      IsVisible="{Binding ShowSearch}">
+            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PlaceholderText="{Binding SearchPlaceholder}"
+                     Classes="mobile-search"/>
+            <Button Content="{Binding CurrentSingularLabel, StringFormat=Add {0}}"
+                    Classes="mobile-primary"
+                    Command="{Binding StartAddCommand}"
+                    IsVisible="{Binding ShowAddAction}"/>
+          </StackPanel>
+
+          <ItemsControl ItemsSource="{Binding CurrentItems}"
+                        IsVisible="{Binding IsListVisible}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:MobileListItemViewModel">
+                <Button Classes="mobile-list-button"
+                        Command="{Binding DataContext.OpenDetailCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                        CommandParameter="{Binding}">
+                  <Border Classes="mobile-list-card">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="12">
+                      <StackPanel Spacing="5">
+                        <TextBlock Text="{Binding Title}"
+                                   FontSize="16"
+                                   FontWeight="SemiBold"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding Subtitle}"
+                                   Classes="mobile-muted"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding SensitiveHint}"
+                                   Classes="mobile-sensitive"
+                                   TextWrapping="Wrap"/>
+                      </StackPanel>
+
+                      <StackPanel Grid.Column="1"
+                                  Spacing="6"
+                                  HorizontalAlignment="Right">
+                        <Border Classes="mobile-badge">
+                          <TextBlock Text="{Binding Badge}"
+                                     FontSize="10"
+                                     FontWeight="Black"/>
+                        </Border>
+                        <TextBlock Text="{Binding Meta}"
+                                   Classes="mobile-meta"
+                                   TextAlignment="Right"/>
+                      </StackPanel>
+                    </Grid>
+                  </Border>
+                </Button>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Border Classes="mobile-card"
+                  IsVisible="{Binding ShowListEmptyState}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding EmptyStateTitle}"
+                         FontSize="16"
+                         FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding EmptyStateSubtitle}"
+                         Classes="mobile-muted"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="mobile-card"
+                  IsVisible="{Binding ShowUnsupportedAddNotice}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="MOBILE EDITING"
+                         Classes="mobile-kicker"/>
+              <TextBlock Text="Add and edit pages are disabled until the mobile detail flows are implemented. Existing encrypted records can be listed after unlock."
+                         Classes="mobile-muted"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Spacing="12"
+                      IsVisible="{Binding IsSettingsVisible}">
+            <Border Classes="mobile-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="MOBILE SECURITY"
+                           Classes="mobile-kicker"/>
+                <CheckBox Content="Lock when app goes to background"
+                          IsChecked="{Binding LockOnBackground, Mode=TwoWay}"/>
+                <CheckBox Content="Privacy screen where supported"
+                          IsChecked="{Binding EnablePrivacyScreen, Mode=TwoWay}"/>
+                <CheckBox Content="Warn before copying secrets"
+                          IsChecked="{Binding WarnBeforeCopy, Mode=TwoWay}"/>
+                <TextBlock Text="{Binding ClipboardSummary}"
+                           Classes="mobile-muted"
+                           TextWrapping="Wrap"/>
+                <TextBox Text="{Binding ClipboardClearSeconds, Mode=TwoWay}"
+                         Classes="mobile-search"
+                         PlaceholderText="Clipboard clear seconds"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="mobile-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="BIOMETRICS"
+                           Classes="mobile-kicker"/>
+                <CheckBox Content="Allow biometric unlock after master password setup"
+                          IsChecked="{Binding AllowBiometricUnlock, Mode=TwoWay}"/>
+                <TextBlock Text="{Binding BiometricSummary}"
+                           Classes="mobile-muted"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="mobile-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="VAULT STORAGE"
+                           Classes="mobile-kicker"/>
+                <TextBlock Text="{Binding VaultStoragePolicy.Summary}"
+                           Classes="mobile-muted"
+                           TextWrapping="Wrap"/>
+                <Button Content="Backup, Restore, Export"
+                        Classes="mobile-secondary"
+                        Command="{Binding OpenBackupFlowCommand}"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </StackPanel>
+
+        <StackPanel Spacing="14"
+                    IsVisible="{Binding IsDetailVisible}">
+          <TextBlock Text="{Binding PageTitle}"
+                     Classes="mobile-page-title"/>
+          <TextBlock Text="{Binding PageSubtitle}"
+                     Classes="mobile-muted"
+                     TextWrapping="Wrap"/>
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="{Binding SelectedItem.Badge}"
+                         Classes="mobile-kicker"/>
+              <TextBlock Text="{Binding SelectedItem.Meta}"
+                         FontSize="16"
+                         FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding SelectedItem.SensitiveHint}"
+                         Classes="mobile-sensitive"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+          <Button Content="Edit"
+                  Classes="mobile-primary"
+                  Command="{Binding StartEditCommand}"
+                  IsVisible="{Binding ShowEditAction}"/>
+        </StackPanel>
+
+        <StackPanel Spacing="14"
+                    IsVisible="{Binding IsEditVisible}">
+          <TextBlock Text="{Binding PageTitle}"
+                     Classes="mobile-page-title"/>
+          <TextBlock Text="{Binding PageSubtitle}"
+                     Classes="mobile-muted"
+                     TextWrapping="Wrap"/>
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="FIELDS"
+                         Classes="mobile-kicker"/>
+              <TextBox PlaceholderText="Title"
+                       Classes="mobile-search"/>
+              <TextBox PlaceholderText="Primary value"
+                       Classes="mobile-search"/>
+              <TextBox PlaceholderText="Notes"
+                       AcceptsReturn="True"
+                       MinHeight="120"
+                       Classes="mobile-search"/>
+            </StackPanel>
+          </Border>
+          <Button Content="Save"
+                  Classes="mobile-primary"
+                  Command="{Binding GoBackCommand}"/>
+        </StackPanel>
+
+        <StackPanel Spacing="14"
+                    IsVisible="{Binding IsBackupVisible}">
+          <TextBlock Text="{Binding PageTitle}"
+                     Classes="mobile-page-title"/>
+          <TextBlock Text="{Binding PageSubtitle}"
+                     Classes="mobile-muted"
+                     TextWrapping="Wrap"/>
+
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="ENCRYPTED BACKUP"
+                         Classes="mobile-kicker"/>
+              <TextBlock Text="Create or restore .skbx packages through the platform file picker. Backup passphrases are not recoverable."
+                         Classes="mobile-muted"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+
+          <Border Classes="mobile-card">
+            <StackPanel Spacing="10">
+              <TextBlock Text="PLAINTEXT EXPORT"
+                         Classes="mobile-kicker"/>
+              <TextBlock Text="Plaintext reports must use stronger confirmation and a clear post-export warning before sharing."
+                         Classes="mobile-sensitive"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+        </StackPanel>
+      </Grid>
+    </ScrollViewer>
+
+    <Border Grid.Row="2"
+            Background="{StaticResource SidebarBrush}"
+            BorderBrush="{StaticResource WindowOutlineBrush}"
+            BorderThickness="0,1,0,0"
+            Padding="8"
+            IsVisible="{Binding ShowBottomNavigation}">
+      <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Disabled">
+        <ItemsControl ItemsSource="{Binding Sections}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal"
+                          Spacing="8"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:MobileNavItem">
+              <Button Classes="mobile-nav-button"
+                      Classes.active="{Binding IsSelected}"
+                      Command="{Binding DataContext.SelectSectionCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                      CommandParameter="{Binding}">
+                <StackPanel Spacing="2"
+                            HorizontalAlignment="Center">
+                  <TextBlock Text="{Binding Glyph}"
+                             FontSize="10"
+                             FontWeight="Black"
+                             HorizontalAlignment="Center"/>
+                  <TextBlock Text="{Binding ShortTitle}"
+                             FontSize="10"
+                             FontWeight="SemiBold"
+                             TextAlignment="Center"/>
+                </StackPanel>
+              </Button>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Border>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="TextBlock.mobile-page-title">
+      <Setter Property="FontSize" Value="28"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="TextBlock.mobile-muted">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+    </Style>
+
+    <Style Selector="TextBlock.mobile-meta">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+    <Style Selector="TextBlock.mobile-sensitive">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBlock.mobile-error">
+      <Setter Property="Foreground" Value="#ffb4ab"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBlock.mobile-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2"/>
+    </Style>
+
+    <Style Selector="Border.mobile-hero-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="18"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="Border.mobile-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <Style Selector="Border.mobile-list-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="14"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+
+    <Style Selector="Border.mobile-badge">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Padding" Value="8,4"/>
+    </Style>
+
+    <Style Selector="Button.mobile-list-button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="Button.mobile-primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="MinHeight" Value="46"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.mobile-secondary">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="MinHeight" Value="46"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.mobile-icon-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="MinHeight" Value="34"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.mobile-nav-button">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="MinWidth" Value="64"/>
+      <Setter Property="MinHeight" Value="48"/>
+      <Setter Property="Padding" Value="10,6"/>
+    </Style>
+
+    <Style Selector="Button.mobile-nav-button.active">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.mobile-search">
+      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="MinHeight" Value="44"/>
+      <Setter Property="Padding" Value="14,10"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

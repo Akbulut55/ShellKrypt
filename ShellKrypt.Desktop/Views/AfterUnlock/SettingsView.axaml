@@ -8,7 +8,7 @@
              x:DataType="vm:SettingsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto"
                   BringIntoViewOnFocusChange="False"
                   ScrollChanged="OnSettingsScrollChanged">
@@ -20,7 +20,7 @@
                      FontSize="30"
                      FontWeight="SemiBold"
                      LetterSpacing="-0.6"/>
-          <TextBlock Text="Manage security protocols and system preferences."
+          <TextBlock Text="Manage vault security, import/export, and desktop behavior."
                      Classes="page-subtitle"/>
         </StackPanel>
 

@@ -1,12 +1,12 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
-             xmlns:services="using:ShellKrypt.Desktop.Services"
+             xmlns:markdown="using:ShellKrypt.Application.Markdown"
              x:Class="ShellKrypt.Desktop.Views.MarkdownNotesView"
              x:CompileBindings="False"
              x:DataType="vm:MarkdownNotesViewModel">
     <Grid Background="{StaticResource AppBackgroundBrush}">
-    <Grid ColumnDefinitions="380,*">
+    <Grid ColumnDefinitions="320,*">
       <Border Background="{StaticResource SidebarBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,1,0">
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Padding="20,26,20,18">
@@ -15,10 +15,6 @@
                          FontSize="28"
                          FontWeight="SemiBold"
                          LetterSpacing="-0.8"/>
-              <TextBlock Text="Manage your encrypted markdown notes."
-                         Classes="page-subtitle"
-                         FontSize="13"
-                         TextWrapping="Wrap"/>
               <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        Classes="notesPanelSearch"
                        PlaceholderText="Search notes..."
@@ -150,7 +146,7 @@
 
                       <ItemsControl ItemsSource="{Binding PreviewBlocks}" IsVisible="{Binding HasPreviewContent}">
                         <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="services:MarkdownBlock">
+                          <DataTemplate x:DataType="markdown:MarkdownBlock">
                             <StackPanel Margin="0,0,0,18">
                               <TextBlock Text="{Binding Text}" Classes="notesMarkdownH1" IsVisible="{Binding IsHeading1}" TextWrapping="Wrap"/>
                               <TextBlock Text="{Binding Text}" Classes="notesMarkdownH2" IsVisible="{Binding IsHeading2}" TextWrapping="Wrap"/>
@@ -203,7 +199,7 @@
 
             <TextBlock Grid.Row="2"
                        Margin="0,12,0,0"
-                       Text="{Binding EditorStats}"
+                       Text="{Binding EditorStatusLine}"
                        Classes="notesFooterStatus"
                        VerticalAlignment="Bottom"/>
         </Grid>

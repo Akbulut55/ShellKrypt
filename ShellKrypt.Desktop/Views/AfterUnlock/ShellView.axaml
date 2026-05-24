@@ -6,81 +6,151 @@
              x:DataType="vm:ShellViewModel">
 
   <Grid Background="{StaticResource AppBackgroundBrush}"
-        ColumnDefinitions="272,*">
+        ColumnDefinitions="Auto,*">
     <Border Background="{StaticResource SidebarBrush}"
             BorderBrush="{StaticResource WindowOutlineBrush}"
             BorderThickness="0,0,1,0"
-            Padding="20,24,20,20">
+            Width="{Binding SidebarWidth}"
+            Padding="12,22,12,18">
       <Grid RowDefinitions="Auto,*,Auto">
-        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-          <Border Width="40"
-                  Height="40"
-                  CornerRadius="10"
-                  Background="{StaticResource SurfaceElevatedBrush}">
-            <TextBlock Text="SK"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       FontSize="12"
-                       FontWeight="Black"
-                       Foreground="{StaticResource AccentBrush}"/>
-          </Border>
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="10"
+              IsVisible="{Binding IsSidebarExpanded}">
+          <TextBlock Text="ShellKrypt"
+                     FontSize="18"
+                     FontWeight="Black"
+                     Foreground="{StaticResource AccentBrush}"
+                     VerticalAlignment="Center"/>
 
-          <StackPanel Grid.Column="1" Spacing="3" VerticalAlignment="Center">
-            <TextBlock Text="ShellKrypt"
-                       FontSize="20"
-                       FontWeight="Black"
-                       Foreground="{StaticResource AccentBrush}"/>
-            <TextBlock Text="Local encrypted vault"
-                       FontSize="12"
-                       Foreground="{StaticResource TextMutedBrush}"/>
-          </StackPanel>
+          <Button Grid.Column="1"
+                  Classes="shell-sidebar-toggle"
+                  Command="{Binding ToggleSidebarCommand}"
+                  ToolTip.Tip="{Binding SidebarToggleToolTip}">
+            <Grid Classes="shell-sidebar-icon"
+                  Width="15"
+                  Height="14">
+              <Border BorderBrush="{StaticResource AccentBrush}"
+                      BorderThickness="1"
+                      CornerRadius="3"/>
+              <Border Width="1"
+                      Margin="5,3,0,3"
+                      HorizontalAlignment="Left"
+                      Background="{StaticResource AccentBrush}"/>
+            </Grid>
+          </Button>
         </Grid>
 
-        <StackPanel Grid.Row="1"
-                    Margin="0,22,0,0"
-                    Spacing="12">
+        <Button Classes="shell-collapsed-logo-button"
+                Command="{Binding ToggleSidebarCommand}"
+                HorizontalAlignment="Center"
+                IsVisible="{Binding IsSidebarCollapsed}"
+                ToolTip.Tip="{Binding SidebarToggleToolTip}">
+          <Grid>
+            <TextBlock Text="SK"
+                       Classes="shell-collapsed-logo-mark"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="11"
+                       FontWeight="Black"
+                       Foreground="{StaticResource AccentBrush}"/>
+            <Grid Classes="shell-collapsed-open-icon shell-sidebar-icon"
+                  Width="15"
+                  Height="14"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center">
+              <Border BorderBrush="{StaticResource AccentBrush}"
+                      BorderThickness="1"
+                      CornerRadius="3"/>
+              <Border Width="1"
+                      Margin="5,3,0,3"
+                      HorizontalAlignment="Left"
+                      Background="{StaticResource AccentBrush}"/>
+            </Grid>
+          </Grid>
+        </Button>
+
+        <Grid Grid.Row="1"
+              RowDefinitions="Auto,*"
+              Margin="0,18,0,12">
           <TextBlock Text="SECTIONS"
                      FontSize="11"
                      FontWeight="Black"
                      LetterSpacing="2.4"
-                     Foreground="{StaticResource TextMutedBrush}"/>
+                     Foreground="{StaticResource TextMutedBrush}"
+                     IsVisible="{Binding IsSidebarExpanded}"/>
 
-          <ItemsControl ItemsSource="{Binding NavItems}"
-                        HorizontalAlignment="Stretch">
-            <ItemsControl.ItemTemplate>
-              <DataTemplate x:DataType="vm:NavItemVm">
-                <Button Classes="shell-nav-button"
-                        Command="{Binding #Root.DataContext.SelectSectionCommand}"
-                        CommandParameter="{Binding}">
-                  <Border Classes="shell-nav-item"
-                          Classes.active="{Binding IsSelected}">
-                    <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
-                      <Border Width="28"
-                              Height="28"
-                              CornerRadius="8"
-                              Background="{StaticResource SurfaceElevatedBrush}">
-                        <TextBlock Text="{Binding ShortCode}"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   FontSize="9"
-                                   FontWeight="Black"
-                                   Foreground="{StaticResource AccentBrush}"/>
+          <ScrollViewer Grid.Row="1"
+                        Margin="0,12,0,0"
+                        HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
+            <Grid>
+              <ItemsControl ItemsSource="{Binding NavItems}"
+                            HorizontalAlignment="Stretch"
+                            IsVisible="{Binding IsSidebarExpanded}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:NavItemVm">
+                    <Button Classes="shell-nav-button"
+                            Command="{Binding #Root.DataContext.SelectSectionCommand}"
+                            CommandParameter="{Binding}">
+                      <Border Classes="shell-nav-item"
+                              Classes.active="{Binding IsSelected}">
+                        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="12">
+                          <Border Width="28"
+                                  Height="28"
+                                  CornerRadius="8"
+                                  Background="{StaticResource SurfaceElevatedBrush}">
+                            <TextBlock Text="{Binding ShortCode}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       FontSize="9"
+                                       FontWeight="Black"
+                                       Foreground="{StaticResource AccentBrush}"/>
+                          </Border>
+
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding Title}"
+                                     FontSize="14"
+                                     FontWeight="SemiBold"
+                                     VerticalAlignment="Center"/>
+                        </Grid>
                       </Border>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
 
-                      <TextBlock Grid.Column="1"
-                                 Text="{Binding Title}"
-                                 FontSize="14"
-                                 FontWeight="SemiBold"
-                                 VerticalAlignment="Center"/>
-                    </Grid>
-                  </Border>
-                </Button>
-              </DataTemplate>
-            </ItemsControl.ItemTemplate>
-          </ItemsControl>
-        </StackPanel>
+              <ItemsControl ItemsSource="{Binding NavItems}"
+                            HorizontalAlignment="Stretch"
+                            IsVisible="{Binding IsSidebarCollapsed}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:NavItemVm">
+                    <Button Classes="shell-nav-button collapsed"
+                            Command="{Binding #Root.DataContext.SelectSectionCommand}"
+                            CommandParameter="{Binding}"
+                            ToolTip.Tip="{Binding Title}">
+                      <Border Classes="shell-nav-item collapsed"
+                              Classes.active="{Binding IsSelected}">
+                        <Border Width="30"
+                                Height="30"
+                                CornerRadius="8"
+                                Background="{StaticResource SurfaceElevatedBrush}">
+                          <TextBlock Text="{Binding ShortCode}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     FontSize="9"
+                                     FontWeight="Black"
+                                     Foreground="{StaticResource AccentBrush}"/>
+                        </Border>
+                      </Border>
+                    </Button>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </Grid>
+          </ScrollViewer>
+        </Grid>
 
-        <StackPanel Grid.Row="2" Spacing="14">
+        <StackPanel Grid.Row="2" Spacing="14" IsVisible="{Binding IsSidebarExpanded}">
           <Button Content="Lock Vault"
                   Classes="primary"
                   HorizontalAlignment="Stretch"
@@ -120,6 +190,26 @@
             </Grid>
           </Border>
         </StackPanel>
+
+        <StackPanel Grid.Row="2"
+                    Spacing="12"
+                    HorizontalAlignment="Center"
+                    IsVisible="{Binding IsSidebarCollapsed}">
+          <Button Content="L"
+                  Classes="primary shell-lock-collapsed"
+                  Command="{Binding LockCommand}"
+                  ToolTip.Tip="Lock Vault"/>
+
+          <Border Classes="shell-vault-profile-card collapsed"
+                  ToolTip.Tip="{Binding VaultName}">
+            <TextBlock Text="{Binding VaultMonogram}"
+                       HorizontalAlignment="Center"
+                       VerticalAlignment="Center"
+                       FontSize="11"
+                       FontWeight="Black"
+                       Foreground="{StaticResource AccentBrush}"/>
+          </Border>
+        </StackPanel>
       </Grid>
     </Border>
 
@@ -143,6 +233,11 @@
       <Setter Property="MinHeight" Value="0"/>
     </Style>
 
+    <Style Selector="Button.shell-nav-button.collapsed">
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+
     <Style Selector="Button.shell-nav-button:pointerover">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
@@ -158,7 +253,12 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="12,10"/>
+      <Setter Property="Padding" Value="10,9"/>
+    </Style>
+
+    <Style Selector="Border.shell-nav-item.collapsed">
+      <Setter Property="Padding" Value="8"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.shell-nav-button:pointerover Border.shell-nav-item">
@@ -182,6 +282,75 @@
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
       <Setter Property="Padding" Value="12,10"/>
+    </Style>
+
+    <Style Selector="Border.shell-vault-profile-card.collapsed">
+      <Setter Property="Width" Value="44"/>
+      <Setter Property="Height" Value="44"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.shell-sidebar-toggle">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Width" Value="28"/>
+      <Setter Property="Height" Value="28"/>
+      <Setter Property="MinWidth" Value="28"/>
+      <Setter Property="MinHeight" Value="28"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.shell-sidebar-toggle:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Grid.shell-collapsed-open-icon">
+      <Setter Property="Opacity" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.shell-collapsed-logo-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Width" Value="40"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinWidth" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.shell-collapsed-logo-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.shell-collapsed-logo-button:pointerover TextBlock.shell-collapsed-logo-mark">
+      <Setter Property="Opacity" Value="0"/>
+    </Style>
+
+    <Style Selector="Button.shell-collapsed-logo-button:pointerover Grid.shell-collapsed-open-icon">
+      <Setter Property="Opacity" Value="1"/>
+    </Style>
+
+    <Style Selector="Button.shell-lock-collapsed">
+      <Setter Property="Width" Value="44"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="MinWidth" Value="44"/>
+      <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="TextBlock.shell-vault-profile-kicker">

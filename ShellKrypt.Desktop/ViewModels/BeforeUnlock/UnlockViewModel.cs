@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.Services;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
@@ -13,7 +13,7 @@ public partial class UnlockViewModel : ViewModelBase
     private const string DefaultUnlockDescription = "You are opening this local encrypted vault. Enter the master password to decrypt it on this device.";
     private readonly MainWindowViewModel _root;
     private readonly IVaultService _vaultService;
-    private readonly VaultRegistryStore _vaultRegistry;
+    private readonly VaultRegistryService _vaultRegistry;
 
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private bool showPassword;
@@ -50,7 +50,7 @@ public partial class UnlockViewModel : ViewModelBase
     public string RecoveryBody => "If this vault is still unlocked on this device, open Settings and change the master password or export an encrypted backup before locking it again.";
     public string RecoverySecondaryBody => "If the vault is already locked and no backup exists, the encrypted contents cannot be recovered by design.";
 
-    public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryStore vaultRegistry)
+    public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryService vaultRegistry)
     {
         _root = root;
         _vaultService = vaultService;

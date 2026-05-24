@@ -7,8 +7,10 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.Sqlite;
+using ShellKrypt.Application.Settings;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -61,7 +63,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     private readonly ShellViewModel _shell;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
     private readonly IVaultService _vaultService = new SqliteVaultService();
-    private readonly VaultRegistryStore _vaultRegistry = new();
+    private readonly VaultRegistryService _vaultRegistry;
 
     [ObservableProperty] private bool autoLockEnabled;
     [ObservableProperty] private AutoLockDurationOption? selectedAutoLockDuration;
@@ -159,10 +161,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
 
-    public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell)
+    public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell, VaultRegistryService vaultRegistry)
     {
         _root = root;
         _shell = shell;
+        _vaultRegistry = vaultRegistry;
         CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
         LoadFromRootSettings();
         SelectedLanguageOption = LanguageOptions[0];

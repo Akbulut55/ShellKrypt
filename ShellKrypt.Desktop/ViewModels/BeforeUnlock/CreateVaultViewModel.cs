@@ -5,8 +5,9 @@ using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Infrastructure.Services;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -14,7 +15,7 @@ public partial class CreateVaultViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
     private readonly IVaultService _vaultService;
-    private readonly VaultRegistryStore _vaultRegistry;
+    private readonly VaultRegistryService _vaultRegistry;
 
     [ObservableProperty] private string displayName = "MyVault";
     [ObservableProperty] private string description = "";
@@ -37,7 +38,7 @@ public partial class CreateVaultViewModel : ViewModelBase
     private bool _hasCustomVaultPath;
     private bool _isUpdatingSuggestedPath;
 
-    public CreateVaultViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryStore vaultRegistry)
+    public CreateVaultViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryService vaultRegistry)
     {
         _root = root;
         _vaultService = vaultService;

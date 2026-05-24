@@ -6,7 +6,7 @@
              x:DataType="vm:AllItemsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="28,24,28,28"
                   MaxWidth="1500"
@@ -87,10 +87,10 @@
         </Grid>
 
         <Border Classes="allitems-filter-shell">
-          <Grid ColumnDefinitions="320,*"
-                ColumnSpacing="10"
-                VerticalAlignment="Center">
-            <Border Classes="allitems-search-shell">
+          <WrapPanel Orientation="Horizontal"
+                     VerticalAlignment="Center">
+            <Border Classes="allitems-search-shell"
+                    VerticalAlignment="Center">
               <Grid ColumnDefinitions="Auto,*"
                     ColumnSpacing="10">
                 <TextBlock Text="⌕"
@@ -103,39 +103,44 @@
               </Grid>
             </Border>
 
-            <StackPanel Grid.Column="1"
-                        Orientation="Horizontal"
-                        Spacing="8"
-                        HorizontalAlignment="Right">
+            <WrapPanel Orientation="Horizontal"
+                       VerticalAlignment="Center">
               <Button Content="{Binding TotalCount, StringFormat=All ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsAllTypeActive}"
                       Command="{Binding ShowAllCommand}"/>
               <Button Content="{Binding WebCount, StringFormat=Logins ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsWebTypeActive}"
                       Command="{Binding ShowWebTypesCommand}"/>
               <Button Content="{Binding CardCount, StringFormat=Cards ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsCardTypeActive}"
                       Command="{Binding ShowCardTypesCommand}"/>
               <Button Content="{Binding AuthenticatorCount, StringFormat=Authenticator ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsAuthenticatorTypeActive}"
                       Command="{Binding ShowAuthenticatorTypesCommand}"/>
               <Button Content="{Binding ApiKeyCount, StringFormat=API Keys ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsApiKeyTypeActive}"
                       Command="{Binding ShowApiKeyTypesCommand}"/>
               <Button Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
                       Classes="allitems-chip"
+                      VerticalAlignment="Center"
                       Classes.active="{Binding IsNoteTypeActive}"
                       Command="{Binding ShowNoteTypesCommand}"/>
-            </StackPanel>
-          </Grid>
+            </WrapPanel>
+          </WrapPanel>
         </Border>
 
-        <Border Classes="table-shell">
+        <Border Classes="table-shell"
+                MinWidth="900">
           <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
@@ -301,6 +306,8 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Padding" Value="14,0"/>
       <Setter Property="MinWidth" Value="320"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
     </Style>
 
     <Style Selector="TextBox.allitems-top-search">
@@ -420,6 +427,10 @@
       <Setter Property="MinHeight" Value="0"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Margin" Value="0,0,8,12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.allitems-chip.active">

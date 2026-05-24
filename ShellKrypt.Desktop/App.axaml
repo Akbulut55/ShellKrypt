@@ -2,11 +2,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ShellKrypt.Desktop.App"
              xmlns:local="using:ShellKrypt.Desktop"
-             xmlns:services="using:ShellKrypt.Desktop.Services"
+             xmlns:converters="using:ShellKrypt.UI.Shared.Converters"
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
-        <services:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
+        <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
         <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0e0e0e"/>
         <SolidColorBrush x:Key="SurfaceBrush" Color="#201f1f"/>

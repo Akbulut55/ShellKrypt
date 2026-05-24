@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.Sqlite;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -17,7 +18,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 {
     private const int VaultPageSize = 3;
     private readonly MainWindowViewModel _root;
-    private readonly VaultRegistryStore _vaultRegistry;
+    private readonly VaultRegistryService _vaultRegistry;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly List<VaultRecordVm> _allVaults = new();
     private int _filteredVaultCount;
@@ -41,7 +42,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private bool isRemoveOverlayOpen;
     [ObservableProperty] private VaultRecordVm? removeTarget;
 
-    public WelcomeViewModel(MainWindowViewModel root, VaultRegistryStore vaultRegistry)
+    public WelcomeViewModel(MainWindowViewModel root, VaultRegistryService vaultRegistry)
     {
         _root = root;
         _vaultRegistry = vaultRegistry;

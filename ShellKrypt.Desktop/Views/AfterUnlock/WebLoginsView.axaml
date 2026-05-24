@@ -6,89 +6,89 @@
              x:DataType="vm:WebLoginsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="32"
                   MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="22">
-      <Grid Margin="0,10,0,8">
-        <StackPanel Spacing="9">
-          <TextBlock Text="Web Logins"
-                     FontSize="28"
-                     FontWeight="SemiBold"
-                     LetterSpacing="-0.8"/>
-          <TextBlock Text="Manage your secure credentials for web platforms."
-                     Classes="page-subtitle"
-                     FontSize="13"/>
+        <TextBlock Text="Web Logins"
+                   Margin="0,10,0,-4"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   LetterSpacing="-0.8"/>
 
-          <Grid ColumnDefinitions="440,Auto,*,Auto"
-                ColumnSpacing="12"
-                Margin="0,10,0,0"
-                HorizontalAlignment="Stretch">
+        <Grid ColumnDefinitions="*,*,*"
+              ColumnSpacing="18">
+          <Border Classes="web-stat">
+            <StackPanel Spacing="8">
+              <TextBlock Text="TOTAL LOGINS"
+                         Classes="web-kicker"/>
+              <TextBlock Text="{Binding TotalLoginsCount}"
+                         FontSize="24"
+                         FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding TotalLoginsSummary}"
+                         Classes="web-accent-note"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="1"
+                  Classes="web-stat">
+            <StackPanel Spacing="8">
+              <TextBlock Text="REUSED PASSWORDS"
+                         Classes="web-kicker"/>
+              <TextBlock Text="{Binding ReusedPasswordCount}"
+                         FontSize="24"
+                         FontWeight="SemiBold"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <TextBlock Text="{Binding ReusedPasswordSummary}"
+                         Classes="web-muted-note"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="2"
+                  Classes="web-stat">
+            <StackPanel Spacing="8">
+              <TextBlock Text="WEAK PASSWORDS"
+                         Classes="web-kicker"/>
+              <TextBlock Text="{Binding WeakPasswordCount}"
+                         FontSize="24"
+                         FontWeight="SemiBold"
+                         Foreground="{StaticResource AccentBrush}"/>
+              <TextBlock Text="{Binding WeakPasswordSummary}"
+                         Classes="web-muted-note"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <Border Classes="web-filter-shell">
+          <WrapPanel Orientation="Horizontal"
+                     VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="web-search"
-                     PlaceholderText="Search logins..."/>
-            <Grid Grid.Column="1">
-              <Button x:Name="EmailFilterButton"
-                      Content="{Binding EmailFilterButtonText}"
-                      Classes="web-filter-button"
-                      Command="{Binding ToggleEmailFilterCommand}"/>
-
-              <Popup IsOpen="{Binding IsEmailFilterPopupOpen, Mode=TwoWay}"
-                     PlacementTarget="{Binding #EmailFilterButton}"
-                     Placement="BottomEdgeAlignedLeft"
-                     VerticalOffset="8"
-                     IsLightDismissEnabled="True">
-                <Border Classes="web-email-filter-popup"
-                        Width="300">
-                  <StackPanel Spacing="10">
-                    <StackPanel Spacing="3">
-                      <TextBlock Text="FILTER BY EMAIL"
-                                 Classes="web-modal-label"/>
-                      <TextBlock Text="{Binding EmailFilterSummary}"
-                                 Classes="web-footer-text"
-                                 TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <Button Content="All emails"
-                            Classes="web-email-filter-option"
-                            Command="{Binding ClearEmailFilterCommand}"/>
-
-                    <TextBlock Text="No saved emails yet."
-                               Classes="web-footer-text"
-                               IsVisible="{Binding !HasEmailFilterOptions}"/>
-
-                    <ScrollViewer MaxHeight="320"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  VerticalScrollBarVisibility="Auto"
-                                  IsVisible="{Binding HasEmailFilterOptions}">
-                      <ItemsControl ItemsSource="{Binding EmailFilterOptions}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:EmailFilterOptionVm">
-                            <Button Classes="web-email-filter-option"
-                                    Command="{Binding SelectCommand}"
-                                    CommandParameter="{Binding Email}">
-                              <TextBlock Text="{Binding Email}"
-                                         TextTrimming="CharacterEllipsis"/>
-                            </Button>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
-                    </ScrollViewer>
-                  </StackPanel>
-                </Border>
-              </Popup>
-            </Grid>
-            <Button Grid.Column="3"
-                    Content="+ Add Website Login"
+                     PlaceholderText="Search by title or website..."
+                     VerticalAlignment="Center"/>
+            <ComboBox Classes="web-select"
+                      ItemsSource="{Binding UsernameFilters}"
+                      SelectedItem="{Binding SelectedUsernameFilterChoice, Mode=TwoWay}"
+                      VerticalAlignment="Center"/>
+            <ComboBox Classes="web-select"
+                      ItemsSource="{Binding EmailFilters}"
+                      SelectedItem="{Binding SelectedEmailFilterChoice, Mode=TwoWay}"
+                      VerticalAlignment="Center"/>
+            <ComboBox Classes="web-select"
+                      ItemsSource="{Binding SortOptions}"
+                      SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
+                      VerticalAlignment="Center"/>
+            <Button Content="+ Add Website Login"
                     Classes="web-add-login-button"
-                    Command="{Binding AddNewCommand}"/>
-          </Grid>
-        </StackPanel>
-      </Grid>
+                    Command="{Binding AddNewCommand}"
+                    VerticalAlignment="Center"/>
+          </WrapPanel>
+        </Border>
 
       <Border Classes="table-shell"
+              MinWidth="980"
               ClipToBounds="True">
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Classes="table-header-row">
@@ -237,30 +237,6 @@
         </Grid>
       </Border>
 
-      <Border Classes="web-bento-card"
-              MinHeight="112"
-              Padding="24,20">
-        <Grid ColumnDefinitions="*,Auto"
-              ColumnSpacing="24">
-          <StackPanel Spacing="8"
-                      MaxWidth="860"
-                      VerticalAlignment="Center">
-            <TextBlock Text="Password Health Check"
-                       FontSize="18"
-                       FontWeight="Bold"/>
-            <TextBlock Text="We found 2 reused passwords and 1 weak password. Update risky entries with generated high-entropy strings."
-                       Classes="page-subtitle"
-                       FontSize="13"
-                       LineHeight="19"
-                       TextWrapping="Wrap"/>
-          </StackPanel>
-
-          <Button Grid.Column="1"
-                  Content="START AUDIT ->"
-                  Classes="web-link-action"
-                  VerticalAlignment="Center"/>
-        </Grid>
-      </Border>
       </StackPanel>
     </ScrollViewer>
 
@@ -270,7 +246,7 @@
             VerticalAlignment="Stretch">
       <Grid>
         <Border Classes="web-modal-card"
-                Width="720"
+                Width="640"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Padding="28">
@@ -460,6 +436,18 @@
       <Setter Property="CornerRadius" Value="999"/>
     </Style>
 
+    <Style Selector="Border.web-stat">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="24,20"/>
+      <Setter Property="MinHeight" Value="112"/>
+    </Style>
+
+    <Style Selector="Border.web-filter-shell">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="CornerRadius" Value="0"/>
+    </Style>
+
     <Style Selector="TextBox.web-search">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -469,58 +457,26 @@
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="MinWidth" Value="0"/>
+      <Setter Property="Width" Value="360"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
       <Setter Property="Padding" Value="14,8"/>
     </Style>
 
-    <Style Selector="Button.web-filter-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Style Selector="ComboBox.web-select">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Width" Value="140"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-filter-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Border.web-email-filter-popup">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14"/>
-    </Style>
-
-    <Style Selector="Button.web-email-filter-option">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="7"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="MaxWidth" Value="272"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
       <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-email-filter-option:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Button.web-add-login-button">
@@ -531,8 +487,10 @@
       <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Width" Value="164"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Margin" Value="0,0,0,12"/>
       <Setter Property="Padding" Value="20,0"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -541,13 +499,6 @@
     <Style Selector="Button.web-add-login-button:pointerover">
       <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
-
-    <Style Selector="Border.web-bento-card">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
     <Style Selector="Border.web-modal-card">
@@ -704,9 +655,20 @@
     </Style>
 
     <Style Selector="TextBlock.web-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-accent-note">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBlock.web-muted-note">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
     </Style>
 
     <Style Selector="TextBlock.web-row-muted">
@@ -752,19 +714,5 @@
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
-    <Style Selector="Button.web-link-action">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="14"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="3"/>
-      <Setter Property="Height" Value="44"/>
-      <Setter Property="MinHeight" Value="44"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
   </UserControl.Styles>
 </UserControl>

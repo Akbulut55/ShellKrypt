@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Application.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
 

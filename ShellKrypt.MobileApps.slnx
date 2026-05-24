@@ -1,0 +1,9 @@
+<Solution>
+  <Project Path="ShellKrypt.Application/ShellKrypt.Application.csproj" />
+  <Project Path="ShellKrypt.Core/ShellKrypt.Core.csproj" />
+  <Project Path="ShellKrypt.Infrastructure/ShellKrypt.Infrastructure.csproj" />
+  <Project Path="ShellKrypt.UI.Shared/ShellKrypt.UI.Shared.csproj" />
+  <Project Path="ShellKrypt.Mobile/ShellKrypt.Mobile.csproj" />
+  <Project Path="ShellKrypt.Mobile.Android/ShellKrypt.Mobile.Android.csproj" />
+  <Project Path="ShellKrypt.Mobile.iOS/ShellKrypt.Mobile.iOS.csproj" />
+</Solution>

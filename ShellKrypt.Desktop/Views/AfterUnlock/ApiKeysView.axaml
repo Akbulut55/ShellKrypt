@@ -6,26 +6,18 @@
              x:DataType="vm:ApiKeysViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="32"
                   MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="22">
 
-        <Grid Margin="0,10,0,8"
-              ColumnDefinitions="*,Auto"
-              ColumnSpacing="24">
-          <StackPanel Spacing="9">
-            <TextBlock Text="API Keys"
-                       FontSize="28"
-                       FontWeight="SemiBold"
-                       LetterSpacing="-0.8"/>
-            <TextBlock Text="Store API tokens, client secrets, project identifiers, and provider-specific fields."
-                       Classes="page-subtitle"
-                       FontSize="13"/>
-          </StackPanel>
-        </Grid>
+        <TextBlock Text="API Keys"
+                   Margin="0,10,0,-4"
+                   FontSize="28"
+                   FontWeight="SemiBold"
+                   LetterSpacing="-0.8"/>
 
         <Grid ColumnDefinitions="*,*,*"
               ColumnSpacing="18">
@@ -70,32 +62,33 @@
         </Grid>
 
         <Border Classes="api-filter-shell">
-          <Grid ColumnDefinitions="*,Auto,Auto,Auto"
-                ColumnSpacing="12">
+          <WrapPanel Orientation="Horizontal"
+                     VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="api-search"
                      PlaceholderText="Search by name, provider, field, or environment..."
-                     HorizontalAlignment="Stretch"
                      VerticalAlignment="Center"/>
-            <ComboBox Grid.Column="1"
-                      Classes="api-select"
+            <ComboBox Classes="api-select"
+                      ItemsSource="{Binding EnvironmentFilters}"
+                      SelectedItem="{Binding SelectedEnvironmentFilter, Mode=TwoWay}"
+                      VerticalAlignment="Center"/>
+            <ComboBox Classes="api-select"
                       ItemsSource="{Binding ProviderFilters}"
                       SelectedItem="{Binding SelectedProviderFilter, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <ComboBox Grid.Column="2"
-                      Classes="api-select"
+            <ComboBox Classes="api-select"
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Grid.Column="3"
-                    Content="+ Add API Key"
+            <Button Content="+ Add API Key"
                     Classes="api-add-button"
                     Command="{Binding AddNewCommand}"
                     VerticalAlignment="Center"/>
-          </Grid>
+          </WrapPanel>
         </Border>
 
         <Border Classes="table-shell"
+                MinWidth="1080"
                 ClipToBounds="True">
           <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
@@ -270,7 +263,7 @@
             VerticalAlignment="Stretch">
       <Grid>
         <Border Classes="api-modal-card"
-                Width="880"
+                Width="640"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 Padding="28">
@@ -345,41 +338,48 @@
 
                 <Border Classes="api-fields-shell">
                   <ScrollViewer MaxHeight="300"
-                                HorizontalScrollBarVisibility="Disabled"
+                                HorizontalScrollBarVisibility="Auto"
                                 VerticalScrollBarVisibility="Auto">
                     <ItemsControl ItemsSource="{Binding FormFields}">
                       <ItemsControl.ItemTemplate>
                         <DataTemplate x:DataType="vm:ApiKeyFieldRowVm">
-                          <Border Classes="api-field-row">
-                            <Grid ColumnDefinitions="1.15*,150,1.55*,Auto,Auto,Auto,Auto"
-                                  ColumnSpacing="10"
+                          <Border Classes="api-field-row"
+                                  MinWidth="760">
+                            <Grid ColumnDefinitions="1.15*,150,1.85*,Auto,Auto"
+                                  ColumnSpacing="12"
                                   VerticalAlignment="Center">
                               <TextBox Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        Classes="api-modal-input compact"
                                        IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                       PlaceholderText="Field label"/>
+                                       PlaceholderText="Field label"
+                                       VerticalAlignment="Center"/>
 
                               <ComboBox Grid.Column="1"
                                         Classes="api-modal-input compact"
                                         ItemsSource="{Binding DataContext.FieldTypeOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         SelectedItem="{Binding FieldType, Mode=TwoWay}"
-                                        IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                        IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        VerticalAlignment="Center"/>
 
                               <Border Grid.Column="2"
-                                      Classes="api-modal-input-shell">
+                                      Classes="api-modal-input-shell"
+                                      VerticalAlignment="Center">
                                 <Grid ColumnDefinitions="*,Auto"
-                                      ColumnSpacing="8">
+                                      ColumnSpacing="8"
+                                      VerticalAlignment="Center">
                                   <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                            Classes="api-modal-input borderless"
                                            IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                            PasswordChar="*"
                                            IsVisible="{Binding UseMaskedValueInput}"
-                                           PlaceholderText="Secret value"/>
+                                           PlaceholderText="Secret value"
+                                           VerticalAlignment="Center"/>
                                   <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                            Classes="api-modal-input borderless"
                                            IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                            IsVisible="{Binding UsePlainValueInput}"
-                                           PlaceholderText="Secret value"/>
+                                           PlaceholderText="Secret value"
+                                           VerticalAlignment="Center"/>
                                   <Button Grid.Column="1"
                                           Content="{Binding VisibilityLabel}"
                                           Classes="api-modal-field-action"
@@ -396,25 +396,13 @@
                                         IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                         VerticalAlignment="Center"/>
 
-                              <CheckBox Grid.Column="4"
-                                        Content="Copy"
-                                        Classes="api-check"
-                                        IsChecked="{Binding IsCopyable, Mode=TwoWay}"
-                                        IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        VerticalAlignment="Center"/>
-
-                              <Button Grid.Column="5"
-                                      Content="Copy"
-                                      Classes="api-modal-field-action"
-                                      Command="{Binding DataContext.CopyFieldCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding}"/>
-
-                              <Button Grid.Column="6"
+                              <Button Grid.Column="4"
                                       Content="X"
                                       Classes="api-modal-field-remove"
                                       Command="{Binding DataContext.RemoveFieldCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                       CommandParameter="{Binding}"
-                                      IsVisible="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"/>
+                                      IsVisible="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                      VerticalAlignment="Center"/>
                             </Grid>
                           </Border>
                         </DataTemplate>
@@ -543,6 +531,8 @@
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Width" Value="360"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
       <Setter Property="Padding" Value="14,8"/>
     </Style>
 
@@ -553,10 +543,13 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Width" Value="160"/>
+      <Setter Property="Width" Value="140"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Margin" Value="0,0,12,12"/>
       <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.api-add-button">
@@ -567,9 +560,10 @@
       <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="160"/>
+      <Setter Property="Width" Value="154"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
+      <Setter Property="Margin" Value="0,0,0,12"/>
       <Setter Property="Padding" Value="20,0"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>

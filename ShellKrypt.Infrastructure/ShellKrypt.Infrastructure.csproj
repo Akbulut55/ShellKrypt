@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ShellKrypt.Application\ShellKrypt.Application.csproj" />
     <ProjectReference Include="..\ShellKrypt.Core\ShellKrypt.Core.csproj" />
   </ItemGroup>
 

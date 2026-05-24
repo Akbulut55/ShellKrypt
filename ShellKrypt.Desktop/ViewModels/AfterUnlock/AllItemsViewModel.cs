@@ -3,12 +3,11 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Items;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Infrastructure.Crypto;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -214,20 +213,11 @@ internal enum AllItemsSortMode
 public sealed class AllItemsViewModel : ViewModelBase
 {
     private const int PageSize = 5;
-    private const int RecentWindowDays = 30;
 
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
-    private readonly IItemRepository _repo;
-    private readonly List<AllItemEntry> _allItems = new();
-    private readonly List<AllItemEntry> _filteredItems = new();
-    private readonly List<string> _webPasswords = new();
+    private readonly IVaultItemSummaryService _summaryService;
     private AllItemsSortMode _sortMode = AllItemsSortMode.UpdatedDescending;
-
-    private static readonly JsonSerializerOptions JsonOpts = new()
-    {
-        PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-    };
 
     private AllItemEntry? _selectedRow;
     private string _searchText = string.Empty;
@@ -248,11 +238,11 @@ public sealed class AllItemsViewModel : ViewModelBase
     private int _createdThisMonthCount;
     private int _currentPage = 1;
 
-    public AllItemsViewModel(MainWindowViewModel root, ShellViewModel shell, IItemRepository repo)
+    public AllItemsViewModel(MainWindowViewModel root, ShellViewModel shell, IVaultItemSummaryService summaryService)
     {
         _root = root;
         _shell = shell;
-        _repo = repo;
+        _summaryService = summaryService;
 
         Rows = new ObservableCollection<AllItemEntry>();
         PageChips = new ObservableCollection<PageChipVm>();
@@ -670,6 +660,21 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     private async Task LoadAsync(string? selectItemId = null)
     {
+        await LoadPageAsync(selectItemId, refreshCounts: true);
+    }
+
+    private void ApplyFilter()
+    {
+        _ = LoadPageAsync(SelectedRow?.Id, refreshCounts: true);
+    }
+
+    private void RefreshVisibleRows()
+    {
+        _ = LoadPageAsync(SelectedRow?.Id, refreshCounts: false);
+    }
+
+    private async Task LoadPageAsync(string? selectItemId, bool refreshCounts)
+    {
         Error = string.Empty;
 
         if (_root.VaultPath is null)
@@ -681,46 +686,58 @@ public sealed class AllItemsViewModel : ViewModelBase
         IsBusy = true;
         try
         {
-            _allItems.Clear();
-            _filteredItems.Clear();
-            _webPasswords.Clear();
+            var result = await _summaryService.ListAsync(
+                _root.VaultPath,
+                _root.VaultKey,
+                new ItemListQuery(
+                    SearchText,
+                    ActiveType,
+                    ActiveScope,
+                    SortModeToQueryValue(_sortMode),
+                    CurrentPage,
+                    PageSize));
+
             Rows.Clear();
-            PageChips.Clear();
+            foreach (var row in result.Page.Items.Select(ToEntry))
+                Rows.Add(row);
 
-            var rows = await _repo.ListAsync(_root.VaultPath, _root.VaultKey);
+            if (_currentPage != result.Page.Page)
+            {
+                _currentPage = result.Page.Page;
+                OnPropertyChanged(nameof(CurrentPage));
+            }
 
-            foreach (var row in rows)
-                _allItems.Add(BuildEntry(row));
+            FilteredCount = result.Page.TotalCount;
 
-            TotalCount = _allItems.Count;
-            WebCount = _allItems.Count(x => x.Type == ItemType.Web);
-            CardCount = _allItems.Count(x => x.Type == ItemType.Card);
-            NoteCount = _allItems.Count(x => x.Type == ItemType.Note);
-            AuthenticatorCount = _allItems.Count(x => x.Type == ItemType.Authenticator);
-            ApiKeyCount = _allItems.Count(x => x.Type == ItemType.ApiKey);
-            WeakPasswordCount = _webPasswords.Count(IsWeakPassword);
-            ReusedPasswordCount = CountReusedPasswords(_webPasswords);
-            ExpiringSoonCardCount = _allItems.Count(x => x.IsCardExpiryUrgent);
-            CreatedThisMonthCount = CountCreatedThisMonth(_allItems);
-
-            ApplyFilter();
+            if (refreshCounts)
+            {
+                TotalCount = result.Counts.Total;
+                WebCount = result.Counts.WebLogins;
+                CardCount = result.Counts.Cards;
+                NoteCount = result.Counts.Notes;
+                AuthenticatorCount = result.Counts.Authenticators;
+                ApiKeyCount = result.Counts.ApiKeys;
+                WeakPasswordCount = result.Counts.WeakPasswords;
+                ReusedPasswordCount = result.Counts.ReusedPasswords;
+                ExpiringSoonCardCount = result.Counts.ExpiringSoonCards;
+                CreatedThisMonthCount = result.Counts.CreatedThisMonth;
+            }
 
             if (!string.IsNullOrWhiteSpace(selectItemId))
-            {
-                SelectedRow = Rows.FirstOrDefault(x => x.Id == selectItemId)
-                              ?? _filteredItems.FirstOrDefault(x => x.Id == selectItemId)
-                              ?? Rows.FirstOrDefault();
-            }
+                SelectedRow = Rows.FirstOrDefault(x => x.Id == selectItemId) ?? Rows.FirstOrDefault();
             else if (SelectedRow is not null)
-            {
-                SelectedRow = Rows.FirstOrDefault(x => x.Id == SelectedRow.Id)
-                              ?? _filteredItems.FirstOrDefault(x => x.Id == SelectedRow.Id)
-                              ?? Rows.FirstOrDefault();
-            }
+                SelectedRow = Rows.FirstOrDefault(x => x.Id == SelectedRow.Id) ?? Rows.FirstOrDefault();
             else
-            {
                 SelectedRow = Rows.FirstOrDefault();
-            }
+
+            RefreshPageChips();
+            OnPropertyChanged(nameof(HasRows));
+            OnPropertyChanged(nameof(CanGoPrevious));
+            OnPropertyChanged(nameof(CanGoNext));
+            OnPropertyChanged(nameof(PageSummary));
+            OnPropertyChanged(nameof(FooterSummary));
+            OnPropertyChanged(nameof(EmptyStateTitle));
+            OnPropertyChanged(nameof(EmptyStateSubtitle));
         }
         catch (Exception ex)
         {
@@ -730,92 +747,6 @@ public sealed class AllItemsViewModel : ViewModelBase
         {
             IsBusy = false;
         }
-    }
-
-    private void ApplyFilter()
-    {
-        _filteredItems.Clear();
-
-        var query = SearchText?.Trim();
-        IEnumerable<AllItemEntry> filtered = _allItems;
-
-        filtered = ActiveScope switch
-        {
-            "favorites" => filtered.Where(x => x.Favorite),
-            "recent" => filtered.Where(x => x.IsRecent(RecentWindowDays)),
-            _ => filtered
-        };
-
-        filtered = ActiveType switch
-        {
-            "web" => filtered.Where(x => x.Type == ItemType.Web),
-            "card" => filtered.Where(x => x.Type == ItemType.Card),
-            "note" => filtered.Where(x => x.Type == ItemType.Note),
-            "authenticator" => filtered.Where(x => x.Type == ItemType.Authenticator),
-            "api" => filtered.Where(x => x.Type == ItemType.ApiKey),
-            _ => filtered
-        };
-
-        if (!string.IsNullOrWhiteSpace(query))
-            filtered = filtered.Where(x => x.SearchText.Contains(query, StringComparison.OrdinalIgnoreCase));
-
-        filtered = _sortMode switch
-        {
-            AllItemsSortMode.Alphabetical => filtered.OrderBy(x => x.Title, StringComparer.OrdinalIgnoreCase),
-            AllItemsSortMode.TypeThenTitle => filtered
-                .OrderBy(x => x.Type switch
-                {
-                    ItemType.Web => 0,
-                    ItemType.Card => 1,
-                    ItemType.Note => 2,
-                    ItemType.Authenticator => 3,
-                    ItemType.ApiKey => 4,
-                    _ => 99
-                })
-                .ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase),
-            _ => filtered.OrderByDescending(GetUpdatedSortValue).ThenBy(x => x.Title, StringComparer.OrdinalIgnoreCase)
-        };
-
-        foreach (var item in filtered)
-            _filteredItems.Add(item);
-
-        FilteredCount = _filteredItems.Count;
-
-        if (CurrentPage > TotalPages)
-            CurrentPage = TotalPages;
-        else
-            RefreshVisibleRows();
-
-        OnPropertyChanged(nameof(HasRows));
-        OnPropertyChanged(nameof(EmptyStateTitle));
-        OnPropertyChanged(nameof(EmptyStateSubtitle));
-    }
-
-    private void RefreshVisibleRows()
-    {
-        Rows.Clear();
-
-        var safePage = Math.Clamp(CurrentPage, 1, TotalPages);
-        if (safePage != CurrentPage)
-        {
-            _currentPage = safePage;
-            OnPropertyChanged(nameof(CurrentPage));
-        }
-
-        foreach (var row in _filteredItems.Skip((safePage - 1) * PageSize).Take(PageSize))
-            Rows.Add(row);
-
-        if (SelectedRow is not null && !Rows.Any(x => x.Id == SelectedRow.Id))
-            SelectedRow = Rows.FirstOrDefault();
-        else if (SelectedRow is null)
-            SelectedRow = Rows.FirstOrDefault();
-
-        RefreshPageChips();
-        OnPropertyChanged(nameof(HasRows));
-        OnPropertyChanged(nameof(CanGoPrevious));
-        OnPropertyChanged(nameof(CanGoNext));
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(FooterSummary));
     }
 
     private void RefreshPageChips()
@@ -836,196 +767,29 @@ public sealed class AllItemsViewModel : ViewModelBase
             PageChips.Add(new PageChipVm(page, page == CurrentPage));
     }
 
-    private AllItemEntry BuildEntry(VaultItemRow row)
-    {
-        var labels = row.Labels.Select(x => x.Name).ToArray();
+    private static AllItemEntry ToEntry(VaultItemSummary summary)
+        => new(
+            summary.Id,
+            summary.Type,
+            summary.Title,
+            summary.Subtitle,
+            summary.Identifier,
+            summary.Labels,
+            summary.SearchText,
+            summary.Favorite,
+            summary.CreatedAtUtc,
+            summary.UpdatedAtUtc,
+            summary.CopyValue,
+            summary.ExpiryMonth,
+            summary.ExpiryYear);
 
-        return row.Header.Type switch
+    private static string SortModeToQueryValue(AllItemsSortMode mode)
+        => mode switch
         {
-            ItemType.Web => BuildWebEntry(row, labels),
-            ItemType.Card => BuildCardEntry(row, labels),
-            ItemType.Note => BuildNoteEntry(row, labels),
-            ItemType.Authenticator => BuildAuthenticatorEntry(row, labels),
-            ItemType.ApiKey => BuildApiKeyEntry(row, labels),
-            _ => new AllItemEntry(
-                row.Header.Id,
-                row.Header.Type,
-                "Unknown item",
-                "Encrypted vault item",
-                "N/A",
-                labels,
-                string.Join(" ", labels),
-                row.Header.Favorite,
-                row.Header.CreatedAtUtc,
-                row.Header.UpdatedAtUtc,
-                string.Empty)
+            AllItemsSortMode.Alphabetical => ItemListSortModes.Alphabetical,
+            AllItemsSortMode.TypeThenTitle => ItemListSortModes.TypeThenTitle,
+            _ => ItemListSortModes.UpdatedDescending
         };
-    }
-
-    private AllItemEntry BuildWebEntry(VaultItemRow row, IReadOnlyList<string> labels)
-    {
-        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
-        var payload = JsonSerializer.Deserialize<WebPayload>(json, JsonOpts)
-            ?? new WebPayload("", "", "", "", "");
-
-        var title = FirstNonEmpty(payload.Title, payload.Url, payload.Username, "Untitled login");
-        var subtitle = FirstNonEmpty(payload.Url, "Encrypted login");
-        var identifier = FirstNonEmpty(payload.Username, "N/A");
-        var copyValue = FirstNonEmpty(payload.Username, payload.Password, payload.Url, title);
-        var searchText = BuildSearchText(title, subtitle, identifier, payload.Notes, payload.Password, string.Join(" ", labels), row.Header.Favorite ? "favorite" : string.Empty);
-
-        _webPasswords.Add(payload.Password ?? string.Empty);
-
-        return new AllItemEntry(
-            row.Header.Id,
-            row.Header.Type,
-            title,
-            subtitle,
-            identifier,
-            labels,
-            searchText,
-            row.Header.Favorite,
-            row.Header.CreatedAtUtc,
-            row.Header.UpdatedAtUtc,
-            copyValue);
-    }
-
-    private AllItemEntry BuildAuthenticatorEntry(VaultItemRow row, IReadOnlyList<string> labels)
-    {
-        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
-        var payload = JsonSerializer.Deserialize<AuthenticatorPayload>(json, JsonOpts)
-            ?? new AuthenticatorPayload("", "", "", "", "", 6, 30, "", "", "", 0);
-
-        var keyType = payload.KeyType?.Trim().ToLowerInvariant() switch
-        {
-            "counter-based" or "counter" or "hotp" => "Counter based code",
-            _ => "Time based code"
-        };
-        var title = FirstNonEmpty(payload.ServiceName, payload.Issuer, "Authenticator");
-        var subtitle = keyType;
-        var identifier = payload.KeyType?.Trim().ToLowerInvariant() switch
-        {
-            "counter-based" or "counter" or "hotp" => $"Counter {Math.Max(0, payload.Counter)}",
-            _ => "Rotates every 30 seconds"
-        };
-        var searchText = BuildSearchText(
-            title,
-            subtitle,
-            identifier,
-            string.Join(" ", labels),
-            row.Header.Favorite ? "favorite" : string.Empty);
-
-        return new AllItemEntry(
-            row.Header.Id,
-            row.Header.Type,
-            title,
-            subtitle,
-            identifier,
-            labels,
-            searchText,
-            row.Header.Favorite,
-            row.Header.CreatedAtUtc,
-            row.Header.UpdatedAtUtc,
-            string.Empty);
-    }
-
-    private AllItemEntry BuildCardEntry(VaultItemRow row, IReadOnlyList<string> labels)
-    {
-        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
-        var payload = JsonSerializer.Deserialize<CardPayload>(json, JsonOpts)
-            ?? new CardPayload("", "", "", 0, 0, "", "");
-
-        var title = FirstNonEmpty(payload.Title, "Untitled card");
-        var maskedNumber = MaskCardNumber(payload.Number);
-        var subtitle = FirstNonEmpty(maskedNumber, "Encrypted card");
-        var identifier = FirstNonEmpty(payload.Cardholder, maskedNumber, "N/A");
-        var digits = new string((payload.Number ?? string.Empty).Where(char.IsDigit).ToArray());
-        var copyValue = FirstNonEmpty(digits, payload.Cardholder, title);
-        var searchText = BuildSearchText(title, subtitle, identifier, payload.Notes, payload.Number, payload.Cvc, string.Join(" ", labels), row.Header.Favorite ? "favorite" : string.Empty);
-
-        return new AllItemEntry(
-            row.Header.Id,
-            row.Header.Type,
-            title,
-            subtitle,
-            identifier,
-            labels,
-            searchText,
-            row.Header.Favorite,
-            row.Header.CreatedAtUtc,
-            row.Header.UpdatedAtUtc,
-            copyValue,
-            payload.ExpiryMonth,
-            payload.ExpiryYear);
-    }
-
-    private AllItemEntry BuildNoteEntry(VaultItemRow row, IReadOnlyList<string> labels)
-    {
-        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
-        var payload = JsonSerializer.Deserialize<NotePayload>(json, JsonOpts)
-            ?? new NotePayload("", "");
-
-        var title = FirstNonEmpty(payload.Title, "Untitled markdown note");
-        var snippet = TrimSnippet(payload.Content, 72);
-        var subtitle = FirstNonEmpty(snippet, "Encrypted markdown note");
-        var copyValue = FirstNonEmpty(payload.Content, title);
-        var searchText = BuildSearchText(title, snippet, payload.Content, string.Join(" ", labels), row.Header.Favorite ? "favorite" : string.Empty);
-
-        return new AllItemEntry(
-            row.Header.Id,
-            row.Header.Type,
-            title,
-            subtitle,
-            "N/A",
-            labels,
-            searchText,
-            row.Header.Favorite,
-            row.Header.CreatedAtUtc,
-            row.Header.UpdatedAtUtc,
-            copyValue);
-    }
-
-    private AllItemEntry BuildApiKeyEntry(VaultItemRow row, IReadOnlyList<string> labels)
-    {
-        var json = VaultPayloadProtector.DecryptItemPayload(_root.VaultKey, row.Header, row.EncryptedPayload);
-        var payload = JsonSerializer.Deserialize<ApiKeyPayload>(json, JsonOpts)
-            ?? new ApiKeyPayload("", "", "", "", Array.Empty<ApiKeyFieldPayload>());
-
-        var title = FirstNonEmpty(payload.Name, "Untitled API key");
-        var provider = FirstNonEmpty(payload.Provider, "Unknown provider");
-        var environment = FirstNonEmpty(payload.Environment, "Production");
-        var primaryField = payload.Fields
-            .OrderBy(field => field.SortOrder)
-            .FirstOrDefault(field => field.IsSensitive && field.IsCopyable)
-            ?? payload.Fields.OrderBy(field => field.SortOrder).FirstOrDefault(field => field.IsCopyable)
-            ?? payload.Fields.OrderBy(field => field.SortOrder).FirstOrDefault();
-        var fieldSummary = primaryField is null
-            ? "No fields"
-            : $"{primaryField.Label}: {MaskApiKeyValue(primaryField.Value)}";
-        var identifier = FirstNonEmpty(provider, environment, primaryField?.Label, "N/A");
-        var copyValue = FirstNonEmpty(primaryField?.Value, title);
-        var searchText = BuildSearchText(
-            title,
-            provider,
-            environment,
-            payload.Notes,
-            string.Join(" ", payload.Fields.Select(field => $"{field.Label} {field.FieldType} {field.Value}")),
-            string.Join(" ", labels),
-            row.Header.Favorite ? "favorite" : string.Empty);
-
-        return new AllItemEntry(
-            row.Header.Id,
-            row.Header.Type,
-            title,
-            fieldSummary,
-            identifier,
-            labels,
-            searchText,
-            row.Header.Favorite,
-            row.Header.CreatedAtUtc,
-            row.Header.UpdatedAtUtc,
-            copyValue);
-    }
 
     private static void ExecuteCommand(ICommand? command)
     {
@@ -1033,77 +797,4 @@ public sealed class AllItemsViewModel : ViewModelBase
             command.Execute(null);
     }
 
-    private static string BuildSearchText(params string?[] parts)
-        => string.Join(" ", parts.Where(part => !string.IsNullOrWhiteSpace(part))!);
-
-    private static string FirstNonEmpty(params string?[] parts)
-        => parts.FirstOrDefault(part => !string.IsNullOrWhiteSpace(part))?.Trim() ?? string.Empty;
-
-    private static string TrimSnippet(string? text, int maxLength = 96)
-    {
-        if (string.IsNullOrWhiteSpace(text))
-            return string.Empty;
-
-        var value = text.Trim();
-        if (value.Length <= maxLength)
-            return value;
-
-        return value[..(maxLength - 1)].TrimEnd() + "...";
-    }
-
-    private static string MaskCardNumber(string? number)
-    {
-        if (string.IsNullOrWhiteSpace(number))
-            return string.Empty;
-
-        var digits = new string(number.Where(char.IsDigit).ToArray());
-        if (digits.Length <= 4)
-            return "****";
-
-        return $"**** **** **** {digits[^4..]}";
-    }
-
-    private static string MaskApiKeyValue(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return "Encrypted API field";
-
-        var trimmed = value.Trim();
-        return trimmed.Length <= 4 ? "****" : $"**** **** {trimmed[^4..]}";
-    }
-
-    private static bool IsWeakPassword(string? password)
-    {
-        if (string.IsNullOrWhiteSpace(password))
-            return true;
-
-        var value = password.Trim();
-        if (value.Length < 12)
-            return true;
-
-        var hasLetter = value.Any(char.IsLetter);
-        var hasDigit = value.Any(char.IsDigit);
-        var hasSymbol = value.Any(ch => !char.IsLetterOrDigit(ch));
-        return !(hasLetter && hasDigit && hasSymbol);
-    }
-
-    private static int CountReusedPasswords(IEnumerable<string> passwords)
-    {
-        return passwords
-            .Where(password => !string.IsNullOrWhiteSpace(password))
-            .GroupBy(password => password, StringComparer.Ordinal)
-            .Where(group => group.Count() > 1)
-            .Sum(group => group.Count());
-    }
-
-    private static int CountCreatedThisMonth(IEnumerable<AllItemEntry> items)
-    {
-        var now = DateTimeOffset.UtcNow;
-        return items.Count(item => DateTimeOffset.TryParse(item.CreatedAtUtc, out var created)
-                                   && created.Year == now.Year
-                                   && created.Month == now.Month);
-    }
-
-    private static DateTimeOffset GetUpdatedSortValue(AllItemEntry item)
-        => DateTimeOffset.TryParse(item.UpdatedAtUtc, out var updated) ? updated : DateTimeOffset.MinValue;
 }

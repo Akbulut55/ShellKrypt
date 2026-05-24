@@ -1,5 +1,6 @@
 using System;
 using Avalonia.Threading;
+using ShellKrypt.Application.Settings;
 
 namespace ShellKrypt.Desktop.Services;
 

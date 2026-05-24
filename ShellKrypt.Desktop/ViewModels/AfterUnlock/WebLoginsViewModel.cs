@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -87,22 +88,15 @@ public sealed partial class WebLoginRowVm : ObservableObject
     }
 }
 
-public sealed class EmailFilterOptionVm
-{
-    public EmailFilterOptionVm(string email, IRelayCommand<string> selectCommand)
-    {
-        Email = email;
-        SelectCommand = selectCommand;
-    }
-
-    public string Email { get; }
-    public IRelayCommand<string> SelectCommand { get; }
-}
-
 public partial class WebLoginsViewModel : ViewModelBase
 {
     private const int PageSize = 5;
     private const int GeneratedLoginPasswordLength = 32;
+    private const string AllUsernameFilter = "Username: All";
+    private const string AllEmailFilter = "Email: All";
+    private const string SortNewest = "Sort: Newest";
+    private const string SortWebsite = "Website";
+    private const string SortAlphabetical = "Alphabetical";
 
     private readonly MainWindowViewModel _root;
     private readonly IWebLoginService _webLoginService;
@@ -116,11 +110,21 @@ public partial class WebLoginsViewModel : ViewModelBase
         "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_=+[]{};:,.?/".ToCharArray();
 
     public ObservableCollection<WebLoginRowVm> Rows { get; } = new();
-    public ObservableCollection<EmailFilterOptionVm> EmailFilterOptions { get; } = new();
+    public ObservableCollection<string> UsernameFilters { get; } = new() { AllUsernameFilter };
+    public ObservableCollection<string> EmailFilters { get; } = new() { AllEmailFilter };
+    public ObservableCollection<string> SortOptions { get; } = new()
+    {
+        SortNewest,
+        SortWebsite,
+        SortAlphabetical
+    };
 
     [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private string selectedUsernameFilter = "";
+    [ObservableProperty] private string selectedUsernameFilterChoice = AllUsernameFilter;
     [ObservableProperty] private string selectedEmailFilter = "";
-    [ObservableProperty] private bool isEmailFilterPopupOpen;
+    [ObservableProperty] private string selectedEmailFilterChoice = AllEmailFilter;
+    [ObservableProperty] private string selectedSortOption = SortNewest;
     [ObservableProperty] private string error = "";
     [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isAddWebLoginModalOpen;
@@ -135,24 +139,24 @@ public partial class WebLoginsViewModel : ViewModelBase
     [ObservableProperty] private string addPassword = "";
     [ObservableProperty] private string addNotes = "";
 
+    public int TotalLoginsCount => _all.Count;
+    public int ReusedPasswordCount => _all
+        .Where(row => !string.IsNullOrWhiteSpace(row.Password))
+        .GroupBy(row => row.Password, StringComparer.Ordinal)
+        .Where(group => group.Count() > 1)
+        .Sum(group => group.Count());
+    public int WeakPasswordCount => _all.Count(row => IsWeakPassword(row.Password));
+    public string TotalLoginsSummary => TotalLoginsCount == 1
+        ? "1 encrypted login in this vault"
+        : $"{TotalLoginsCount} encrypted logins in this vault";
+    public string ReusedPasswordSummary => ReusedPasswordCount == 1
+        ? "1 login reuses a saved password"
+        : $"{ReusedPasswordCount} logins reuse saved passwords";
+    public string WeakPasswordSummary => WeakPasswordCount == 1
+        ? "1 login uses a weak password"
+        : $"{WeakPasswordCount} logins use weak passwords";
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
-    public string ItemsSummary
-    {
-        get
-        {
-            var hasActiveFilter =
-                !string.IsNullOrWhiteSpace(SearchText) ||
-                !string.IsNullOrWhiteSpace(SelectedEmailFilter);
-            var count = hasActiveFilter ? _filtered.Count : _all.Count;
-            var label = count == 1 ? "item" : "items";
-            if (!string.IsNullOrWhiteSpace(SelectedEmailFilter))
-                return $"{count} {label} for {SelectedEmailFilter}";
-
-            return string.IsNullOrWhiteSpace(SearchText)
-                ? $"{count} total {label} stored in your vault"
-                : $"{count} matching {label} found";
-        }
-    }
+    public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} web logins";
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
@@ -162,13 +166,7 @@ public partial class WebLoginsViewModel : ViewModelBase
         : "No web logins match this view";
     public string EmptyTableSubtitle => _all.Count == 0
         ? "Add a website login to start storing encrypted credentials in this vault."
-        : "Adjust the search term or email filter to show more saved logins.";
-    public bool HasEmailFilterOptions => EmailFilterOptions.Count > 0;
-    public bool HasSelectedEmailFilter => !string.IsNullOrWhiteSpace(SelectedEmailFilter);
-    public string EmailFilterButtonText => HasSelectedEmailFilter ? "FILTERED" : "FILTER";
-    public string EmailFilterSummary => HasSelectedEmailFilter
-        ? $"Showing logins for {SelectedEmailFilter}"
-        : "Choose an email to filter logins";
+        : "Adjust the search term, username filter, or email filter to show more saved logins.";
     public string AddModalTitle => IsAddWebLoginMode
         ? "Add Web Login"
         : IsLoginDeleteConfirming
@@ -202,13 +200,40 @@ public partial class WebLoginsViewModel : ViewModelBase
     }
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnSelectedEmailFilterChanged(string value)
+    partial void OnSelectedUsernameFilterChoiceChanged(string value)
     {
-        OnPropertyChanged(nameof(HasSelectedEmailFilter));
-        OnPropertyChanged(nameof(EmailFilterButtonText));
-        OnPropertyChanged(nameof(EmailFilterSummary));
+        var choice = value?.Trim() ?? AllUsernameFilter;
+        SelectedUsernameFilter = string.Equals(choice, AllUsernameFilter, StringComparison.OrdinalIgnoreCase)
+            ? ""
+            : choice;
+    }
+
+    partial void OnSelectedUsernameFilterChanged(string value)
+    {
+        var expectedChoice = string.IsNullOrWhiteSpace(value) ? AllUsernameFilter : value.Trim();
+        if (!string.Equals(SelectedUsernameFilterChoice, expectedChoice, StringComparison.Ordinal))
+            SelectedUsernameFilterChoice = expectedChoice;
+
         ApplyFilter();
     }
+
+    partial void OnSelectedEmailFilterChoiceChanged(string value)
+    {
+        var choice = value?.Trim() ?? AllEmailFilter;
+        SelectedEmailFilter = string.Equals(choice, AllEmailFilter, StringComparison.OrdinalIgnoreCase)
+            ? ""
+            : choice;
+    }
+
+    partial void OnSelectedEmailFilterChanged(string value)
+    {
+        var expectedChoice = string.IsNullOrWhiteSpace(value) ? AllEmailFilter : value.Trim();
+        if (!string.Equals(SelectedEmailFilterChoice, expectedChoice, StringComparison.Ordinal))
+            SelectedEmailFilterChoice = expectedChoice;
+
+        ApplyFilter();
+    }
+    partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
 
     partial void OnCurrentPageChanged(int value)
     {
@@ -245,7 +270,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void AddNew()
     {
         Error = "";
-        IsEmailFilterPopupOpen = false;
         _selectedDetailsRow = null;
         IsLoginDetailsEditing = false;
         IsLoginDeleteConfirming = false;
@@ -258,7 +282,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void ShowDetails(WebLoginRowVm row)
     {
         Error = "";
-        IsEmailFilterPopupOpen = false;
         _selectedDetailsRow = row;
         IsAddWebLoginMode = false;
         IsLoginDetailsEditing = false;
@@ -385,7 +408,7 @@ public partial class WebLoginsViewModel : ViewModelBase
 
             _all.Insert(0, ToRow(entry));
             await _refreshAllItemsAsync(entry.Id);
-            RefreshEmailFilterOptions();
+            RefreshLoginFilters();
             ClearAddForm();
             IsAddWebLoginModalOpen = false;
             ApplyFilter();
@@ -421,7 +444,7 @@ public partial class WebLoginsViewModel : ViewModelBase
 
             IsLoginDetailsEditing = false;
             IsLoginDeleteConfirming = false;
-            RefreshEmailFilterOptions();
+            RefreshLoginFilters();
             ApplyFilter(resetPage: false);
             _root.LogActivity("web", "Web login updated", $"Updated {entry.Title}.", "info", affectedItem: entry.Title);
         }
@@ -461,30 +484,8 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void RemoveRow(WebLoginRowVm row)
     {
         _all.Remove(row);
-        RefreshEmailFilterOptions();
+        RefreshLoginFilters();
         ApplyFilter(resetPage: false);
-    }
-
-    [RelayCommand]
-    private void ToggleEmailFilter()
-    {
-        Error = "";
-        RefreshEmailFilterOptions();
-        IsEmailFilterPopupOpen = !IsEmailFilterPopupOpen;
-    }
-
-    [RelayCommand]
-    private void SelectEmailFilter(string email)
-    {
-        SelectedEmailFilter = email?.Trim() ?? "";
-        IsEmailFilterPopupOpen = false;
-    }
-
-    [RelayCommand]
-    private void ClearEmailFilter()
-    {
-        SelectedEmailFilter = "";
-        IsEmailFilterPopupOpen = false;
     }
 
     private void ClearAddForm()
@@ -549,7 +550,7 @@ public partial class WebLoginsViewModel : ViewModelBase
             var entries = await _webLoginService.ListAsync(_root.VaultPath, _root.VaultKey);
             _all.AddRange(entries.Select(ToRow));
 
-            RefreshEmailFilterOptions();
+            RefreshLoginFilters();
             ApplyFilter();
         }
         catch (Exception ex)
@@ -567,7 +568,14 @@ public partial class WebLoginsViewModel : ViewModelBase
         IEnumerable<WebLoginRowVm> filtered = _all;
 
         var q = SearchText?.Trim();
+        var selectedUsername = SelectedUsernameFilter?.Trim();
         var selectedEmail = SelectedEmailFilter?.Trim();
+        if (!string.IsNullOrWhiteSpace(selectedUsername))
+        {
+            filtered = filtered.Where(r =>
+                string.Equals(r.Username?.Trim(), selectedUsername, StringComparison.OrdinalIgnoreCase));
+        }
+
         if (!string.IsNullOrWhiteSpace(selectedEmail))
         {
             filtered = filtered.Where(r =>
@@ -578,11 +586,18 @@ public partial class WebLoginsViewModel : ViewModelBase
         {
             filtered = filtered.Where(r =>
                 r.Title.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Username.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Email.Contains(q, StringComparison.OrdinalIgnoreCase) ||
                 r.Url.Contains(q, StringComparison.OrdinalIgnoreCase) ||
-                r.Notes.Contains(q, StringComparison.OrdinalIgnoreCase));
+                r.UrlHost.Contains(q, StringComparison.OrdinalIgnoreCase));
         }
+
+        filtered = SelectedSortOption switch
+        {
+            SortWebsite => filtered
+                .OrderBy(row => row.UrlHost, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
+            SortAlphabetical => filtered.OrderBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
+            _ => filtered.OrderByDescending(row => ParseTimestamp(row.UpdatedAtUtc))
+        };
 
         _filtered.Clear();
         _filtered.AddRange(filtered);
@@ -610,14 +625,29 @@ public partial class WebLoginsViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRows));
         OnPropertyChanged(nameof(EmptyTableTitle));
         OnPropertyChanged(nameof(EmptyTableSubtitle));
+        NotifySummaryChanged();
         PreviousPageCommand.NotifyCanExecuteChanged();
         NextPageCommand.NotifyCanExecuteChanged();
     }
 
-    private void RefreshEmailFilterOptions()
+    private void RefreshLoginFilters()
     {
+        var selectedUsername = SelectedUsernameFilter;
         var selected = SelectedEmailFilter;
-        EmailFilterOptions.Clear();
+        UsernameFilters.Clear();
+        UsernameFilters.Add(AllUsernameFilter);
+        EmailFilters.Clear();
+        EmailFilters.Add(AllEmailFilter);
+
+        foreach (var username in _all
+                     .Select(row => row.Username?.Trim())
+                     .Where(username => !string.IsNullOrWhiteSpace(username))
+                     .Cast<string>()
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(username => username, StringComparer.OrdinalIgnoreCase))
+        {
+            UsernameFilters.Add(username);
+        }
 
         foreach (var email in _all
                      .Select(row => row.Email?.Trim())
@@ -626,17 +656,29 @@ public partial class WebLoginsViewModel : ViewModelBase
                      .Distinct(StringComparer.OrdinalIgnoreCase)
                      .OrderBy(email => email, StringComparer.OrdinalIgnoreCase))
         {
-            EmailFilterOptions.Add(new EmailFilterOptionVm(email, SelectEmailFilterCommand));
+            EmailFilters.Add(email);
+        }
+
+        if (!string.IsNullOrWhiteSpace(selectedUsername) &&
+            !UsernameFilters.Any(option => string.Equals(option, selectedUsername, StringComparison.OrdinalIgnoreCase)))
+        {
+            SelectedUsernameFilter = "";
         }
 
         if (!string.IsNullOrWhiteSpace(selected) &&
-            !EmailFilterOptions.Any(option => string.Equals(option.Email, selected, StringComparison.OrdinalIgnoreCase)))
+            !EmailFilters.Any(option => string.Equals(option, selected, StringComparison.OrdinalIgnoreCase)))
         {
             SelectedEmailFilter = "";
         }
 
-        OnPropertyChanged(nameof(HasEmailFilterOptions));
-        OnPropertyChanged(nameof(EmailFilterSummary));
+        SelectedUsernameFilterChoice = string.IsNullOrWhiteSpace(SelectedUsernameFilter)
+            ? AllUsernameFilter
+            : SelectedUsernameFilter;
+
+        SelectedEmailFilterChoice = string.IsNullOrWhiteSpace(SelectedEmailFilter)
+            ? AllEmailFilter
+            : SelectedEmailFilter;
+
     }
 
     [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
@@ -679,8 +721,10 @@ public partial class WebLoginsViewModel : ViewModelBase
         }
 
         SearchText = "";
+        SelectedUsernameFilter = "";
+        SelectedUsernameFilterChoice = AllUsernameFilter;
         SelectedEmailFilter = "";
-        IsEmailFilterPopupOpen = false;
+        SelectedEmailFilterChoice = AllEmailFilter;
 
         var index = _all.FindIndex(entry => string.Equals(entry.Id, itemId, StringComparison.Ordinal));
         CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
@@ -704,6 +748,33 @@ public partial class WebLoginsViewModel : ViewModelBase
 
         IsAddWebLoginModalOpen = true;
         return true;
+    }
+
+    private void NotifySummaryChanged()
+    {
+        OnPropertyChanged(nameof(TotalLoginsCount));
+        OnPropertyChanged(nameof(ReusedPasswordCount));
+        OnPropertyChanged(nameof(WeakPasswordCount));
+        OnPropertyChanged(nameof(TotalLoginsSummary));
+        OnPropertyChanged(nameof(ReusedPasswordSummary));
+        OnPropertyChanged(nameof(WeakPasswordSummary));
+    }
+
+    private static DateTimeOffset ParseTimestamp(string value)
+        => DateTimeOffset.TryParse(value, out var parsed) ? parsed : DateTimeOffset.MinValue;
+
+    private static bool IsWeakPassword(string? password)
+    {
+        if (string.IsNullOrWhiteSpace(password))
+            return false;
+
+        var hasLower = Regex.IsMatch(password, "[a-z]");
+        var hasUpper = Regex.IsMatch(password, "[A-Z]");
+        var hasDigit = Regex.IsMatch(password, "[0-9]");
+        var hasSymbol = Regex.IsMatch(password, "[^a-zA-Z0-9]");
+        var classCount = new[] { hasLower, hasUpper, hasDigit, hasSymbol }.Count(value => value);
+
+        return password.Length < 12 || classCount < 3;
     }
 
     private static string GenerateStrongPassword(int length = GeneratedLoginPasswordLength)

@@ -8,28 +8,39 @@ using Avalonia.Media.Imaging;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Platform.Storage;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Items;
+using ShellKrypt.Application.Settings;
+using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
+using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Tools;
 using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.Desktop.Views;
+using AppState = ShellKrypt.Desktop.Services.AppState;
+using AuthenticatorQrImportService = ShellKrypt.Desktop.Services.AuthenticatorQrImportService;
+using ClipboardService = ShellKrypt.Desktop.Services.ClipboardService;
+using SessionSecurityService = ShellKrypt.Desktop.Services.SessionSecurityService;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
     private readonly AppState _state = new();
-    private readonly AppSettingsStore _settingsStore = new();
-    private readonly VaultRegistryStore _vaultRegistryStore = new();
-    private readonly ActivityLogStore _activityLogStore = new();
+    private readonly AppSettingsService _settingsService = new(new FileAppSettingsStore());
+    private readonly VaultRegistryService _vaultRegistryService = new(new FileVaultRegistryStore());
+    private readonly ActivityLogService _activityLogService = new(new SqliteActivityLogStore());
+    private readonly AuditDismissalService _auditDismissalService = new(new FileDismissedAuditIssueStore());
     private readonly ClipboardService _clipboardService = new();
     private readonly AuthenticatorQrImportService _authenticatorQrImportService = new();
     private readonly SessionSecurityService _sessionSecurity;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
+    private readonly IVaultItemSummaryService _vaultItemSummaryService;
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
     private readonly INoteService _noteService;
@@ -54,6 +65,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public MainWindowViewModel()
     {
         _sessionSecurity = new SessionSecurityService(Lock);
+        _vaultItemSummaryService = new VaultItemSummaryService(_itemRepo, new VaultItemPayloadReader());
         _webLoginService = new WebLoginService(_itemRepo);
         _cardService = new CardService(_itemRepo);
         _noteService = new NoteService(_itemRepo);
@@ -61,7 +73,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _apiKeyService = new ApiKeyService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 
-        var settings = _settingsStore.Load();
+        var settings = _settingsService.Load();
         var sessionSecurity = settings.ToSessionSecuritySettings();
         autoLockEnabled = sessionSecurity.AutoLockEnabled;
         autoLockMinutes = sessionSecurity.AutoLockMinutes;
@@ -73,7 +85,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _sessionSecurity.ApplySettings(sessionSecurity);
 
-        Current = new WelcomeViewModel(this, _vaultRegistryStore);
+        Current = new WelcomeViewModel(this, _vaultRegistryService);
         ApplyTheme(themeMode);
     }
 
@@ -81,7 +93,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
-    public ActivityLogStore ActivityLogStore => _activityLogStore;
+    public ActivityLogService ActivityLogService => _activityLogService;
 
     public void SetVaultPath(string path)
     {
@@ -99,16 +111,16 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public void HandleWindowDeactivated() => _sessionSecurity.HandleWindowDeactivated();
 
-    public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryStore);
-    public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService, _vaultRegistryStore);
-    public void GoUnlock() => Current = new UnlockViewModel(this, _vaultService, _vaultRegistryStore);
+    public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryService);
+    public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService, _vaultRegistryService);
+    public void GoUnlock() => Current = new UnlockViewModel(this, _vaultService, _vaultRegistryService);
 
     public void OnUnlocked(byte[] vaultKey)
     {
         _state.VaultKey = vaultKey;
 
         if (!string.IsNullOrWhiteSpace(_state.VaultPath))
-            _vaultRegistryStore.MarkOpened(_state.VaultPath);
+            _vaultRegistryService.MarkOpened(_state.VaultPath);
 
         LogActivity(
             category: "vault",
@@ -119,7 +131,7 @@ public partial class MainWindowViewModel : ViewModelBase
             affectedItem: GetVaultDisplayName(_state.VaultPath));
 
         _sessionSecurity.SetUnlocked(true);
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _vaultItemSummaryService, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogService, _auditDismissalService, _vaultRegistryService);
     }
 
     public void Lock()
@@ -147,7 +159,7 @@ public partial class MainWindowViewModel : ViewModelBase
         if (!IsUnlocked)
             return;
 
-        Current = new ShellViewModel(this, _itemRepo, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogStore);
+        Current = new ShellViewModel(this, _vaultItemSummaryService, _webLoginService, _cardService, _noteService, _authenticatorService, _apiKeyService, _authenticatorQrImportService, _healthAuditService, _cryptoToolsService, _activityLogService, _auditDismissalService, _vaultRegistryService);
         _sessionSecurity.RecordActivity();
     }
 
@@ -171,7 +183,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
             return null;
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -193,7 +205,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow.StorageProvider: { } storageProvider })
             return null;
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -217,7 +229,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<bool> ConfirmDangerousActionAsync(string title, string message, string detail, string confirmText)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return false;
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -227,7 +239,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<string?> PromptPasswordAsync(string title, string message, string detail, string confirmText)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return null;
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -237,7 +249,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<(bool Confirmed, string VaultPath, string DisplayName)> ShowImportVaultDialogAsync(string? initialPath = null, string? initialDisplayName = null)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return (false, "", "");
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -248,7 +260,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public async Task<(bool Confirmed, string DisplayName, string Description)> ShowEditVaultDialogAsync(string displayName, string description, string vaultPath)
     {
-        if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
             return (false, displayName, description);
 
         using var _ = _sessionSecurity.SuppressTransientFocusLoss();
@@ -280,7 +292,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         try
         {
-            _activityLogStore.Append(entry, _state.VaultKey);
+            _activityLogService.Append(entry, _state.VaultKey);
             ActivityChanged?.Invoke(this, EventArgs.Empty);
         }
         catch
@@ -309,7 +321,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 ThemeMode = ThemeMode
             };
             appSettings.ApplySessionSecuritySettings(BuildSessionSecuritySettings());
-            _settingsStore.Save(appSettings);
+            _settingsService.Save(appSettings);
         }
         catch
         {
@@ -320,7 +332,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     private static void ApplyTheme(AppThemeMode mode)
     {
-        if (Application.Current is App app)
+        if (Avalonia.Application.Current is App app)
             app.ApplyTheme(mode);
     }
 

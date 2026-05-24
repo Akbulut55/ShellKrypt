@@ -4,7 +4,7 @@
              x:Class="ShellKrypt.Desktop.Views.ToolsView"
              x:CompileBindings="False"
              x:DataType="vm:ToolsViewModel">
-  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+  <ScrollViewer HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
     <StackPanel Margin="32"
                 MaxWidth="1024"
