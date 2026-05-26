@@ -1,5 +1,6 @@
-<UserControl xmlns="https://github.com/avaloniaui"
+﻿<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="using:ShellKrypt.UI.Shared.Controls"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              x:Class="ShellKrypt.Desktop.Views.WebLoginsView"
              x:CompileBindings="False"
@@ -240,46 +241,22 @@
       </StackPanel>
     </ScrollViewer>
 
-    <Border Background="{StaticResource OverlayScrimBrush}"
-            IsVisible="{Binding IsAddWebLoginModalOpen}"
-            HorizontalAlignment="Stretch"
-            VerticalAlignment="Stretch">
-      <Grid>
-        <Border Classes="web-modal-card"
-                Width="640"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center"
-                Padding="28">
-          <StackPanel Spacing="22">
-            <Grid ColumnDefinitions="*,Auto"
-                  ColumnSpacing="18">
-              <StackPanel Spacing="6">
-                <TextBlock Text="{Binding AddModalTitle}"
-                           FontSize="24"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource AccentBrush}"
-                           LetterSpacing="-0.4"/>
-                <TextBlock Text="{Binding AddModalSubtitle}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-
-              <Button Grid.Column="1"
-                      Content="X"
-                      Classes="web-modal-close-button"
-                      Command="{Binding CancelAddCommand}"
-                      ToolTip.Tip="Close"/>
-            </Grid>
-
-            <Grid RowDefinitions="Auto,Auto,Auto,Auto"
-                  ColumnDefinitions="*,*"
-                  RowSpacing="14"
-                  ColumnSpacing="16">
+    <shared:ModalShell IsOpen="{Binding IsAddWebLoginModalOpen}"
+                       Title="{Binding AddModalTitle}"
+                       Subtitle="{Binding AddModalSubtitle}"
+                       Error="{Binding Error}"
+                       FooterText="{Binding AddModalFooterText}"
+                       CloseCommand="{Binding CancelAddCommand}">
+      <shared:ModalShell.Body>
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto"
+              ColumnDefinitions="*,*"
+              RowSpacing="14"
+              ColumnSpacing="16">
               <StackPanel Spacing="7">
                 <TextBlock Text="TITLE"
-                           Classes="web-modal-label"/>
+                           Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="web-modal-input"
+                         Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
                          PlaceholderText="ShellKrypt"/>
               </StackPanel>
@@ -287,9 +264,9 @@
               <StackPanel Grid.Column="1"
                           Spacing="7">
                 <TextBlock Text="WEBSITE URL"
-                           Classes="web-modal-label"/>
+                           Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="web-modal-input"
+                         Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
                          PlaceholderText="https://example.com"/>
               </StackPanel>
@@ -297,9 +274,9 @@
               <StackPanel Grid.Row="1"
                           Spacing="7">
                 <TextBlock Text="USERNAME"
-                           Classes="web-modal-label"/>
+                           Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="web-modal-input"
+                         Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
                          PlaceholderText="shellkrypt-user"/>
               </StackPanel>
@@ -308,9 +285,9 @@
                           Grid.Column="1"
                           Spacing="7">
                 <TextBlock Text="EMAIL"
-                           Classes="web-modal-label"/>
+                           Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="web-modal-input"
+                         Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
                          PlaceholderText="dev@shellkrypt.local"/>
               </StackPanel>
@@ -319,32 +296,32 @@
                           Grid.ColumnSpan="2"
                           Spacing="7">
                 <TextBlock Text="PASSWORD"
-                           Classes="web-modal-label"/>
-                <Border Classes="web-modal-input-shell">
+                           Classes="modal-shell-label"/>
+                <Border Classes="modal-shell-input-shell">
                   <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                         ColumnSpacing="8">
                     <TextBox Text="{Binding AddPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="web-modal-input borderless"
+                             Classes="modal-shell-input borderless"
                              PasswordChar="*"
                              IsReadOnly="{Binding IsAddFormReadOnly}"
                              IsVisible="{Binding !IsAddPasswordVisible}"
                              PlaceholderText="Use Generate or enter a password"/>
                     <TextBox Text="{Binding AddPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="web-modal-input borderless"
+                             Classes="modal-shell-input borderless"
                              IsReadOnly="{Binding IsAddFormReadOnly}"
                              IsVisible="{Binding IsAddPasswordVisible}"
                              PlaceholderText="Use Generate or enter a password"/>
                     <Button Grid.Column="1"
                             Content="{Binding AddPasswordVisibilityLabel}"
-                            Classes="web-modal-field-action"
+                            Classes="modal-shell-field-action"
                             Command="{Binding ToggleAddPasswordVisibilityCommand}"/>
                     <Button Grid.Column="2"
                             Content="Copy"
-                            Classes="web-modal-field-action"
+                            Classes="modal-shell-field-action"
                             Command="{Binding CopyAddPasswordCommand}"/>
                     <Button Grid.Column="3"
                             Content="Generate"
-                            Classes="web-modal-field-action primary"
+                            Classes="modal-shell-field-action primary"
                             IsVisible="{Binding CanGenerateModalPassword}"
                             Command="{Binding GenerateAddPasswordCommand}"/>
                   </Grid>
@@ -355,9 +332,9 @@
                           Grid.ColumnSpan="2"
                           Spacing="7">
                 <TextBlock Text="NOTES"
-                           Classes="web-modal-label"/>
+                           Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="web-modal-input"
+                         Classes="modal-shell-input multiline"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
@@ -365,69 +342,53 @@
                          PlaceholderText="Recovery hints, account context, or internal notes..."/>
               </StackPanel>
             </Grid>
-
-            <TextBlock Text="{Binding Error}"
-                       Foreground="{StaticResource DangerBrush}"
-                       FontSize="12"
-                       TextWrapping="Wrap"/>
-
-            <Border Background="{StaticResource SurfaceRaisedBrush}"
-                    CornerRadius="8"
-                    Padding="16,14"
-                    Margin="-8,0,-8,-8">
-              <Grid ColumnDefinitions="*,Auto,Auto"
-                    ColumnSpacing="12">
-                <TextBlock Text="{Binding AddModalFooterText}"
-                           Classes="page-subtitle"
-                           FontSize="12"
-                           TextWrapping="Wrap"
-                           VerticalAlignment="Center"/>
-                <Button Grid.Column="1"
+      </shared:ModalShell.Body>
+      <shared:ModalShell.FooterActions>
+        <Grid ColumnDefinitions="Auto,Auto"
+              ColumnSpacing="12">
+                <Button Grid.Column="0"
                         Content="Cancel"
-                        Classes="web-modal-secondary-button"
+                        Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsAddWebLoginMode}"
                         Command="{Binding CancelAddCommand}"/>
-                <Button Grid.Column="2"
+                <Button Grid.Column="1"
                         Content="Add Web Login"
-                        Classes="web-modal-primary-button"
+                        Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsAddWebLoginMode}"
                         Command="{Binding SaveAddCommand}"/>
-                <Button Grid.Column="1"
+                <Button Grid.Column="0"
                         Content="Delete"
-                        Classes="web-modal-danger-button"
+                        Classes="modal-shell-danger-button"
                         IsVisible="{Binding IsDetailsViewMode}"
                         Command="{Binding BeginDetailsDeleteCommand}"/>
-                <Button Grid.Column="2"
+                <Button Grid.Column="1"
                         Content="Edit"
-                        Classes="web-modal-primary-button"
+                        Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsDetailsViewMode}"
                         Command="{Binding BeginDetailsEditCommand}"/>
-                <Button Grid.Column="1"
+                <Button Grid.Column="0"
                         Content="Cancel"
-                        Classes="web-modal-secondary-button"
+                        Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsDetailsEditMode}"
                         Command="{Binding CancelDetailsEditCommand}"/>
-                <Button Grid.Column="2"
+                <Button Grid.Column="1"
                         Content="Save"
-                        Classes="web-modal-primary-button"
+                        Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsDetailsEditMode}"
                         Command="{Binding SaveDetailsCommand}"/>
-                <Button Grid.Column="1"
+                <Button Grid.Column="0"
                         Content="Cancel"
-                        Classes="web-modal-secondary-button"
+                        Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsDetailsDeleteConfirmMode}"
                         Command="{Binding CancelDetailsDeleteCommand}"/>
-                <Button Grid.Column="2"
+                <Button Grid.Column="1"
                         Content="Delete"
-                        Classes="web-modal-danger-button"
+                        Classes="modal-shell-danger-button"
                         IsVisible="{Binding IsDetailsDeleteConfirmMode}"
                         Command="{Binding ConfirmDetailsDeleteCommand}"/>
               </Grid>
-            </Border>
-          </StackPanel>
-        </Border>
-      </Grid>
-    </Border>
+      </shared:ModalShell.FooterActions>
+    </shared:ModalShell>
   </Grid>
 
   <UserControl.Styles>
@@ -501,158 +462,14 @@
       <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
-    <Style Selector="Border.web-modal-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="12"/>
-    </Style>
 
-    <Style Selector="Border.web-modal-input-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="0"/>
-    </Style>
 
-    <Style Selector="TextBlock.web-modal-label">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="10"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.1"/>
-    </Style>
 
-    <Style Selector="TextBox.web-modal-input">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="14,10"/>
-    </Style>
 
-    <Style Selector="TextBox.web-modal-input:focus">
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-    </Style>
 
-    <Style Selector="TextBox.web-modal-input.borderless">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="0"/>
-    </Style>
 
-    <Style Selector="Button.web-modal-close-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="Width" Value="36"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinWidth" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
 
-    <Style Selector="Button.web-modal-close-button:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-    </Style>
 
-    <Style Selector="Button.web-modal-field-action">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-field-action:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-field-action.primary">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-field-action.primary:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="22,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-secondary-button:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-danger-button">
-      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-danger-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource DangerHoverBrush}"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-modal-primary-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
 
     <Style Selector="TextBlock.web-kicker">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
@@ -713,6 +530,5 @@
     <Style Selector="Button.web-inline-icon:pointerover">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
-
   </UserControl.Styles>
 </UserControl>

@@ -1,0 +1,375 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ShellKrypt.UI.Shared.Controls.ModalShell"
+             x:Name="Root"
+             x:CompileBindings="False"
+             IsVisible="{Binding IsOpen, ElementName=Root}">
+
+  <UserControl.Styles>
+    <Style Selector="Border.modal-shell-card">
+      <Setter Property="Background" Value="{StaticResource ModalCardBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-close-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinWidth" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-close-button:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="22,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-secondary-button:pointerover">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-danger-button">
+      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-danger-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource DangerHoverBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="24,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-primary-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.modal-shell-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.1"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.compact">
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Padding" Value="9,0"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.multiline">
+      <Setter Property="VerticalContentAlignment" Value="Top"/>
+      <Setter Property="Padding" Value="14,10"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input:pointerover">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input:focus">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="ComboBox.modal-shell-input">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="ComboBox.modal-shell-input.compact">
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="9,0"/>
+    </Style>
+
+    <Style Selector="Border.modal-shell-input-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="Border.modal-shell-input-shell:focus-within">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Border.modal-shell-input-shell.compact">
+      <Setter Property="Height" Value="32"/>
+      <Setter Property="MinHeight" Value="32"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.borderless">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Padding" Value="12,0"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.borderless /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.borderless:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.borderless:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBox.modal-shell-input.borderless.compact">
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Padding" Value="9,0"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-action">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-action:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-action.compact">
+      <Setter Property="Height" Value="26"/>
+      <Setter Property="MinHeight" Value="26"/>
+      <Setter Property="Padding" Value="8,0"/>
+      <Setter Property="FontSize" Value="10"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-action.primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-action.primary:pointerover">
+      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-remove">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="6"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinWidth" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-field-remove.compact">
+      <Setter Property="Width" Value="26"/>
+      <Setter Property="Height" Value="26"/>
+      <Setter Property="MinWidth" Value="26"/>
+      <Setter Property="MinHeight" Value="26"/>
+    </Style>
+
+    <Style Selector="Button.modal-shell-small-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+  </UserControl.Styles>
+
+  <Border Background="{StaticResource OverlayScrimBrush}"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch">
+    <Grid>
+      <Border Classes="modal-shell-card"
+              Width="{Binding DialogWidth, ElementName=Root}"
+              MaxHeight="{Binding Bounds.Height, ElementName=Root}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Margin="18"
+              Padding="28">
+        <Grid RowDefinitions="Auto,*,Auto"
+              RowSpacing="18">
+          <Grid ColumnDefinitions="*,Auto"
+                ColumnSpacing="18">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{Binding Title, ElementName=Root}"
+                         FontSize="24"
+                         FontWeight="SemiBold"
+                         Foreground="{StaticResource AccentBrush}"
+                         LetterSpacing="-0.4"/>
+              <TextBlock Text="{Binding Subtitle, ElementName=Root}"
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="{Binding CloseText, ElementName=Root}"
+                    Classes="modal-shell-close-button"
+                    Command="{Binding CloseCommand, ElementName=Root}"
+                    ToolTip.Tip="Close"/>
+          </Grid>
+
+          <Grid Grid.Row="1"
+                RowDefinitions="*,Auto"
+                RowSpacing="8">
+            <ContentControl Content="{Binding Body, ElementName=Root}"/>
+
+            <TextBlock Grid.Row="1"
+                       Text="{Binding Error, ElementName=Root}"
+                       Foreground="{StaticResource DangerBrush}"
+                       FontSize="12"
+                       TextWrapping="Wrap"
+                       IsVisible="{Binding HasError, ElementName=Root}"/>
+          </Grid>
+
+          <Border Grid.Row="2"
+                  Background="{StaticResource SurfaceRaisedBrush}"
+                  CornerRadius="8"
+                  Padding="16,14"
+                  Margin="-8,0,-8,-8">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="12">
+              <TextBlock Text="{Binding FooterText, ElementName=Root}"
+                         Classes="page-subtitle"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         VerticalAlignment="Center"/>
+              <ContentControl Grid.Column="1"
+                              Content="{Binding FooterActions, ElementName=Root}"/>
+            </Grid>
+          </Border>
+        </Grid>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>
