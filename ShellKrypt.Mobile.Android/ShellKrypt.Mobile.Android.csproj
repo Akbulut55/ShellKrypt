@@ -6,8 +6,8 @@
     <Nullable>enable</Nullable>
     <ApplicationTitle>ShellKrypt</ApplicationTitle>
     <ApplicationId>com.shellkrypt.app</ApplicationId>
-    <ApplicationDisplayVersion>0.8.0</ApplicationDisplayVersion>
-    <ApplicationVersion>8</ApplicationVersion>
+    <ApplicationDisplayVersion>0.9.0</ApplicationDisplayVersion>
+    <ApplicationVersion>10</ApplicationVersion>
     <SupportedOSPlatformVersion>26.0</SupportedOSPlatformVersion>
     <AndroidPackageFormat>apk</AndroidPackageFormat>
   </PropertyGroup>

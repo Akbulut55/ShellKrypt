@@ -46,14 +46,22 @@ public partial class MobileApp : Avalonia.Application
         return true;
     }
 
+    public void ApplyTheme(string? themeId)
+    {
+        var theme = ShellKryptThemePalettes.GetById(themeId);
+        ApplyTheme(theme);
+    }
+
     public void ApplyTheme(ThemeVariant themeVariant)
     {
-        RequestedThemeVariant = themeVariant;
-        var brushes = themeVariant == ThemeVariant.Light
-            ? ShellKryptThemePalettes.Light
-            : ShellKryptThemePalettes.Dark;
+        ApplyTheme(themeVariant == ThemeVariant.Light ? ShellKryptThemePalettes.LightId : ShellKryptThemePalettes.DarkId);
+    }
 
-        foreach (var brush in brushes)
+    private void ApplyTheme(ShellKryptThemeDefinition theme)
+    {
+        RequestedThemeVariant = theme.BaseVariant;
+
+        foreach (var brush in theme.Palette)
             UpdateBrush(brush.Key, brush.Value);
     }
 

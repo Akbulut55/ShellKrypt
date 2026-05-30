@@ -2,8 +2,6 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
-using Avalonia.Styling;
-using ShellKrypt.Application.Settings;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.Views;
 using ShellKrypt.UI.Shared.Theming;
@@ -22,7 +20,7 @@ namespace ShellKrypt.Desktop
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var mainWindowViewModel = new MainWindowViewModel();
-                ApplyTheme(mainWindowViewModel.ThemeMode);
+                ApplyTheme(mainWindowViewModel.ThemeId);
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,
@@ -32,19 +30,17 @@ namespace ShellKrypt.Desktop
             base.OnFrameworkInitializationCompleted();
         }
 
-        public void ApplyTheme(AppThemeMode mode)
+        public void ApplyTheme(string? themeId)
         {
-            RequestedThemeVariant = mode == AppThemeMode.Light ? ThemeVariant.Light : ThemeVariant.Dark;
-            var brushes = mode == AppThemeMode.Light
-                ? ShellKryptThemePalettes.Light
-                : ShellKryptThemePalettes.Dark;
+            var theme = ShellKryptThemePalettes.GetById(themeId);
+            RequestedThemeVariant = theme.BaseVariant;
 
-            foreach (var brush in brushes)
+            foreach (var brush in theme.Palette)
                 UpdateBrush(brush.Key, brush.Value);
 
             UpdateAccentGradient(
-                brushes["AccentBrush"],
-                brushes["AccentPressedBrush"]);
+                theme.Palette["AccentBrush"],
+                theme.Palette["AccentPressedBrush"]);
         }
 
         private void UpdateBrush(string key, string color)

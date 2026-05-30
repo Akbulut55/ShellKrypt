@@ -12,6 +12,7 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
+using ShellKrypt.UI.Shared.Theming;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -59,6 +60,22 @@ public sealed partial class SettingsViewModel : ViewModelBase
         public override string ToString() => Label;
     }
 
+    public sealed partial class ThemeOption : ObservableObject
+    {
+        public ThemeOption(string id, string label)
+        {
+            Id = id;
+            Label = label;
+        }
+
+        public string Id { get; }
+        public string Label { get; }
+
+        [ObservableProperty] private bool isSelected;
+
+        public override string ToString() => Label;
+    }
+
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
     private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
@@ -74,7 +91,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool isAutoLockPickerOpen;
     [ObservableProperty] private bool isFocusLockPickerOpen;
     [ObservableProperty] private bool isClipboardClearPickerOpen;
-    [ObservableProperty] private AppThemeMode selectedThemeMode;
+    [ObservableProperty] private ThemeOption? selectedThemeOption;
     [ObservableProperty] private LanguageOption? selectedLanguageOption;
     [ObservableProperty] private bool isThemePickerOpen;
     [ObservableProperty] private bool isLanguagePickerOpen;
@@ -111,10 +128,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
         VaultCsvDuplicateStrategy.ImportAll
     ];
 
-    public ObservableCollection<AppThemeMode> ThemeModes { get; } =
+    public ObservableCollection<ThemeOption> ThemeOptions { get; } =
     [
-        AppThemeMode.Dark,
-        AppThemeMode.Light
+        .. ShellKryptThemePalettes.All.Select(theme => new ThemeOption(theme.Id, theme.DisplayName))
     ];
 
     public ObservableCollection<LanguageOption> LanguageOptions { get; } =
@@ -188,10 +204,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string SelectedAutoLockDurationLabel => SelectedAutoLockDuration?.Label ?? "5 Minutes";
     public string SelectedFocusLossLockDelayLabel => SelectedFocusLossLockDelay?.Label ?? "Off";
     public string SelectedClipboardClearDurationLabel => SelectedClipboardClearDuration?.Label ?? "1 Minute";
-    public string ThemeModeLabel => SelectedThemeMode == AppThemeMode.Dark ? "Dark" : "Light";
+    public string ThemeModeLabel => SelectedThemeOption?.Label ?? ShellKryptThemePalettes.Default.DisplayName;
     public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? "English";
-    public bool IsDarkThemeSelected => SelectedThemeMode == AppThemeMode.Dark;
-    public bool IsLightThemeSelected => SelectedThemeMode == AppThemeMode.Light;
     public bool IsEnglishLanguageSelected => SelectedLanguageOption?.Code == "en";
     public string FocusLockSummary => LockOnDeactivate
         ? $"ShellKrypt locks after {SelectedFocusLossLockDelay?.Label?.ToLowerInvariant() ?? "the selected delay"} when the app loses focus."
@@ -246,13 +260,15 @@ public sealed partial class SettingsViewModel : ViewModelBase
         OnPropertyChanged(nameof(SecurityStatusText));
     }
 
-    partial void OnSelectedThemeModeChanged(AppThemeMode value)
+    partial void OnSelectedThemeOptionChanged(ThemeOption? value)
     {
-        _root.ThemeMode = value;
-        Status = $"Theme switched to {value}.";
+        if (value is null)
+            return;
+
+        _root.ThemeId = value.Id;
+        Status = $"Theme switched to {value.Label}.";
+        MarkSelected(ThemeOptions, value);
         OnPropertyChanged(nameof(ThemeModeLabel));
-        OnPropertyChanged(nameof(IsDarkThemeSelected));
-        OnPropertyChanged(nameof(IsLightThemeSelected));
     }
 
     partial void OnSelectedLanguageOptionChanged(LanguageOption? value)
@@ -337,14 +353,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
     private void ToggleThemePicker() => IsThemePickerOpen = !IsThemePickerOpen;
 
     [RelayCommand]
-    private void SelectDarkTheme() => SelectThemeMode(AppThemeMode.Dark);
-
-    [RelayCommand]
-    private void SelectLightTheme() => SelectThemeMode(AppThemeMode.Light);
-
-    private void SelectThemeMode(AppThemeMode mode)
+    private void SelectTheme(ThemeOption? option)
     {
-        SelectedThemeMode = mode;
+        if (option is null)
+            return;
+
+        SelectedThemeOption = option;
         IsThemePickerOpen = false;
     }
 
@@ -388,6 +402,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
     }
 
     private static void MarkSelected(ObservableCollection<SecondsDurationOption> options, SecondsDurationOption? selected)
+    {
+        foreach (var option in options)
+            option.IsSelected = ReferenceEquals(option, selected);
+    }
+
+    private static void MarkSelected(ObservableCollection<ThemeOption> options, ThemeOption? selected)
     {
         foreach (var option in options)
             option.IsSelected = ReferenceEquals(option, selected);
@@ -913,7 +933,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         SelectedFocusLossLockDelay = ResolveFocusLossLockDelay(_root.LockOnDeactivate, _root.LockOnDeactivateSeconds);
         SelectedClipboardClearDuration = ResolveSecondsDuration(ClipboardClearTimeoutOptions, _root.ClipboardClearSeconds);
         ClipboardCopyEnabled = _root.ClipboardCopyEnabled;
-        SelectedThemeMode = _root.ThemeMode;
+        SelectedThemeOption = ResolveThemeOption(_root.ThemeId);
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));
         OnPropertyChanged(nameof(SelectedFocusLossLockDelayLabel));
@@ -940,6 +960,15 @@ public sealed partial class SettingsViewModel : ViewModelBase
             return FocusLossLockDelayOptions.First(option => option.Seconds == 0);
 
         return ResolveSecondsDuration(FocusLossLockDelayOptions, seconds);
+    }
+
+    private ThemeOption ResolveThemeOption(string? themeId)
+    {
+        var normalized = ShellKryptThemePalettes.GetById(themeId).Id;
+        var option = ThemeOptions.FirstOrDefault(x => string.Equals(x.Id, normalized, StringComparison.OrdinalIgnoreCase))
+            ?? ThemeOptions[0];
+        MarkSelected(ThemeOptions, option);
+        return option;
     }
 
     private static SecondsDurationOption ResolveSecondsDuration(ObservableCollection<SecondsDurationOption> options, int seconds)

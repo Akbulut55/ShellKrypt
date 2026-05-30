@@ -351,7 +351,7 @@
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                     <Grid Grid.Column="1"
-                          Width="110">
+                          Width="140">
                       <Button x:Name="ThemePickerButton"
                               Classes="settings-picker-button"
                               Command="{Binding ToggleThemePickerCommand}">
@@ -377,17 +377,23 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="110">
-                          <StackPanel>
-                            <Button Content="Dark"
-                                    Classes="settings-picker-option"
-                                    Classes.active="{Binding IsDarkThemeSelected}"
-                                    Command="{Binding SelectDarkThemeCommand}"/>
-                            <Button Content="Light"
-                                    Classes="settings-picker-option"
-                                    Classes.active="{Binding IsLightThemeSelected}"
-                                    Command="{Binding SelectLightThemeCommand}"/>
-                          </StackPanel>
+                                Width="140">
+                          <ItemsControl ItemsSource="{Binding ThemeOptions}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel/>
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Classes="settings-picker-option"
+                                        Classes.active="{Binding IsSelected}"
+                                        Command="{Binding DataContext.SelectThemeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"/>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
                         </Border>
                       </Popup>
                     </Grid>

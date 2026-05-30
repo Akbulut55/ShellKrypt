@@ -412,7 +412,7 @@
     </Style>
 
     <Style Selector="TextBlock.mobile-error">
-      <Setter Property="Foreground" Value="#ffb4ab"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
       <Setter Property="FontSize" Value="12"/>
     </Style>
 

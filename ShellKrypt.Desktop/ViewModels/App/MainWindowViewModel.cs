@@ -62,7 +62,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int lockOnDeactivateSeconds;
     [ObservableProperty] private int clipboardClearSeconds;
     [ObservableProperty] private bool clipboardCopyEnabled;
-    [ObservableProperty] private AppThemeMode themeMode;
+    [ObservableProperty] private string themeId = AppSettings.DefaultThemeId;
 
     public MainWindowViewModel()
     {
@@ -83,14 +83,14 @@ public partial class MainWindowViewModel : ViewModelBase
         lockOnDeactivateSeconds = sessionSecurity.LockOnDeactivateSeconds;
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
-        themeMode = settings.ThemeMode;
+        themeId = settings.ThemeId;
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
         _securityAcknowledgementVersionAccepted = settings.SecurityAcknowledgementVersionAccepted;
 
         _sessionSecurity.ApplySettings(sessionSecurity);
 
         Current = new WelcomeViewModel(this, _vaultRegistryService);
-        ApplyTheme(themeMode);
+        ApplyTheme(themeId);
     }
 
     public string? VaultPath => _state.VaultPath;
@@ -323,9 +323,16 @@ public partial class MainWindowViewModel : ViewModelBase
     partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardCopyEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
-    partial void OnThemeModeChanged(AppThemeMode value)
+    partial void OnThemeIdChanged(string value)
     {
-        ApplyTheme(value);
+        var normalized = AppSettings.NormalizeThemeId(value);
+        if (!string.Equals(value, normalized, StringComparison.Ordinal))
+        {
+            ThemeId = normalized;
+            return;
+        }
+
+        ApplyTheme(normalized);
         SaveSettingsAndSyncSessionSecurity();
     }
 
@@ -335,7 +342,7 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var appSettings = new AppSettings
             {
-                ThemeMode = ThemeMode,
+                ThemeId = ThemeId,
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };
@@ -349,10 +356,10 @@ public partial class MainWindowViewModel : ViewModelBase
         _sessionSecurity.ApplySettings(BuildSessionSecuritySettings());
     }
 
-    private static void ApplyTheme(AppThemeMode mode)
+    private static void ApplyTheme(string themeId)
     {
         if (Avalonia.Application.Current is App app)
-            app.ApplyTheme(mode);
+            app.ApplyTheme(themeId);
     }
 
     private static string ToPattern(string extension)

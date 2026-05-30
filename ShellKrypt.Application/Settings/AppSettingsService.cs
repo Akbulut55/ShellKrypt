@@ -14,12 +14,14 @@ public sealed class AppSettingsService
     public AppSettings Load()
     {
         var settings = _store.Load();
+        settings.NormalizeThemeId();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         return settings;
     }
 
     public void Save(AppSettings settings)
     {
+        settings.NormalizeThemeId();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         _store.Save(settings);
     }

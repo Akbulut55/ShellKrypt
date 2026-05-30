@@ -6,6 +6,19 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.0] - 2026-05-31
+
+### Added
+
+- Added an extensible theme registry with Dark, Light, Crimson, Ocean, and Forest palettes.
+- Added Settings transfer workflow tests for encrypted backup export/restore, plaintext JSON export confirmation, and CSV import.
+
+### Changed
+
+- Reworked desktop theme selection to use persisted theme ids and dynamically list registered themes in Settings.
+
+## [ShellKrypt 0.8.1] - 2026-05-31
+
 ### Changed
 
 - Filled the root README, security policy, agent instructions, and handbook documents with ShellKrypt-specific product, architecture, security, database, development, operations, decision, roadmap, and release guidance.

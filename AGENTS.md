@@ -64,6 +64,8 @@ Rules:
 
 - New changes first accumulate under `## [Unreleased]`.
 - Before a release, move relevant entries into a versioned release section.
+- When the user says `commit`, first move the relevant `Unreleased` entries for the work being committed into a new versioned section and update app version metadata when the committed work represents that version.
+- Do not leave meaningful committed changes under `Unreleased` unless the user explicitly asks for a WIP commit without a version bump.
 - Documentation-only changes can stay under `Changed`.
 - User-visible product behavior usually increments minor before 1.0.
 - Breaking vault format, API, or product-contract changes require explicit migration/release notes.
@@ -92,7 +94,7 @@ Rules:
 
 - The first line is imperative and specific.
 - Body bullets describe real changes when needed.
-- Update `CHANGELOG.md` before committing meaningful changes.
+- Update and version `CHANGELOG.md` before committing meaningful changes.
 - Push only when the user explicitly asks.
 
 ## Standard Commands
