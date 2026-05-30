@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.2] - 2026-05-31
+
+### Changed
+
+- Split Settings viewmodel transfer, master-password, option, and settings-state logic into focused partial files without changing Settings behavior.
+
 ## [ShellKrypt 0.9.1] - 2026-05-31
 
 ### Changed

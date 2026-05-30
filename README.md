@@ -7,7 +7,7 @@ ShellKrypt is currently a private pre-1.0 release build. It is intended for care
 ## Status
 
 - Stage: private pre-1.0 build
-- Current app version: `0.9.1`
+- Current app version: `0.9.2`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
 - Owner: private project owner
