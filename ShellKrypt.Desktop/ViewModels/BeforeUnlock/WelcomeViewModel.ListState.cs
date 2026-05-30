@@ -1,0 +1,134 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace ShellKrypt.Desktop.ViewModels;
+
+public sealed partial class WelcomeViewModel
+{
+    partial void OnSelectedVaultChanged(VaultRecordVm? value)
+    {
+        if (value is null)
+        {
+            Status = Vaults.Count == 0
+                ? "No vaults are registered yet. Create your first vault to continue."
+                : "Select a vault to unlock.";
+            return;
+        }
+
+        Status = value.Exists
+            ? $"Selected {value.DisplayLabel}."
+            : "Selected vault file is missing.";
+    }
+
+    private void ReloadVaults(string? selectPath = null)
+    {
+        IsBusy = true;
+        Error = "";
+
+        try
+        {
+            var registry = _vaultRegistry.Load();
+            var selectedPath = NormalizePath(selectPath ?? _root.VaultPath);
+
+            var vaults = registry.Vaults.Select(x => new VaultRecordVm(x)).ToArray();
+
+            _allVaults.Clear();
+            _allVaults.AddRange(vaults);
+
+            RecentVaults.Clear();
+            foreach (var vault in _vaultRegistry.ListRecentVaults())
+                RecentVaults.Add(new VaultRecordVm(vault));
+
+            ApplyFilters();
+
+            SelectedVault = Vaults.FirstOrDefault(x => string.Equals(NormalizePath(x.VaultPath), selectedPath, StringComparison.OrdinalIgnoreCase))
+                ?? Vaults.FirstOrDefault(x => x.IsDefault)
+                ?? Vaults.FirstOrDefault();
+
+            OnPropertyChanged(nameof(VaultCount));
+            OnPropertyChanged(nameof(ExistingVaultCount));
+            OnPropertyChanged(nameof(TotalStorageDisplay));
+            if (vaults.Length == 0)
+            {
+                Status = "No vaults are registered yet. Create your first vault to continue.";
+            }
+            else if (SelectedVault is not null)
+            {
+                Status = SelectedVault.Exists
+                    ? $"Loaded {vaults.Length} vault{(vaults.Length == 1 ? "" : "s")}."
+                    : "Selected vault file is missing.";
+            }
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+            Status = "Could not load the vault list.";
+        }
+        finally
+        {
+            IsBusy = false;
+        }
+    }
+
+    private void ApplyFilters()
+    {
+        var selectedId = SelectedVault?.Id;
+        IEnumerable<VaultRecordVm> items = _allVaults;
+
+        if (!string.IsNullOrWhiteSpace(SearchText))
+        {
+            var query = SearchText.Trim();
+            items = items.Where(vault =>
+                vault.DisplayLabel.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                vault.DescriptionDisplay.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                vault.PathDisplay.Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        items = ActiveSort switch
+        {
+            "name" => items.OrderBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase),
+            _ => items
+                .OrderByDescending(vault => DateTimeOffset.TryParse(vault.LastOpenedAtUtc, out var opened) ? opened : DateTimeOffset.MinValue)
+                .ThenBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase)
+        };
+
+        var filteredItems = items.ToList();
+        _filteredVaultCount = filteredItems.Count;
+
+        var totalPages = TotalPages;
+        if (CurrentPage > totalPages)
+        {
+            CurrentPage = totalPages;
+            return;
+        }
+
+        items = filteredItems
+            .Skip((CurrentPage - 1) * VaultPageSize)
+            .Take(VaultPageSize);
+
+        Vaults.Clear();
+        foreach (var vault in items)
+            Vaults.Add(vault);
+
+        if (selectedId is not null)
+            SelectedVault = Vaults.FirstOrDefault(vault => vault.Id == selectedId) ?? Vaults.FirstOrDefault();
+        else if (SelectedVault is null)
+            SelectedVault = Vaults.FirstOrDefault();
+
+        OnPropertyChanged(nameof(HasVaults));
+        OnPropertyChanged(nameof(VaultCount));
+        OnPropertyChanged(nameof(ExistingVaultCount));
+        OnPropertyChanged(nameof(TotalPages));
+        OnPropertyChanged(nameof(HasMultiplePages));
+        OnPropertyChanged(nameof(CanGoPreviousPage));
+        OnPropertyChanged(nameof(CanGoNextPage));
+        OnPropertyChanged(nameof(PageIndicator));
+        OnPropertyChanged(nameof(TotalStorageDisplay));
+        OnPropertyChanged(nameof(EmptyStateTitle));
+        OnPropertyChanged(nameof(EmptyStateSubtitle));
+    }
+
+    private static string NormalizePath(string? path)
+        => string.IsNullOrWhiteSpace(path) ? "" : System.IO.Path.GetFullPath(path);
+}

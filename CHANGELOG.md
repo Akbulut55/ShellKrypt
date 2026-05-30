@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.3] - 2026-05-31
+
+### Changed
+
+- Split Welcome viewmodel launcher, vault registry, delete, security acknowledgement, and list-state logic into focused partial files without changing launcher behavior.
+
 ## [ShellKrypt 0.9.2] - 2026-05-31
 
 ### Changed
