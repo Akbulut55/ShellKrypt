@@ -63,8 +63,23 @@ ShellKrypt.Core/
 ShellKrypt.Infrastructure/
   SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, and activity log persistence.
 
+ShellKrypt.Application/
+  Shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
+
+ShellKrypt.UI.Shared/
+  Shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
+
 ShellKrypt.Desktop/
   Avalonia desktop app, views, viewmodels, UI services, assets, and platform integration.
+
+ShellKrypt.Mobile/
+  Shared Avalonia mobile UI that can be hosted by Android and iOS platform heads.
+
+ShellKrypt.Mobile.Android/
+  Android app head and Android-specific package metadata.
+
+ShellKrypt.Mobile.iOS/
+  iOS app head and iOS-specific package metadata.
 
 ShellKrypt.Tests/
   xUnit tests for core and infrastructure behavior.
@@ -73,12 +88,22 @@ ShellKrypt.Tests/
 Dependency direction:
 
 ```text
-ShellKrypt.Desktop -> ShellKrypt.Core
-ShellKrypt.Desktop -> ShellKrypt.Infrastructure
+ShellKrypt.Application -> ShellKrypt.Core
 ShellKrypt.Infrastructure -> ShellKrypt.Core
+ShellKrypt.Desktop -> ShellKrypt.Core/Application/Infrastructure/UI.Shared
+ShellKrypt.Mobile -> ShellKrypt.Core/Application/Infrastructure/UI.Shared
+ShellKrypt.Mobile.Android -> ShellKrypt.Mobile
+ShellKrypt.Mobile.iOS -> ShellKrypt.Mobile
 ShellKrypt.Tests -> ShellKrypt.Core
+ShellKrypt.Tests -> ShellKrypt.Application
 ShellKrypt.Tests -> ShellKrypt.Infrastructure
 ```
+
+## Solution Layout
+
+`ShellKrypt.slnx` is the canonical root solution. It includes the workload-neutral projects used for normal desktop development, shared mobile UI development, and tests.
+
+Android and iOS platform heads are built directly from their project files instead of through a second root solution. This keeps the default solution build usable on Windows without requiring optional mobile workloads or iOS build tooling.
 
 ## Requirements
 
@@ -102,6 +127,18 @@ To keep generated output isolated:
 
 ```powershell
 dotnet build .\ShellKrypt.slnx --artifacts-path .\artifacts
+```
+
+Android app head build:
+
+```powershell
+dotnet build .\ShellKrypt.Mobile.Android\ShellKrypt.Mobile.Android.csproj -f net10.0-android
+```
+
+iOS app head build requires the iOS workload and supported Apple build environment:
+
+```powershell
+dotnet build .\ShellKrypt.Mobile.iOS\ShellKrypt.Mobile.iOS.csproj -f net10.0-ios
 ```
 
 ## Test
