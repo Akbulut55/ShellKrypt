@@ -26,16 +26,42 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.Equal(15, settings.AutoLockMinutes);
         Assert.Equal(20, settings.LockOnDeactivateSeconds);
         Assert.Equal(15, settings.ClipboardClearSeconds);
+        Assert.Null(settings.SecurityAcknowledgementAcceptedAtUtc);
+        Assert.Equal(0, settings.SecurityAcknowledgementVersionAccepted);
+        Assert.False(settings.HasCurrentSecurityAcknowledgement);
 
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
+        settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:15:30.0000000+00:00");
         service.Save(settings);
 
         var json = File.ReadAllText(DefaultPaths.SettingsPath);
         using var document = JsonDocument.Parse(json);
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ClipboardClearSeconds), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementAcceptedAtUtc), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementVersionAccepted), out _));
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
+        Assert.Equal("2026-05-31T10:15:30.0000000+00:00", service.Load().SecurityAcknowledgementAcceptedAtUtc);
+        Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, service.Load().SecurityAcknowledgementVersionAccepted);
+        Assert.True(service.Load().HasCurrentSecurityAcknowledgement);
+    }
+
+    [Fact]
+    public void AppSettings_RequiresCurrentSecurityAcknowledgementVersion()
+    {
+        var settings = new AppSettings
+        {
+            SecurityAcknowledgementAcceptedAtUtc = "2026-05-31T10:15:30.0000000+00:00",
+            SecurityAcknowledgementVersionAccepted = AppSettings.CurrentSecurityAcknowledgementVersion - 1
+        };
+
+        Assert.False(settings.HasCurrentSecurityAcknowledgement);
+
+        settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:16:30.0000000+00:00");
+
+        Assert.True(settings.HasCurrentSecurityAcknowledgement);
+        Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, settings.SecurityAcknowledgementVersionAccepted);
     }
 
     [Fact]

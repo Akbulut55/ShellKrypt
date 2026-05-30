@@ -1,0 +1,71 @@
+# Changelog
+
+Project-level changes for `ShellKrypt`.
+
+Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Before preparing a release, move relevant `Unreleased` entries into a versioned release section.
+
+## [Unreleased]
+
+### Changed
+
+- Filled the root README, security policy, agent instructions, and handbook documents with ShellKrypt-specific product, architecture, security, database, development, operations, decision, roadmap, and release guidance.
+- Prepared GPL-3.0-or-later source licensing, public-facing notices/disclaimers, and pre-release security reporting guidance.
+- Added first-use security acknowledgement to the desktop launcher before creating, importing, or opening vaults.
+- Added versioning to the security acknowledgement so material terms, privacy, disclaimer, or security text changes can require re-acceptance.
+
+### Added
+
+- Added `LICENSE` with the full GPL v3 license text.
+- Added `NOTICE.md` for official-build, modified-build, and branding expectations.
+- Added `DISCLAIMER.md` covering no warranty, no password recovery, plaintext exports, clipboard limits, audit status, and regulated-data limits.
+- Added `TERMS.md` and `PRIVACY.md` with draft pre-release usage and local-only privacy notices.
+
+## [ShellKrypt 0.8.0] - 2026-05-30
+
+### Added
+
+- Added `ShellKrypt.Application` for shared settings, vault registry, activity log, audit dismissal, item summary, search, filter, and pagination logic.
+- Added `ShellKrypt.UI.Shared` for reusable theme resources, converters, and shared controls.
+- Added shared mobile shell foundation plus Android and iOS app heads.
+- Added API Keys workspace with flexible dynamic fields.
+- Added Authenticator workspace with TOTP/HOTP support, QR screenshot import, pasted image import, advanced options, details, edit, and delete flows.
+- Added Markdown Notes workspace with source/preview switching, starred notes, create/edit/delete, and autosave after typing stops.
+- Added vault-scoped encrypted activity logs with filtering, pagination, details, clearing, and plaintext report export.
+
+### Changed
+
+- Standardized desktop theme resources, table styling, pagination, filters, and item modal structure.
+- Reworked Web Logins, Credit Cards, and API Keys modals to use shared `ModalShell`.
+- Simplified the root solution layout so `ShellKrypt.slnx` is the canonical solution and mobile heads build directly by project file.
+- Refactored shared app services out of Desktop into Application and Infrastructure boundaries.
+- Updated README and docs to describe the pre-1.0 local-only product model.
+
+### Fixed
+
+- Improved small-screen desktop sidebar behavior and modal sizing.
+- Fixed API key modal field overflow, note overflow, scroll boundaries, and ComboBox wheel bubbling inside field rows.
+- Improved dropdown placement and scroll behavior in Settings.
+- Refined table empty states, pagination, and row/footer consistency.
+
+### Removed
+
+- Removed the duplicate `ShellKrypt.MobileApps.slnx` root solution.
+- Removed legacy/global activity-log fallback behavior from active read/write paths.
+- Removed duplicated hand-rolled item modal shells from Web Logins, Credit Cards, and API Keys.
+
+### Security
+
+- Hardened AES-GCM encrypted blob handling with versioned envelopes and associated data where practical.
+- Hardened vault path guards, deletion safety, import/export validation, and active-vault overwrite checks.
+- Added stronger plaintext export confirmation and clearer decrypted-export warnings.
+- Added clipboard copy disable setting and minimum clipboard timeout validation.
+- Ensured activity logs are vault-scoped and encrypted, with raw secrets excluded from activity details.
+
+## [ShellKrypt 0.1.0-alpha] - Earlier
+
+### Added
+
+- Added initial .NET/Avalonia desktop solution.
+- Added local `.skvault` SQLite vault creation and unlock.
+- Added Argon2id master-password derivation and AES-GCM encrypted item payload storage.
+- Added early Web Logins, Credit Cards, Generator, Security Audit, Settings, and vault launcher workflows.

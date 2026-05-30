@@ -1,14 +1,24 @@
 # ShellKrypt
 
-ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides separate workspaces for credentials, payment cards, API keys, authenticator codes, markdown notes, password generation, security review, settings, and activity logs.
+ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, settings, and activity logs.
 
-ShellKrypt is currently a pre-1.0 private release build. It is intended for careful local use and broader validation before a public 1.0 release.
+ShellKrypt is currently a private pre-1.0 release build. It is intended for careful local use, validation, and product hardening before a public 1.0 release.
+
+## Status
+
+- Stage: private pre-1.0 build
+- Current app version: `0.8.0`
+- Primary surface: Windows desktop
+- Secondary surfaces: shared mobile shell with Android and iOS app heads
+- Owner: private project owner
+- Security status: not externally audited
+- License: GPL-3.0-or-later
 
 ## What ShellKrypt Stores
 
-- Web logins with usernames, emails, passwords, URLs, notes, copy actions, search, filtering, details, edit, delete, and pagination.
-- Credit cards with bank, issuer, cardholder, card type, masked number, CVC reveal, expiry handling, copy actions, edit, delete, search, filtering, and pagination.
-- API keys with flexible metadata fields for provider IDs, project IDs, project names, key names, prefixes, secrets, and custom fields.
+- Web logins with title, username, email, password, URL, notes, copy actions, search, filters, details, edit, delete, and pagination.
+- Credit cards with bank, issuer, cardholder, card type, masked number, CVC reveal, expiry handling, copy actions, details, edit, delete, search, filters, and pagination.
+- API keys with flexible metadata fields for provider IDs, client IDs, project IDs, key names, prefixes, secrets, and custom fields.
 - Authenticator entries for local TOTP/HOTP codes with manual secret entry, QR screenshot import, pasted image import, advanced code options, details, edit, and delete.
 - Markdown notes with source/preview switching, autosave after typing stops, starred notes, search, create, edit, and delete.
 - Activity logs stored inside the active vault with category filters, pagination, metadata details, clearing, and plaintext JSON report export.
@@ -37,6 +47,7 @@ ShellKrypt is designed for local storage only. There is no ShellKrypt cloud acco
 - Clipboard copy actions can be disabled or cleared automatically after a configured timeout, but clipboard clearing is best-effort and is not a security boundary.
 - The vault key and visible secrets can exist in app memory while the vault is unlocked.
 - JSON exports and activity report exports are intentionally plaintext reports. Store them carefully and delete them when no longer needed.
+- The desktop launcher requires a first-use security acknowledgement before creating, importing, or opening a vault.
 - The project has not received an external security audit.
 
 ## Critical Warning: No Password Recovery
@@ -51,64 +62,89 @@ Before relying on a vault, create and verify a backup. If the vault is still unl
 
 - Windows is the primary tested desktop target.
 - The interface is currently English-first. Additional languages should be added before a broad public 1.0 release.
-- macOS and Linux behavior should be validated separately before publishing builds for those platforms.
-- Code signing, installer packaging, update delivery, commercial legal text, and public support processes should be finalized before broad commercial distribution.
+- macOS and Linux behavior should be validated separately before publishing desktop builds for those platforms.
+- Mobile app heads exist, but the mobile product is not feature-complete.
+- Code signing, installer packaging, update delivery, terms/privacy/disclaimer docs, public support processes, and export-compliance review should be finalized before broad commercial distribution.
 
-## Project Structure
+## Project Documents
+
+- `handbook/IDEA.md` - product thesis, users, problems, non-goals, and product risks.
+- `handbook/PLAN.md` - engineering plan, architecture, phases, tests, and risks.
+- `handbook/ROADMAP.md` - milestones, sequencing, and release intent.
+- `handbook/TECH_STACK.md` - runtime, framework, database, deployment, and tooling choices.
+- `handbook/DATABASE.md` - schema, migrations, persistence, and data ownership.
+- `handbook/DEVELOPMENT.md` - local setup, commands, environment, and workflow.
+- `handbook/DECISIONS.md` - durable decision log and tradeoffs.
+- `SECURITY.md` - auth, data, secrets, privacy, and threat model.
+- `DISCLAIMER.md` - no-warranty, no-recovery, export, clipboard, and audit disclaimers.
+- `TERMS.md` - draft pre-release terms of use.
+- `PRIVACY.md` - draft local-only privacy notice.
+- `LICENSE` - source license terms.
+- `NOTICE.md` - official-build, modified-build, and branding notice.
+- `handbook/OPERATIONS.md` - release, backup, rollback, and production operations.
+- `CHANGELOG.md` - project-level change history.
+- `AGENTS.md` - instructions for coding agents.
+
+## Repository Layout
 
 ```text
-ShellKrypt.Core/
-  Domain models, payload records, service interfaces, security settings, and transfer models.
-
-ShellKrypt.Infrastructure/
-  SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, and activity log persistence.
-
-ShellKrypt.Application/
-  Shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
-
-ShellKrypt.UI.Shared/
-  Shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
-
-ShellKrypt.Desktop/
-  Avalonia desktop app, views, viewmodels, UI services, assets, and platform integration.
-
-ShellKrypt.Mobile/
-  Shared Avalonia mobile UI that can be hosted by Android and iOS platform heads.
-
-ShellKrypt.Mobile.Android/
-  Android app head and Android-specific package metadata.
-
-ShellKrypt.Mobile.iOS/
-  iOS app head and iOS-specific package metadata.
-
-ShellKrypt.Tests/
-  xUnit tests for core and infrastructure behavior.
+ShellKrypt/
+|-- ShellKrypt.Core/
+|-- ShellKrypt.Application/
+|-- ShellKrypt.Infrastructure/
+|-- ShellKrypt.UI.Shared/
+|-- ShellKrypt.Desktop/
+|-- ShellKrypt.Mobile/
+|-- ShellKrypt.Mobile.Android/
+|-- ShellKrypt.Mobile.iOS/
+|-- ShellKrypt.Tests/
+|-- handbook/
+|-- README.md
+|-- SECURITY.md
+|-- DISCLAIMER.md
+|-- TERMS.md
+|-- PRIVACY.md
+|-- LICENSE
+|-- NOTICE.md
+|-- CHANGELOG.md
+`-- AGENTS.md
 ```
+
+Project responsibilities:
+
+- `ShellKrypt.Core` contains domain models, payload records, service interfaces, security settings, and transfer models.
+- `ShellKrypt.Application` contains shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
+- `ShellKrypt.Infrastructure` contains SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, file stores, and activity log persistence.
+- `ShellKrypt.UI.Shared` contains shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
+- `ShellKrypt.Desktop` contains the Avalonia desktop app, views, viewmodels, UI services, assets, and desktop platform integration.
+- `ShellKrypt.Mobile` contains the shared Avalonia mobile UI and mobile viewmodels.
+- `ShellKrypt.Mobile.Android` and `ShellKrypt.Mobile.iOS` contain platform app heads and package metadata.
+- `ShellKrypt.Tests` contains xUnit tests for core, application, infrastructure, desktop adapter, and mobile shared behavior.
 
 Dependency direction:
 
 ```text
 ShellKrypt.Application -> ShellKrypt.Core
-ShellKrypt.Infrastructure -> ShellKrypt.Core
+ShellKrypt.Infrastructure -> ShellKrypt.Core/Application
 ShellKrypt.Desktop -> ShellKrypt.Core/Application/Infrastructure/UI.Shared
 ShellKrypt.Mobile -> ShellKrypt.Core/Application/Infrastructure/UI.Shared
 ShellKrypt.Mobile.Android -> ShellKrypt.Mobile
 ShellKrypt.Mobile.iOS -> ShellKrypt.Mobile
-ShellKrypt.Tests -> ShellKrypt.Core
-ShellKrypt.Tests -> ShellKrypt.Application
-ShellKrypt.Tests -> ShellKrypt.Infrastructure
+ShellKrypt.Tests -> ShellKrypt.Core/Application/Infrastructure/Desktop/Mobile/UI.Shared
 ```
 
 ## Solution Layout
 
-`ShellKrypt.slnx` is the canonical root solution. It includes the workload-neutral projects used for normal desktop development, shared mobile UI development, and tests.
+`ShellKrypt.slnx` is the canonical root solution. It includes workload-neutral projects used for normal desktop development, shared mobile UI development, and tests.
 
 Android and iOS platform heads are built directly from their project files instead of through a second root solution. This keeps the default solution build usable on Windows without requiring optional mobile workloads or iOS build tooling.
 
 ## Requirements
 
 - .NET 10 SDK
-- Windows as the primary tested desktop target
+- Windows for the primary tested desktop workflow
+- Android workload, Android SDK, and an emulator/device for Android builds
+- macOS, Xcode, Apple signing/provisioning, and the .NET iOS workload for iOS builds
 
 ## Run Locally
 
@@ -170,26 +206,50 @@ publish\win-x64\ShellKrypt.Desktop.exe
 
 Do not commit generated release output such as `publish/`, `artifacts*/`, `bin/`, or `obj/`.
 
+## First Useful Workflow
+
+```text
+User creates a vault
+  -> chooses a master password
+  -> ShellKrypt derives an unlock key and initializes a local .skvault database
+  -> user adds an encrypted web login, card, API key, authenticator, or markdown note
+  -> user locks and later unlocks the vault with the same master password
+```
+
+Acceptance:
+
+- A new vault can be created, unlocked, locked, reopened, and deleted.
+- Sensitive item payloads are encrypted in the vault database.
+- Forgetting the master password does not expose a recovery path.
+
 ## Pre-Release Smoke Test
 
 - Build, tests, and dependency vulnerability check pass.
 - New vault creation works.
 - Existing vault import/open works.
-- Wrong master password is rejected.
-- Master password change works while unlocked.
-- Web Logins, Credit Cards, API Keys, Authenticator, and Markdown Notes support create, view, edit, delete, copy/reveal where applicable.
-- Markdown Notes autosave waits until typing stops before saving.
-- Security Audit updates after credential changes.
-- Activity Logs are scoped to the active vault.
-- Activity report export is clearly presented as plaintext JSON.
-- Auto-lock, lock on focus loss, clipboard timeout, and copy-disabled mode behave as expected.
-- Plaintext export warning, clipboard clearing, and vault deletion confirmation are smoke-tested in the published build.
-- Backup export and restore are tested.
-- The no-password-recovery warning is visible in user-facing documentation.
+- Unlock and lock flows work.
+- All item types can be added, viewed, edited, deleted, searched, and paged.
+- Backup export and restore work with a separate passphrase.
+- Plaintext export requires explicit confirmation and produces a warning.
+- Clipboard copy, clearing, and disabled-copy settings work as documented.
+- Activity logs load, filter, export, and clear without recording raw secrets.
+- Vault deletion confirms the selected `.skvault` and does not delete unexpected paths.
 
-## Development Notes
+## Contributing Notes
 
-- Avalonia views are resolved through `ViewLocator`, which maps viewmodels to views by naming convention.
-- Keep UI logic in desktop viewmodels/services and vault/domain behavior in Core or Infrastructure.
-- Build output folders and generated artifacts should remain uncommitted.
-- Before changing vault schema or encryption behavior, add or update tests in `ShellKrypt.Tests`.
+- Keep product direction aligned with `handbook/IDEA.md`.
+- Keep implementation work aligned with `handbook/PLAN.md`.
+- Update `CHANGELOG.md` for meaningful changes.
+- Do not commit secrets, real user data, private logs, generated outputs, local vaults, local backups, plaintext exports, or local environment files.
+
+## License
+
+ShellKrypt source code is prepared for release under `GPL-3.0-or-later`. See `LICENSE` for the full GPL v3 text.
+
+Official signed builds, paid distribution channels, support services, names, logos, and release infrastructure may be provided separately from the source license. See `NOTICE.md` for the official-build and modified-build notice.
+
+## Disclaimer
+
+ShellKrypt is provided as-is and has not received an external security audit. There is no password recovery. Clipboard clearing is best-effort. Plaintext exports are decrypted reports and must be handled carefully.
+
+See `TERMS.md`, `PRIVACY.md`, `DISCLAIMER.md`, and `SECURITY.md` before publishing or distributing the project.

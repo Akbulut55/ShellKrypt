@@ -2,6 +2,8 @@ namespace ShellKrypt.Application.Settings;
 
 public sealed class AppSettings
 {
+    public const int CurrentSecurityAcknowledgementVersion = 1;
+
     public AppThemeMode ThemeMode { get; set; } = AppThemeMode.Dark;
     public bool AutoLockEnabled { get; set; } = true;
     public int AutoLockMinutes { get; set; } = 15;
@@ -9,6 +11,18 @@ public sealed class AppSettings
     public int LockOnDeactivateSeconds { get; set; } = 20;
     public int ClipboardClearSeconds { get; set; } = 15;
     public bool ClipboardCopyEnabled { get; set; } = true;
+    public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
+    public int SecurityAcknowledgementVersionAccepted { get; set; }
+
+    public bool HasCurrentSecurityAcknowledgement =>
+        !string.IsNullOrWhiteSpace(SecurityAcknowledgementAcceptedAtUtc) &&
+        SecurityAcknowledgementVersionAccepted >= CurrentSecurityAcknowledgementVersion;
+
+    public void AcceptCurrentSecurityAcknowledgement(string acceptedAtUtc)
+    {
+        SecurityAcknowledgementAcceptedAtUtc = acceptedAtUtc;
+        SecurityAcknowledgementVersionAccepted = CurrentSecurityAcknowledgementVersion;
+    }
 
     public SessionSecuritySettings ToSessionSecuritySettings()
     {

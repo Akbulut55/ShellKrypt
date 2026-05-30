@@ -48,6 +48,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IApiKeyService _apiKeyService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
+    private string? _securityAcknowledgementAcceptedAtUtc;
+    private int _securityAcknowledgementVersionAccepted;
 
     public event EventHandler? ActivityChanged;
 
@@ -82,6 +84,8 @@ public partial class MainWindowViewModel : ViewModelBase
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
         themeMode = settings.ThemeMode;
+        _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
+        _securityAcknowledgementVersionAccepted = settings.SecurityAcknowledgementVersionAccepted;
 
         _sessionSecurity.ApplySettings(sessionSecurity);
 
@@ -94,6 +98,9 @@ public partial class MainWindowViewModel : ViewModelBase
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
     public ActivityLogService ActivityLogService => _activityLogService;
+    public bool HasAcceptedSecurityAcknowledgement =>
+        !string.IsNullOrWhiteSpace(_securityAcknowledgementAcceptedAtUtc) &&
+        _securityAcknowledgementVersionAccepted >= AppSettings.CurrentSecurityAcknowledgementVersion;
 
     public void SetVaultPath(string path)
     {
@@ -114,6 +121,16 @@ public partial class MainWindowViewModel : ViewModelBase
     public void GoWelcome() => Current = new WelcomeViewModel(this, _vaultRegistryService);
     public void GoCreateVault() => Current = new CreateVaultViewModel(this, _vaultService, _vaultRegistryService);
     public void GoUnlock() => Current = new UnlockViewModel(this, _vaultService, _vaultRegistryService);
+
+    public void AcceptSecurityAcknowledgement()
+    {
+        if (HasAcceptedSecurityAcknowledgement)
+            return;
+
+        _securityAcknowledgementAcceptedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        _securityAcknowledgementVersionAccepted = AppSettings.CurrentSecurityAcknowledgementVersion;
+        SaveSettingsAndSyncSessionSecurity();
+    }
 
     public void OnUnlocked(byte[] vaultKey)
     {
@@ -318,7 +335,9 @@ public partial class MainWindowViewModel : ViewModelBase
         {
             var appSettings = new AppSettings
             {
-                ThemeMode = ThemeMode
+                ThemeMode = ThemeMode,
+                SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
+                SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };
             appSettings.ApplySessionSecuritySettings(BuildSessionSecuritySettings());
             _settingsService.Save(appSettings);

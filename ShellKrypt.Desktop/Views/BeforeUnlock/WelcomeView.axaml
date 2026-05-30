@@ -465,6 +465,101 @@
         </Border>
       </Grid>
     </Border>
+
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
+            IsVisible="{Binding IsSecurityAcknowledgementOpen}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+      <Grid>
+        <Border Classes="welcome-modal-card"
+                Width="720"
+                MaxWidth="720"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="34,30">
+          <StackPanel Spacing="22">
+            <StackPanel Spacing="8">
+              <TextBlock Text="Security Acknowledgement"
+                         Foreground="{StaticResource AccentBrush}"
+                         FontSize="28"
+                         FontWeight="Black"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="Before creating, importing, or opening a vault, confirm that you understand these ShellKrypt limits."
+                         Classes="page-subtitle"
+                         FontSize="14"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border Background="{StaticResource AppBackgroundSoftBrush}"
+                    BorderBrush="{StaticResource ModalBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="20,18">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="ShellKrypt has no password recovery. If you forget the master password while locked, the vault cannot be recovered without a valid backup and backup passphrase."
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="Plaintext exports and activity reports are decrypted files. They must be protected or deleted when no longer needed."
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="Clipboard clearing is best-effort and is not a security boundary. Secrets can exist in memory while a vault is unlocked."
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="ShellKrypt is local-only and not externally audited yet. Create and verify encrypted backups before relying on a vault."
+                             TextWrapping="Wrap"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="By continuing, you acknowledge the terms, privacy notice, disclaimer, and security notes included with this project."
+                       Classes="page-subtitle"
+                       FontSize="13"
+                       TextWrapping="Wrap"/>
+
+            <CheckBox Content="I understand these limits and want to continue."
+                      Classes="welcome-acknowledgement-check"
+                      IsChecked="{Binding SecurityAcknowledgementConfirmed, Mode=TwoWay}"/>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="14">
+              <Border Background="Transparent"/>
+              <Button Grid.Column="1"
+                      Content="Cancel"
+                      Classes="welcome-modal-secondary-button"
+                      Command="{Binding CancelSecurityAcknowledgementCommand}"/>
+              <Button Grid.Column="2"
+                      Content="I Understand"
+                      Classes="welcome-modal-primary-button"
+                      Command="{Binding AcceptSecurityAcknowledgementCommand}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
   </Grid>
 
   <UserControl.Styles>
@@ -728,6 +823,12 @@
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="CheckBox.welcome-acknowledgement-check">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

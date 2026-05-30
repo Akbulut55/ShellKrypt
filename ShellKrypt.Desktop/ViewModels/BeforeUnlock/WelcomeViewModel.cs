@@ -21,6 +21,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     private readonly VaultRegistryService _vaultRegistry;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly List<VaultRecordVm> _allVaults = new();
+    private SecurityAcknowledgementAction _pendingSecurityAcknowledgementAction;
+    private VaultRecordVm? _pendingSecurityAcknowledgementVault;
     private int _filteredVaultCount;
 
     public ObservableCollection<VaultRecordVm> Vaults { get; } = new();
@@ -41,6 +43,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private VaultRecordVm? deleteTarget;
     [ObservableProperty] private bool isRemoveOverlayOpen;
     [ObservableProperty] private VaultRecordVm? removeTarget;
+    [ObservableProperty] private bool isSecurityAcknowledgementOpen;
+    [ObservableProperty] private bool securityAcknowledgementConfirmed;
 
     public WelcomeViewModel(MainWindowViewModel root, VaultRegistryService vaultRegistry)
     {
@@ -75,6 +79,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? "Hide" : "Show";
     public string RemoveOverlayTitle => $"Remove {RemoveTarget?.DisplayLabel ?? "vault"} from the list?";
     public string RemoveOverlayDetail => "This only removes the stale entry from ShellKrypt's launcher. No vault file will be deleted.";
+    public bool CanAcceptSecurityAcknowledgement => SecurityAcknowledgementConfirmed;
 
     partial void OnSearchTextChanged(string value)
     {
@@ -84,6 +89,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
     partial void OnDeleteOverlayErrorChanged(string value) => OnPropertyChanged(nameof(HasDeleteOverlayError));
+    partial void OnSecurityAcknowledgementConfirmedChanged(bool value) => AcceptSecurityAcknowledgementCommand.NotifyCanExecuteChanged();
 
     partial void OnActiveSortChanged(string value)
     {
@@ -130,7 +136,15 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void CreateVault() => _root.GoCreateVault();
+    private void CreateVault()
+    {
+        Error = "";
+
+        if (RequestSecurityAcknowledgement(SecurityAcknowledgementAction.CreateVault))
+            return;
+
+        _root.GoCreateVault();
+    }
 
     [RelayCommand]
     private void Refresh() => ReloadVaults(SelectedVault?.VaultPath);
@@ -184,6 +198,9 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     private async Task ImportVaultAsync()
     {
         Error = "";
+
+        if (RequestSecurityAcknowledgement(SecurityAcknowledgementAction.ImportVault))
+            return;
 
         try
         {
@@ -385,8 +402,40 @@ public sealed partial class WelcomeViewModel : ViewModelBase
             return;
         }
 
+        if (RequestSecurityAcknowledgement(SecurityAcknowledgementAction.OpenVault, vault))
+            return;
+
         _root.SetVaultPath(vault.VaultPath);
         _root.GoUnlock();
+    }
+
+    [RelayCommand(CanExecute = nameof(CanAcceptSecurityAcknowledgement))]
+    private async Task AcceptSecurityAcknowledgementAsync()
+    {
+        var action = _pendingSecurityAcknowledgementAction;
+        var vault = _pendingSecurityAcknowledgementVault;
+
+        _root.AcceptSecurityAcknowledgement();
+        ClearSecurityAcknowledgement();
+
+        switch (action)
+        {
+            case SecurityAcknowledgementAction.CreateVault:
+                _root.GoCreateVault();
+                break;
+            case SecurityAcknowledgementAction.ImportVault:
+                await ImportVaultAsync();
+                break;
+            case SecurityAcknowledgementAction.OpenVault:
+                OpenVault(vault);
+                break;
+        }
+    }
+
+    [RelayCommand]
+    private void CancelSecurityAcknowledgement()
+    {
+        ClearSecurityAcknowledgement();
     }
 
     [RelayCommand]
@@ -700,6 +749,26 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         DeleteTarget = null;
     }
 
+    private bool RequestSecurityAcknowledgement(SecurityAcknowledgementAction action, VaultRecordVm? vault = null)
+    {
+        if (_root.HasAcceptedSecurityAcknowledgement)
+            return false;
+
+        _pendingSecurityAcknowledgementAction = action;
+        _pendingSecurityAcknowledgementVault = vault;
+        SecurityAcknowledgementConfirmed = false;
+        IsSecurityAcknowledgementOpen = true;
+        return true;
+    }
+
+    private void ClearSecurityAcknowledgement()
+    {
+        IsSecurityAcknowledgementOpen = false;
+        SecurityAcknowledgementConfirmed = false;
+        _pendingSecurityAcknowledgementAction = SecurityAcknowledgementAction.None;
+        _pendingSecurityAcknowledgementVault = null;
+    }
+
     private static void CopySidecarIfExists(string sourcePath, string targetPath, string suffix)
     {
         var source = sourcePath + suffix;
@@ -732,5 +801,13 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         }
 
         return $"{display:0.##} {units[unitIndex]}";
+    }
+
+    private enum SecurityAcknowledgementAction
+    {
+        None,
+        CreateVault,
+        ImportVault,
+        OpenVault
     }
 }
