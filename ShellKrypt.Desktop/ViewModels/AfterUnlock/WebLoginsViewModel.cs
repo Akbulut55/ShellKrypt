@@ -11,83 +11,6 @@ using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
-public sealed partial class WebLoginRowVm : ObservableObject
-{
-    public string Id { get; }
-    public bool IsNew { get; private set; }
-    public string CreatedAtUtc { get; }
-    public string UpdatedAtUtc { get; private set; }
-
-    [ObservableProperty] private string title;
-    [ObservableProperty] private string username;
-    [ObservableProperty] private string email;
-    [ObservableProperty] private string password;
-    [ObservableProperty] private string url;
-    [ObservableProperty] private string notes;
-    [ObservableProperty] private bool isPasswordVisible;
-
-    public WebLoginRowVm(
-        string id,
-        string title,
-        string username,
-        string password,
-        string url,
-        string notes,
-        string createdAtUtc,
-        string updatedAtUtc,
-        bool isNew,
-        string email = "")
-    {
-        Id = id;
-        Title = title ?? "";
-        Username = username ?? "";
-        Email = email ?? "";
-        Password = password ?? "";
-        Url = url ?? "";
-        Notes = notes ?? "";
-        CreatedAtUtc = createdAtUtc;
-        UpdatedAtUtc = updatedAtUtc;
-        IsNew = isNew;
-    }
-
-    public string IconLetter => string.IsNullOrWhiteSpace(Title) ? "?" : Title.Trim()[0].ToString().ToUpperInvariant();
-    public string UsernameDisplay => string.IsNullOrWhiteSpace(Username) ? Email : Username;
-    public string PasswordDisplay => IsPasswordVisible ? Password : "**********";
-    public string UrlHost => FormatUrlHost(Url);
-
-    partial void OnTitleChanged(string value) => OnPropertyChanged(nameof(IconLetter));
-    partial void OnUsernameChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
-    partial void OnEmailChanged(string value) => OnPropertyChanged(nameof(UsernameDisplay));
-    partial void OnPasswordChanged(string value) => OnPropertyChanged(nameof(PasswordDisplay));
-    partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlHost));
-    partial void OnIsPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(PasswordDisplay));
-
-    public void MarkSaved(string updatedAtUtc)
-    {
-        IsNew = false;
-        UpdatedAtUtc = string.IsNullOrWhiteSpace(updatedAtUtc)
-            ? DateTimeOffset.UtcNow.ToString("O")
-            : updatedAtUtc;
-    }
-
-    private static string FormatUrlHost(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return "no url";
-
-        var text = value.Trim();
-        if (Uri.TryCreate(text, UriKind.Absolute, out var absolute) && !string.IsNullOrWhiteSpace(absolute.Host))
-            return absolute.Host;
-
-        var withoutScheme = text
-            .Replace("https://", "", StringComparison.OrdinalIgnoreCase)
-            .Replace("http://", "", StringComparison.OrdinalIgnoreCase);
-
-        var slash = withoutScheme.IndexOf('/');
-        return slash < 0 ? withoutScheme : withoutScheme[..slash];
-    }
-}
-
 public partial class WebLoginsViewModel : ViewModelBase
 {
     private const int PageSize = 5;
@@ -155,7 +78,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     public string WeakPasswordSummary => WeakPasswordCount == 1
         ? "1 login uses a weak password"
         : $"{WeakPasswordCount} logins use weak passwords";
-    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filtered.Count / (double)PageSize));
+    public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
     public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} web logins";
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPreviousPage => CurrentPage > 1;
@@ -605,7 +528,7 @@ public partial class WebLoginsViewModel : ViewModelBase
         if (resetPage)
             CurrentPage = 1;
         else
-            CurrentPage = Math.Clamp(CurrentPage, 1, TotalPages);
+            CurrentPage = DesktopPagination.ClampPage(CurrentPage, _filtered.Count, PageSize);
 
         RenderPage();
     }
@@ -614,7 +537,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         Rows.Clear();
 
-        foreach (var r in _filtered.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+        foreach (var r in DesktopPagination.Page(_filtered, CurrentPage, PageSize))
             Rows.Add(r);
 
         OnPropertyChanged(nameof(ItemsSummary));
@@ -634,42 +557,11 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         var selectedUsername = SelectedUsernameFilter;
         var selected = SelectedEmailFilter;
-        UsernameFilters.Clear();
-        UsernameFilters.Add(AllUsernameFilter);
-        EmailFilters.Clear();
-        EmailFilters.Add(AllEmailFilter);
+        DesktopFilterOptions.RebuildStringOptions(UsernameFilters, AllUsernameFilter, _all.Select(row => row.Username));
+        DesktopFilterOptions.RebuildStringOptions(EmailFilters, AllEmailFilter, _all.Select(row => row.Email));
 
-        foreach (var username in _all
-                     .Select(row => row.Username?.Trim())
-                     .Where(username => !string.IsNullOrWhiteSpace(username))
-                     .Cast<string>()
-                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                     .OrderBy(username => username, StringComparer.OrdinalIgnoreCase))
-        {
-            UsernameFilters.Add(username);
-        }
-
-        foreach (var email in _all
-                     .Select(row => row.Email?.Trim())
-                     .Where(email => !string.IsNullOrWhiteSpace(email))
-                     .Cast<string>()
-                     .Distinct(StringComparer.OrdinalIgnoreCase)
-                     .OrderBy(email => email, StringComparer.OrdinalIgnoreCase))
-        {
-            EmailFilters.Add(email);
-        }
-
-        if (!string.IsNullOrWhiteSpace(selectedUsername) &&
-            !UsernameFilters.Any(option => string.Equals(option, selectedUsername, StringComparison.OrdinalIgnoreCase)))
-        {
-            SelectedUsernameFilter = "";
-        }
-
-        if (!string.IsNullOrWhiteSpace(selected) &&
-            !EmailFilters.Any(option => string.Equals(option, selected, StringComparison.OrdinalIgnoreCase)))
-        {
-            SelectedEmailFilter = "";
-        }
+        SelectedUsernameFilter = DesktopFilterOptions.KeepSelectedOrEmpty(UsernameFilters, selectedUsername);
+        SelectedEmailFilter = DesktopFilterOptions.KeepSelectedOrEmpty(EmailFilters, selected);
 
         SelectedUsernameFilterChoice = string.IsNullOrWhiteSpace(SelectedUsernameFilter)
             ? AllUsernameFilter

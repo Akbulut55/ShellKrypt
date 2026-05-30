@@ -484,7 +484,7 @@ public sealed class AllItemsViewModel : ViewModelBase
 
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public int TotalPages => Math.Max(1, (int)Math.Ceiling(Math.Max(FilteredCount, 1) / (double)PageSize));
+    public int TotalPages => DesktopPagination.GetTotalPages(FilteredCount, PageSize);
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public bool CanGoPrevious => CurrentPage > 1;
     public bool CanGoNext => CurrentPage < TotalPages;

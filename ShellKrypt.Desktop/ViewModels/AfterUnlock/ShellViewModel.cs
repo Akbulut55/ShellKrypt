@@ -11,6 +11,7 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -18,19 +19,8 @@ public partial class ShellViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
 
-    public ObservableCollection<NavItemVm> NavItems { get; } = new()
-    {
-        new NavItemVm("vault", "All Items"),
-        new NavItemVm("web", "Web Logins"),
-        new NavItemVm("cards", "Credit Cards"),
-        new NavItemVm("api", "API Keys"),
-        new NavItemVm("auth", "Authenticator"),
-        new NavItemVm("notes", "Markdown Notes"),
-        new NavItemVm("generator", "Generator"),
-        new NavItemVm("audit", "Security Audit"),
-        new NavItemVm("settings", "Settings"),
-        new NavItemVm("activity", "Activity Logs"),
-    };
+    public ObservableCollection<NavItemVm> NavItems { get; } = new(
+        ShellKryptSectionCatalog.DesktopSections.Select(section => new NavItemVm(section)));
 
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
@@ -64,7 +54,7 @@ public partial class ShellViewModel : ViewModelBase
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);
         Activity = new ActivityViewModel(_root, activityLogService);
 
-        SelectNav("vault");
+        SelectNav(ShellKryptSectionKeys.Vault);
     }
 
     public WebLoginsViewModel WebLogins { get; }
@@ -102,32 +92,32 @@ public partial class ShellViewModel : ViewModelBase
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
-        "vault" => "All encrypted records in the active workspace.",
-        "web" => "Credentials, account URLs, and saved login details.",
-        "notes" => "Encrypted markdown notes and vault reference material.",
-        "cards" => "Sensitive payment details protected in the vault.",
-        "audit" => "Audit reuse, age, and password risk across the vault.",
-        "generator" => "Generate and transform local secrets without leaving the vault.",
-        "auth" => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
-        "api" => "API tokens, client secrets, project IDs, and provider metadata.",
-        "settings" => "Manage vault security, import/export, and desktop behavior.",
-        "activity" => "Review vault activity events and plaintext report exports.",
+        ShellKryptSectionKeys.Vault => "All encrypted records in the active workspace.",
+        ShellKryptSectionKeys.WebLogins => "Credentials, account URLs, and saved login details.",
+        ShellKryptSectionKeys.Notes => "Encrypted markdown notes and vault reference material.",
+        ShellKryptSectionKeys.Cards => "Sensitive payment details protected in the vault.",
+        ShellKryptSectionKeys.Audit => "Audit reuse, age, and password risk across the vault.",
+        ShellKryptSectionKeys.Generator => "Generate and transform local secrets without leaving the vault.",
+        ShellKryptSectionKeys.Authenticator => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
+        ShellKryptSectionKeys.ApiKeys => "API tokens, client secrets, project IDs, and provider metadata.",
+        ShellKryptSectionKeys.Settings => "Manage vault security, import/export, and desktop behavior.",
+        ShellKryptSectionKeys.Activity => "Review vault activity events and plaintext report exports.",
         _ => "Local encrypted vault workspace."
     };
-    public bool IsSettingsSelected => SelectedNav?.Key == "settings";
+    public bool IsSettingsSelected => SelectedNav?.Key == ShellKryptSectionKeys.Settings;
     public bool ShowAddItemAction => !IsSettingsSelected;
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
-        "settings" => "Search settings...",
-        "vault" => "Search all items...",
-        "web" => "Search web logins...",
-        "notes" => "Search markdown notes...",
-        "cards" => "Search credit cards...",
-        "audit" => "Search security audit...",
-        "generator" => "Search generator tools...",
-        "auth" => "Search authenticator codes...",
-        "api" => "Search API keys...",
-        "activity" => "Search activity...",
+        ShellKryptSectionKeys.Settings => "Search settings...",
+        ShellKryptSectionKeys.Vault => "Search all items...",
+        ShellKryptSectionKeys.WebLogins => "Search web logins...",
+        ShellKryptSectionKeys.Notes => "Search markdown notes...",
+        ShellKryptSectionKeys.Cards => "Search credit cards...",
+        ShellKryptSectionKeys.Audit => "Search security audit...",
+        ShellKryptSectionKeys.Generator => "Search generator tools...",
+        ShellKryptSectionKeys.Authenticator => "Search authenticator codes...",
+        ShellKryptSectionKeys.ApiKeys => "Search API keys...",
+        ShellKryptSectionKeys.Activity => "Search activity...",
         _ => "Search all items..."
     };
 
@@ -141,16 +131,16 @@ public partial class ShellViewModel : ViewModelBase
 
         CurrentPage = value.Key switch
         {
-            "vault" => AllItems,
-            "web" => WebLogins,
-            "notes" => MarkdownNotes,
-            "cards" => Cards,
-            "generator" => Tools,
-            "audit" => Health,
-            "auth" => Authenticator,
-            "api" => ApiKeys,
-            "settings" => Settings,
-            "activity" => Activity,
+            ShellKryptSectionKeys.Vault => AllItems,
+            ShellKryptSectionKeys.WebLogins => WebLogins,
+            ShellKryptSectionKeys.Notes => MarkdownNotes,
+            ShellKryptSectionKeys.Cards => Cards,
+            ShellKryptSectionKeys.Generator => Tools,
+            ShellKryptSectionKeys.Audit => Health,
+            ShellKryptSectionKeys.Authenticator => Authenticator,
+            ShellKryptSectionKeys.ApiKeys => ApiKeys,
+            ShellKryptSectionKeys.Settings => Settings,
+            ShellKryptSectionKeys.Activity => Activity,
             _ => AllItems
         };
 
@@ -183,33 +173,33 @@ public partial class ShellViewModel : ViewModelBase
 
     public void ShowAllItems()
     {
-        CurrentPage = AllItems;
+        SelectNav(ShellKryptSectionKeys.Vault);
     }
 
-    public void ShowWebLogins() => SelectNav("web");
+    public void ShowWebLogins() => SelectNav(ShellKryptSectionKeys.WebLogins);
     public async Task<bool> ShowWebLoginForRemediationAsync(string itemId, bool generateReplacementPassword = false)
     {
-        SelectNav("web");
+        SelectNav(ShellKryptSectionKeys.WebLogins);
         return await WebLogins.OpenForRemediationAsync(itemId, generateReplacementPassword);
     }
 
-    public void ShowCards() => SelectNav("cards");
-    public void ShowMarkdownNotes() => SelectNav("notes");
-    public void ShowSecurityAudit() => SelectNav("audit");
-    public void ShowAuthenticator() => SelectNav("auth");
+    public void ShowCards() => SelectNav(ShellKryptSectionKeys.Cards);
+    public void ShowMarkdownNotes() => SelectNav(ShellKryptSectionKeys.Notes);
+    public void ShowSecurityAudit() => SelectNav(ShellKryptSectionKeys.Audit);
+    public void ShowAuthenticator() => SelectNav(ShellKryptSectionKeys.Authenticator);
     public async Task<bool> ShowAuthenticatorByIdAsync(string itemId)
     {
-        SelectNav("auth");
+        SelectNav(ShellKryptSectionKeys.Authenticator);
         return await Authenticator.OpenEntryByIdAsync(itemId);
     }
-    public void ShowApiKeys() => SelectNav("api");
+    public void ShowApiKeys() => SelectNav(ShellKryptSectionKeys.ApiKeys);
     public async Task<bool> ShowApiKeyByIdAsync(string itemId)
     {
-        SelectNav("api");
+        SelectNav(ShellKryptSectionKeys.ApiKeys);
         return await ApiKeys.OpenEntryByIdAsync(itemId);
     }
-    public void ShowSettings() => SelectNav("settings");
-    public void ShowActivity() => SelectNav("activity");
+    public void ShowSettings() => SelectNav(ShellKryptSectionKeys.Settings);
+    public void ShowActivity() => SelectNav(ShellKryptSectionKeys.Activity);
 
     private void SelectNav(string key)
     {

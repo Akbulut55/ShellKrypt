@@ -150,7 +150,7 @@ public partial class ActivityViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public int TotalEvents => _allItems.Count;
     public int FilteredEventCount => _filteredItems.Count;
-    public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredItems.Count / (double)PageSize));
+    public int TotalPages => DesktopPagination.GetTotalPages(_filteredItems.Count, PageSize);
     public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
     public string ItemsSummary => $"Showing {Items.Count} of {FilteredEventCount} events";
     public bool CanGoPreviousPage => CurrentPage > 1;
@@ -347,7 +347,7 @@ public partial class ActivityViewModel : ViewModelBase
 
         _filteredItems.AddRange(items);
 
-        var targetPage = resetPage ? 1 : Math.Clamp(CurrentPage, 1, TotalPages);
+        var targetPage = resetPage ? 1 : DesktopPagination.ClampPage(CurrentPage, _filteredItems.Count, PageSize);
         if (CurrentPage != targetPage)
             CurrentPage = targetPage;
         else
@@ -371,7 +371,7 @@ public partial class ActivityViewModel : ViewModelBase
     {
         Items.Clear();
 
-        foreach (var item in _filteredItems.Skip((CurrentPage - 1) * PageSize).Take(PageSize))
+        foreach (var item in DesktopPagination.Page(_filteredItems, CurrentPage, PageSize))
             Items.Add(item);
 
         SelectedItem = Items.FirstOrDefault();

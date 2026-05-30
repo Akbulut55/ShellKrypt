@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.1] - 2026-05-31
+
+### Changed
+
+- Refactored desktop navigation/list helpers and split repeated row viewmodel types out of large desktop viewmodels without changing UI behavior.
+
 ## [ShellKrypt 0.9.0] - 2026-05-31
 
 ### Added

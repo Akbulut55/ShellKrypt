@@ -24,6 +24,20 @@ public sealed record ShellKryptSectionDescriptor(
 
 public static class ShellKryptSectionCatalog
 {
+    public static IReadOnlyList<ShellKryptSectionDescriptor> DesktopSections { get; } =
+    [
+        new(ShellKryptSectionKeys.Vault, "All Items", "All", "AI", "All encrypted records in the active workspace.", false),
+        new(ShellKryptSectionKeys.WebLogins, "Web Logins", "Logins", "WB", "Credentials, account URLs, and saved login details.", true),
+        new(ShellKryptSectionKeys.Cards, "Credit Cards", "Cards", "CC", "Sensitive payment details protected in the vault.", true),
+        new(ShellKryptSectionKeys.ApiKeys, "API Keys", "API", "AP", "API tokens, client secrets, project IDs, and provider metadata.", true),
+        new(ShellKryptSectionKeys.Authenticator, "Authenticator", "Auth", "AU", "Desktop authenticator codes from QR screenshots or pasted secret keys.", true),
+        new(ShellKryptSectionKeys.Notes, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes and vault reference material.", true),
+        new(ShellKryptSectionKeys.Generator, "Generator", "Generator", "GE", "Generate and transform local secrets without leaving the vault.", false),
+        new(ShellKryptSectionKeys.Audit, "Security Audit", "Audit", "SE", "Audit reuse, age, and password risk across the vault.", false),
+        new(ShellKryptSectionKeys.Settings, "Settings", "Settings", "ST", "Manage vault security, import/export, and desktop behavior.", false),
+        new(ShellKryptSectionKeys.Activity, "Activity Logs", "Logs", "AC", "Review vault activity events and plaintext report exports.", false)
+    ];
+
     public static IReadOnlyList<ShellKryptSectionDescriptor> MobileSections { get; } =
     [
         new(ShellKryptSectionKeys.Vault, "All Items", "All", "AI", "All encrypted records in this vault.", false),

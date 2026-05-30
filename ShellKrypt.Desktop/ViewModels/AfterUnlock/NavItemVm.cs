@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -10,11 +11,17 @@ public sealed partial class NavItemVm : ObservableObject
     public string Title { get; }
     public string ShortCode { get; }
 
-    public NavItemVm(string key, string title)
+    public NavItemVm(ShellKryptSectionDescriptor section)
+        : this(section.Key, section.Title, section.Glyph)
+    {
+    }
+
+    private NavItemVm(string key, string title, string? shortCode = null)
     {
         Key = key;
         Title = title;
-        ShortCode = key.ToUpperInvariant() switch
+        ShortCode = string.IsNullOrWhiteSpace(shortCode)
+            ? key.ToUpperInvariant() switch
         {
             "ALL" => "AI",
             "VAULT" => "AI",
@@ -26,7 +33,8 @@ public sealed partial class NavItemVm : ObservableObject
             "HEALTH" => "HL",
             "SETTINGS" => "ST",
             _ => title.Length >= 2 ? title[..2].ToUpperInvariant() : title.ToUpperInvariant()
-        };
+        }
+            : shortCode;
     }
 
     public override string ToString() => Title;
