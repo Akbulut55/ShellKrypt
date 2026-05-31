@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.9] - 2026-05-31
+
+### Changed
+
+- Split All Items viewmodel row, list-state, filter, and navigation behavior into focused files without changing All Items behavior.
+
 ## [ShellKrypt 0.9.8] - 2026-05-31
 
 ### Changed
