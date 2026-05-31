@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.4] - 2026-05-31
+
+### Changed
+
+- Split Authenticator viewmodel account, option, editor, QR import, delete, list-state, and code-refresh logic into focused partial files without changing Authenticator behavior.
+
 ## [ShellKrypt 0.9.3] - 2026-05-31
 
 ### Changed
