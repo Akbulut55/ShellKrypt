@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.8] - 2026-05-31
+
+### Changed
+
+- Split Web Logins viewmodel list, editor, secret, remediation, and delete behavior into focused partial files without changing Web Logins behavior.
+
 ## [ShellKrypt 0.9.7] - 2026-05-31
 
 ### Changed
