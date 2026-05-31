@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.5] - 2026-05-31
+
+### Changed
+
+- Split API Keys viewmodel list, editor, field, clipboard, and delete behavior into focused partial files without changing API Keys behavior.
+
 ## [ShellKrypt 0.9.4] - 2026-05-31
 
 ### Changed
