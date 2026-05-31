@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.6] - 2026-05-31
+
+### Changed
+
+- Split Credit Cards viewmodel list, editor, secret, and delete behavior into focused partial files without changing Credit Cards behavior.
+
 ## [ShellKrypt 0.9.5] - 2026-05-31
 
 ### Changed
