@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.11] - 2026-06-01
+
+### Fixed
+
+- Fixed Settings theme picker option commands so registered themes can be selected from the popup.
+
 ## [ShellKrypt 0.9.10] - 2026-06-01
 
 ### Changed

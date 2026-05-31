@@ -389,7 +389,7 @@
                                 <Button Content="{Binding Label}"
                                         Classes="settings-picker-option"
                                         Classes.active="{Binding IsSelected}"
-                                        Command="{Binding DataContext.SelectThemeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        Command="{Binding #Root.DataContext.SelectThemeCommand}"
                                         CommandParameter="{Binding}"/>
                               </DataTemplate>
                             </ItemsControl.ItemTemplate>
