@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.10] - 2026-06-01
+
+### Changed
+
+- Split Activity Logs viewmodel row, list-state, filter, metadata, export, and clear-flow behavior into focused files without changing Activity Logs behavior.
+
 ## [ShellKrypt 0.9.9] - 2026-05-31
 
 ### Changed
