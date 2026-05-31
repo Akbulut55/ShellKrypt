@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.7] - 2026-05-31
+
+### Changed
+
+- Split Markdown Notes viewmodel list, editor, autosave, preview, and delete behavior into focused partial files without changing Markdown Notes behavior.
+
 ## [ShellKrypt 0.9.6] - 2026-05-31
 
 ### Changed
