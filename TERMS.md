@@ -1,6 +1,6 @@
 # ShellKrypt: Terms Of Use
 
-Draft status: pre-release project terms.
+Status: ShellKrypt project terms for locally distributed desktop builds.
 
 ## 1. Acceptance
 

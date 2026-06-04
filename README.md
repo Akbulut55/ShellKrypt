@@ -77,8 +77,8 @@ Before relying on a vault, create and verify a backup. If the vault is still unl
 - `handbook/DECISIONS.md` - durable decision log and tradeoffs.
 - `SECURITY.md` - auth, data, secrets, privacy, and threat model.
 - `DISCLAIMER.md` - no-warranty, no-recovery, export, clipboard, and audit disclaimers.
-- `TERMS.md` - draft pre-release terms of use.
-- `PRIVACY.md` - draft local-only privacy notice.
+- `TERMS.md` - ShellKrypt terms of use.
+- `PRIVACY.md` - local-only privacy notice.
 - `LICENSE` - source license terms.
 - `NOTICE.md` - official-build, modified-build, and branding notice.
 - `handbook/OPERATIONS.md` - release, backup, rollback, and production operations.

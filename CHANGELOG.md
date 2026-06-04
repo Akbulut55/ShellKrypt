@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.12] - 2026-06-04
+
+### Changed
+
+- Cleaned up public-facing terms and privacy wording by removing draft-status language.
+
 ## [ShellKrypt 0.9.11] - 2026-06-01
 
 ### Fixed
@@ -97,7 +103,7 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 - Added `LICENSE` with the full GPL v3 license text.
 - Added `NOTICE.md` for official-build, modified-build, and branding expectations.
 - Added `DISCLAIMER.md` covering no warranty, no password recovery, plaintext exports, clipboard limits, audit status, and regulated-data limits.
-- Added `TERMS.md` and `PRIVACY.md` with draft pre-release usage and local-only privacy notices.
+- Added `TERMS.md` and `PRIVACY.md` with usage and local-only privacy notices.
 
 ## [ShellKrypt 0.8.0] - 2026-05-30
 

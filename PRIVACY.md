@@ -1,6 +1,6 @@
 # ShellKrypt: Privacy Notice
 
-Draft status: pre-release project privacy notice.
+Status: ShellKrypt privacy notice for locally distributed desktop builds.
 
 ## 1. Summary
 
