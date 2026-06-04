@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.9.13] - 2026-06-04
+
+### Changed
+
+- Updated README status wording for public source visibility and separate official build distribution.
+
 ## [ShellKrypt 0.9.12] - 2026-06-04
 
 ### Changed

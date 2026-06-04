@@ -2,15 +2,15 @@
 
 ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, settings, and activity logs.
 
-ShellKrypt is currently a private pre-1.0 release build. It is intended for careful local use, validation, and product hardening before a public 1.0 release.
+ShellKrypt is currently a pre-1.0 desktop product. The source repository is prepared for public visibility, while official signed builds and paid distribution channels may be provided separately.
 
 ## Status
 
-- Stage: private pre-1.0 build
-- Current app version: `0.9.3`
+- Stage: pre-1.0 desktop build
+- Current app version: `0.9.13`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
-- Owner: private project owner
+- Owner: independent project owner
 - Security status: not externally audited
 - License: GPL-3.0-or-later
 
