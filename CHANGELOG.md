@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.3] - 2026-06-06
+
+### Changed
+
+- Split Settings viewmodel picker, security setting, vault display, transfer state, danger-zone, and navigation behavior into focused partial files without changing Settings behavior.
+
 ## [ShellKrypt 0.10.2] - 2026-06-06
 
 ### Changed

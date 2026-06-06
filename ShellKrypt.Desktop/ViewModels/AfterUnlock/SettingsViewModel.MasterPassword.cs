@@ -7,6 +7,8 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class SettingsViewModel
 {
+    partial void OnMasterPasswordStatusChanged(string value) => OnPropertyChanged(nameof(HasMasterPasswordStatus));
+
     [RelayCommand]
     private async Task ChangeMasterPasswordAsync()
     {
