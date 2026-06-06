@@ -184,6 +184,11 @@ public partial class ShellViewModel : ViewModelBase
     }
 
     public void ShowCards() => SelectNav(ShellKryptSectionKeys.Cards);
+    public async Task<bool> ShowCardByIdAsync(string itemId)
+    {
+        SelectNav(ShellKryptSectionKeys.Cards);
+        return await Cards.OpenEntryByIdAsync(itemId);
+    }
     public void ShowMarkdownNotes() => SelectNav(ShellKryptSectionKeys.Notes);
     public void ShowSecurityAudit() => SelectNav(ShellKryptSectionKeys.Audit);
     public void ShowAuthenticator() => SelectNav(ShellKryptSectionKeys.Authenticator);

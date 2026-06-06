@@ -8,55 +8,186 @@ namespace ShellKrypt.Tests;
 public sealed class HealthAuditServiceTests
 {
     [Fact]
-    public async Task AnalyzeAsync_FindsReusedWeakAndOldLogins()
+    public async Task AnalyzeAsync_FindsWebLoginCardApiKeyAndSettingsFindings()
     {
         using var workspace = new TempWorkspace();
         var vaultService = new SqliteVaultService();
         var repo = new SqliteItemRepository();
         var webLogins = new WebLoginService(repo);
+        var cards = new CardService(repo);
+        var apiKeys = new ApiKeyService(repo);
         var audit = new HealthAuditService(repo);
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
-        var first = await webLogins.AddAsync(
+        var reusedA = await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Admin", "https://admin.example.com", "admin", "", "weak", ""));
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Legacy", "https://legacy.example.com", "legacy", "", "weak", ""));
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Empty", "https://empty.example.com", "empty", "", "", ""));
+        await MarkUpdatedAsync(repo, vaultPath, vaultKey, reusedA.Id, ItemType.Web, daysAgo: 120);
+
+        await cards.AddAsync(vaultPath, vaultKey, new CardInput("Expired Card", "Bank", "Tester", "4111111111111111", 1, 2024, "123", "", "Visa", "Credit Card"));
+        var soon = DateTimeOffset.UtcNow.AddMonths(1);
+        await cards.AddAsync(vaultPath, vaultKey, new CardInput("Expiring Card", "Bank", "Tester", "5555555555554444", soon.Month, soon.Year, "456", "", "Mastercard", "Credit Card"));
+
+        var oldApi = await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "Stripe production",
+            "Stripe",
+            "Production",
+            "",
+            [
+                new ApiKeyFieldInput("field-1", "API Key", "API Key", "shared-api-secret", true, true, 0)
+            ]));
+        await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "Stripe staging",
+            "Stripe",
+            "Staging",
+            "",
+            [
+                new ApiKeyFieldInput("field-1", "API Key", "API Key", "shared-api-secret", true, true, 0)
+            ]));
+        await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "Metadata only",
+            "Internal",
+            "Production",
+            "",
+            [
+                new ApiKeyFieldInput("field-1", "Project ID", "Project ID", "project-123", false, false, 0)
+            ]));
+        await MarkUpdatedAsync(repo, vaultPath, vaultKey, oldApi.Id, ItemType.ApiKey, daysAgo: 220);
+
+        var result = await audit.AnalyzeAsync(
             vaultPath,
             vaultKey,
-            new WebLoginInput(
-                Title: "Admin",
-                Url: "https://admin.example.com",
-                Username: "admin",
-                Email: "admin@example.com",
-                Password: "weak",
-                Notes: ""));
+            new HealthAuditOptions(
+                AutoLockEnabled: false,
+                LockOnDeactivate: false,
+                ClipboardClearSeconds: 120,
+                ClipboardCopyEnabled: true));
 
-        var second = await webLogins.AddAsync(
+        Assert.Equal(8, result.AnalyzedCount);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ReusedPassword);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.WeakPassword);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.EmptyPassword);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.StaleCredential);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ExpiredCard);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ExpiringCard);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ReusedApiSecret);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.OldApiKey);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ApiKeyMissingSecret);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.AutoLockDisabled);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.FocusLockDisabled);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ClipboardTimeoutLong);
+        Assert.Contains(result.Issues, issue => issue.Category == HealthAuditCategory.ClipboardCopyEnabled);
+        Assert.True(result.HighRiskCount > 0);
+        Assert.True(result.PasswordIssueCount > 0);
+        Assert.True(result.CardIssueCount > 0);
+        Assert.True(result.ApiKeyIssueCount > 0);
+        Assert.Equal(4, result.SettingsIssueCount);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_DoesNotExposeSecretValuesInFindings()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var repo = new SqliteItemRepository();
+        var webLogins = new WebLoginService(repo);
+        var cards = new CardService(repo);
+        var apiKeys = new ApiKeyService(repo);
+        var audit = new HealthAuditService(repo);
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
+        const string password = "KnownPasswordWithoutDigit!";
+        const string cardNumber = "4111111111111111";
+        const string cvc = "123";
+        const string apiSecret = "KnownApiSecret-Do-Not-Leak";
+
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Login A", "https://a.example.com", "user-a", "", password, ""));
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Login B", "https://b.example.com", "user-b", "", password, ""));
+        await cards.AddAsync(vaultPath, vaultKey, new CardInput("Expired Card", "Bank", "Tester", cardNumber, 1, 2024, cvc, "", "Visa", "Credit Card"));
+        await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "API A",
+            "Provider",
+            "Production",
+            "",
+            [new ApiKeyFieldInput("field-1", "API Key", "API Key", apiSecret, true, true, 0)]));
+        await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "API B",
+            "Provider",
+            "Production",
+            "",
+            [new ApiKeyFieldInput("field-1", "API Key", "API Key", apiSecret, true, true, 0)]));
+
+        var result = await audit.AnalyzeAsync(vaultPath, vaultKey, new HealthAuditOptions(ClipboardCopyEnabled: false));
+        var rendered = string.Join(
+            "\n",
+            result.Issues.Select(issue => $"{issue.Fingerprint} {issue.Title} {issue.Details} {issue.AffectedItem}"));
+
+        Assert.DoesNotContain(password, rendered);
+        Assert.DoesNotContain(cardNumber, rendered);
+        Assert.DoesNotContain(cvc, rendered);
+        Assert.DoesNotContain(apiSecret, rendered);
+    }
+
+    [Fact]
+    public async Task AnalyzeAsync_ReturnsNoFindingsForHealthySyntheticData()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var repo = new SqliteItemRepository();
+        var webLogins = new WebLoginService(repo);
+        var cards = new CardService(repo);
+        var apiKeys = new ApiKeyService(repo);
+        var audit = new HealthAuditService(repo);
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
+        var future = DateTimeOffset.UtcNow.AddYears(2);
+
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Healthy Login", "https://healthy.example.com", "healthy", "", "L0ng!Unique!Password!2026", ""));
+        await cards.AddAsync(vaultPath, vaultKey, new CardInput("Healthy Card", "Bank", "Tester", "4111111111111111", future.Month, future.Year, "123", "", "Visa", "Credit Card"));
+        await apiKeys.AddAsync(vaultPath, vaultKey, new ApiKeyInput(
+            "Healthy API",
+            "Provider",
+            "Production",
+            "",
+            [new ApiKeyFieldInput("field-1", "API Key", "API Key", "unique-api-secret-2026", true, true, 0)]));
+
+        var result = await audit.AnalyzeAsync(
             vaultPath,
             vaultKey,
-            new WebLoginInput(
-                Title: "Legacy",
-                Url: "https://legacy.example.com",
-                Username: "legacy",
-                Email: "legacy@example.com",
-                Password: "weak",
-                Notes: ""));
+            new HealthAuditOptions(
+                AutoLockEnabled: true,
+                LockOnDeactivate: true,
+                ClipboardClearSeconds: 15,
+                ClipboardCopyEnabled: false));
 
-        var service = new NoteService(repo);
-        await service.AddAsync(vaultPath, vaultKey, new NoteInput("Note", "Content", false));
+        Assert.Equal(3, result.AnalyzedCount);
+        Assert.Empty(result.Issues);
+        Assert.Equal(0, result.HighRiskCount);
+        Assert.Equal(0, result.PasswordIssueCount);
+        Assert.Equal(0, result.CardIssueCount);
+        Assert.Equal(0, result.ApiKeyIssueCount);
+        Assert.Equal(0, result.SettingsIssueCount);
+    }
 
+    private static async Task MarkUpdatedAsync(
+        IItemRepository repo,
+        string vaultPath,
+        byte[] vaultKey,
+        string itemId,
+        ItemType itemType,
+        int daysAgo)
+    {
+        var row = (await repo.ListAsync(vaultPath, vaultKey)).Single(item => item.Header.Id == itemId);
         await repo.UpdateAsync(
             vaultPath,
-            new VaultItemHeader(first.Id, ItemType.Web, false, first.CreatedAtUtc, DateTimeOffset.UtcNow.AddDays(-120).ToString("O")),
-            (await repo.ListAsync(vaultPath, vaultKey)).First(x => x.Header.Id == first.Id).EncryptedPayload);
-
-        var result = await audit.AnalyzeAsync(vaultPath, vaultKey);
-
-        Assert.Equal(2, result.AnalyzedCount);
-        Assert.Equal(2, result.ReusedCount);
-        Assert.Equal(2, result.WeakCount);
-        Assert.Equal(1, result.OldCount);
-        Assert.Contains(result.Issues, issue => issue.Category == "Reused");
-        Assert.Contains(result.Issues, issue => issue.Category == "Weak");
-        Assert.Contains(result.Issues, issue => issue.Category == "Old");
+            new VaultItemHeader(
+                row.Header.Id,
+                itemType,
+                row.Header.Favorite,
+                row.Header.CreatedAtUtc,
+                DateTimeOffset.UtcNow.AddDays(-daysAgo).ToString("O")),
+            row.EncryptedPayload);
     }
 
     private static async Task<byte[]> CreateAndUnlockVaultAsync(SqliteVaultService vaultService, string vaultPath, string masterPassword)

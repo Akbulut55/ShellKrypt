@@ -8,6 +8,36 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class CardsViewModel
 {
+    public async Task<bool> OpenEntryByIdAsync(string itemId)
+    {
+        if (string.IsNullOrWhiteSpace(itemId))
+            return false;
+
+        if (_all.Count == 0)
+            await LoadAsync();
+
+        var row = _all.FirstOrDefault(item => string.Equals(item.Id, itemId, StringComparison.Ordinal));
+        if (row is null)
+        {
+            await LoadAsync();
+            row = _all.FirstOrDefault(item => string.Equals(item.Id, itemId, StringComparison.Ordinal));
+            if (row is null)
+                return false;
+        }
+
+        SearchText = "";
+        SelectedBankFilter = AllBankFilter;
+        SelectedCardTypeFilter = AllCardTypeFilter;
+        SelectedSortOption = SortNewest;
+        ApplyFilter();
+
+        var index = _filtered.FindIndex(item => string.Equals(item.Id, row.Id, StringComparison.Ordinal));
+        CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
+        RenderPage();
+        ShowDetails(row);
+        return true;
+    }
+
     private async Task LoadAsync()
     {
         Error = "";

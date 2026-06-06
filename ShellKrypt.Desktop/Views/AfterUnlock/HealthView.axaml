@@ -16,8 +16,7 @@
           <StackPanel Spacing="6">
             <TextBlock Text="Security Audit"
                        FontSize="30"
-                       FontWeight="Bold"
-                       LetterSpacing="-0.6"/>
+                       FontWeight="Bold"/>
             <TextBlock Text="{Binding SummaryText}"
                        Classes="page-subtitle"/>
           </StackPanel>
@@ -78,128 +77,127 @@
           </Border>
 
           <Grid Grid.Column="1"
+                ColumnDefinitions="*,*,*"
+                ColumnSpacing="18"
                 VerticalAlignment="Top">
-            <Grid ColumnDefinitions="*,*,*"
-                  ColumnSpacing="18">
-              <Border Classes="audit-metric-card"
-                      BorderThickness="0,0,0,4"
-                      BorderBrush="{StaticResource DangerBrush}">
-                <StackPanel Spacing="16">
-                  <Grid ColumnDefinitions="Auto,*"
-                        ColumnSpacing="10">
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="10"
-                            Background="{StaticResource DangerMutedBrush}">
-                      <TextBlock Text="RP"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 Foreground="{StaticResource DangerBrush}"
-                                 FontWeight="Black"
-                                 FontSize="11"/>
-                    </Border>
-                    <Border Grid.Column="1"
-                            Background="{StaticResource DangerPanelBrush}"
-                            CornerRadius="999"
-                            Padding="10,4"
-                            HorizontalAlignment="Right">
-                      <TextBlock Text="HIGH"
-                                 Foreground="{StaticResource DangerBrush}"
-                                 FontSize="10"
-                                 FontWeight="Black"/>
-                    </Border>
-                  </Grid>
-                  <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding ReusedCount}"
-                               FontSize="34"
+            <Border Classes="audit-metric-card"
+                    BorderThickness="0,0,0,4"
+                    BorderBrush="{StaticResource DangerBrush}">
+              <StackPanel Spacing="16">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <Border Width="36"
+                          Height="36"
+                          CornerRadius="10"
+                          Background="{StaticResource DangerMutedBrush}">
+                    <TextBlock Text="HI"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontWeight="Black"
+                               FontSize="11"/>
+                  </Border>
+                  <Border Grid.Column="1"
+                          Background="{StaticResource DangerPanelBrush}"
+                          CornerRadius="999"
+                          Padding="10,4"
+                          HorizontalAlignment="Right">
+                    <TextBlock Text="RISK"
+                               Foreground="{StaticResource DangerBrush}"
+                               FontSize="10"
                                FontWeight="Black"/>
-                    <TextBlock Text="Reused Passwords"
-                               Classes="page-subtitle"
-                               FontSize="12"/>
-                  </StackPanel>
+                  </Border>
+                </Grid>
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding HighRiskCount}"
+                             FontSize="34"
+                             FontWeight="Black"/>
+                  <TextBlock Text="High Risk"
+                             Classes="page-subtitle"
+                             FontSize="12"/>
                 </StackPanel>
-              </Border>
+              </StackPanel>
+            </Border>
 
-              <Border Grid.Column="1"
-                      Classes="audit-metric-card"
-                      BorderThickness="0,0,0,4"
-                      BorderBrush="{StaticResource WarningBrush}">
-                <StackPanel Spacing="16">
-                  <Grid ColumnDefinitions="Auto,*"
-                        ColumnSpacing="10">
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="10"
-                            Background="{StaticResource WarningMutedBrush}">
-                      <TextBlock Text="WP"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 Foreground="{StaticResource WarningBrush}"
-                                 FontWeight="Black"
-                                 FontSize="11"/>
-                    </Border>
-                    <Border Grid.Column="1"
-                            Background="{StaticResource WarningMutedBrush}"
-                            CornerRadius="999"
-                            Padding="10,4"
-                            HorizontalAlignment="Right">
-                      <TextBlock Text="MED"
-                                 Foreground="{StaticResource WarningBrush}"
-                                 FontSize="10"
-                                 FontWeight="Black"/>
-                    </Border>
-                  </Grid>
-                  <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding WeakCount}"
-                               FontSize="34"
+            <Border Grid.Column="1"
+                    Classes="audit-metric-card"
+                    BorderThickness="0,0,0,4"
+                    BorderBrush="{StaticResource WarningBrush}">
+              <StackPanel Spacing="16">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <Border Width="36"
+                          Height="36"
+                          CornerRadius="10"
+                          Background="{StaticResource WarningMutedBrush}">
+                    <TextBlock Text="PW"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource WarningBrush}"
+                               FontWeight="Black"
+                               FontSize="11"/>
+                  </Border>
+                  <Border Grid.Column="1"
+                          Background="{StaticResource WarningMutedBrush}"
+                          CornerRadius="999"
+                          Padding="10,4"
+                          HorizontalAlignment="Right">
+                    <TextBlock Text="LOCAL"
+                               Foreground="{StaticResource WarningBrush}"
+                               FontSize="10"
                                FontWeight="Black"/>
-                    <TextBlock Text="Weak Passwords"
-                               Classes="page-subtitle"
-                               FontSize="12"/>
-                  </StackPanel>
+                  </Border>
+                </Grid>
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding PasswordFindingCount}"
+                             FontSize="34"
+                             FontWeight="Black"/>
+                  <TextBlock Text="Password Findings"
+                             Classes="page-subtitle"
+                             FontSize="12"/>
                 </StackPanel>
-              </Border>
+              </StackPanel>
+            </Border>
 
-              <Border Grid.Column="2"
-                      Classes="audit-metric-card"
-                      BorderThickness="0,0,0,4"
-                      BorderBrush="{StaticResource BorderBrushStrong}">
-                <StackPanel Spacing="16">
-                  <Grid ColumnDefinitions="Auto,*"
-                        ColumnSpacing="10">
-                    <Border Width="36"
-                            Height="36"
-                            CornerRadius="10"
-                            Background="{StaticResource SurfaceElevatedBrush}">
-                      <TextBlock Text="OC"
-                                 HorizontalAlignment="Center"
-                                 VerticalAlignment="Center"
-                                 Foreground="{StaticResource TextMutedBrush}"
-                                 FontWeight="Black"
-                                 FontSize="11"/>
-                    </Border>
-                    <Border Grid.Column="1"
-                            Background="{StaticResource SurfaceElevatedBrush}"
-                            CornerRadius="999"
-                            Padding="10,4"
-                            HorizontalAlignment="Right">
-                      <TextBlock Text="LOW"
-                                 Foreground="{StaticResource TextMutedBrush}"
-                                 FontSize="10"
-                                 FontWeight="Black"/>
-                    </Border>
-                  </Grid>
-                  <StackPanel Spacing="4">
-                    <TextBlock Text="{Binding OldCount}"
-                               FontSize="34"
+            <Border Grid.Column="2"
+                    Classes="audit-metric-card"
+                    BorderThickness="0,0,0,4"
+                    BorderBrush="{StaticResource BorderBrushStrong}">
+              <StackPanel Spacing="16">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <Border Width="36"
+                          Height="36"
+                          CornerRadius="10"
+                          Background="{StaticResource SurfaceElevatedBrush}">
+                    <TextBlock Text="VA"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontWeight="Black"
+                               FontSize="11"/>
+                  </Border>
+                  <Border Grid.Column="1"
+                          Background="{StaticResource SurfaceElevatedBrush}"
+                          CornerRadius="999"
+                          Padding="10,4"
+                          HorizontalAlignment="Right">
+                    <TextBlock Text="ITEMS"
+                               Foreground="{StaticResource TextMutedBrush}"
+                               FontSize="10"
                                FontWeight="Black"/>
-                    <TextBlock Text="Old Credentials"
-                               Classes="page-subtitle"
-                               FontSize="12"/>
-                  </StackPanel>
+                  </Border>
+                </Grid>
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{Binding OtherFindingCount}"
+                             FontSize="34"
+                             FontWeight="Black"/>
+                  <TextBlock Text="Cards, API Keys, Settings"
+                             Classes="page-subtitle"
+                             FontSize="12"/>
                 </StackPanel>
-              </Border>
-            </Grid>
+              </StackPanel>
+            </Border>
           </Grid>
         </Grid>
 
@@ -211,32 +209,51 @@
                 <Grid ColumnDefinitions="*,Auto"
                       ColumnSpacing="12">
                   <StackPanel Spacing="6">
-                    <TextBlock Text="Detailed Findings"
+                    <TextBlock Text="Active Findings"
                                FontSize="20"
                                FontWeight="Bold"/>
-                    <TextBlock Text="Address the highest-risk credentials first."
+                    <TextBlock Text="Local-only checks across web logins, cards, API keys, and session settings."
                                Classes="page-subtitle"
                                FontSize="12"/>
                   </StackPanel>
 
-                  <StackPanel Grid.Column="1"
-                              Orientation="Horizontal"
-                              Spacing="8"
-                              VerticalAlignment="Center">
-                    <Button Content="All Issues"
-                            Classes="audit-filter-chip"/>
-                    <Button Content="Breaches"
-                            Classes="audit-filter-chip"/>
-                  </StackPanel>
+                  <WrapPanel Grid.Column="1"
+                             Orientation="Horizontal"
+                             VerticalAlignment="Center">
+                    <Button Content="{Binding TotalIssueCount, StringFormat=All ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsAllFilterActive}"
+                            Command="{Binding ShowAllFindingsCommand}"/>
+                    <Button Content="{Binding HighRiskCount, StringFormat=High Risk ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsHighRiskFilterActive}"
+                            Command="{Binding ShowHighRiskFindingsCommand}"/>
+                    <Button Content="{Binding PasswordFindingCount, StringFormat=Passwords ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsPasswordFilterActive}"
+                            Command="{Binding ShowPasswordFindingsCommand}"/>
+                    <Button Content="{Binding CardFindingCount, StringFormat=Cards ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsCardFilterActive}"
+                            Command="{Binding ShowCardFindingsCommand}"/>
+                    <Button Content="{Binding ApiKeyFindingCount, StringFormat=API Keys ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsApiKeyFilterActive}"
+                            Command="{Binding ShowApiKeyFindingsCommand}"/>
+                    <Button Content="{Binding SettingsFindingCount, StringFormat=Settings ({0})}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsSettingsFilterActive}"
+                            Command="{Binding ShowSettingsFindingsCommand}"/>
+                  </WrapPanel>
                 </Grid>
               </Border>
 
               <ScrollViewer Grid.Row="1"
-                            MaxHeight="430"
+                            MaxHeight="510"
                             HorizontalScrollBarVisibility="Disabled"
                             VerticalScrollBarVisibility="Auto">
-                <ItemsControl ItemsSource="{Binding Issues}"
-                              IsVisible="{Binding HasIssues}">
+                <ItemsControl ItemsSource="{Binding VisibleIssues}"
+                              IsVisible="{Binding HasVisibleIssues}">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:HealthIssueVm">
                       <Border Classes="audit-issue-row">
@@ -245,35 +262,50 @@
                           <Border Width="48"
                                   Height="48"
                                   CornerRadius="12"
-                                  Background="{Binding SeverityBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                  Background="{Binding CategoryBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                   VerticalAlignment="Center">
                             <TextBlock Text="{Binding IconGlyph}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
-                                       Foreground="{Binding SeverityBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                       Foreground="{Binding CategoryBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                        FontWeight="Black"
                                        FontSize="11"/>
                           </Border>
 
                           <StackPanel Grid.Column="1"
-                                      Spacing="6"
+                                      Spacing="7"
                                       VerticalAlignment="Center">
-                            <StackPanel Orientation="Horizontal"
-                                        Spacing="8">
+                            <WrapPanel Orientation="Horizontal">
                               <TextBlock Text="{Binding Title}"
                                          FontSize="14"
                                          FontWeight="Bold"
-                                         TextWrapping="Wrap"/>
+                                         TextWrapping="Wrap"
+                                         Margin="0,0,8,0"/>
                               <Border Background="{Binding SeverityBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                       CornerRadius="999"
                                       Padding="10,4"
+                                      Margin="0,0,6,0"
                                       VerticalAlignment="Center">
-                                <TextBlock Text="{Binding Severity}"
+                                <TextBlock Text="{Binding SeverityText}"
                                            Foreground="{Binding SeverityBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                            FontSize="10"
                                            FontWeight="Black"/>
                               </Border>
-                            </StackPanel>
+                              <Border Background="{Binding CategoryBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                      CornerRadius="999"
+                                      Padding="10,4"
+                                      VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CategoryText}"
+                                           Foreground="{Binding CategoryBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                           FontSize="10"
+                                           FontWeight="Black"/>
+                              </Border>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding AffectedItem}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       TextWrapping="Wrap"/>
                             <TextBlock Text="{Binding Details}"
                                        Classes="page-subtitle"
                                        FontSize="12"
@@ -281,10 +313,11 @@
                           </StackPanel>
 
                           <Button Grid.Column="2"
-                                  Content="Remediate"
+                                  Content="{Binding ActionText}"
                                   Classes="audit-remediate-button"
                                   Command="{Binding DataContext.RemediateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"
+                                  IsVisible="{Binding CanRunPrimaryAction}"
                                   VerticalAlignment="Center"/>
                         </Grid>
                       </Border>
@@ -296,7 +329,7 @@
               <Border Grid.Row="1"
                       Background="Transparent"
                       Padding="24,12,24,24"
-                      IsVisible="{Binding !HasIssues}">
+                      IsVisible="{Binding !HasVisibleIssues}">
                 <StackPanel Spacing="8">
                   <TextBlock Text="{Binding EmptyIssuesTitle}"
                              FontSize="18"
@@ -334,10 +367,10 @@
                 <TextBlock Text="{Binding SmartSuggestionText}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
-                <Button Content="Generate Replacement Password"
+                <Button Content="{Binding SmartSuggestionActionText}"
                         Classes="audit-side-button"
-                        Command="{Binding GenerateUniqueBatchCommand}"
-                        IsEnabled="{Binding CanGenerateSuggestionPassword}"/>
+                        Command="{Binding RunSmartSuggestionCommand}"
+                        IsEnabled="{Binding CanRunSmartSuggestion}"/>
               </StackPanel>
             </Border>
 
@@ -349,9 +382,10 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="•"
+                  <TextBlock Text="OK"
                              Foreground="{StaticResource AccentBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"/>
                   <TextBlock Grid.Column="1"
                              Text="Encrypted local vault"
@@ -360,14 +394,16 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="•"
+                  <TextBlock Text="OK"
                              Foreground="{StaticResource AccentBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding HasAutoLock}"/>
-                  <TextBlock Text="○"
+                  <TextBlock Text="--"
                              Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding !HasAutoLock}"/>
                   <TextBlock Grid.Column="1"
@@ -377,14 +413,16 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="•"
+                  <TextBlock Text="OK"
                              Foreground="{StaticResource AccentBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding HasClipboardTimeout}"/>
-                  <TextBlock Text="○"
+                  <TextBlock Text="--"
                              Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding !HasClipboardTimeout}"/>
                   <TextBlock Grid.Column="1"
@@ -394,34 +432,22 @@
 
                 <Grid ColumnDefinitions="Auto,*"
                       ColumnSpacing="10">
-                  <TextBlock Text="•"
+                  <TextBlock Text="OK"
                              Foreground="{StaticResource AccentBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding HasFocusLock}"/>
-                  <TextBlock Text="○"
+                  <TextBlock Text="--"
                              Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="12"
+                             FontSize="11"
+                             FontWeight="Black"
                              VerticalAlignment="Center"
                              IsVisible="{Binding !HasFocusLock}"/>
                   <TextBlock Grid.Column="1"
                              Text="Lock on app deactivate"
                              Classes="page-subtitle"/>
                 </Grid>
-              </StackPanel>
-            </Border>
-
-            <Border Classes="audit-lockdown-card">
-              <StackPanel Spacing="10">
-                <TextBlock Text="Instant Shield"
-                           FontSize="14"
-                           FontWeight="Black"
-                           Foreground="{StaticResource AccentBrush}"/>
-                <TextBlock Text="{Binding AuditStatusText}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-                <Button Content="Activate Lockdown"
-                        Classes="audit-lockdown-button"/>
               </StackPanel>
             </Border>
           </StackPanel>
@@ -489,10 +515,16 @@
       <Setter Property="Padding" Value="12,0"/>
       <Setter Property="Height" Value="30"/>
       <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Margin" Value="0,0,8,8"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.audit-filter-chip.active">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Border.audit-issue-row">
@@ -549,27 +581,6 @@
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Border.audit-lockdown-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="22"/>
-    </Style>
-
-    <Style Selector="Button.audit-lockdown-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>

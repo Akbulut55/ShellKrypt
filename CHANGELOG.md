@@ -6,6 +6,17 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.0] - 2026-06-06
+
+### Added
+
+- Expanded Security Audit with structured local findings for web logins, credit cards, API keys, and session settings.
+
+### Changed
+
+- Refactored Security Audit viewmodel logic into focused scan, filter, remediation, dismissal, score, and row files.
+- Reworked Security Audit UI to remove unfinished lockdown/breach controls and use real filters/actions.
+
 ## [ShellKrypt 0.9.13] - 2026-06-04
 
 ### Changed
