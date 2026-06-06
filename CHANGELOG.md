@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.5] - 2026-06-06
+
+### Changed
+
+- Split shared vault item summary projection, counts, query, pagination, and formatting logic into focused partial files without changing list behavior.
+
 ## [ShellKrypt 0.10.4] - 2026-06-06
 
 ### Changed
