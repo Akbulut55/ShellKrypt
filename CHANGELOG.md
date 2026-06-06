@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.4] - 2026-06-06
+
+### Changed
+
+- Split SQLite vault service create, unlock, password-change, schema, connection, metadata, and KDF behavior into focused partial files without changing vault behavior.
+
 ## [ShellKrypt 0.10.3] - 2026-06-06
 
 ### Changed
