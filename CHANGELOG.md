@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.2] - 2026-06-06
+
+### Changed
+
+- Split HealthAuditService web login, card, API key, settings, and helper logic into focused partial files without changing audit behavior.
+
 ## [ShellKrypt 0.10.1] - 2026-06-06
 
 ### Changed
