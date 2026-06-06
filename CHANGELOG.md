@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.1] - 2026-06-06
+
+### Changed
+
+- Split MainWindow viewmodel session, settings, clipboard, dialog, and activity behavior into focused partial files without changing desktop shell behavior.
+
 ## [ShellKrypt 0.10.0] - 2026-06-06
 
 ### Added
