@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.24] - 2026-06-07
+
+### Changed
+
+- Split shared item summary projection builders by item type without changing summary text, filtering, masking, or pagination behavior.
+
 ## [ShellKrypt 0.10.23] - 2026-06-07
 
 ### Changed
