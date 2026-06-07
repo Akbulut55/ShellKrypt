@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.31] - 2026-06-07
+
+### Changed
+
+- Split markdown note service listing, mutations, payload crypto, and mapping helpers into focused partial files without changing note behavior.
+
 ## [ShellKrypt 0.10.30] - 2026-06-07
 
 ### Changed
