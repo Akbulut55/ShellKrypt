@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.17] - 2026-06-07
+
+### Changed
+
+- Split Markdown Notes display properties and property-change hooks into focused partial files without changing note behavior.
+
 ## [ShellKrypt 0.10.16] - 2026-06-07
 
 ### Changed
