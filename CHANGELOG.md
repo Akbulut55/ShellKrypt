@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.20] - 2026-06-07
+
+### Changed
+
+- Split shell viewmodel display text, navigation routing, and sidebar behavior into focused partial files without changing desktop navigation.
+
 ## [ShellKrypt 0.10.19] - 2026-06-07
 
 ### Changed
