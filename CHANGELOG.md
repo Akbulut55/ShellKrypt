@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.25] - 2026-06-07
+
+### Changed
+
+- Split vault registry queries, mutations, and normalization helpers into focused partial files without changing registry behavior.
+
 ## [ShellKrypt 0.10.24] - 2026-06-07
 
 ### Changed
