@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.13] - 2026-06-07
+
+### Changed
+
+- Split SQLite vault transfer transaction item, label, and connection helpers into focused partial files without changing import behavior.
+
 ## [ShellKrypt 0.10.12] - 2026-06-07
 
 ### Changed
