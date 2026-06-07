@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.33] - 2026-06-07
+
+### Changed
+
+- Split web-login security audit projection and password-finding logic into focused partial files without changing audit results.
+
 ## [ShellKrypt 0.10.32] - 2026-06-07
 
 ### Changed
