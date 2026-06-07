@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.23] - 2026-06-07
+
+### Changed
+
+- Split SQLite item label operations, schema migration, stored-row loading, and lookup-key formatting into focused partial files without changing label behavior.
+
 ## [ShellKrypt 0.10.22] - 2026-06-07
 
 ### Changed
