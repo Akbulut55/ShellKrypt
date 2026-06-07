@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.22] - 2026-06-07
+
+### Changed
+
+- Split SQLite activity log persistence, connection, and encrypted payload helpers into focused partial files without changing vault-scoped log behavior.
+
 ## [ShellKrypt 0.10.21] - 2026-06-07
 
 ### Changed
