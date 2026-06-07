@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.16] - 2026-06-07
+
+### Changed
+
+- Split SQLite vault transfer package validation, file, label, and KDF helpers into focused partial files without changing backup behavior.
+
 ## [ShellKrypt 0.10.15] - 2026-06-07
 
 ### Changed
