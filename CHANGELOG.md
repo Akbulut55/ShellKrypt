@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.29] - 2026-06-07
+
+### Changed
+
+- Split web login service listing, mutations, payload crypto, and mapping helpers into focused partial files without changing login behavior.
+
 ## [ShellKrypt 0.10.28] - 2026-06-07
 
 ### Changed
