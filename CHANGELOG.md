@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.15] - 2026-06-07
+
+### Changed
+
+- Split Welcome vault import, duplicate, remove-from-list, metadata, and default-vault commands into focused partial files without changing launcher behavior.
+
 ## [ShellKrypt 0.10.14] - 2026-06-07
 
 ### Changed
