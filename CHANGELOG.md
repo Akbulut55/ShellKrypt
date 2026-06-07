@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.27] - 2026-06-07
+
+### Changed
+
+- Split API key service listing, mutations, payload crypto, and mapping helpers into focused partial files without changing API key behavior.
+
 ## [ShellKrypt 0.10.26] - 2026-06-07
 
 ### Changed
