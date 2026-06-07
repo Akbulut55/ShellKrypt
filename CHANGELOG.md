@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.34] - 2026-06-07
+
+### Changed
+
+- Split vault transfer label schema, read, and upsert helpers into focused partial files without changing import behavior.
+
 ## [ShellKrypt 0.10.33] - 2026-06-07
 
 ### Changed
