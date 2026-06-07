@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.9] - 2026-06-07
+
+### Changed
+
+- Split authenticator service list, mutation, code generation, payload, and normalization behavior into focused partial files without changing authenticator behavior.
+
 ## [ShellKrypt 0.10.8] - 2026-06-07
 
 ### Changed
