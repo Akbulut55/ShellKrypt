@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.21] - 2026-06-07
+
+### Changed
+
+- Split Markdown Notes editor actions, save flow, and editor notifications into focused partial files without changing note behavior.
+
 ## [ShellKrypt 0.10.20] - 2026-06-07
 
 ### Changed

@@ -1,0 +1,51 @@
+using CommunityToolkit.Mvvm.Input;
+using System.Threading.Tasks;
+
+namespace ShellKrypt.Desktop.ViewModels;
+
+public partial class MarkdownNotesViewModel
+{
+    [RelayCommand]
+    private async Task ToggleFavoriteAsync()
+    {
+        if (SelectedNote is null)
+        {
+            Error = "Select a note first.";
+            return;
+        }
+
+        var previous = SelectedNote.IsFavorite;
+        SelectedNote.IsFavorite = !SelectedNote.IsFavorite;
+        RefreshFilteredNotes();
+        await SaveAsync();
+
+        if (!string.IsNullOrWhiteSpace(Error))
+        {
+            SelectedNote.IsFavorite = previous;
+            RefreshFilteredNotes();
+            return;
+        }
+
+        _root.LogActivity(
+            "notes",
+            previous ? "Markdown note unstarred" : "Markdown note starred",
+            $"{SelectedNote.Title} was {(previous ? "removed from" : "added to")} starred notes.",
+            "info",
+            affectedItem: SelectedNote.Title);
+    }
+
+    [RelayCommand]
+    private async Task CopyContentAsync()
+    {
+        Error = string.Empty;
+
+        if (string.IsNullOrWhiteSpace(EditorContent))
+        {
+            Error = "Nothing to copy yet.";
+            return;
+        }
+
+        await _root.CopyToClipboardAsync(EditorContent);
+        _root.LogActivity("notes", "Markdown note copied", $"Copied markdown for {EditorTitle}.", "info", affectedItem: EditorTitle);
+    }
+}
