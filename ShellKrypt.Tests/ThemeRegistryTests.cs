@@ -8,6 +8,7 @@ using Xunit;
 
 namespace ShellKrypt.Tests;
 
+[Collection(AppRootTestCollection.Name)]
 public sealed class ThemeRegistryTests
 {
     [Fact]

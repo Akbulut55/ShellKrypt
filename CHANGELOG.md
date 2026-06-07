@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.6] - 2026-06-07
+
+### Fixed
+
+- Fixed test isolation for Security Audit fingerprints and app-root metadata stores so unrelated hash text or parallel app-data overrides cannot cause random failures.
+
 ## [ShellKrypt 0.10.5] - 2026-06-06
 
 ### Changed

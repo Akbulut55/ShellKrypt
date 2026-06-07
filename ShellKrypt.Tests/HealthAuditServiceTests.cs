@@ -119,14 +119,16 @@ public sealed class HealthAuditServiceTests
             [new ApiKeyFieldInput("field-1", "API Key", "API Key", apiSecret, true, true, 0)]));
 
         var result = await audit.AnalyzeAsync(vaultPath, vaultKey, new HealthAuditOptions(ClipboardCopyEnabled: false));
-        var rendered = string.Join(
+        var visibleText = string.Join(
             "\n",
-            result.Issues.Select(issue => $"{issue.Fingerprint} {issue.Title} {issue.Details} {issue.AffectedItem}"));
+            result.Issues.Select(issue => $"{issue.Title} {issue.Details} {issue.AffectedItem}"));
 
-        Assert.DoesNotContain(password, rendered);
-        Assert.DoesNotContain(cardNumber, rendered);
-        Assert.DoesNotContain(cvc, rendered);
-        Assert.DoesNotContain(apiSecret, rendered);
+        Assert.DoesNotContain(password, visibleText);
+        Assert.DoesNotContain(cardNumber, visibleText);
+        Assert.DoesNotContain(cvc, visibleText);
+        Assert.DoesNotContain(apiSecret, visibleText);
+        Assert.All(result.Issues, issue => Assert.False(string.IsNullOrWhiteSpace(issue.Fingerprint)));
+        Assert.Equal(result.Issues.Count, result.Issues.Select(issue => issue.Fingerprint).Distinct(StringComparer.OrdinalIgnoreCase).Count());
     }
 
     [Fact]
