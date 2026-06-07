@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.19] - 2026-06-07
+
+### Changed
+
+- Split All Items viewmodel state setters and display properties into focused partial files without changing dashboard behavior.
+
 ## [ShellKrypt 0.10.18] - 2026-06-07
 
 ### Changed
