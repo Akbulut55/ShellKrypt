@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.10] - 2026-06-07
+
+### Changed
+
+- Split shared markdown block models, block parsing helpers, and inline stripping helpers into focused files without changing markdown preview behavior.
+
 ## [ShellKrypt 0.10.9] - 2026-06-07
 
 ### Changed
