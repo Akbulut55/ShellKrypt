@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.30] - 2026-06-07
+
+### Changed
+
+- Split crypto tools password, hashing, and Base64 helpers into focused partial files without changing tool behavior.
+
 ## [ShellKrypt 0.10.29] - 2026-06-07
 
 ### Changed
