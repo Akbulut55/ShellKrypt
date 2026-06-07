@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.14] - 2026-06-07
+
+### Changed
+
+- Split Settings transfer browse, export, encrypted import, and CSV import commands into focused partial files without changing transfer behavior.
+
 ## [ShellKrypt 0.10.13] - 2026-06-07
 
 ### Changed
