@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.11] - 2026-06-07
+
+### Changed
+
+- Split credit card row display, notification, and formatting helpers into focused partial files without changing card table behavior.
+
 ## [ShellKrypt 0.10.10] - 2026-06-07
 
 ### Changed
