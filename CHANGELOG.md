@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.18] - 2026-06-07
+
+### Changed
+
+- Split Authenticator editor commands, save flow, form population, and option normalization into focused partial files without changing authenticator behavior.
+
 ## [ShellKrypt 0.10.17] - 2026-06-07
 
 ### Changed
