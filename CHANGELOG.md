@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.12] - 2026-06-07
+
+### Changed
+
+- Split credit card editor form-state and entry-mapping helpers into focused files without changing card modal behavior.
+
 ## [ShellKrypt 0.10.11] - 2026-06-07
 
 ### Changed
