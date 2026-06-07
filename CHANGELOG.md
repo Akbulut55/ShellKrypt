@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.10.7] - 2026-06-07
+
+### Changed
+
+- Split SQLite item repository list, label, item CRUD, and connection behavior into focused partial files without changing item persistence.
+
 ## [ShellKrypt 0.10.6] - 2026-06-07
 
 ### Fixed
