@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.11.0] - 2026-06-10
+
+### Added
+
+- Added English/Turkish runtime localization foundation with persisted language selection and localized Settings screen text.
+
 ## [ShellKrypt 0.10.34] - 2026-06-07
 
 ### Changed

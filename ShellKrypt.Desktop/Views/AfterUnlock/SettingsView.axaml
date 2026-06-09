@@ -16,11 +16,11 @@
                   MaxWidth="1500"
                   Spacing="24">
         <StackPanel Spacing="6">
-          <TextBlock Text="Vault Configuration"
+          <TextBlock Text="{DynamicResource Loc.Settings.Title}"
                      FontSize="30"
                      FontWeight="SemiBold"
                      LetterSpacing="-0.6"/>
-          <TextBlock Text="Manage vault security, import/export, and desktop behavior."
+          <TextBlock Text="{DynamicResource Loc.Settings.Subtitle}"
                      Classes="page-subtitle"/>
         </StackPanel>
 
@@ -41,7 +41,7 @@
                                Foreground="{StaticResource SuccessBrush}"
                                FontWeight="Black"/>
                   </Border>
-                  <TextBlock Text="Security"
+                  <TextBlock Text="{DynamicResource Loc.Settings.Security}"
                              FontSize="18"
                              FontWeight="Bold"
                              VerticalAlignment="Center"/>
@@ -52,7 +52,7 @@
                         ColumnSpacing="14"
                         VerticalAlignment="Center">
                     <StackPanel Spacing="6">
-                      <TextBlock Text="Auto-lock vault after inactivity"
+                      <TextBlock Text="{DynamicResource Loc.Settings.AutoLock.Title}"
                                  FontSize="14"
                                  FontWeight="SemiBold"/>
                       <TextBlock Text="{Binding SecurityStatusText}"
@@ -111,7 +111,7 @@
                         ColumnSpacing="14"
                         VerticalAlignment="Center">
                     <StackPanel Spacing="6">
-                      <TextBlock Text="Auto-lock when app is not focused"
+                      <TextBlock Text="{DynamicResource Loc.Settings.FocusLock.Title}"
                                  FontSize="14"
                                  FontWeight="SemiBold"/>
                       <TextBlock Text="{Binding FocusLockSummary}"
@@ -170,10 +170,10 @@
                         ColumnSpacing="14"
                         VerticalAlignment="Center">
                     <StackPanel Spacing="6">
-                      <TextBlock Text="Clear clipboard after timeout"
+                      <TextBlock Text="{DynamicResource Loc.Settings.Clipboard.Title}"
                                  FontSize="14"
                                  FontWeight="SemiBold"/>
-                      <TextBlock Text="Best-effort clearing for copied secrets in the OS clipboard."
+                      <TextBlock Text="{DynamicResource Loc.Settings.Clipboard.Detail}"
                                  Classes="page-subtitle"
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
@@ -186,7 +186,7 @@
                     <StackPanel Grid.Column="1"
                                 Spacing="8"
                                 Width="170">
-                      <CheckBox Content="Allow copy"
+                      <CheckBox Content="{DynamicResource Loc.Settings.AllowCopy}"
                                 IsChecked="{Binding ClipboardCopyEnabled}"/>
                       <Grid>
                         <Button x:Name="ClipboardClearPickerButton"
@@ -239,7 +239,7 @@
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="14">
                       <StackPanel Spacing="6">
-                        <TextBlock Text="Change master password"
+                        <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.Title}"
                                    FontSize="14"
                                    FontWeight="SemiBold"/>
                         <TextBlock Text="{Binding RecoveryGuidanceText}"
@@ -260,15 +260,15 @@
                     <Grid ColumnDefinitions="*,*"
                           ColumnSpacing="14">
                       <StackPanel Spacing="8">
-                        <TextBlock Text="CURRENT PASSWORD"
+                        <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.Current}"
                                    Classes="settings-mini-label"/>
                         <TextBox Text="{Binding CurrentMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PasswordChar="*"
-                                 PlaceholderText="Enter the current master password"/>
+                                 PlaceholderText="{DynamicResource Loc.Settings.MasterPassword.Current.Placeholder}"/>
                       </StackPanel>
                       <StackPanel Grid.Column="1"
                                   Spacing="8">
-                        <TextBlock Text="SECURITY PROFILE"
+                        <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.SecurityProfile}"
                                    Classes="settings-mini-label"/>
                         <ComboBox ItemsSource="{Binding SecurityProfiles}"
                                   SelectedItem="{Binding SelectedSecurityProfile}">
@@ -284,19 +284,19 @@
                     <Grid ColumnDefinitions="*,*"
                           ColumnSpacing="14">
                       <StackPanel Spacing="8">
-                        <TextBlock Text="NEW PASSWORD"
+                        <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.New}"
                                    Classes="settings-mini-label"/>
                         <TextBox Text="{Binding NewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PasswordChar="*"
-                                 PlaceholderText="Use a strong passphrase or long secret"/>
+                                 PlaceholderText="{DynamicResource Loc.Settings.MasterPassword.New.Placeholder}"/>
                       </StackPanel>
                       <StackPanel Grid.Column="1"
                                   Spacing="8">
-                        <TextBlock Text="CONFIRM NEW PASSWORD"
+                        <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.Confirm}"
                                    Classes="settings-mini-label"/>
                         <TextBox Text="{Binding ConfirmNewMasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                  PasswordChar="*"
-                                 PlaceholderText="Re-enter the new master password"/>
+                                 PlaceholderText="{DynamicResource Loc.Settings.MasterPassword.Confirm.Placeholder}"/>
                       </StackPanel>
                     </Grid>
 
@@ -314,7 +314,7 @@
                                FontSize="12"
                                IsVisible="{Binding HasMasterPasswordStatus}"/>
 
-                    <Button Content="Change Master Password"
+                    <Button Content="{DynamicResource Loc.Settings.Button.ChangeMasterPassword}"
                             Classes="settings-primary-button"
                             Command="{Binding ChangeMasterPasswordCommand}"
                             HorizontalAlignment="Stretch"/>
@@ -337,7 +337,7 @@
                                Foreground="{StaticResource TextMutedBrush}"
                                FontWeight="Black"/>
                   </Border>
-                  <TextBlock Text="General"
+                  <TextBlock Text="{DynamicResource Loc.Settings.General}"
                              FontSize="18"
                              FontWeight="Bold"
                              VerticalAlignment="Center"/>
@@ -346,7 +346,7 @@
                 <Border Classes="settings-toggle-shell">
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="12">
-                    <TextBlock Text="Theme Mode"
+                    <TextBlock Text="{DynamicResource Loc.Settings.Theme.Title}"
                                FontSize="14"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
@@ -405,10 +405,10 @@
                         ColumnSpacing="12">
                     <StackPanel Spacing="3"
                                 VerticalAlignment="Center">
-                      <TextBlock Text="Language"
+                      <TextBlock Text="{DynamicResource Loc.Settings.Language.Title}"
                                  FontSize="14"
                                  FontWeight="SemiBold"/>
-                      <TextBlock Text="More languages will be added later."
+                      <TextBlock Text="{DynamicResource Loc.Settings.Language.Description}"
                                  Classes="page-subtitle"
                                  FontSize="12"/>
                     </StackPanel>
@@ -440,12 +440,22 @@
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
                                 Width="140">
-                          <StackPanel>
-                            <Button Content="English"
-                                    Classes="settings-picker-option"
-                                    Classes.active="{Binding IsEnglishLanguageSelected}"
-                                    Command="{Binding SelectEnglishLanguageCommand}"/>
-                          </StackPanel>
+                          <ItemsControl ItemsSource="{Binding LanguageOptions}">
+                            <ItemsControl.ItemsPanel>
+                              <ItemsPanelTemplate>
+                                <StackPanel/>
+                              </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate>
+                              <DataTemplate>
+                                <Button Content="{Binding Label}"
+                                        Classes="settings-picker-option"
+                                        Classes.active="{Binding IsSelected}"
+                                        Command="{Binding #Root.DataContext.SelectLanguageCommand}"
+                                        CommandParameter="{Binding}"/>
+                              </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                          </ItemsControl>
                         </Border>
                       </Popup>
                     </Grid>
@@ -471,7 +481,7 @@
                                Foreground="{StaticResource TextMutedBrush}"
                                FontWeight="Black"/>
                   </Border>
-                  <TextBlock Text="Vault Management"
+                  <TextBlock Text="{DynamicResource Loc.Settings.VaultManagement}"
                              FontSize="18"
                              FontWeight="Bold"
                              VerticalAlignment="Center"/>
@@ -493,7 +503,7 @@
                       </Border>
                       <StackPanel Grid.Column="1"
                                   Spacing="4">
-                        <TextBlock Text="PRIMARY DATABASE"
+                        <TextBlock Text="{DynamicResource Loc.Settings.PrimaryDatabase}"
                                    Classes="settings-mini-label"/>
                         <TextBlock Text="{Binding ActiveVaultDisplay}"
                                    FontSize="14"
@@ -507,7 +517,7 @@
                       <Border Background="{StaticResource AccentMutedBrush}"
                               CornerRadius="999"
                               Padding="10,4">
-                        <TextBlock Text="ENCRYPTED"
+                        <TextBlock Text="{DynamicResource Loc.Settings.Encrypted}"
                                    Foreground="{StaticResource SuccessBrush}"
                                    FontSize="10"
                                    FontWeight="Black"/>
@@ -536,7 +546,7 @@
 
                 <Border Classes="settings-field-shell">
                   <StackPanel Spacing="14">
-                    <TextBlock Text="BACKUP AND RECOVERY"
+                    <TextBlock Text="{DynamicResource Loc.Settings.Backup.Title}"
                                Classes="settings-mini-label"/>
                     <TextBlock Text="{Binding BackupRecommendationText}"
                                Classes="page-subtitle"
@@ -544,34 +554,34 @@
                                TextWrapping="Wrap"/>
 
                     <StackPanel Spacing="8">
-                      <TextBlock Text="ENCRYPTED BACKUP PATH"
+                      <TextBlock Text="{DynamicResource Loc.Settings.Backup.EncryptedPath}"
                                  Classes="settings-mini-label"/>
                       <Grid ColumnDefinitions="*,Auto"
                             ColumnSpacing="10">
                         <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="Choose where to store the encrypted backup"/>
+                                 PlaceholderText="{DynamicResource Loc.Settings.Backup.EncryptedPath.Placeholder}"/>
                         <Button Grid.Column="1"
-                                Content="Browse"
+                                Content="{DynamicResource Loc.Common.Browse}"
                                 Classes="settings-secondary-button"
                                 Command="{Binding BrowseEncryptedExportPathCommand}"/>
                       </Grid>
                     </StackPanel>
 
                     <StackPanel Spacing="8">
-                      <TextBlock Text="BACKUP PASSPHRASE"
+                      <TextBlock Text="{DynamicResource Loc.Settings.Backup.Passphrase}"
                                  Classes="settings-mini-label"/>
                       <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                PasswordChar="*"
-                               PlaceholderText="Use a separate passphrase for the .skbx backup"/>
+                               PlaceholderText="{DynamicResource Loc.Settings.Backup.Passphrase.Placeholder}"/>
                     </StackPanel>
 
                     <Grid ColumnDefinitions="Auto,Auto,*"
                           ColumnSpacing="10">
-                      <Button Content="Preview Backup"
+                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewBackup}"
                               Classes="settings-transfer-button"
                               Command="{Binding PreviewExportCommand}"/>
                       <Button Grid.Column="1"
-                              Content="Export Backup"
+                              Content="{DynamicResource Loc.Settings.Button.ExportBackup}"
                               Classes="settings-primary-button"
                               Command="{Binding ExportEncryptedCommand}"/>
                     </Grid>
@@ -585,30 +595,30 @@
 
                 <Border Classes="settings-field-shell">
                   <StackPanel Spacing="14">
-                    <TextBlock Text="RESTORE ENCRYPTED BACKUP"
+                    <TextBlock Text="{DynamicResource Loc.Settings.Restore.Title}"
                                Classes="settings-mini-label"/>
 
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="10">
                       <TextBox Text="{Binding EncryptedImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="Select an encrypted .skbx backup"/>
+                               PlaceholderText="{DynamicResource Loc.Settings.Restore.ImportPath.Placeholder}"/>
                       <Button Grid.Column="1"
-                              Content="Browse"
+                              Content="{DynamicResource Loc.Common.Browse}"
                               Classes="settings-secondary-button"
                               Command="{Binding BrowseEncryptedImportPathCommand}"/>
                     </Grid>
 
                     <TextBox Text="{Binding EncryptedImportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              PasswordChar="*"
-                             PlaceholderText="Enter the backup passphrase"/>
+                             PlaceholderText="{DynamicResource Loc.Settings.Restore.Passphrase.Placeholder}"/>
 
                     <Grid ColumnDefinitions="Auto,Auto,*"
                           ColumnSpacing="10">
-                      <Button Content="Preview Restore"
+                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewRestore}"
                               Classes="settings-transfer-button"
                               Command="{Binding PreviewEncryptedImportCommand}"/>
                       <Button Grid.Column="1"
-                              Content="Restore Backup"
+                              Content="{DynamicResource Loc.Settings.Button.RestoreBackup}"
                               Classes="settings-transfer-button"
                               Command="{Binding ImportEncryptedCommand}"/>
                     </Grid>
@@ -622,26 +632,26 @@
 
                 <Border Classes="settings-field-shell">
                   <StackPanel Spacing="14">
-                    <TextBlock Text="ADVANCED IMPORT OR EXPORT"
+                    <TextBlock Text="{DynamicResource Loc.Settings.Advanced.Title}"
                                Classes="settings-mini-label"/>
 
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="10">
                       <TextBox Text="{Binding CsvImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="Select a CSV file for bulk import"/>
+                               PlaceholderText="{DynamicResource Loc.Settings.Csv.Path.Placeholder}"/>
                       <Button Grid.Column="1"
-                              Content="Browse CSV"
+                              Content="{DynamicResource Loc.Common.BrowseCsv}"
                               Classes="settings-secondary-button"
                               Command="{Binding BrowseCsvImportPathCommand}"/>
                     </Grid>
 
                     <Grid ColumnDefinitions="Auto,Auto,*"
                           ColumnSpacing="10">
-                      <Button Content="Preview CSV"
+                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewCsv}"
                               Classes="settings-transfer-button"
                               Command="{Binding PreviewCsvImportCommand}"/>
                       <Button Grid.Column="1"
-                              Content="Import CSV"
+                              Content="{DynamicResource Loc.Settings.Button.ImportCsv}"
                               Classes="settings-transfer-button"
                               Command="{Binding ImportCsvCommand}"/>
                     </Grid>
@@ -649,17 +659,17 @@
                     <Grid ColumnDefinitions="*,Auto"
                           ColumnSpacing="10">
                       <TextBox Text="{Binding PlaintextExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="Choose where to save the plaintext JSON export"/>
+                               PlaceholderText="{DynamicResource Loc.Settings.Plaintext.Path.Placeholder}"/>
                       <Button Grid.Column="1"
-                              Content="Browse JSON"
+                              Content="{DynamicResource Loc.Common.BrowseJson}"
                               Classes="settings-secondary-button"
                               Command="{Binding BrowsePlaintextExportPathCommand}"/>
                     </Grid>
-                    <CheckBox Content="I understand plaintext JSON exports are not encrypted."
+                    <CheckBox Content="{DynamicResource Loc.Settings.Plaintext.Warning}"
                               IsChecked="{Binding ConfirmPlaintextExport}"/>
                     <TextBox Text="{Binding PlaintextExportConfirmationText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="Type EXPORT to confirm decrypted export"/>
-                    <Button Content="Export Plaintext JSON"
+                             PlaceholderText="{DynamicResource Loc.Settings.Plaintext.Confirmation.Placeholder}"/>
+                    <Button Content="{DynamicResource Loc.Settings.Button.ExportPlaintext}"
                             Classes="settings-danger-link"
                             Command="{Binding ExportPlaintextCommand}"/>
 
@@ -671,7 +681,7 @@
                   </StackPanel>
                 </Border>
 
-                <Button Content="Destroy All Vault Data"
+                <Button Content="{DynamicResource Loc.Settings.Button.DestroyVault}"
                         Classes="settings-danger-link"
                         Command="{Binding DestroyVaultCommand}"/>
               </StackPanel>

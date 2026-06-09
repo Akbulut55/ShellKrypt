@@ -1,10 +1,12 @@
 using System.Text.Json.Serialization;
+using ShellKrypt.Application.Localization;
 
 namespace ShellKrypt.Application.Settings;
 
 public sealed class AppSettings
 {
     public const string DefaultThemeId = "dark";
+    public const string DefaultLanguageId = "en";
     public const int CurrentSecurityAcknowledgementVersion = 1;
 
     public static readonly IReadOnlySet<string> KnownThemeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -17,6 +19,7 @@ public sealed class AppSettings
     };
 
     public string ThemeId { get; set; } = DefaultThemeId;
+    public string LanguageId { get; set; } = DefaultLanguageId;
 
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public AppThemeMode ThemeMode { get; set; } = AppThemeMode.Dark;
@@ -47,6 +50,11 @@ public sealed class AppSettings
         ThemeMode = AppThemeMode.Dark;
     }
 
+    public void NormalizeLanguageId()
+    {
+        LanguageId = NormalizeLanguageId(LanguageId);
+    }
+
     public static string NormalizeThemeId(string? themeId)
     {
         if (string.IsNullOrWhiteSpace(themeId))
@@ -58,6 +66,9 @@ public sealed class AppSettings
 
     public static string ThemeIdFromLegacyMode(AppThemeMode mode)
         => mode == AppThemeMode.Light ? "light" : DefaultThemeId;
+
+    public static string NormalizeLanguageId(string? languageId)
+        => LanguageRegistry.GetById(languageId).Id;
 
     public SessionSecuritySettings ToSessionSecuritySettings()
     {

@@ -8,4 +8,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ShellKrypt.Core\ShellKrypt.Core.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Localization\*.json" />
+  </ItemGroup>
 </Project>

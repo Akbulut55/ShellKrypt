@@ -2,6 +2,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.UI.Shared.Theming;
 
@@ -33,7 +34,7 @@ public sealed partial class SettingsViewModel
         if (existing is not null)
             return existing;
 
-        var custom = new AutoLockDurationOption(minutes, $"{minutes} minutes");
+        var custom = new AutoLockDurationOption(minutes, "Settings.Duration.CustomMinutes", T("Settings.Duration.CustomMinutes", minutes));
         AutoLockDurations.Add(custom);
         return custom;
     }
@@ -55,13 +56,22 @@ public sealed partial class SettingsViewModel
         return option;
     }
 
-    private static SecondsDurationOption ResolveSecondsDuration(ObservableCollection<SecondsDurationOption> options, int seconds)
+    private LanguageOption ResolveLanguageOption(string? languageId)
+    {
+        var normalized = LanguageRegistry.GetById(languageId).Id;
+        var option = LanguageOptions.FirstOrDefault(x => string.Equals(x.Code, normalized, StringComparison.OrdinalIgnoreCase))
+            ?? LanguageOptions[0];
+        MarkSelected(LanguageOptions, option);
+        return option;
+    }
+
+    private SecondsDurationOption ResolveSecondsDuration(ObservableCollection<SecondsDurationOption> options, int seconds)
     {
         var existing = options.FirstOrDefault(x => x.Seconds == seconds);
         if (existing is not null)
             return existing;
 
-        var custom = new SecondsDurationOption(seconds, $"{seconds} Seconds");
+        var custom = new SecondsDurationOption(seconds, "Settings.Duration.CustomSeconds", T("Settings.Duration.CustomSeconds", seconds));
         options.Add(custom);
         return custom;
     }
@@ -87,7 +97,7 @@ public sealed partial class SettingsViewModel
 
             var custom = SecurityProfiles.FirstOrDefault(profile => profile.Key == "custom");
             var customLabel = $"Custom ({kdf.MemoryKb / 1024} MB Argon2)";
-            var customProfile = new VaultSecurityProfile("custom", customLabel, "Matches the current vault protection parameters.", kdf);
+            var customProfile = new VaultSecurityProfile("custom", customLabel, T("Settings.Profile.CustomDescription"), kdf);
 
             if (custom is null)
                 SecurityProfiles.Add(customProfile);
@@ -102,7 +112,7 @@ public sealed partial class SettingsViewModel
         }
         catch
         {
-            ActiveSecurityProfileLabel = "Unavailable";
+            ActiveSecurityProfileLabel = T("Settings.Profile.Unavailable");
         }
     }
 }

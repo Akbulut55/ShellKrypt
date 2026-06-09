@@ -2,6 +2,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.Views;
 using ShellKrypt.UI.Shared.Theming;
@@ -21,6 +22,7 @@ namespace ShellKrypt.Desktop
             {
                 var mainWindowViewModel = new MainWindowViewModel();
                 ApplyTheme(mainWindowViewModel.ThemeId);
+                ApplyLocalization(mainWindowViewModel.Localization);
                 desktop.MainWindow = new MainWindow
                 {
                     DataContext = mainWindowViewModel,
@@ -41,6 +43,12 @@ namespace ShellKrypt.Desktop
             UpdateAccentGradient(
                 theme.Palette["AccentBrush"],
                 theme.Palette["AccentPressedBrush"]);
+        }
+
+        public void ApplyLocalization(LocalizationService localization)
+        {
+            foreach (var pair in localization.GetCurrentStrings())
+                Resources[$"Loc.{pair.Key}"] = pair.Value;
         }
 
         private void UpdateBrush(string key, string color)

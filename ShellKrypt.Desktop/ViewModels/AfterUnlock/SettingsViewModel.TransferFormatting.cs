@@ -4,9 +4,24 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class SettingsViewModel
 {
-    private static string FormatExportSummary(VaultSnapshotSummary summary)
-        => $"Items: {summary.ItemCount} | Web: {summary.WebCount} | Cards: {summary.CardCount} | Notes: {summary.NoteCount} | Authenticator: {summary.AuthenticatorCount} | API Keys: {summary.ApiKeyCount} | Labels: {summary.LabelCount} | Favorites: {summary.FavoriteCount}";
+    private string FormatExportSummary(VaultSnapshotSummary summary)
+        => T(
+            "Settings.Format.ExportSummary",
+            summary.ItemCount,
+            summary.WebCount,
+            summary.CardCount,
+            summary.NoteCount,
+            summary.AuthenticatorCount,
+            summary.ApiKeyCount,
+            summary.LabelCount,
+            summary.FavoriteCount);
 
-    private static string FormatImportSummary(VaultSnapshotSummary summary)
-        => $"Previewing import: {summary.ItemCount} items, {summary.AuthenticatorCount} authenticator accounts, {summary.ApiKeyCount} API keys, {summary.LabelCount} labels, {summary.FavoriteCount} favorites.";
+    private string FormatImportSummary(VaultSnapshotSummary summary)
+        => T(
+            "Settings.Format.ImportSummary",
+            summary.ItemCount,
+            summary.AuthenticatorCount,
+            summary.ApiKeyCount,
+            summary.LabelCount,
+            summary.FavoriteCount);
 }

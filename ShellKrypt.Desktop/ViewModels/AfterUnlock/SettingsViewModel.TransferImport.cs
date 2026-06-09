@@ -14,13 +14,13 @@ public sealed partial class SettingsViewModel
 
         if (string.IsNullOrWhiteSpace(EncryptedImportPath))
         {
-            TransferStatus = "Enter an encrypted backup path first.";
+            TransferStatus = T("Settings.Status.TransferEnterEncryptedBackupPath");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EncryptedImportPassphrase))
         {
-            TransferStatus = "Enter the import passphrase first.";
+            TransferStatus = T("Settings.Status.TransferEnterImportPassphrase");
             return;
         }
 
@@ -28,7 +28,7 @@ public sealed partial class SettingsViewModel
         {
             var summary = await _transferService.GetEncryptedImportSummaryAsync(EncryptedImportPath, EncryptedImportPassphrase);
             EncryptedImportSummary = FormatImportSummary(summary);
-            TransferStatus = "Encrypted restore preview is ready.";
+            TransferStatus = T("Settings.Status.RestorePreviewReady");
         });
     }
 
@@ -40,13 +40,13 @@ public sealed partial class SettingsViewModel
 
         if (string.IsNullOrWhiteSpace(EncryptedImportPath))
         {
-            TransferStatus = "Enter an encrypted backup path first.";
+            TransferStatus = T("Settings.Status.TransferEnterEncryptedBackupPath");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EncryptedImportPassphrase))
         {
-            TransferStatus = "Enter the import passphrase first.";
+            TransferStatus = T("Settings.Status.TransferEnterImportPassphrase");
             return;
         }
 
@@ -61,7 +61,7 @@ public sealed partial class SettingsViewModel
 
             await _transferService.ImportEncryptedAsync(EncryptedImportPath, EncryptedImportPassphrase, vaultPath, vaultKey);
             _root.ReloadShell();
-            TransferStatus = "Encrypted backup restored into the current vault.";
+            TransferStatus = T("Settings.Status.Restored");
             _root.LogActivity("transfer", "Encrypted backup imported", $"Restored an encrypted backup named {Path.GetFileName(EncryptedImportPath)}.", "success", vaultPath, Path.GetFileName(EncryptedImportPath));
         });
     }

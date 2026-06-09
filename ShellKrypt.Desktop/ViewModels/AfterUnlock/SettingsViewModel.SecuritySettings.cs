@@ -26,7 +26,7 @@ public sealed partial class SettingsViewModel
         _root.LockOnDeactivate = LockOnDeactivate;
         if (value.Seconds > 0)
             _root.LockOnDeactivateSeconds = value.Seconds;
-        Status = "Settings saved.";
+        Status = T("Settings.Status.SettingsSaved");
         MarkSelected(FocusLossLockDelayOptions, value);
         OnPropertyChanged(nameof(SelectedFocusLossLockDelayLabel));
         OnPropertyChanged(nameof(FocusLockSummary));
@@ -39,7 +39,7 @@ public sealed partial class SettingsViewModel
 
         _root.AutoLockMinutes = value.Minutes;
         _root.AutoLockEnabled = value.Minutes > 0;
-        Status = "Settings saved.";
+        Status = T("Settings.Status.SettingsSaved");
         MarkSelected(AutoLockDurations, value);
         OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));
         OnPropertyChanged(nameof(SecurityStatusText));
@@ -51,7 +51,7 @@ public sealed partial class SettingsViewModel
             return;
 
         _root.ClipboardClearSeconds = value.Seconds;
-        Status = "Settings saved.";
+        Status = T("Settings.Status.SettingsSaved");
         MarkSelected(ClipboardClearTimeoutOptions, value);
         OnPropertyChanged(nameof(SelectedClipboardClearDurationLabel));
         OnPropertyChanged(nameof(ClipboardClearSummary));
@@ -60,7 +60,7 @@ public sealed partial class SettingsViewModel
     partial void OnClipboardCopyEnabledChanged(bool value)
     {
         _root.ClipboardCopyEnabled = value;
-        Status = value ? "Clipboard copy enabled." : "Clipboard copy disabled.";
+        Status = value ? T("Settings.Status.ClipboardCopyEnabled") : T("Settings.Status.ClipboardCopyDisabled");
         OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
@@ -69,13 +69,13 @@ public sealed partial class SettingsViewModel
     [RelayCommand]
     private void SaveChanges()
     {
-        Status = "Changes saved locally.";
+        Status = T("Settings.Status.ChangesSavedLocally");
     }
 
     [RelayCommand]
     private void DiscardChanges()
     {
         LoadFromRootSettings();
-        Status = "Local settings reloaded.";
+        Status = T("Settings.Status.LocalSettingsReloaded");
     }
 }

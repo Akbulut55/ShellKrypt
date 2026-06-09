@@ -16,25 +16,25 @@ public sealed partial class SettingsViewModel
 
         if (!_root.IsUnlocked || string.IsNullOrWhiteSpace(_root.VaultPath))
         {
-            MasterPasswordStatus = "Unlock a vault before changing the master password.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordNoVault");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(CurrentMasterPassword))
         {
-            MasterPasswordStatus = "Enter the current master password.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordEnterCurrent");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(NewMasterPassword))
         {
-            MasterPasswordStatus = "Enter a new master password.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordEnterNew");
             return;
         }
 
         if (string.Equals(CurrentMasterPassword, NewMasterPassword, StringComparison.Ordinal))
         {
-            MasterPasswordStatus = "Choose a different new master password.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordDifferent");
             return;
         }
 
@@ -47,7 +47,7 @@ public sealed partial class SettingsViewModel
 
         if (!string.Equals(NewMasterPassword, ConfirmNewMasterPassword, StringComparison.Ordinal))
         {
-            MasterPasswordStatus = "New master passwords do not match.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordMismatch");
             return;
         }
 
@@ -61,15 +61,15 @@ public sealed partial class SettingsViewModel
 
             if (!result.Success)
             {
-                MasterPasswordStatus = result.Error ?? "Unable to change the master password.";
+                MasterPasswordStatus = result.Error ?? T("Settings.Status.ChangeMasterPasswordUnable");
                 return;
             }
 
             CurrentMasterPassword = "";
             NewMasterPassword = "";
             ConfirmNewMasterPassword = "";
-            MasterPasswordStatus = "Master password updated. Existing vault contents were re-wrapped in place.";
-            TransferStatus = "Master password changed successfully.";
+            MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordSuccess");
+            TransferStatus = T("Settings.Status.ChangeMasterPasswordTransferSuccess");
             _root.LogActivity("vault", "Master password changed", $"Updated the master password for {GetVaultDisplayName()}.", "success", _root.VaultPath, GetVaultDisplayName());
             await LoadCurrentSecurityProfileAsync();
         });

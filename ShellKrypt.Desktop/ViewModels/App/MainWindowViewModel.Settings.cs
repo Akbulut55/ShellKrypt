@@ -35,6 +35,20 @@ public partial class MainWindowViewModel
         SaveSettingsAndSyncSessionSecurity();
     }
 
+    partial void OnLanguageIdChanged(string value)
+    {
+        var normalized = AppSettings.NormalizeLanguageId(value);
+        if (!string.Equals(value, normalized, StringComparison.Ordinal))
+        {
+            LanguageId = normalized;
+            return;
+        }
+
+        _localization.SetLanguage(normalized);
+        ApplyLocalization();
+        SaveSettingsAndSyncSessionSecurity();
+    }
+
     private void SaveSettingsAndSyncSessionSecurity()
     {
         try
@@ -42,6 +56,7 @@ public partial class MainWindowViewModel
             var appSettings = new AppSettings
             {
                 ThemeId = ThemeId,
+                LanguageId = LanguageId,
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };
@@ -59,6 +74,12 @@ public partial class MainWindowViewModel
     {
         if (Avalonia.Application.Current is App app)
             app.ApplyTheme(themeId);
+    }
+
+    private void ApplyLocalization()
+    {
+        if (Avalonia.Application.Current is App app)
+            app.ApplyLocalization(_localization);
     }
 
     private SessionSecuritySettings BuildSessionSecuritySettings()

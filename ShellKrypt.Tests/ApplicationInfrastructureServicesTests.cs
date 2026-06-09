@@ -1,6 +1,7 @@
 using System.Text.Json;
 using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Markdown;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
@@ -24,6 +25,7 @@ public sealed class ApplicationInfrastructureServicesTests
         var settings = service.Load();
 
         Assert.Equal(AppSettings.DefaultThemeId, settings.ThemeId);
+        Assert.Equal(AppSettings.DefaultLanguageId, settings.LanguageId);
         Assert.True(settings.AutoLockEnabled);
         Assert.Equal(15, settings.AutoLockMinutes);
         Assert.Equal(20, settings.LockOnDeactivateSeconds);
@@ -35,12 +37,14 @@ public sealed class ApplicationInfrastructureServicesTests
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
         settings.ThemeId = "ocean";
+        settings.LanguageId = "tr";
         settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:15:30.0000000+00:00");
         service.Save(settings);
 
         var json = File.ReadAllText(DefaultPaths.SettingsPath);
         using var document = JsonDocument.Parse(json);
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ThemeId), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.LanguageId), out _));
         Assert.False(document.RootElement.TryGetProperty(nameof(AppSettings.ThemeMode), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ClipboardClearSeconds), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementAcceptedAtUtc), out _));
@@ -48,6 +52,7 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
         Assert.Equal("ocean", service.Load().ThemeId);
+        Assert.Equal("tr", service.Load().LanguageId);
         Assert.Equal("2026-05-31T10:15:30.0000000+00:00", service.Load().SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, service.Load().SecurityAcknowledgementVersionAccepted);
         Assert.True(service.Load().HasCurrentSecurityAcknowledgement);
@@ -74,6 +79,28 @@ public sealed class ApplicationInfrastructureServicesTests
         using var saved = JsonDocument.Parse(File.ReadAllText(DefaultPaths.SettingsPath));
         Assert.Equal(expectedThemeId, saved.RootElement.GetProperty(nameof(AppSettings.ThemeId)).GetString());
         Assert.False(saved.RootElement.TryGetProperty(nameof(AppSettings.ThemeMode), out _));
+    }
+
+    [Theory]
+    [InlineData("{\"LanguageId\":\"tr\"}", "tr")]
+    [InlineData("{\"LanguageId\":\"unknown\"}", "en")]
+    [InlineData("{\"LanguageId\":\"\"}", "en")]
+    [InlineData("{}", "en")]
+    public void AppSettingsService_NormalizesLanguageStorage(string json, string expectedLanguageId)
+    {
+        using var workspace = new TempWorkspace();
+        using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
+        Directory.CreateDirectory(Path.GetDirectoryName(DefaultPaths.SettingsPath)!);
+        File.WriteAllText(DefaultPaths.SettingsPath, json);
+
+        var service = new AppSettingsService(new FileAppSettingsStore());
+        var settings = service.Load();
+        service.Save(settings);
+
+        Assert.Equal(expectedLanguageId, settings.LanguageId);
+
+        using var saved = JsonDocument.Parse(File.ReadAllText(DefaultPaths.SettingsPath));
+        Assert.Equal(expectedLanguageId, saved.RootElement.GetProperty(nameof(AppSettings.LanguageId)).GetString());
     }
 
     [Fact]

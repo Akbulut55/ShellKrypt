@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Services;
@@ -70,39 +71,39 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<LanguageOption> LanguageOptions { get; } =
     [
-        new("en", "English")
+        .. LanguageRegistry.All.Select(language => new LanguageOption(language.Id, language.NativeName, language.DisplayName))
     ];
 
     public ObservableCollection<AutoLockDurationOption> AutoLockDurations { get; } =
     [
-        new(1, "1 Minute"),
-        new(5, "5 Minutes"),
-        new(10, "10 Minutes"),
-        new(15, "15 Minutes"),
-        new(30, "30 Minutes"),
-        new(60, "1 Hour"),
-        new(120, "2 Hours"),
+        new(1, "Settings.Duration.1Minute", "1 Minute"),
+        new(5, "Settings.Duration.5Minutes", "5 Minutes"),
+        new(10, "Settings.Duration.10Minutes", "10 Minutes"),
+        new(15, "Settings.Duration.15Minutes", "15 Minutes"),
+        new(30, "Settings.Duration.30Minutes", "30 Minutes"),
+        new(60, "Settings.Duration.1Hour", "1 Hour"),
+        new(120, "Settings.Duration.2Hours", "2 Hours"),
     ];
 
     public ObservableCollection<SecondsDurationOption> FocusLossLockDelayOptions { get; } =
     [
-        new(0, "Off"),
-        new(5, "5 Seconds"),
-        new(10, "10 Seconds"),
-        new(20, "20 Seconds"),
-        new(30, "30 Seconds"),
-        new(60, "1 Minute"),
-        new(120, "2 Minutes"),
+        new(0, "Settings.Duration.Off", "Off"),
+        new(5, "Settings.Duration.5Seconds", "5 Seconds"),
+        new(10, "Settings.Duration.10Seconds", "10 Seconds"),
+        new(20, "Settings.Duration.20Seconds", "20 Seconds"),
+        new(30, "Settings.Duration.30Seconds", "30 Seconds"),
+        new(60, "Settings.Duration.1Minute", "1 Minute"),
+        new(120, "Settings.Duration.2Minutes", "2 Minutes"),
     ];
 
     public ObservableCollection<SecondsDurationOption> ClipboardClearTimeoutOptions { get; } =
     [
-        new(5, "5 Seconds"),
-        new(15, "15 Seconds"),
-        new(30, "30 Seconds"),
-        new(60, "1 Minute"),
-        new(120, "2 Minutes"),
-        new(300, "5 Minutes"),
+        new(5, "Settings.Duration.5Seconds", "5 Seconds"),
+        new(15, "Settings.Duration.15Seconds", "15 Seconds"),
+        new(30, "Settings.Duration.30Seconds", "30 Seconds"),
+        new(60, "Settings.Duration.1Minute", "1 Minute"),
+        new(120, "Settings.Duration.2Minutes", "2 Minutes"),
+        new(300, "Settings.Duration.5Minutes", "5 Minutes"),
     ];
 
     public ObservableCollection<VaultSecurityProfile> SecurityProfiles { get; } =
@@ -118,9 +119,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
         _shell = shell;
         _vaultRegistry = vaultRegistry;
         CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
+        _root.Localization.LanguageChanged += OnLocalizationChanged;
+        RefreshLocalizedOptionLabels();
         LoadFromRootSettings();
-        SelectedLanguageOption = LanguageOptions[0];
-        Status = "Settings save automatically.";
+        SelectedLanguageOption = ResolveLanguageOption(_root.LanguageId);
+        Status = T("Settings.Status.SettingsAutoSave");
 
         var exportBaseName = GetVaultDisplayName();
         EncryptedExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Backup", ".skbx");
@@ -136,23 +139,26 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string VaultStorageDisplay => GetVaultStorageDisplay();
     public double VaultStoragePercent => GetVaultStoragePercent();
     public string EncryptionDisplay => "AES-256";
-    public string SelectedAutoLockDurationLabel => SelectedAutoLockDuration?.Label ?? "5 Minutes";
-    public string SelectedFocusLossLockDelayLabel => SelectedFocusLossLockDelay?.Label ?? "Off";
-    public string SelectedClipboardClearDurationLabel => SelectedClipboardClearDuration?.Label ?? "1 Minute";
+    public string SelectedAutoLockDurationLabel => SelectedAutoLockDuration?.Label ?? T("Settings.Duration.5Minutes");
+    public string SelectedFocusLossLockDelayLabel => SelectedFocusLossLockDelay?.Label ?? T("Settings.Duration.Off");
+    public string SelectedClipboardClearDurationLabel => SelectedClipboardClearDuration?.Label ?? T("Settings.Duration.1Minute");
     public string ThemeModeLabel => SelectedThemeOption?.Label ?? ShellKryptThemePalettes.Default.DisplayName;
-    public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? "English";
-    public bool IsEnglishLanguageSelected => SelectedLanguageOption?.Code == "en";
+    public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? LanguageRegistry.Default.NativeName;
     public string FocusLockSummary => LockOnDeactivate
-        ? $"ShellKrypt locks after {SelectedFocusLossLockDelay?.Label?.ToLowerInvariant() ?? "the selected delay"} when the app loses focus."
-        : "ShellKrypt stays unlocked when the app is not focused.";
+        ? T("Settings.FocusLock.Enabled", LowerLabel(SelectedFocusLossLockDelay?.Label) ?? "the selected delay")
+        : T("Settings.FocusLock.Disabled");
     public string ClipboardClearSummary => ClipboardCopyEnabled
-        ? $"Copied secrets are cleared after {SelectedClipboardClearDuration?.Label?.ToLowerInvariant() ?? "the selected timeout"}."
-        : "Copy actions are disabled. Clipboard clearing is best-effort and not a security boundary.";
+        ? T("Settings.Clipboard.Enabled", LowerLabel(SelectedClipboardClearDuration?.Label) ?? "the selected timeout")
+        : T("Settings.Clipboard.Disabled");
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
-    public string RecoveryGuidanceText => "If the vault is locked and the master password is forgotten, the data cannot be recovered without a prior backup.";
-    public string BackupRecommendationText => "Create an encrypted .skbx backup with a separate export passphrase before changing the master password or moving the vault.";
+    public string RecoveryGuidanceText => T("Settings.RecoveryGuidance");
+    public string BackupRecommendationText => T("Settings.BackupRecommendation");
     public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
     public string SecurityStatusText => AutoLockEnabled
-        ? $"Auto-lock enabled â€¢ {SelectedAutoLockDuration?.Label ?? "Configured"}"
-        : "Auto-lock disabled";
+        ? T("Settings.SecurityStatus.AutoLockEnabled", SelectedAutoLockDuration?.Label ?? "Configured")
+        : T("Settings.SecurityStatus.AutoLockDisabled");
+
+    private string T(string key, params object[] args) => _root.Localization.Get(key, args);
+
+    private static string? LowerLabel(string? label) => label?.ToLowerInvariant();
 }

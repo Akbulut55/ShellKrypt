@@ -12,7 +12,7 @@ public sealed partial class SettingsViewModel
 
         if (!_root.IsUnlocked || string.IsNullOrWhiteSpace(_root.VaultPath))
         {
-            TransferStatus = "Unlock a vault before using import or export.";
+            TransferStatus = T("Settings.Status.TransferUnlockVault");
             return false;
         }
 

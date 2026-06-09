@@ -14,7 +14,7 @@ public sealed partial class SettingsViewModel
 
         if (string.IsNullOrWhiteSpace(CsvImportPath))
         {
-            TransferStatus = "Enter a CSV file path first.";
+            TransferStatus = T("Settings.Status.TransferEnterCsvPath");
             return;
         }
 
@@ -25,10 +25,9 @@ public sealed partial class SettingsViewModel
             foreach (var row in preview.Rows)
                 CsvPreviewRows.Add(row);
 
-            CsvPreviewSummary =
-                $"Rows: {preview.TotalRows} | New: {preview.NewRows} | Duplicates: {preview.DuplicateRows} | Invalid: {preview.InvalidRows}";
+            CsvPreviewSummary = T("Settings.Format.CsvSummary", preview.TotalRows, preview.NewRows, preview.DuplicateRows, preview.InvalidRows);
             OnPropertyChanged(nameof(HasCsvPreview));
-            TransferStatus = "CSV preview is ready.";
+            TransferStatus = T("Settings.Status.CsvPreviewReady");
         });
     }
 
@@ -40,7 +39,7 @@ public sealed partial class SettingsViewModel
 
         if (string.IsNullOrWhiteSpace(CsvImportPath))
         {
-            TransferStatus = "Enter a CSV file path first.";
+            TransferStatus = T("Settings.Status.TransferEnterCsvPath");
             return;
         }
 
@@ -54,13 +53,12 @@ public sealed partial class SettingsViewModel
                 foreach (var row in preview.Rows)
                     CsvPreviewRows.Add(row);
 
-                CsvPreviewSummary =
-                    $"Rows: {preview.TotalRows} | New: {preview.NewRows} | Duplicates: {preview.DuplicateRows} | Invalid: {preview.InvalidRows}";
+                CsvPreviewSummary = T("Settings.Format.CsvSummary", preview.TotalRows, preview.NewRows, preview.DuplicateRows, preview.InvalidRows);
             }
 
             await _transferService.ImportCsvAsync(vaultPath, vaultKey, CsvImportPath, SelectedCsvDuplicateStrategy);
             _root.ReloadShell();
-            TransferStatus = $"CSV import finished using {SelectedCsvDuplicateStrategy}.";
+            TransferStatus = T("Settings.Status.CsvImportFinished", SelectedCsvDuplicateStrategy);
             _root.LogActivity("transfer", "CSV import completed", $"Imported items from {Path.GetFileName(CsvImportPath)} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath, Path.GetFileName(CsvImportPath));
         });
     }

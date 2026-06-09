@@ -14,7 +14,7 @@ public sealed partial class SettingsViewModel
     {
         if (string.IsNullOrWhiteSpace(_root.VaultPath))
         {
-            TransferStatus = "No active vault is selected.";
+            TransferStatus = T("Settings.Status.NoActiveVault");
             return;
         }
 
@@ -44,7 +44,7 @@ public sealed partial class SettingsViewModel
             var unlockResult = await _vaultService.UnlockAsync(vaultPath, password);
             if (!unlockResult.Success)
             {
-                TransferStatus = unlockResult.Error ?? "Wrong master password.";
+                TransferStatus = unlockResult.Error ?? T("Settings.Status.WrongMasterPassword");
                 return;
             }
 

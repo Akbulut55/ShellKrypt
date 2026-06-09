@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
@@ -26,6 +27,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly VaultRegistryService _vaultRegistryService = new(new FileVaultRegistryStore());
     private readonly ActivityLogService _activityLogService = new(new SqliteActivityLogStore());
     private readonly AuditDismissalService _auditDismissalService = new(new FileDismissedAuditIssueStore());
+    private readonly LocalizationService _localization = new();
     private readonly ClipboardService _clipboardService = new();
     private readonly AuthenticatorQrImportService _authenticatorQrImportService = new();
     private readonly SessionSecurityService _sessionSecurity;
@@ -54,6 +56,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int clipboardClearSeconds;
     [ObservableProperty] private bool clipboardCopyEnabled;
     [ObservableProperty] private string themeId = AppSettings.DefaultThemeId;
+    [ObservableProperty] private string languageId = AppSettings.DefaultLanguageId;
 
     public MainWindowViewModel()
     {
@@ -75,10 +78,12 @@ public partial class MainWindowViewModel : ViewModelBase
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
         themeId = settings.ThemeId;
+        languageId = settings.LanguageId;
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
         _securityAcknowledgementVersionAccepted = settings.SecurityAcknowledgementVersionAccepted;
 
         _sessionSecurity.ApplySettings(sessionSecurity);
+        _localization.SetLanguage(languageId);
 
         Current = new WelcomeViewModel(this, _vaultRegistryService);
         ApplyTheme(themeId);
@@ -86,6 +91,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     public string? VaultPath => _state.VaultPath;
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
+    public LocalizationService Localization => _localization;
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
     public bool HasAcceptedSecurityAcknowledgement =>

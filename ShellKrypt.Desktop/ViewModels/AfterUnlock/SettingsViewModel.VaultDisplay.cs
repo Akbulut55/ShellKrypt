@@ -16,10 +16,10 @@ public sealed partial class SettingsViewModel
     private string GetVaultStorageDisplay()
     {
         if (string.IsNullOrWhiteSpace(_root.VaultPath) || !File.Exists(_root.VaultPath))
-            return "640 MB / 1 GB Storage used";
+            return T("Settings.Storage.Used", "640 MB");
 
         var bytes = new FileInfo(_root.VaultPath).Length;
-        return $"{FormatBytes(bytes)} / 1 GB Storage used";
+        return T("Settings.Storage.Used", FormatBytes(bytes));
     }
 
     private double GetVaultStoragePercent()
