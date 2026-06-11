@@ -8,10 +8,10 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ActivityViewModel
 {
-    private static string FormatMetadataTimestamp(string timestampUtc)
+    private string FormatMetadataTimestamp(string timestampUtc)
     {
         if (!DateTimeOffset.TryParse(timestampUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
-            return "Unknown";
+            return T(_root, "Activity.Time.Unknown");
 
         return parsed.ToLocalTime().ToString("MMM d, yyyy | HH:mm:ss", CultureInfo.InvariantCulture);
     }

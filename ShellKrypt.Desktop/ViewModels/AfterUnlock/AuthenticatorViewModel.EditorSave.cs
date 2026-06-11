@@ -14,25 +14,25 @@ public partial class AuthenticatorViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(FormName))
         {
-            Error = "Name is required.";
+            Error = T(_root, "Authenticator.Validation.NameRequired");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(FormSecret))
         {
-            Error = "Secret key is required.";
+            Error = T(_root, "Authenticator.Validation.SecretRequired");
             return;
         }
 
         if (SelectedFormKeyType is null)
         {
-            Error = "Select a key type.";
+            Error = T(_root, "Authenticator.Validation.KeyTypeRequired");
             return;
         }
 
@@ -45,7 +45,7 @@ public partial class AuthenticatorViewModel
             {
                 if (SelectedEntry is null)
                 {
-                    Error = "No authenticator code selected.";
+                    Error = T(_root, "Authenticator.Validation.NoSelection");
                     return;
                 }
 
@@ -64,7 +64,7 @@ public partial class AuthenticatorViewModel
             else
             {
                 var added = await _authenticatorService.AddAsync(_root.VaultPath, _root.VaultKey, input);
-                var vm = new AuthenticatorAccountVm(added);
+                var vm = new AuthenticatorAccountVm(added, _root.Localization);
                 _allEntries.Insert(0, vm);
                 RefreshSnapshots();
                 ApplyFilter(selectEntryId: added.Id);

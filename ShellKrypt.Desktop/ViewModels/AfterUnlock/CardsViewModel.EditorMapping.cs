@@ -18,8 +18,9 @@ public partial class CardsViewModel
             Issuer: string.IsNullOrWhiteSpace(AddIssuer) ? CardRowVm.DetectIssuer(digits) : AddIssuer,
             CardType: string.IsNullOrWhiteSpace(AddCardType) ? CardRowVm.DefaultCardType : AddCardType);
 
-    private static CardRowVm ToRow(CardEntry entry)
+    private CardRowVm ToRow(CardEntry entry)
         => new(
+            _root.Localization,
             entry.Id,
             entry.Title,
             entry.Bank,

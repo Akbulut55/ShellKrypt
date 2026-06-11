@@ -29,8 +29,8 @@ public partial class CardsViewModel
     {
         Error = "";
 
-        if (_selectedDetailsRow is null) { Error = "No card selected."; return; }
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (_selectedDetailsRow is null) { Error = T(_root, "Cards.Error.NoSelection"); return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
 
         try
         {

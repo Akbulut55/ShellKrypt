@@ -1,5 +1,6 @@
 using System.IO;
 using System.Linq;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
@@ -27,11 +28,11 @@ public partial class ImportVaultWindow : Window
     {
         var files = await StorageProvider.OpenFilePickerAsync(new FilePickerOpenOptions
         {
-            Title = "Select existing vault",
+            Title = Loc("Dialog.ImportVault.PickerTitle"),
             AllowMultiple = false,
             FileTypeFilter =
             [
-                new FilePickerFileType("ShellKrypt Vault")
+                new FilePickerFileType(Loc("Dialog.ImportVault.FileType"))
                 {
                     Patterns = ["*.skvault"]
                 }
@@ -56,11 +57,22 @@ public partial class ImportVaultWindow : Window
 
         if (string.IsNullOrWhiteSpace(VaultPath))
         {
-            ErrorText.Text = "Choose a vault file first.";
+            ErrorText.Text = Loc("Dialog.ImportVault.ErrorChooseFile");
             ErrorText.IsVisible = true;
             return;
         }
 
         Close(true);
+    }
+
+    private static string Loc(string key)
+    {
+        if (Avalonia.Application.Current?.Resources.TryGetResource($"Loc.{key}", null, out var value) == true &&
+            value is string text)
+        {
+            return text;
+        }
+
+        return key;
     }
 }

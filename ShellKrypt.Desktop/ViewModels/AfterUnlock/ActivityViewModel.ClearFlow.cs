@@ -11,10 +11,10 @@ public partial class ActivityViewModel
         Error = string.Empty;
 
         var confirmed = await _root.ConfirmDangerousActionAsync(
-            "Clear Activity Log?",
-            "Clear this vault's activity history?",
-            "This only deletes activity entries for the current vault. Vault items remain untouched.",
-            "Clear Activity");
+            T(_root, "Activity.Clear.Title"),
+            T(_root, "Activity.Clear.Subtitle"),
+            T(_root, "Activity.Clear.Detail"),
+            T(_root, "Activity.Clear.Confirm"));
 
         if (!confirmed)
             return;

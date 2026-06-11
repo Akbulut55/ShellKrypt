@@ -31,13 +31,13 @@ public partial class ApiKeysViewModel
 
         if (_selectedDetailsRow is null)
         {
-            Error = "No API key selected.";
+            Error = T(_root, "ApiKeys.Error.NoSelection");
             return;
         }
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 

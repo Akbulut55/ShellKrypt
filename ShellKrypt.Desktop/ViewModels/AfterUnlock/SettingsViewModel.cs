@@ -135,7 +135,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public bool HasCsvPreview => CsvPreviewRows.Count > 0;
     public bool HasMasterPasswordStatus => !string.IsNullOrWhiteSpace(MasterPasswordStatus);
     public string ActiveVaultDisplay => GetVaultFileName();
-    public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? "No active vault path." : _root.VaultPath;
+    public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? T("Settings.Status.NoActiveVaultPath") : _root.VaultPath;
     public string VaultStorageDisplay => GetVaultStorageDisplay();
     public double VaultStoragePercent => GetVaultStoragePercent();
     public string EncryptionDisplay => "AES-256";
@@ -145,17 +145,17 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string ThemeModeLabel => SelectedThemeOption?.Label ?? ShellKryptThemePalettes.Default.DisplayName;
     public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? LanguageRegistry.Default.NativeName;
     public string FocusLockSummary => LockOnDeactivate
-        ? T("Settings.FocusLock.Enabled", LowerLabel(SelectedFocusLossLockDelay?.Label) ?? "the selected delay")
+        ? T("Settings.FocusLock.Enabled", LowerLabel(SelectedFocusLossLockDelay?.Label) ?? T("Settings.FocusLock.SelectedDelay"))
         : T("Settings.FocusLock.Disabled");
     public string ClipboardClearSummary => ClipboardCopyEnabled
-        ? T("Settings.Clipboard.Enabled", LowerLabel(SelectedClipboardClearDuration?.Label) ?? "the selected timeout")
+        ? T("Settings.Clipboard.Enabled", LowerLabel(SelectedClipboardClearDuration?.Label) ?? T("Settings.Clipboard.SelectedTimeout"))
         : T("Settings.Clipboard.Disabled");
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => T("Settings.RecoveryGuidance");
     public string BackupRecommendationText => T("Settings.BackupRecommendation");
     public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
     public string SecurityStatusText => AutoLockEnabled
-        ? T("Settings.SecurityStatus.AutoLockEnabled", SelectedAutoLockDuration?.Label ?? "Configured")
+        ? T("Settings.SecurityStatus.AutoLockEnabled", SelectedAutoLockDuration?.Label ?? T("Settings.Status.Configured"))
         : T("Settings.SecurityStatus.AutoLockDisabled");
 
     private string T(string key, params object[] args) => _root.Localization.Get(key, args);

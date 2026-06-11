@@ -23,7 +23,7 @@
                          VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
-                <TextBlock Text="TOTAL ITEMS"
+                <TextBlock Text="{DynamicResource Loc.AllItems.TotalItems}"
                            Classes="allitems-kicker"/>
                 <TextBlock Grid.Row="1"
                            Text="{Binding TotalCount}"
@@ -46,7 +46,7 @@
                          VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
-                <TextBlock Text="WEAK PASSWORDS"
+                <TextBlock Text="{DynamicResource Loc.AllItems.WeakPasswords.Title}"
                            Classes="allitems-kicker"/>
                 <TextBlock Grid.Row="1"
                            Text="{Binding WeakPasswordCount}"
@@ -70,7 +70,7 @@
                          VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
-                <TextBlock Text="EXPIRING SOON"
+                <TextBlock Text="{DynamicResource Loc.AllItems.ExpiringSoon.Title}"
                            Classes="allitems-kicker"/>
                 <TextBlock Grid.Row="1"
                            Text="{Binding ExpiringSoonCardCount}"
@@ -99,38 +99,38 @@
                 <TextBox Grid.Column="1"
                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="allitems-top-search"
-                         PlaceholderText="Search all items..."/>
+                         PlaceholderText="{DynamicResource Loc.AllItems.Search.Placeholder}"/>
               </Grid>
             </Border>
 
             <WrapPanel Orientation="Horizontal"
                        VerticalAlignment="Center">
-              <Button Content="{Binding TotalCount, StringFormat=All ({0})}"
+              <Button Content="{Binding AllFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsAllTypeActive}"
                       Command="{Binding ShowAllCommand}"/>
-              <Button Content="{Binding WebCount, StringFormat=Logins ({0})}"
+              <Button Content="{Binding WebFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsWebTypeActive}"
                       Command="{Binding ShowWebTypesCommand}"/>
-              <Button Content="{Binding CardCount, StringFormat=Cards ({0})}"
+              <Button Content="{Binding CardFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsCardTypeActive}"
                       Command="{Binding ShowCardTypesCommand}"/>
-              <Button Content="{Binding AuthenticatorCount, StringFormat=Authenticator ({0})}"
+              <Button Content="{Binding AuthenticatorFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsAuthenticatorTypeActive}"
                       Command="{Binding ShowAuthenticatorTypesCommand}"/>
-              <Button Content="{Binding ApiKeyCount, StringFormat=API Keys ({0})}"
+              <Button Content="{Binding ApiKeyFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsApiKeyTypeActive}"
                       Command="{Binding ShowApiKeyTypesCommand}"/>
-              <Button Content="{Binding NoteCount, StringFormat=Markdown Notes ({0})}"
+              <Button Content="{Binding NoteFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsNoteTypeActive}"
@@ -145,16 +145,16 @@
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
                     ColumnSpacing="18">
-                <TextBlock Text="NAME"
+                <TextBlock Text="{DynamicResource Loc.Common.Name.Header}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="1"
-                           Text="TYPE"
+                           Text="{DynamicResource Loc.Common.Type.Header}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="2"
-                           Text="USERNAME / ID"
+                           Text="{DynamicResource Loc.AllItems.Identifier.Header}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="3"
-                           Text="LAST MODIFIED"
+                           Text="{DynamicResource Loc.Common.LastModified.Header}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="4"
                            Text=""
@@ -231,7 +231,7 @@
                                     Spacing="8"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center">
-                          <Button Content="View"
+                          <Button Content="{DynamicResource Loc.Common.View}"
                                   Classes="table-action-button"
                                   Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
@@ -257,7 +257,7 @@
                             Classes="allitems-add-button"
                             Command="{Binding AddItemCommand}"/>
                     <Button Grid.Column="1"
-                            Content="Reset filters"
+                            Content="{DynamicResource Loc.Common.ResetFilters}"
                             Classes="allitems-filter-button"
                             Command="{Binding ResetFiltersCommand}"/>
                   </Grid>
@@ -279,7 +279,7 @@
                              IsVisible="{Binding HasError}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
-                        Content="Previous"
+                        Content="{DynamicResource Loc.Common.Previous}"
                         Classes="table-page-button"
                         Command="{Binding GoPreviousPageCommand}"
                         IsEnabled="{Binding CanGoPrevious}"/>
@@ -288,7 +288,7 @@
                            Classes="table-footer-text"
                            VerticalAlignment="Center"/>
                 <Button Grid.Column="3"
-                        Content="Next"
+                        Content="{DynamicResource Loc.Common.Next}"
                         Classes="table-page-button"
                         Command="{Binding GoNextPageCommand}"
                         IsEnabled="{Binding CanGoNext}"/>

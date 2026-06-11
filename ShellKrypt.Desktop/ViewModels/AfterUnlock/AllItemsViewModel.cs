@@ -81,4 +81,27 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     public ICommand GoToPageCommand { get; }
     public ICommand AddItemCommand { get; }
     public ICommand OpenRowCommand { get; }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var row in Rows)
+            row.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(PageSummary),
+            nameof(TotalItemsDeltaText),
+            nameof(WeakPasswordSubtitle),
+            nameof(ReusedPasswordSubtitle),
+            nameof(ExpiringSoonCardSubtitle),
+            nameof(FooterSummary),
+            nameof(AllFilterLabel),
+            nameof(WebFilterLabel),
+            nameof(CardFilterLabel),
+            nameof(AuthenticatorFilterLabel),
+            nameof(ApiKeyFilterLabel),
+            nameof(NoteFilterLabel),
+            nameof(AddItemButtonText),
+            nameof(EmptyStateTitle),
+            nameof(EmptyStateSubtitle));
+    }
 }

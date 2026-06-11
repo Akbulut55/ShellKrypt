@@ -13,15 +13,15 @@ public sealed partial class WelcomeViewModel
 
         if (SelectedVault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         var confirmed = await _root.ConfirmDangerousActionAsync(
-            "Remove Vault From List",
-            $"Remove {SelectedVault.DisplayLabel} from the local vault list?",
-            "This only removes the vault from ShellKrypt's local manager. The vault file stays on disk and can be added again later.",
-            "Remove From List");
+            T(_root, "Welcome.Remove.Title"),
+            T(_root, "Welcome.Remove.ConfirmSubtitle", SelectedVault.DisplayLabel),
+            T(_root, "Welcome.Remove.ConfirmDetail"),
+            T(_root, "Common.RemoveFromList"));
 
         if (!confirmed)
             return;
@@ -33,7 +33,7 @@ public sealed partial class WelcomeViewModel
 
             if (!_vaultRegistry.RemoveVault(path))
             {
-                Error = "That vault is no longer registered.";
+                Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 
@@ -41,7 +41,7 @@ public sealed partial class WelcomeViewModel
                 _root.SetVaultPath("");
 
             ReloadVaults();
-            Status = $"{displayName} was removed from the local vault list.";
+            Status = T(_root, "Welcome.Remove.StatusRemoved", displayName);
             _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)
@@ -57,7 +57,7 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -94,7 +94,7 @@ public sealed partial class WelcomeViewModel
 
             if (!_vaultRegistry.RemoveVault(path))
             {
-                Error = "That vault is no longer registered.";
+                Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 
@@ -104,7 +104,7 @@ public sealed partial class WelcomeViewModel
             IsRemoveOverlayOpen = false;
             RemoveTarget = null;
             ReloadVaults();
-            Status = $"{displayName} was removed from the local vault list.";
+            Status = T(_root, "Welcome.Remove.StatusRemoved", displayName);
             _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)

@@ -18,41 +18,52 @@ public sealed partial class AllItemsViewModel
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public int TotalPages => DesktopPagination.GetTotalPages(FilteredCount, PageSize);
-    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
     public bool CanGoPrevious => CurrentPage > 1;
     public bool CanGoNext => CurrentPage < TotalPages;
-    public string TotalItemsDeltaText => CreatedThisMonthCount <= 0 ? "0 items this month" : $"+{CreatedThisMonthCount} items this month";
-    public string WeakPasswordSubtitle => WeakPasswordCount <= 0 ? "0 passwords needs attention" : $"{WeakPasswordCount} passwords needs attention";
-    public string ReusedPasswordSubtitle => ReusedPasswordCount <= 0 ? "No overlap found" : "Security risk";
+    public string TotalItemsDeltaText => CreatedThisMonthCount <= 0
+        ? T(_root, "AllItems.CreatedThisMonth.None")
+        : T(_root, "AllItems.CreatedThisMonth.Count", CreatedThisMonthCount);
+    public string WeakPasswordSubtitle => WeakPasswordCount <= 0
+        ? T(_root, "AllItems.WeakPasswords.None")
+        : T(_root, "AllItems.WeakPasswords.Count", WeakPasswordCount);
+    public string ReusedPasswordSubtitle => ReusedPasswordCount <= 0 ? T(_root, "AllItems.ReusedPasswords.None") : T(_root, "AllItems.ReusedPasswords.Risk");
     public string ExpiringSoonCardSubtitle => ExpiringSoonCardCount switch
     {
-        0 => "No urgent renewals",
-        1 => "1 card expires within 3 months",
-        _ => $"{ExpiringSoonCardCount} cards expire within 3 months"
+        0 => T(_root, "AllItems.ExpiringCards.None"),
+        1 => T(_root, "AllItems.ExpiringCards.One"),
+        _ => T(_root, "AllItems.ExpiringCards.Many", ExpiringSoonCardCount)
     };
-    public string FooterSummary => $"Showing {Rows.Count} of {FilteredCount} items";
+    public string FooterSummary => T(_root, "AllItems.FooterSummary", Rows.Count, FilteredCount);
+
+    public string AllFilterLabel => T(_root, "AllItems.Filter.All", TotalCount);
+    public string WebFilterLabel => T(_root, "AllItems.Filter.Logins", WebCount);
+    public string CardFilterLabel => T(_root, "AllItems.Filter.Cards", CardCount);
+    public string AuthenticatorFilterLabel => T(_root, "AllItems.Filter.Authenticator", AuthenticatorCount);
+    public string ApiKeyFilterLabel => T(_root, "AllItems.Filter.ApiKeys", ApiKeyCount);
+    public string NoteFilterLabel => T(_root, "AllItems.Filter.Notes", NoteCount);
 
     public string AddItemButtonText => ActiveType switch
     {
-        "web" => "+ Add Login",
-        "card" => "+ Add Card",
-        "note" => "+ Add Note",
-        "authenticator" => "+ Add Authenticator",
-        "api" => "+ Add API Key",
-        _ => "+ Add Item"
+        "web" => T(_root, "AllItems.Add.Login"),
+        "card" => T(_root, "AllItems.Add.Card"),
+        "note" => T(_root, "AllItems.Add.Note"),
+        "authenticator" => T(_root, "AllItems.Add.Authenticator"),
+        "api" => T(_root, "AllItems.Add.ApiKey"),
+        _ => T(_root, "AllItems.Add.Item")
     };
 
     public string EmptyStateTitle => ActiveScope switch
     {
-        "favorites" => "No favorites match this view",
-        "recent" => "No recent items found",
-        _ => "No vault items match this view"
+        "favorites" => T(_root, "AllItems.Empty.FavoritesTitle"),
+        "recent" => T(_root, "AllItems.Empty.RecentTitle"),
+        _ => T(_root, "AllItems.Empty.DefaultTitle")
     };
 
     public string EmptyStateSubtitle => ActiveScope switch
     {
-        "favorites" => "Mark items as favorites from their dedicated sections, then they will surface here.",
-        "recent" => "Try a wider search, or switch back to all items to inspect the full vault.",
-        _ => "Adjust the search query or category filter to surface another item set."
+        "favorites" => T(_root, "AllItems.Empty.FavoritesSubtitle"),
+        "recent" => T(_root, "AllItems.Empty.RecentSubtitle"),
+        _ => T(_root, "AllItems.Empty.DefaultSubtitle")
     };
 }

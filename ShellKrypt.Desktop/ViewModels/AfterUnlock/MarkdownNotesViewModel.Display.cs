@@ -8,9 +8,9 @@ public partial class MarkdownNotesViewModel
     public int VisibleNoteCount => FilteredNotes.Count;
     public string NotesHeader => ActiveFilter switch
     {
-        "favorites" => $"STARRED ({VisibleNoteCount})",
-        "recent" => $"RECENT ({VisibleNoteCount})",
-        _ => $"NOTES ({VisibleNoteCount})"
+        "favorites" => T(_root, "Notes.Header.Starred", VisibleNoteCount),
+        "recent" => T(_root, "Notes.Header.Recent", VisibleNoteCount),
+        _ => T(_root, "Notes.Header.Notes", VisibleNoteCount)
     };
     public bool HasFilteredNotes => FilteredNotes.Count > 0;
     public bool HasEditor => SelectedNote is not null || IsCreatingNote;
@@ -29,8 +29,8 @@ public partial class MarkdownNotesViewModel
     public bool CanSave => IsEditing && !IsBusy && !string.IsNullOrWhiteSpace(EditorTitle);
     public bool ShowEditButton => SelectedNote is not null && !IsEditing;
     public bool ShowSaveButton => IsEditing;
-    public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true ? "Unstar" : "Star";
-    public string SaveButtonText => SelectedNote is null ? "Create Note" : "Save Note";
+    public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true ? T(_root, "Notes.Button.Unstar") : T(_root, "Notes.Button.Star");
+    public string SaveButtonText => SelectedNote is null ? T(_root, "Notes.Button.CreateNote") : T(_root, "Notes.Button.SaveNote");
 
     public string PreviewDocumentTitle
     {
@@ -44,32 +44,32 @@ public partial class MarkdownNotesViewModel
 
             return !string.IsNullOrWhiteSpace(firstHeading?.Text)
                 ? firstHeading.Text
-                : "Untitled Markdown Note";
+                : T(_root, "Notes.Untitled");
         }
     }
 
     public string SelectedNoteMeta => SelectedNote is null
         ? IsCreatingNote
-            ? "Draft content stays local until you save it into the active vault."
-            : "Select a markdown note to inspect or create a new encrypted markdown record."
-        : $"Last edited {FormatEditorTimestamp(SelectedNote.UpdatedAtUtc)} | {EditorContent.Length:N0} characters";
+            ? T(_root, "Notes.Meta.Draft")
+            : T(_root, "Notes.Meta.Select")
+        : T(_root, "Notes.Meta.LastEdited", FormatEditorTimestamp(SelectedNote.UpdatedAtUtc), EditorContent.Length);
 
-    public string EditorStats => $"{EditorContent.Length:N0} characters | {CountWords(EditorContent):N0} words | {CountLines(EditorContent):N0} lines";
+    public string EditorStats => T(_root, "Notes.EditorStats", EditorContent.Length, CountWords(EditorContent), CountLines(EditorContent));
     public string EditorStatusLine => string.IsNullOrWhiteSpace(AutoSaveStatus)
         ? EditorStats
-        : $"{EditorStats} - {AutoSaveStatus}";
+        : T(_root, "Notes.EditorStatusLine", EditorStats, AutoSaveStatus);
 
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
         ? ActiveFilter == "favorites"
-            ? "No starred notes available"
-            : "No markdown notes available"
-        : "No notes match the current search";
+            ? T(_root, "Notes.Empty.StarredTitle")
+            : T(_root, "Notes.Empty.NoneTitle")
+        : T(_root, "Notes.Empty.NoMatchTitle");
 
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
         ? ActiveFilter == "favorites"
-            ? "Star notes from the editor and they will appear here."
-            : "Create a new markdown note to start storing encrypted private data in this vault."
-        : "Try a different search term or switch back to All.";
+            ? T(_root, "Notes.Empty.StarredSubtitle")
+            : T(_root, "Notes.Empty.NoneSubtitle")
+        : T(_root, "Notes.Empty.NoMatchSubtitle");
 
-    public string DocumentViewToggleText => IsPreviewMode ? "Source" : "Preview";
+    public string DocumentViewToggleText => IsPreviewMode ? T(_root, "Notes.Button.Source") : T(_root, "Notes.Button.Preview");
 }

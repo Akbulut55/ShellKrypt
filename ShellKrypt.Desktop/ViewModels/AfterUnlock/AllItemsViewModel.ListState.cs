@@ -36,7 +36,7 @@ public sealed partial class AllItemsViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
@@ -124,8 +124,9 @@ public sealed partial class AllItemsViewModel
             PageChips.Add(new PageChipVm(page, page == CurrentPage));
     }
 
-    private static AllItemEntry ToEntry(VaultItemSummary summary)
+    private AllItemEntry ToEntry(VaultItemSummary summary)
         => new(
+            _root.Localization,
             summary.Id,
             summary.Type,
             summary.Title,

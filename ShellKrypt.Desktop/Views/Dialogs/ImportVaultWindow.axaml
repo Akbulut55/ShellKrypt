@@ -14,16 +14,16 @@
       <StackPanel Spacing="18"
                   Margin="28">
         <StackPanel Spacing="8">
-          <TextBlock Text="Import Vault"
+          <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.Title}"
                      FontSize="30"
                      FontWeight="Black"/>
-          <TextBlock Text="Add an existing ShellKrypt vault file to the local launcher without changing the file itself."
+          <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.Subtitle}"
                      Classes="page-subtitle"
                      TextWrapping="Wrap"/>
         </StackPanel>
 
         <StackPanel Spacing="8">
-          <TextBlock Text="VAULT FILE"
+          <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.FileLabel}"
                      Foreground="{StaticResource TextMutedBrush}"
                      FontSize="10"
                      FontWeight="Black"
@@ -31,22 +31,22 @@
           <Grid ColumnDefinitions="*,Auto"
                 ColumnSpacing="10">
             <TextBox x:Name="PathBox"
-                     PlaceholderText="Existing .skvault path"/>
+                     PlaceholderText="{DynamicResource Loc.Dialog.ImportVault.FilePlaceholder}"/>
             <Button Grid.Column="1"
-                    Content="Browse"
+                    Content="{DynamicResource Loc.Common.Browse}"
                     Classes="dialog-cancel-button"
                     Click="OnBrowseClicked"/>
           </Grid>
         </StackPanel>
 
         <StackPanel Spacing="8">
-          <TextBlock Text="DISPLAY NAME"
+          <TextBlock Text="{DynamicResource Loc.Common.DisplayName.Label}"
                      Foreground="{StaticResource TextMutedBrush}"
                      FontSize="10"
                      FontWeight="Black"
                      LetterSpacing="2.2"/>
           <TextBox x:Name="DisplayNameBox"
-                   PlaceholderText="Optional launcher label"/>
+                   PlaceholderText="{DynamicResource Loc.Dialog.ImportVault.DisplayNamePlaceholder}"/>
         </StackPanel>
 
         <TextBlock x:Name="ErrorText"
@@ -61,16 +61,16 @@
             ColumnDefinitions="*,Auto,Auto"
             ColumnSpacing="10"
             Margin="28,22">
-        <TextBlock Text="Only the local launcher registry is updated until you unlock the imported vault."
+        <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.Footer}"
                    Classes="page-subtitle"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap"/>
         <Button Grid.Column="1"
-                Content="Cancel"
+                Content="{DynamicResource Loc.Common.Cancel}"
                 Classes="dialog-cancel-button"
                 Click="OnCancelClicked"/>
         <Button Grid.Column="2"
-                Content="Import Vault"
+                Content="{DynamicResource Loc.Dialog.ImportVault.ImportButton}"
                 Classes="dialog-primary-button"
                 IsDefault="True"
                 Click="OnImportClicked"/>

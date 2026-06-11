@@ -10,7 +10,7 @@ public partial class MarkdownNotesViewModel
     {
         if (SelectedNote is null)
         {
-            Error = "Select a note first.";
+            Error = T(_root, "Notes.Error.SelectNoteFirst");
             return;
         }
 
@@ -41,7 +41,7 @@ public partial class MarkdownNotesViewModel
 
         if (string.IsNullOrWhiteSpace(EditorContent))
         {
-            Error = "Nothing to copy yet.";
+            Error = T(_root, "Notes.Error.NothingToCopy");
             return;
         }
 

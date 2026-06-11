@@ -12,7 +12,7 @@ public partial class AuthenticatorViewModel
 
         if (SelectedEntry is null || !SelectedEntry.IsCodeValid)
         {
-            Error = "No valid code is available to copy.";
+            Error = T(_root, "Authenticator.Validation.NoValidCode");
             return;
         }
 

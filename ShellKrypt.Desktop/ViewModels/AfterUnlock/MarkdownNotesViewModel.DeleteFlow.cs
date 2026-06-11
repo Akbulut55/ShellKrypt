@@ -13,8 +13,8 @@ public partial class MarkdownNotesViewModel
         CancelPendingAutoSave();
         Error = string.Empty;
 
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (SelectedNote is null) { Error = "Select a note first."; return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (SelectedNote is null) { Error = T(_root, "Notes.Error.SelectNoteFirst"); return; }
 
         IsBusy = true;
         try

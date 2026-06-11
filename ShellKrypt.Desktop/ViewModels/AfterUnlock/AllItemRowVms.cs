@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.Items;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -18,9 +20,12 @@ public sealed class PageChipVm
     public string Label => Number.ToString(CultureInfo.InvariantCulture);
 }
 
-public sealed class AllItemEntry
+public sealed class AllItemEntry : ObservableObject
 {
+    private readonly LocalizationService _localization;
+
     public AllItemEntry(
+        LocalizationService localization,
         string id,
         ItemType type,
         string title,
@@ -35,6 +40,7 @@ public sealed class AllItemEntry
         int expiryMonth = 0,
         int expiryYear = 0)
     {
+        _localization = localization;
         Id = id;
         Type = type;
         Title = title;
@@ -68,11 +74,11 @@ public sealed class AllItemEntry
 
     public string DisplayTypeLabel => Type switch
     {
-        ItemType.Web => "LOGIN",
-        ItemType.Card => "CARD",
-        ItemType.Note => "MARKDOWN NOTE",
-        ItemType.Authenticator => "AUTHENTICATOR",
-        ItemType.ApiKey => "API KEY",
+        ItemType.Web => T("AllItems.Row.Type.Web"),
+        ItemType.Card => T("AllItems.Row.Type.Card"),
+        ItemType.Note => T("AllItems.Row.Type.Note"),
+        ItemType.Authenticator => T("AllItems.Row.Type.Authenticator"),
+        ItemType.ApiKey => T("AllItems.Row.Type.ApiKey"),
         _ => TypeLabel.ToUpperInvariant()
     };
 
@@ -127,9 +133,9 @@ public sealed class AllItemEntry
     };
 
     public string FavoriteGlyph => Favorite ? "â˜…" : string.Empty;
-    public string LabelsDisplay => Labels.Count == 0 ? "No labels" : string.Join(", ", Labels);
-    public string IdentifierDisplay => string.IsNullOrWhiteSpace(IdentifierText) ? "N/A" : IdentifierText.Trim();
-    public string NameSubtitleDisplay => string.IsNullOrWhiteSpace(NameSubtitle) ? "Encrypted vault item" : NameSubtitle.Trim();
+    public string LabelsDisplay => Labels.Count == 0 ? T("AllItems.Row.LabelsFallback") : string.Join(", ", Labels);
+    public string IdentifierDisplay => string.IsNullOrWhiteSpace(IdentifierText) ? T("AllItems.Row.IdentifierFallback") : IdentifierText.Trim();
+    public string NameSubtitleDisplay => string.IsNullOrWhiteSpace(NameSubtitle) ? T("AllItems.Row.EncryptedItem") : NameSubtitle.Trim();
     public string UpdatedDisplay => FormatRelativeDate(UpdatedAtUtc);
     public string UpdatedAbsoluteDisplay => FormatAbsoluteDate(UpdatedAtUtc);
     public string CreatedDisplay => FormatAbsoluteDate(CreatedAtUtc);
@@ -145,10 +151,21 @@ public sealed class AllItemEntry
         return updated >= DateTimeOffset.UtcNow.AddDays(-recentWindowDays);
     }
 
-    private static string FormatRelativeDate(string? value)
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(DisplayTypeLabel));
+        OnPropertyChanged(nameof(LabelsDisplay));
+        OnPropertyChanged(nameof(IdentifierDisplay));
+        OnPropertyChanged(nameof(NameSubtitleDisplay));
+        OnPropertyChanged(nameof(UpdatedDisplay));
+        OnPropertyChanged(nameof(UpdatedAbsoluteDisplay));
+        OnPropertyChanged(nameof(CreatedDisplay));
+    }
+
+    private string FormatRelativeDate(string? value)
     {
         if (!TryParseDate(value, out var parsed))
-            return "Unknown";
+            return T("AllItems.Time.Unknown");
 
         var local = parsed.ToLocalTime();
         var now = DateTimeOffset.Now;
@@ -158,23 +175,23 @@ public sealed class AllItemEntry
             return local.ToString("MMM d, yyyy", CultureInfo.InvariantCulture);
 
         if (delta < TimeSpan.FromMinutes(1))
-            return "Just now";
+            return T("AllItems.Time.JustNow");
         if (delta < TimeSpan.FromHours(1))
-            return $"{Math.Max(1, (int)delta.TotalMinutes)} minute{Pluralize(delta.TotalMinutes)} ago";
+            return T("AllItems.Time.MinutesAgo", Math.Max(1, (int)delta.TotalMinutes), Pluralize(delta.TotalMinutes));
         if (delta < TimeSpan.FromDays(1))
-            return $"{Math.Max(1, (int)delta.TotalHours)} hour{Pluralize(delta.TotalHours)} ago";
+            return T("AllItems.Time.HoursAgo", Math.Max(1, (int)delta.TotalHours), Pluralize(delta.TotalHours));
         if (delta < TimeSpan.FromDays(7))
-            return $"{Math.Max(1, (int)delta.TotalDays)} day{Pluralize(delta.TotalDays)} ago";
+            return T("AllItems.Time.DaysAgo", Math.Max(1, (int)delta.TotalDays), Pluralize(delta.TotalDays));
         if (local.Year == now.Year)
             return local.ToString("MMM d", CultureInfo.InvariantCulture);
 
         return local.ToString("MMM d, yyyy", CultureInfo.InvariantCulture);
     }
 
-    private static string FormatAbsoluteDate(string? value)
+    private string FormatAbsoluteDate(string? value)
     {
         if (!TryParseDate(value, out var parsed))
-            return "Unknown";
+            return T("AllItems.Time.Unknown");
 
         return parsed.ToLocalTime().ToString("MMM d, yyyy '|' HH:mm", CultureInfo.InvariantCulture);
     }
@@ -195,6 +212,8 @@ public sealed class AllItemEntry
 
     private static string Pluralize(double value)
         => Math.Abs(value) >= 2 ? "s" : string.Empty;
+
+    private string T(string key, params object[] args) => _localization.Get(key, args);
 }
 
 internal enum AllItemsSortMode

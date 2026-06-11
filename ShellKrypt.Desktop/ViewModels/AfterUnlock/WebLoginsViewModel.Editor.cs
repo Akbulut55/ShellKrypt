@@ -72,8 +72,8 @@ public partial class WebLoginsViewModel
     {
         Error = "";
 
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = T(_root, "Validation.TitleRequired"); return; }
 
         try
         {
@@ -98,9 +98,9 @@ public partial class WebLoginsViewModel
     {
         Error = "";
 
-        if (_selectedDetailsRow is null) { Error = "No login selected."; return; }
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+        if (_selectedDetailsRow is null) { Error = T(_root, "WebLogins.Error.NoSelection"); return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = T(_root, "Validation.TitleRequired"); return; }
 
         try
         {
@@ -151,8 +151,9 @@ public partial class WebLoginsViewModel
     private WebLoginInput BuildInput()
         => new(AddTitle, AddUrl, AddUsername, AddEmail, AddPassword, AddNotes);
 
-    private static WebLoginRowVm ToRow(WebLoginEntry entry)
+    private WebLoginRowVm ToRow(WebLoginEntry entry)
         => new(
+            _root.Localization,
             entry.Id,
             entry.Title,
             entry.Username,

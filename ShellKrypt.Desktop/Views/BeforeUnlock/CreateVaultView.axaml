@@ -36,11 +36,11 @@
           <Border Classes="create-main-card">
             <StackPanel Spacing="22">
               <StackPanel Spacing="8">
-                <TextBlock Text="Create Vault"
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Title}"
                            FontSize="34"
                            FontWeight="Black"
                            LetterSpacing="-0.6"/>
-                <TextBlock Text="Create a new local vault file, define its location, and protect it with a master password."
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Subtitle}"
                            Classes="page-subtitle"
                            FontSize="14"
                            MaxWidth="620"
@@ -50,22 +50,22 @@
               <Grid ColumnDefinitions="*,*"
                     ColumnSpacing="16">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="DISPLAY NAME"
+                  <TextBlock Text="{DynamicResource Loc.Common.DisplayName.Label}"
                              Classes="create-kicker"/>
                   <TextBox Text="{Binding DisplayName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="ShellKrypt Personal Vault"/>
+                           PlaceholderText="{DynamicResource Loc.CreateVault.DisplayName.Placeholder}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
                             Spacing="8">
-                  <TextBlock Text="VAULT LOCATION"
+                  <TextBlock Text="{DynamicResource Loc.CreateVault.Location.Label}"
                              Classes="create-kicker"/>
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
                     <TextBox Text="{Binding VaultPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="Choose a local vault file path"/>
+                             PlaceholderText="{DynamicResource Loc.CreateVault.Location.Placeholder}"/>
                     <Button Grid.Column="1"
-                            Content="Browse"
+                            Content="{DynamicResource Loc.Common.Browse}"
                             Classes="create-secondary-button"
                             Command="{Binding BrowseVaultPathCommand}"/>
                   </Grid>
@@ -73,10 +73,10 @@
               </Grid>
 
               <StackPanel Spacing="8">
-                <TextBlock Text="DESCRIPTION"
+                <TextBlock Text="{DynamicResource Loc.Common.Description.Label}"
                            Classes="create-kicker"/>
                 <TextBox Text="{Binding Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         PlaceholderText="What this vault will store"
+                         PlaceholderText="{DynamicResource Loc.CreateVault.Description.Placeholder}"
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
                          MinHeight="110"/>
@@ -85,19 +85,19 @@
               <Grid ColumnDefinitions="*,*"
                     ColumnSpacing="16">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="MASTER PASSWORD"
+                  <TextBlock Text="{DynamicResource Loc.Common.MasterPassword.Label}"
                              Classes="create-kicker"/>
                   <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="Enter a strong master password"
+                           PlaceholderText="{DynamicResource Loc.CreateVault.MasterPassword.Placeholder}"
                            PasswordChar="*"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="1"
                             Spacing="8">
-                  <TextBlock Text="CONFIRM PASSWORD"
+                  <TextBlock Text="{DynamicResource Loc.CreateVault.ConfirmPassword.Label}"
                              Classes="create-kicker"/>
                   <TextBox Text="{Binding ConfirmPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="Re-enter the master password"
+                           PlaceholderText="{DynamicResource Loc.CreateVault.ConfirmPassword.Placeholder}"
                            PasswordChar="*"/>
                 </StackPanel>
               </Grid>
@@ -105,7 +105,7 @@
               <Grid ColumnDefinitions="*,*"
                     ColumnSpacing="16">
                 <StackPanel Spacing="8">
-                  <TextBlock Text="SECURITY PROFILE"
+                  <TextBlock Text="{DynamicResource Loc.CreateVault.SecurityProfile.Label}"
                              Classes="create-kicker"/>
                   <ComboBox ItemsSource="{Binding SecurityProfiles}"
                             SelectedItem="{Binding SelectedSecurityProfile}">
@@ -119,7 +119,7 @@
 
                 <StackPanel Grid.Column="1"
                             Spacing="8">
-                  <TextBlock Text="PASSWORD GUIDANCE"
+                  <TextBlock Text="{DynamicResource Loc.CreateVault.PasswordGuidance.Label}"
                              Classes="create-kicker"/>
                   <Border Classes="create-guidance-card">
                     <StackPanel Spacing="6">
@@ -145,12 +145,12 @@
               <Grid ColumnDefinitions="*,Auto,Auto"
                     ColumnSpacing="10">
                 <Button Grid.Column="1"
-                        Content="Back"
+                        Content="{DynamicResource Loc.Common.Back}"
                         Classes="create-secondary-button"
                         Command="{Binding BackCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
-                        Content="Create Vault"
+                        Content="{DynamicResource Loc.CreateVault.Button.Create}"
                         Classes="create-primary-button"
                         Command="{Binding CreateCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
@@ -162,10 +162,10 @@
                       Spacing="18">
             <Border Classes="create-side-card">
               <StackPanel Spacing="12">
-                <TextBlock Text="1. Local vault file is created"
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step1.Title}"
                            FontSize="15"
                            FontWeight="Bold"/>
-                <TextBlock Text="The file stays on this device unless you intentionally export or copy it."
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step1.Body}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
               </StackPanel>
@@ -173,10 +173,10 @@
 
             <Border Classes="create-side-card">
               <StackPanel Spacing="12">
-                <TextBlock Text="2. Unlock flow stays consistent"
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step2.Title}"
                            FontSize="15"
                            FontWeight="Bold"/>
-                <TextBlock Text="After creation, ShellKrypt moves directly to the unlock screen for the new vault."
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step2.Body}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
               </StackPanel>
@@ -184,10 +184,10 @@
 
             <Border Classes="create-side-card">
               <StackPanel Spacing="12">
-                <TextBlock Text="3. Master password stays local"
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step3.Title}"
                            FontSize="15"
                            FontWeight="Bold"/>
-                <TextBlock Text="The master password derives the unlock key locally. It is never uploaded or synced."
+                <TextBlock Text="{DynamicResource Loc.CreateVault.Sidebar.Step3.Body}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
               </StackPanel>

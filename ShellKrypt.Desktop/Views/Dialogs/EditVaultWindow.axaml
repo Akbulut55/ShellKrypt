@@ -14,10 +14,10 @@
       <StackPanel Spacing="18"
                   Margin="28">
         <StackPanel Spacing="8">
-          <TextBlock Text="Edit Vault"
+          <TextBlock Text="{DynamicResource Loc.Dialog.EditVault.Title}"
                      FontSize="30"
                      FontWeight="Black"/>
-          <TextBlock Text="Update the display name and description used by the local ShellKrypt launcher."
+          <TextBlock Text="{DynamicResource Loc.Dialog.EditVault.Subtitle}"
                      Classes="page-subtitle"
                      TextWrapping="Wrap"/>
         </StackPanel>
@@ -25,18 +25,18 @@
         <Grid ColumnDefinitions="*,*"
               ColumnSpacing="16">
           <StackPanel Spacing="8">
-            <TextBlock Text="DISPLAY NAME"
+            <TextBlock Text="{DynamicResource Loc.Common.DisplayName.Label}"
                        Foreground="{StaticResource TextMutedBrush}"
                        FontSize="10"
                        FontWeight="Black"
                        LetterSpacing="2.2"/>
             <TextBox x:Name="DisplayNameBox"
-                     PlaceholderText="Display name"/>
+                     PlaceholderText="{DynamicResource Loc.Common.DisplayName.Placeholder}"/>
           </StackPanel>
 
           <StackPanel Grid.Column="1"
                       Spacing="8">
-            <TextBlock Text="VAULT FILE"
+            <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.FileLabel}"
                        Foreground="{StaticResource TextMutedBrush}"
                        FontSize="10"
                        FontWeight="Black"
@@ -52,13 +52,13 @@
         </Grid>
 
         <StackPanel Spacing="8">
-          <TextBlock Text="DESCRIPTION"
+          <TextBlock Text="{DynamicResource Loc.Common.Description.Label}"
                      Foreground="{StaticResource TextMutedBrush}"
                      FontSize="10"
                      FontWeight="Black"
                      LetterSpacing="2.2"/>
           <TextBox x:Name="DescriptionBox"
-                   PlaceholderText="Describe this vault"
+                   PlaceholderText="{DynamicResource Loc.Dialog.EditVault.DescriptionPlaceholder}"
                    AcceptsReturn="True"
                    TextWrapping="Wrap"
                    MinHeight="140"/>
@@ -70,16 +70,16 @@
             ColumnDefinitions="*,Auto,Auto"
             ColumnSpacing="10"
             Margin="28,22">
-        <TextBlock Text="Metadata changes do not modify the encrypted vault file contents."
+        <TextBlock Text="{DynamicResource Loc.Dialog.EditVault.Footer}"
                    Classes="page-subtitle"
                    VerticalAlignment="Center"
                    TextWrapping="Wrap"/>
         <Button Grid.Column="1"
-                Content="Cancel"
+                Content="{DynamicResource Loc.Common.Cancel}"
                 Classes="dialog-cancel-button"
                 Click="OnCancelClicked"/>
         <Button Grid.Column="2"
-                Content="Save Changes"
+                Content="{DynamicResource Loc.Common.SaveChanges}"
                 Classes="dialog-primary-button"
                 IsDefault="True"
                 Click="OnSaveClicked"/>

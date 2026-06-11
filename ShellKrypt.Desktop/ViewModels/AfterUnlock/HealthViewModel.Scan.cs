@@ -17,7 +17,7 @@ public partial class HealthViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 

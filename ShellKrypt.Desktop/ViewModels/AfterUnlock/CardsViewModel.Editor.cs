@@ -71,28 +71,28 @@ public partial class CardsViewModel
     {
         Error = "";
 
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = T(_root, "Validation.TitleRequired"); return; }
 
         var digits = CardRowVm.DigitsOnly(AddNumber, CardRowVm.StandardCardNumberMaxDigits);
-        if (digits.Length < 12) { Error = "Card number looks too short."; return; }
+        if (digits.Length < 12) { Error = T(_root, "Cards.Error.CardNumberTooShort"); return; }
 
         if (!int.TryParse(AddExpiryMonth, out var mm) || mm < 1 || mm > 12)
         {
-            Error = "Expiry month must be 1-12.";
+            Error = T(_root, "Cards.Error.ExpiryMonth");
             return;
         }
 
         if (!int.TryParse(AddExpiryYear, out var yy) || yy < 2000 || yy > 2100)
         {
-            Error = "Expiry year must be like 2026.";
+            Error = T(_root, "Cards.Error.ExpiryYear");
             return;
         }
 
         var cvcDigits = CardRowVm.DigitsOnly(AddCvc, CardRowVm.CvcMaxDigits);
         if (cvcDigits.Length is < 3 or > 4)
         {
-            Error = "CVC must be 3 or 4 digits.";
+            Error = T(_root, "Cards.Error.Cvc");
             return;
         }
 
@@ -127,29 +127,29 @@ public partial class CardsViewModel
     {
         Error = "";
 
-        if (_selectedDetailsRow is null) { Error = "No card selected."; return; }
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
-        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = "Title is required."; return; }
+        if (_selectedDetailsRow is null) { Error = T(_root, "Cards.Error.NoSelection"); return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(AddTitle)) { Error = T(_root, "Validation.TitleRequired"); return; }
 
         var digits = CardRowVm.DigitsOnly(AddNumber, CardRowVm.StandardCardNumberMaxDigits);
-        if (digits.Length < 12) { Error = "Card number looks too short."; return; }
+        if (digits.Length < 12) { Error = T(_root, "Cards.Error.CardNumberTooShort"); return; }
 
         if (!int.TryParse(AddExpiryMonth, out var mm) || mm < 1 || mm > 12)
         {
-            Error = "Expiry month must be 1-12.";
+            Error = T(_root, "Cards.Error.ExpiryMonth");
             return;
         }
 
         if (!int.TryParse(AddExpiryYear, out var yy) || yy < 2000 || yy > 2100)
         {
-            Error = "Expiry year must be like 2026.";
+            Error = T(_root, "Cards.Error.ExpiryYear");
             return;
         }
 
         var cvcDigits = CardRowVm.DigitsOnly(AddCvc, CardRowVm.CvcMaxDigits);
         if (cvcDigits.Length is < 3 or > 4)
         {
-            Error = "CVC must be 3 or 4 digits.";
+            Error = T(_root, "Cards.Error.Cvc");
             return;
         }
 

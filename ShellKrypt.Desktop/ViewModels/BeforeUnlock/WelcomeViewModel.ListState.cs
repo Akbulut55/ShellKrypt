@@ -11,14 +11,14 @@ public sealed partial class WelcomeViewModel
         if (value is null)
         {
             Status = Vaults.Count == 0
-                ? "No vaults are registered yet. Create your first vault to continue."
-                : "Select a vault to unlock.";
+                ? T(_root, "Welcome.Status.NoVaults")
+                : T(_root, "Welcome.Status.SelectVault");
             return;
         }
 
         Status = value.Exists
-            ? $"Selected {value.DisplayLabel}."
-            : "Selected vault file is missing.";
+            ? T(_root, "Welcome.Status.Selected", value.DisplayLabel)
+            : T(_root, "Welcome.Status.SelectedMissing", value.DisplayLabel);
     }
 
     private void ReloadVaults(string? selectPath = null)
@@ -31,14 +31,14 @@ public sealed partial class WelcomeViewModel
             var registry = _vaultRegistry.Load();
             var selectedPath = NormalizePath(selectPath ?? _root.VaultPath);
 
-            var vaults = registry.Vaults.Select(x => new VaultRecordVm(x)).ToArray();
+            var vaults = registry.Vaults.Select(x => new VaultRecordVm(x, _root.Localization)).ToArray();
 
             _allVaults.Clear();
             _allVaults.AddRange(vaults);
 
             RecentVaults.Clear();
             foreach (var vault in _vaultRegistry.ListRecentVaults())
-                RecentVaults.Add(new VaultRecordVm(vault));
+                RecentVaults.Add(new VaultRecordVm(vault, _root.Localization));
 
             ApplyFilters();
 
@@ -48,22 +48,23 @@ public sealed partial class WelcomeViewModel
 
             OnPropertyChanged(nameof(VaultCount));
             OnPropertyChanged(nameof(ExistingVaultCount));
+            OnPropertyChanged(nameof(ExistingVaultCountDisplay));
             OnPropertyChanged(nameof(TotalStorageDisplay));
             if (vaults.Length == 0)
             {
-                Status = "No vaults are registered yet. Create your first vault to continue.";
+                Status = T(_root, "Welcome.Status.NoVaults");
             }
             else if (SelectedVault is not null)
             {
                 Status = SelectedVault.Exists
-                    ? $"Loaded {vaults.Length} vault{(vaults.Length == 1 ? "" : "s")}."
-                    : "Selected vault file is missing.";
+                    ? T(_root, vaults.Length == 1 ? "Welcome.Status.LoadedOne" : "Welcome.Status.LoadedMany", vaults.Length)
+                    : T(_root, "Welcome.Status.SelectedMissing", SelectedVault.DisplayLabel);
             }
         }
         catch (Exception ex)
         {
             Error = ex.Message;
-            Status = "Could not load the vault list.";
+            Status = T(_root, "Welcome.Status.LoadFailed", ex.Message);
         }
         finally
         {
@@ -119,6 +120,7 @@ public sealed partial class WelcomeViewModel
         OnPropertyChanged(nameof(HasVaults));
         OnPropertyChanged(nameof(VaultCount));
         OnPropertyChanged(nameof(ExistingVaultCount));
+        OnPropertyChanged(nameof(ExistingVaultCountDisplay));
         OnPropertyChanged(nameof(TotalPages));
         OnPropertyChanged(nameof(HasMultiplePages));
         OnPropertyChanged(nameof(CanGoPreviousPage));

@@ -75,12 +75,35 @@ public sealed class LocalizationService
     private static IReadOnlyDictionary<string, string> LoadLanguage(string languageId)
     {
         var assembly = typeof(LocalizationService).Assembly;
-        var resourceName = $"{ResourcePrefix}.{languageId}.json";
-        using var stream = assembly.GetManifestResourceStream(resourceName)
-            ?? throw new InvalidOperationException($"Missing localization resource: {resourceName}");
+        var primaryResourceName = $"{ResourcePrefix}.{languageId}.json";
+        var baseLanguageSuffix = $".{languageId}.json";
+        var fragmentLanguageSuffix = $"-{languageId}.json";
+        var resourceNames = assembly
+            .GetManifestResourceNames()
+            .Where(resourceName =>
+                string.Equals(resourceName, primaryResourceName, StringComparison.Ordinal) ||
+                resourceName.EndsWith(baseLanguageSuffix, StringComparison.Ordinal) ||
+                resourceName.EndsWith(fragmentLanguageSuffix, StringComparison.Ordinal))
+            .Distinct(StringComparer.Ordinal)
+            .OrderBy(resourceName => string.Equals(resourceName, primaryResourceName, StringComparison.Ordinal) ? 0 : 1)
+            .ThenBy(resourceName => resourceName, StringComparer.Ordinal)
+            .ToArray();
 
-        var values = JsonSerializer.Deserialize<Dictionary<string, string>>(stream)
-            ?? throw new InvalidOperationException($"Invalid localization resource: {resourceName}");
+        if (resourceNames.Length == 0)
+            throw new InvalidOperationException($"Missing localization resource: {primaryResourceName}");
+
+        var values = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var resourceName in resourceNames)
+        {
+            using var stream = assembly.GetManifestResourceStream(resourceName)
+                ?? throw new InvalidOperationException($"Missing localization resource: {resourceName}");
+
+            var partialValues = JsonSerializer.Deserialize<Dictionary<string, string>>(stream)
+                ?? throw new InvalidOperationException($"Invalid localization resource: {resourceName}");
+
+            foreach (var pair in partialValues)
+                values[pair.Key] = pair.Value;
+        }
 
         return values;
     }

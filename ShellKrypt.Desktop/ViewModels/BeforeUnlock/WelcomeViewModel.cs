@@ -32,7 +32,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private string activeSort = "recent";
     [ObservableProperty] private int currentPage = 1;
-    [ObservableProperty] private string status = "Select a vault to unlock, or create a new one.";
+    [ObservableProperty] private string status = "";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
     [ObservableProperty] private bool isDeleteOverlayOpen;
@@ -50,6 +50,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     {
         _root = root;
         _vaultRegistry = vaultRegistry;
+        Status = T(_root, "Welcome.Status.SelectVaultOrCreate");
         ReloadVaults();
     }
 
@@ -60,6 +61,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public bool HasDeleteOverlayError => !string.IsNullOrWhiteSpace(DeleteOverlayError);
     public int VaultCount => _allVaults.Count;
     public int ExistingVaultCount => _allVaults.Count(vault => vault.Exists);
+    public string ExistingVaultCountDisplay => T(_root, ExistingVaultCount == 1 ? "Welcome.Stats.AvailableVaultOne" : "Welcome.Stats.AvailableVaultMany", ExistingVaultCount);
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredVaultCount / (double)VaultPageSize));
     public bool HasMultiplePages => TotalPages > 1;
     public bool CanGoPreviousPage => CurrentPage > 1;
@@ -67,18 +69,18 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public string PageIndicator => $"{CurrentPage} / {TotalPages}";
     public string TotalStorageDisplay => FormatBytes(_allVaults.Where(vault => vault.Exists).Sum(vault => GetVaultSize(vault.VaultPath)));
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "No vaults added yet"
-        : "No vaults match this search";
+        ? T(_root, "Welcome.Empty.NoVaultsTitle")
+        : T(_root, "Welcome.Empty.NoSearchTitle");
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Create a new vault or import an existing vault file to get started."
-        : "Try a different name, path fragment, or clear the current search.";
+        ? T(_root, "Welcome.Empty.NoVaultsSubtitle")
+        : T(_root, "Welcome.Empty.NoSearchSubtitle");
     public bool IsDeleteWarningStep => IsDeleteOverlayOpen && !IsDeletePasswordStep;
-    public string DeleteWarningTitle => $"Permanently delete {DeleteTarget?.DisplayLabel ?? "vault"}?";
-    public string DeletePasswordTitle => "Enter the master password to permanently delete this vault.";
+    public string DeleteWarningTitle => T(_root, "Welcome.Delete.Title", DeleteTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
+    public string DeletePasswordTitle => T(_root, "Welcome.Delete.PasswordTitle");
     public string DeletePasswordDetail => DeleteTarget?.VaultPath ?? "";
-    public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? "Hide" : "Show";
-    public string RemoveOverlayTitle => $"Remove {RemoveTarget?.DisplayLabel ?? "vault"} from the list?";
-    public string RemoveOverlayDetail => "This only removes the stale entry from ShellKrypt's launcher. No vault file will be deleted.";
+    public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? T(_root, "Common.Hide") : T(_root, "Common.Show");
+    public string RemoveOverlayTitle => T(_root, "Welcome.Remove.Title", RemoveTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
+    public string RemoveOverlayDetail => T(_root, "Welcome.Remove.Detail");
     public bool CanAcceptSecurityAcknowledgement => SecurityAcknowledgementConfirmed;
 
     partial void OnSearchTextChanged(string value)
@@ -135,4 +137,27 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         OnPropertyChanged(nameof(RemoveOverlayTitle));
     }
 
+    public override void RefreshLocalization()
+    {
+        foreach (var vault in _allVaults)
+            vault.RefreshLocalization();
+
+        foreach (var vault in Vaults)
+            vault.RefreshLocalization();
+
+        foreach (var vault in RecentVaults)
+            vault.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(EmptyStateTitle),
+            nameof(EmptyStateSubtitle),
+            nameof(DeleteWarningTitle),
+            nameof(DeletePasswordTitle),
+            nameof(DeletePasswordVisibilityLabel),
+            nameof(RemoveOverlayTitle),
+            nameof(RemoveOverlayDetail),
+            nameof(ExistingVaultCountDisplay));
+
+        OnSelectedVaultChanged(SelectedVault);
+    }
 }

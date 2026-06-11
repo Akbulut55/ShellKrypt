@@ -84,49 +84,49 @@ public partial class CardsViewModel : ViewModelBase
     public int ExpiringSoonCount => _all.Count(row => row.IsExpiryUrgent);
     public int ExpiredCardsCount => _all.Count(row => row.IsExpired);
     public string ActiveCardsSummary => ActiveCardsCount == 1
-        ? "1 usable card in your vault"
-        : $"{ActiveCardsCount} usable cards in your vault";
+        ? T(_root, "Cards.Summary.ActiveOne")
+        : T(_root, "Cards.Summary.ActiveMany", ActiveCardsCount);
     public string ExpiringSoonSummary => ExpiringSoonCount == 1
-        ? "1 card expires within 3 months"
-        : $"{ExpiringSoonCount} cards expire within 3 months";
+        ? T(_root, "Cards.Summary.ExpiringOne")
+        : T(_root, "Cards.Summary.ExpiringMany", ExpiringSoonCount);
     public string ExpiredCardsSummary => ExpiredCardsCount == 1
-        ? "1 card is already expired"
-        : $"{ExpiredCardsCount} cards are already expired";
-    public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} cards";
+        ? T(_root, "Cards.Summary.ExpiredOne")
+        : T(_root, "Cards.Summary.ExpiredMany", ExpiredCardsCount);
+    public string ItemsSummary => T(_root, "Cards.ItemsSummary", Rows.Count, _filtered.Count);
     public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
     public bool HasRows => Rows.Count > 0;
     public string EmptyTableTitle => _all.Count == 0
-        ? "No credit cards saved yet"
-        : "No credit cards match this view";
+        ? T(_root, "Cards.Empty.NoneTitle")
+        : T(_root, "Cards.Empty.NoMatchTitle");
     public string EmptyTableSubtitle => _all.Count == 0
-        ? "Add a credit card to keep encrypted payment details in this vault."
-        : "Adjust the search, bank filter, card type filter, or sort option to show more cards.";
+        ? T(_root, "Cards.Empty.NoneSubtitle")
+        : T(_root, "Cards.Empty.NoMatchSubtitle");
     public string CardModalTitle => IsAddCardMode
-        ? "Add Credit Card"
+        ? T(_root, "Cards.Modal.AddTitle")
         : IsCardDeleteConfirming
-            ? "Delete Card?"
+            ? T(_root, "Cards.Modal.DeleteTitle")
             : IsCardDetailsEditing
-                ? "Edit Credit Card"
-                : "Card Details";
+                ? T(_root, "Cards.Modal.EditTitle")
+                : T(_root, "Cards.Modal.DetailsTitle");
     public string CardModalSubtitle => IsAddCardMode
-        ? "Store a new payment card in your encrypted vault."
+        ? T(_root, "Cards.Modal.AddSubtitle")
         : IsCardDeleteConfirming
-            ? "Are you sure you want to delete this card? This action cannot be undone."
+            ? T(_root, "Cards.Modal.DeleteSubtitle")
             : IsCardDetailsEditing
-                ? "Update the saved payment card stored in this encrypted vault."
-                : "Review the saved payment card stored in this encrypted vault.";
+                ? T(_root, "Cards.Modal.EditSubtitle")
+                : T(_root, "Cards.Modal.DetailsSubtitle");
     public bool IsCardDetailsViewMode => !IsAddCardMode && !IsCardDetailsEditing && !IsCardDeleteConfirming;
     public bool IsCardDetailsEditMode => !IsAddCardMode && IsCardDetailsEditing && !IsCardDeleteConfirming;
     public bool IsCardDetailsDeleteConfirmMode => !IsAddCardMode && IsCardDeleteConfirming;
     public bool IsCardFormReadOnly => !IsAddCardMode && !IsCardDetailsEditing;
     public bool IsCardFormEditable => IsAddCardMode || IsCardDetailsEditing;
-    public string AddCvcVisibilityLabel => IsAddCvcVisible ? "Hide" : "Reveal";
+    public string AddCvcVisibilityLabel => IsAddCvcVisible ? T(_root, "Common.Hide") : T(_root, "Common.Reveal");
     public string CardModalFooterText => IsCardDetailsDeleteConfirmMode
-        ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddTitle) ? "this card" : AddTitle)}\"?"
-        : "Fields are encrypted locally before being stored.";
+        ? T(_root, "Cards.Modal.DeleteFooter", string.IsNullOrWhiteSpace(AddTitle) ? T(_root, "Cards.ThisCard") : AddTitle)
+        : T(_root, "Cards.Modal.Footer");
 
     public CardsViewModel(MainWindowViewModel root, ICardService cardService, Func<string?, Task> refreshAllItemsAsync)
     {
@@ -208,5 +208,24 @@ public partial class CardsViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsCardFormReadOnly));
         OnPropertyChanged(nameof(IsCardFormEditable));
         OnPropertyChanged(nameof(CardModalFooterText));
+    }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var row in _all)
+            row.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(ActiveCardsSummary),
+            nameof(ExpiringSoonSummary),
+            nameof(ExpiredCardsSummary),
+            nameof(ItemsSummary),
+            nameof(PageSummary),
+            nameof(EmptyTableTitle),
+            nameof(EmptyTableSubtitle),
+            nameof(CardModalTitle),
+            nameof(CardModalSubtitle),
+            nameof(AddCvcVisibilityLabel),
+            nameof(CardModalFooterText));
     }
 }

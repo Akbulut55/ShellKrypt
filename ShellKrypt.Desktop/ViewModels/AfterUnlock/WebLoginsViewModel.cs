@@ -64,49 +64,49 @@ public partial class WebLoginsViewModel : ViewModelBase
         .Sum(group => group.Count());
     public int WeakPasswordCount => _all.Count(row => IsWeakPassword(row.Password));
     public string TotalLoginsSummary => TotalLoginsCount == 1
-        ? "1 encrypted login in this vault"
-        : $"{TotalLoginsCount} encrypted logins in this vault";
+        ? T(_root, "WebLogins.Summary.TotalOne")
+        : T(_root, "WebLogins.Summary.TotalMany", TotalLoginsCount);
     public string ReusedPasswordSummary => ReusedPasswordCount == 1
-        ? "1 login reuses a saved password"
-        : $"{ReusedPasswordCount} logins reuse saved passwords";
+        ? T(_root, "WebLogins.Summary.ReusedOne")
+        : T(_root, "WebLogins.Summary.ReusedMany", ReusedPasswordCount);
     public string WeakPasswordSummary => WeakPasswordCount == 1
-        ? "1 login uses a weak password"
-        : $"{WeakPasswordCount} logins use weak passwords";
+        ? T(_root, "WebLogins.Summary.WeakOne")
+        : T(_root, "WebLogins.Summary.WeakMany", WeakPasswordCount);
     public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} web logins";
-    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public string ItemsSummary => T(_root, "WebLogins.ItemsSummary", Rows.Count, _filtered.Count);
+    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
     public bool HasRows => Rows.Count > 0;
     public string EmptyTableTitle => _all.Count == 0
-        ? "No web logins saved yet"
-        : "No web logins match this view";
+        ? T(_root, "WebLogins.Empty.NoneTitle")
+        : T(_root, "WebLogins.Empty.NoMatchTitle");
     public string EmptyTableSubtitle => _all.Count == 0
-        ? "Add a website login to start storing encrypted credentials in this vault."
-        : "Adjust the search term, username filter, or email filter to show more saved logins.";
+        ? T(_root, "WebLogins.Empty.NoneSubtitle")
+        : T(_root, "WebLogins.Empty.NoMatchSubtitle");
     public string AddModalTitle => IsAddWebLoginMode
-        ? "Add Web Login"
+        ? T(_root, "WebLogins.Modal.AddTitle")
         : IsLoginDeleteConfirming
-            ? "Delete Login?"
+            ? T(_root, "WebLogins.Modal.DeleteTitle")
             : IsLoginDetailsEditing
-                ? "Edit Login"
-                : "Login Details";
+                ? T(_root, "WebLogins.Modal.EditTitle")
+                : T(_root, "WebLogins.Modal.DetailsTitle");
     public string AddModalSubtitle => IsAddWebLoginMode
-        ? "Store a new website credential in your encrypted vault."
+        ? T(_root, "WebLogins.Modal.AddSubtitle")
         : IsLoginDeleteConfirming
-            ? "Are you sure you want to delete this login? This action cannot be undone."
+            ? T(_root, "WebLogins.Modal.DeleteSubtitle")
             : IsLoginDetailsEditing
-                ? "Update the saved credential stored in this encrypted vault."
-                : "Review the saved credential stored in this encrypted vault.";
+                ? T(_root, "WebLogins.Modal.EditSubtitle")
+                : T(_root, "WebLogins.Modal.DetailsSubtitle");
     public bool IsDetailsViewMode => !IsAddWebLoginMode && !IsLoginDetailsEditing && !IsLoginDeleteConfirming;
     public bool IsDetailsEditMode => !IsAddWebLoginMode && IsLoginDetailsEditing && !IsLoginDeleteConfirming;
     public bool IsDetailsDeleteConfirmMode => !IsAddWebLoginMode && IsLoginDeleteConfirming;
     public bool IsAddFormReadOnly => !IsAddWebLoginMode && !IsLoginDetailsEditing;
     public bool CanGenerateModalPassword => IsAddWebLoginMode || IsDetailsEditMode;
     public string AddModalFooterText => IsDetailsDeleteConfirmMode
-        ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddTitle) ? "this login" : AddTitle)}\"?"
-        : "Fields are encrypted locally before being stored.";
-    public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? "Hide" : "Reveal";
+        ? T(_root, "WebLogins.Modal.DeleteFooter", string.IsNullOrWhiteSpace(AddTitle) ? T(_root, "WebLogins.ThisLogin") : AddTitle)
+        : T(_root, "WebLogins.Modal.Footer");
+    public string AddPasswordVisibilityLabel => IsAddPasswordVisible ? T(_root, "Common.Hide") : T(_root, "Common.Reveal");
 
     public WebLoginsViewModel(MainWindowViewModel root, IWebLoginService webLoginService, Func<string?, Task> refreshAllItemsAsync)
     {
@@ -181,5 +181,24 @@ public partial class WebLoginsViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsAddFormReadOnly));
         OnPropertyChanged(nameof(CanGenerateModalPassword));
         OnPropertyChanged(nameof(AddModalFooterText));
+    }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var row in _all)
+            row.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(TotalLoginsSummary),
+            nameof(ReusedPasswordSummary),
+            nameof(WeakPasswordSummary),
+            nameof(ItemsSummary),
+            nameof(PageSummary),
+            nameof(EmptyTableTitle),
+            nameof(EmptyTableSubtitle),
+            nameof(AddModalTitle),
+            nameof(AddModalSubtitle),
+            nameof(AddModalFooterText),
+            nameof(AddPasswordVisibilityLabel));
     }
 }

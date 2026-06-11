@@ -12,7 +12,7 @@ public partial class ApiKeysViewModel
 
         if (field is null || !field.IsCopyable || string.IsNullOrWhiteSpace(field.Value))
         {
-            Error = "No copyable value is available.";
+            Error = T(_root, "ApiKeys.Error.NoCopyableValue");
             return;
         }
 
@@ -27,7 +27,7 @@ public partial class ApiKeysViewModel
 
         if (row is null || string.IsNullOrWhiteSpace(row.PrimaryCopyValue))
         {
-            Error = "No API key value is available to copy.";
+            Error = T(_root, "ApiKeys.Error.NoPrimaryValue");
             return;
         }
 

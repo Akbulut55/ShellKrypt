@@ -28,7 +28,7 @@ public partial class ActivityViewModel
             Error = string.Empty;
             _allItems.Clear();
             foreach (var entry in _store.Load(_root.VaultPath, _root.IsUnlocked ? _root.VaultKey : null).OrderByDescending(x => x.TimestampUtc, StringComparer.Ordinal))
-                _allItems.Add(new ActivityItemVm(entry));
+                _allItems.Add(new ActivityItemVm(entry, _root.Localization));
 
             ApplyFilter(resetPage: false);
             OnPropertyChanged(nameof(TotalEvents));

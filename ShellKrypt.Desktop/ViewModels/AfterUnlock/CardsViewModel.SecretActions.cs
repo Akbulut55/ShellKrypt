@@ -21,7 +21,7 @@ public partial class CardsViewModel
         var digits = CardRowVm.DigitsOnly(row.Number, CardRowVm.StandardCardNumberMaxDigits);
         if (string.IsNullOrWhiteSpace(digits))
         {
-            Error = "No card number to copy.";
+            Error = T(_root, "Cards.Error.NoCardNumber");
             return;
         }
 

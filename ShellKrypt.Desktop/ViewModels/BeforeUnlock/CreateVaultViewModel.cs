@@ -32,7 +32,7 @@ public partial class CreateVaultViewModel : ViewModelBase
     ];
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public string PasswordGuidanceText => VaultMasterPasswordPolicy.Guidance;
+    public string PasswordGuidanceText => T(_root, "CreateVault.PasswordGuidance");
     public string SelectedSecurityDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
 
     private bool _hasCustomVaultPath;
@@ -66,7 +66,7 @@ public partial class CreateVaultViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(MasterPassword))
         {
-            Error = "Master password is required.";
+            Error = T(_root, "CreateVault.Error.MasterPasswordRequired");
             return;
         }
 
@@ -79,7 +79,7 @@ public partial class CreateVaultViewModel : ViewModelBase
 
         if (MasterPassword != ConfirmPassword)
         {
-            Error = "Passwords do not match.";
+            Error = T(_root, "CreateVault.Error.PasswordsMismatch");
             return;
         }
 
@@ -119,11 +119,11 @@ public partial class CreateVaultViewModel : ViewModelBase
         Error = "";
         var suggestedPath = string.IsNullOrWhiteSpace(VaultPath) ? DefaultPaths.GetSuggestedVaultPath(DisplayName) : VaultPath;
         var selectedPath = await _root.PickSaveFileAsync(
-            "Choose vault location",
+            T(_root, "CreateVault.Picker.Title"),
             Path.GetFileNameWithoutExtension(suggestedPath),
             ".skvault",
             [".skvault"],
-            "ShellKrypt Vault");
+            T(_root, "CreateVault.Picker.FileType"));
 
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;
@@ -146,5 +146,12 @@ public partial class CreateVaultViewModel : ViewModelBase
         {
             _isUpdatingSuggestedPath = false;
         }
+    }
+
+    public override void RefreshLocalization()
+    {
+        NotifyLocalized(
+            nameof(PasswordGuidanceText),
+            nameof(SelectedSecurityDescription));
     }
 }

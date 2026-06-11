@@ -23,7 +23,7 @@ public partial class WebLoginsViewModel
 
         if (string.IsNullOrWhiteSpace(row.Password))
         {
-            Error = "No password available.";
+            Error = T(_root, "WebLogins.Error.NoPassword");
             return;
         }
 
@@ -52,7 +52,7 @@ public partial class WebLoginsViewModel
 
         if (string.IsNullOrWhiteSpace(AddPassword))
         {
-            Error = "No generated password available.";
+            Error = T(_root, "WebLogins.Error.NoGeneratedPassword");
             return;
         }
 

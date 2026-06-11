@@ -15,7 +15,7 @@
         <Grid ColumnDefinitions="*,Auto"
               ColumnSpacing="24">
           <StackPanel Spacing="8">
-            <TextBlock Text="Authenticator"
+            <TextBlock Text="{DynamicResource Loc.Authenticator.Title}"
                        FontSize="28"
                        FontWeight="SemiBold"
                        LetterSpacing="-0.8"/>
@@ -31,9 +31,9 @@
                 VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="auth-search"
-                     PlaceholderText="Search codes..."/>
+                     PlaceholderText="{DynamicResource Loc.Authenticator.Search.Placeholder}"/>
             <Button Grid.Column="1"
-                    Content="+ Add Code"
+                    Content="{DynamicResource Loc.Authenticator.Button.AddCode}"
                     Classes="auth-primary-button"
                     Command="{Binding AddNewCommand}"/>
           </Grid>
@@ -50,7 +50,7 @@
                       BorderThickness="0,0,0,1"
                       CornerRadius="14,14,0,0"
                       Padding="12,10">
-                <TextBlock Text="{Binding TotalCount, StringFormat=Codes: {0}}"
+            <TextBlock Text="{Binding CodesCountDisplay}"
                            Classes="auth-footer-meta"
                            VerticalAlignment="Center"/>
               </Border>
@@ -249,7 +249,7 @@
                             Classes="auth-secondary-button auth-secondary-button-accent"
                             Command="{Binding CopyCodeCommand}"
                             IsEnabled="{Binding CanCopyCode}"/>
-                    <Button Content="Details"
+                    <Button Content="{DynamicResource Loc.Common.Details}"
                             Classes="auth-secondary-button"
                             Command="{Binding OpenDetailsCommand}"
                             IsEnabled="{Binding CanEditSelection}"/>
@@ -264,11 +264,11 @@
               <StackPanel Spacing="10"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center">
-                <TextBlock Text="No authenticator selected"
+                <TextBlock Text="{DynamicResource Loc.Authenticator.NoSelection.Title}"
                            FontSize="18"
                            FontWeight="Bold"
                            TextAlignment="Center"/>
-                <TextBlock Text="Select a code from the left to view the current value or import a QR screenshot to add a new one."
+                <TextBlock Text="{DynamicResource Loc.Authenticator.NoSelection.Subtitle}"
                            Classes="page-subtitle"
                            MaxWidth="340"
                            TextAlignment="Center"
@@ -283,7 +283,7 @@
                     ColumnSpacing="28"
                     RowSpacing="22">
                 <StackPanel Spacing="6">
-                  <TextBlock Text="SECRET KEY"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                              Classes="auth-kicker"/>
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
@@ -291,13 +291,13 @@
                                Classes="auth-secret-text"
                                TextWrapping="Wrap"/>
                     <Button Grid.Column="1"
-                            Content="Show"
+                            Content="{DynamicResource Loc.Common.Show}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
                     <Button Grid.Column="1"
-                            Content="Hide"
+                            Content="{DynamicResource Loc.Common.Hide}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
@@ -307,7 +307,7 @@
 
                 <StackPanel Grid.Column="1"
                             Spacing="6">
-                  <TextBlock Text="KEY TYPE"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.KeyType}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.KeyTypeDisplay}"
                              FontSize="13"/>
@@ -315,7 +315,7 @@
 
                 <StackPanel Grid.Row="1"
                             Spacing="6">
-                  <TextBlock Text="CODE FORMAT"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Detail.CodeFormat}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.DigitsDisplay}"
                              FontFamily="Consolas"
@@ -325,7 +325,7 @@
                 <StackPanel Grid.Row="1"
                             Grid.Column="1"
                             Spacing="6">
-                  <TextBlock Text="ALGORITHM"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Algorithm}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.RotationDisplay}"
                              FontSize="13"/>
@@ -348,11 +348,11 @@
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="12">
               <StackPanel Spacing="6">
-                <TextBlock Text="Authenticator Details"
+                <TextBlock Text="{DynamicResource Loc.Authenticator.Details.Title}"
                            FontSize="24"
                            FontWeight="SemiBold"
                            Foreground="{StaticResource AccentBrush}"/>
-                <TextBlock Text="Review the saved verification code stored in this encrypted vault."
+                <TextBlock Text="{DynamicResource Loc.Authenticator.Details.Subtitle}"
                            Classes="page-subtitle"
                            TextWrapping="Wrap"/>
               </StackPanel>
@@ -425,7 +425,7 @@
                     ColumnSpacing="28"
                     RowSpacing="22">
                 <StackPanel Spacing="6">
-                  <TextBlock Text="SECRET KEY"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                              Classes="auth-kicker"/>
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
@@ -433,13 +433,13 @@
                                Classes="auth-secret-text"
                                TextWrapping="Wrap"/>
                     <Button Grid.Column="1"
-                            Content="Show"
+                            Content="{DynamicResource Loc.Common.Show}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
                     <Button Grid.Column="1"
-                            Content="Hide"
+                            Content="{DynamicResource Loc.Common.Hide}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
@@ -449,7 +449,7 @@
 
                 <StackPanel Grid.Column="1"
                             Spacing="6">
-                  <TextBlock Text="KEY TYPE"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.KeyType}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.KeyTypeDisplay}"
                              FontSize="13"/>
@@ -457,7 +457,7 @@
 
                 <StackPanel Grid.Row="1"
                             Spacing="6">
-                  <TextBlock Text="CODE FORMAT"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Detail.CodeFormat}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.DigitsDisplay}"
                              FontFamily="Consolas"
@@ -467,7 +467,7 @@
                 <StackPanel Grid.Row="1"
                             Grid.Column="1"
                             Spacing="6">
-                  <TextBlock Text="ALGORITHM"
+                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Algorithm}"
                              Classes="auth-kicker"/>
                   <TextBlock Text="{Binding SelectedEntry.RotationDisplay}"
                              FontSize="13"/>
@@ -477,17 +477,17 @@
 
             <Grid ColumnDefinitions="*,Auto,Auto"
                   ColumnSpacing="12">
-              <TextBlock Text="Fields are encrypted locally before being stored."
+              <TextBlock Text="{DynamicResource Loc.Authenticator.Modal.Footer}"
                          Classes="page-subtitle"
                          FontSize="12"
                          TextWrapping="Wrap"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
-                      Content="Delete"
+                      Content="{DynamicResource Loc.Common.Delete}"
                       Classes="auth-danger-button"
                       Command="{Binding BeginDetailsDeleteCommand}"/>
               <Button Grid.Column="2"
-                      Content="Edit"
+                      Content="{DynamicResource Loc.Common.Edit}"
                       Classes="auth-primary-button"
                       Command="{Binding BeginDetailsEditCommand}"/>
             </Grid>
@@ -517,12 +517,12 @@
               </StackPanel>
 
               <Button Grid.Column="1"
-                      Content="Import QR Screenshot"
+                      Content="{DynamicResource Loc.Authenticator.Button.ImportQr}"
                       Classes="auth-secondary-button auth-secondary-button-accent"
                       Command="{Binding ImportQrScreenshotCommand}"/>
 
               <Button Grid.Column="2"
-                      Content="Paste QR Image"
+                      Content="{DynamicResource Loc.Authenticator.Button.PasteQr}"
                       Classes="auth-secondary-button auth-secondary-button-accent"
                       Command="{Binding PasteQrImageCommand}"/>
 
@@ -537,16 +537,16 @@
                   ColumnSpacing="16"
                   RowSpacing="14">
               <StackPanel Spacing="7">
-                <TextBlock Text="NAME"
+                <TextBlock Text="{DynamicResource Loc.Common.Name.Label}"
                            Classes="auth-kicker"/>
                 <TextBox Text="{Binding FormName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="auth-modal-input"
-                         PlaceholderText="GitHub"/>
+                         PlaceholderText="{DynamicResource Loc.Authenticator.Form.Name.Placeholder}"/>
               </StackPanel>
 
               <StackPanel Grid.Column="1"
                           Spacing="7">
-                <TextBlock Text="KEY TYPE"
+                <TextBlock Text="{DynamicResource Loc.Authenticator.Form.KeyType}"
                            Classes="auth-kicker"/>
                 <ComboBox Classes="auth-modal-input"
                           ItemsSource="{Binding KeyTypeOptions}"
@@ -562,7 +562,7 @@
               <StackPanel Grid.Row="1"
                           Grid.ColumnSpan="2"
                           Spacing="7">
-                <TextBlock Text="SECRET KEY"
+                <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                            Classes="auth-kicker"/>
                 <Border Classes="auth-modal-input-shell">
                   <Grid ColumnDefinitions="*,Auto"
@@ -571,11 +571,11 @@
                              Classes="auth-modal-input borderless"
                              PasswordChar="*"
                              IsVisible="{Binding !IsFormSecretVisible}"
-                             PlaceholderText="Base32 secret"/>
+                             PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="auth-modal-input borderless"
                              IsVisible="{Binding IsFormSecretVisible}"
-                             PlaceholderText="Base32 secret"/>
+                             PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{Binding FormSecretVisibilityText}"
                             Classes="auth-inline-button"
@@ -593,7 +593,7 @@
                     CornerRadius="10"
                     Padding="14,12">
               <StackPanel Spacing="10">
-                <CheckBox Content="Advanced options"
+                <CheckBox Content="{DynamicResource Loc.Authenticator.Advanced.Options}"
                           IsChecked="{Binding IsAdvancedOptionsExpanded, Mode=TwoWay}"
                           Classes="auth-advanced-toggle"/>
                 <TextBlock Text="{Binding AdvancedOptionsNote}"
@@ -608,7 +608,7 @@
                       RowSpacing="14"
                       IsVisible="{Binding IsAdvancedOptionsExpanded}">
                   <StackPanel Spacing="7">
-                    <TextBlock Text="ALGORITHM"
+                    <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Algorithm}"
                                Classes="auth-kicker"/>
                     <ComboBox Classes="auth-modal-input"
                               ItemsSource="{Binding AlgorithmOptions}"
@@ -623,7 +623,7 @@
 
                   <StackPanel Grid.Column="1"
                               Spacing="7">
-                    <TextBlock Text="DIGITS"
+                    <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Digits}"
                                Classes="auth-kicker"/>
                     <ComboBox Classes="auth-modal-input"
                               ItemsSource="{Binding DigitsOptions}"
@@ -640,11 +640,11 @@
                               Grid.ColumnSpan="2"
                               Spacing="7"
                               IsVisible="{Binding ShowAdvancedPeriod}">
-                    <TextBlock Text="VALID PERIOD (SECONDS)"
+                    <TextBlock Text="{DynamicResource Loc.Authenticator.Form.ValidPeriod}"
                                Classes="auth-kicker"/>
                     <TextBox Text="{Binding FormPeriodSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="auth-modal-input"
-                             PlaceholderText="Defaults to 30"/>
+                             PlaceholderText="{DynamicResource Loc.Authenticator.Form.ValidPeriod.Placeholder}"/>
                   </StackPanel>
                 </Grid>
               </StackPanel>
@@ -669,13 +669,13 @@
 
             <Grid ColumnDefinitions="*,Auto,Auto"
                   ColumnSpacing="12">
-              <TextBlock Text="QR imports are decoded locally. Secrets stay encrypted inside the active vault."
+              <TextBlock Text="{DynamicResource Loc.Authenticator.Qr.Footer}"
                          Classes="page-subtitle"
                          FontSize="12"
                          TextWrapping="Wrap"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
-                      Content="Cancel"
+                      Content="{DynamicResource Loc.Common.Cancel}"
                       Classes="auth-secondary-button"
                       Command="{Binding CancelEditorCommand}"/>
               <Button Grid.Column="2"
@@ -715,7 +715,7 @@
                          FontSize="28"
                          FontWeight="SemiBold"
                          TextAlignment="Center"/>
-              <TextBlock Text="Deleting this authenticator removes the encrypted secret from the current vault."
+              <TextBlock Text="{DynamicResource Loc.Authenticator.Delete.Body}"
                          Classes="page-subtitle"
                          MaxWidth="420"
                          TextAlignment="Center"
@@ -727,7 +727,7 @@
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="18,16">
-              <TextBlock Text="This action cannot be undone. Re-import the QR screenshot or enter the secret again if you need this code later."
+              <TextBlock Text="{DynamicResource Loc.Authenticator.Delete.Warning}"
                          Foreground="{StaticResource DangerBrush}"
                          FontSize="13"
                          FontWeight="SemiBold"
@@ -741,11 +741,11 @@
                          FontSize="12"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
-                      Content="Cancel"
+                      Content="{DynamicResource Loc.Common.Cancel}"
                       Classes="auth-secondary-button"
                       Command="{Binding CancelDeleteCommand}"/>
               <Button Grid.Column="2"
-                      Content="Delete Code"
+                      Content="{DynamicResource Loc.Authenticator.Button.DeleteCode}"
                       Classes="auth-danger-button"
                       Command="{Binding ConfirmDeleteCommand}"/>
             </Grid>

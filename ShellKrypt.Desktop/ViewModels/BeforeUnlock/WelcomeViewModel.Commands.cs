@@ -43,7 +43,7 @@ public sealed partial class WelcomeViewModel
     {
         if (SelectedVault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -56,11 +56,11 @@ public sealed partial class WelcomeViewModel
         var defaultVault = _vaultRegistry.GetDefaultVault();
         if (defaultVault is null)
         {
-            Error = "No default vault has been set yet.";
+            Error = T(_root, "Welcome.Status.NoDefaultVault");
             return;
         }
 
-        OpenVault(new VaultRecordVm(defaultVault));
+        OpenVault(new VaultRecordVm(defaultVault, _root.Localization));
     }
 
     [RelayCommand]
@@ -73,8 +73,8 @@ public sealed partial class WelcomeViewModel
 
         if (!vault.Exists)
         {
-            Status = $"Vault file is missing:\n{vault.VaultPath}";
-            Error = "The selected vault file could not be found.";
+            Status = T(_root, "Welcome.Status.MissingVaultFile", vault.VaultPath);
+            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
             ReloadVaults(vault.VaultPath);
             return;
         }

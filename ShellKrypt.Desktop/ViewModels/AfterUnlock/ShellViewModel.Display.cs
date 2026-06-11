@@ -7,9 +7,9 @@ namespace ShellKrypt.Desktop.ViewModels;
 public partial class ShellViewModel
 {
     public string VaultName => string.IsNullOrWhiteSpace(_root.VaultPath)
-        ? "Vault"
+        ? T(_root, "Shell.VaultFallback")
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
-    public string VaultSubtitle => "Current encrypted workspace";
+    public string VaultSubtitle => T(_root, "Shell.VaultSubtitle");
     public string VaultMonogram
     {
         get
@@ -24,39 +24,39 @@ public partial class ShellViewModel
                 : new string(letters).ToUpperInvariant();
         }
     }
-    public string VaultFooterLabel => "ACTIVE VAULT";
+    public string VaultFooterLabel => T(_root, "Shell.ActiveVault");
     public bool IsSidebarExpanded => !IsSidebarCollapsed;
     public double SidebarWidth => IsSidebarCollapsed ? 96 : 236;
-    public string SidebarToggleToolTip => IsSidebarCollapsed ? "Expand sidebar" : "Collapse sidebar";
+    public string SidebarToggleToolTip => IsSidebarCollapsed ? T(_root, "Shell.ExpandSidebar") : T(_root, "Shell.CollapseSidebar");
     public string CurrentSectionTitle => SelectedNav?.Title ?? "ShellKrypt";
     public string CurrentSectionSubtitle => SelectedNav?.Key switch
     {
-        ShellKryptSectionKeys.Vault => "All encrypted records in the active workspace.",
-        ShellKryptSectionKeys.WebLogins => "Credentials, account URLs, and saved login details.",
-        ShellKryptSectionKeys.Notes => "Encrypted markdown notes and vault reference material.",
-        ShellKryptSectionKeys.Cards => "Sensitive payment details protected in the vault.",
-        ShellKryptSectionKeys.Audit => "Audit reuse, age, and password risk across the vault.",
-        ShellKryptSectionKeys.Generator => "Generate and transform local secrets without leaving the vault.",
-        ShellKryptSectionKeys.Authenticator => "Desktop authenticator codes from QR screenshots or pasted secret keys.",
-        ShellKryptSectionKeys.ApiKeys => "API tokens, client secrets, project IDs, and provider metadata.",
-        ShellKryptSectionKeys.Settings => "Manage vault security, import/export, and desktop behavior.",
-        ShellKryptSectionKeys.Activity => "Review vault activity events and plaintext report exports.",
-        _ => "Local encrypted vault workspace."
+        ShellKryptSectionKeys.Vault => T(_root, "Sidebar.vault.Subtitle"),
+        ShellKryptSectionKeys.WebLogins => T(_root, "Sidebar.web.Subtitle"),
+        ShellKryptSectionKeys.Notes => T(_root, "Sidebar.notes.Subtitle"),
+        ShellKryptSectionKeys.Cards => T(_root, "Sidebar.cards.Subtitle"),
+        ShellKryptSectionKeys.Audit => T(_root, "Sidebar.audit.Subtitle"),
+        ShellKryptSectionKeys.Generator => T(_root, "Sidebar.generator.Subtitle"),
+        ShellKryptSectionKeys.Authenticator => T(_root, "Sidebar.auth.Subtitle"),
+        ShellKryptSectionKeys.ApiKeys => T(_root, "Sidebar.api.Subtitle"),
+        ShellKryptSectionKeys.Settings => T(_root, "Sidebar.settings.Subtitle"),
+        ShellKryptSectionKeys.Activity => T(_root, "Sidebar.activity.Subtitle"),
+        _ => T(_root, "Shell.LocalWorkspace")
     };
     public bool IsSettingsSelected => SelectedNav?.Key == ShellKryptSectionKeys.Settings;
     public bool ShowAddItemAction => !IsSettingsSelected;
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
-        ShellKryptSectionKeys.Settings => "Search settings...",
-        ShellKryptSectionKeys.Vault => "Search all items...",
-        ShellKryptSectionKeys.WebLogins => "Search web logins...",
-        ShellKryptSectionKeys.Notes => "Search markdown notes...",
-        ShellKryptSectionKeys.Cards => "Search credit cards...",
-        ShellKryptSectionKeys.Audit => "Search security audit...",
-        ShellKryptSectionKeys.Generator => "Search generator tools...",
-        ShellKryptSectionKeys.Authenticator => "Search authenticator codes...",
-        ShellKryptSectionKeys.ApiKeys => "Search API keys...",
-        ShellKryptSectionKeys.Activity => "Search activity...",
-        _ => "Search all items..."
+        ShellKryptSectionKeys.Settings => T(_root, "Shell.Search.Settings"),
+        ShellKryptSectionKeys.Vault => T(_root, "Shell.Search.AllItems"),
+        ShellKryptSectionKeys.WebLogins => T(_root, "Shell.Search.WebLogins"),
+        ShellKryptSectionKeys.Notes => T(_root, "Shell.Search.Notes"),
+        ShellKryptSectionKeys.Cards => T(_root, "Shell.Search.Cards"),
+        ShellKryptSectionKeys.Audit => T(_root, "Shell.Search.Audit"),
+        ShellKryptSectionKeys.Generator => T(_root, "Shell.Search.Generator"),
+        ShellKryptSectionKeys.Authenticator => T(_root, "Shell.Search.Authenticator"),
+        ShellKryptSectionKeys.ApiKeys => T(_root, "Shell.Search.ApiKeys"),
+        ShellKryptSectionKeys.Activity => T(_root, "Shell.Search.Activity"),
+        _ => T(_root, "Shell.Search.AllItems")
     };
 }

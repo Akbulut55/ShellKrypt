@@ -59,7 +59,7 @@ public partial class ApiKeysViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
@@ -69,7 +69,7 @@ public partial class ApiKeysViewModel
             Rows.Clear();
 
             var entries = await _apiKeyService.ListAsync(_root.VaultPath, _root.VaultKey);
-            _all.AddRange(entries.Select(entry => new ApiKeyRowVm(entry)));
+            _all.AddRange(entries.Select(entry => new ApiKeyRowVm(entry, _root.Localization)));
 
             RefreshProviderFilters();
             ApplyFilter();

@@ -15,10 +15,10 @@ public sealed partial class CardRowVm
         => $"{(string.IsNullOrWhiteSpace(ExpiryMonth) ? "MM" : ExpiryMonth)} / {FormatExpiryYear(ExpiryYear)}";
 
     public string SubtitleDisplay => string.IsNullOrWhiteSpace(Notes)
-        ? (string.IsNullOrWhiteSpace(Cardholder) ? "Encrypted card" : Cardholder.Trim())
+        ? (string.IsNullOrWhiteSpace(Cardholder) ? T("Cards.Row.EncryptedCard") : Cardholder.Trim())
         : Notes.Trim();
 
-    public string BankDisplay => string.IsNullOrWhiteSpace(Bank) ? "Unassigned" : Bank.Trim();
+    public string BankDisplay => string.IsNullOrWhiteSpace(Bank) ? T("Cards.Row.Unassigned") : Bank.Trim();
 
     public string IssuerDisplay => string.IsNullOrWhiteSpace(Issuer) ? DetectIssuer(Number) : Issuer.Trim();
 
@@ -28,7 +28,14 @@ public sealed partial class CardRowVm
                                   expiry >= DateTime.Today &&
                                   expiry <= DateTime.Today.AddMonths(3);
 
-    public string SecretsActionLabel => IsSecretsVisible ? "Hide" : "View";
+    public string SecretsActionLabel => IsSecretsVisible ? T("Common.Hide") : T("Common.View");
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(SubtitleDisplay));
+        OnPropertyChanged(nameof(BankDisplay));
+        OnPropertyChanged(nameof(SecretsActionLabel));
+    }
 
     public void MarkSaved(string updatedAtUtc)
     {

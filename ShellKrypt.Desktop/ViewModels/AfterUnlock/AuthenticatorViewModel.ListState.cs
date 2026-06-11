@@ -62,7 +62,7 @@ public partial class AuthenticatorViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
@@ -72,7 +72,7 @@ public partial class AuthenticatorViewModel
             _allEntries.Clear();
             var entries = await _authenticatorService.ListAsync(_root.VaultPath, _root.VaultKey);
             foreach (var entry in entries)
-                _allEntries.Add(new AuthenticatorAccountVm(entry));
+                _allEntries.Add(new AuthenticatorAccountVm(entry, _root.Localization));
 
             RefreshSnapshots();
             ApplyFilter(selectEntryId);
@@ -124,6 +124,7 @@ public partial class AuthenticatorViewModel
     private void NotifyCountProperties()
     {
         OnPropertyChanged(nameof(TotalCount));
+        OnPropertyChanged(nameof(CodesCountDisplay));
         OnPropertyChanged(nameof(RefreshingSoonCount));
         OnPropertyChanged(nameof(RecentlyUsedCount));
         OnPropertyChanged(nameof(HasEntries));

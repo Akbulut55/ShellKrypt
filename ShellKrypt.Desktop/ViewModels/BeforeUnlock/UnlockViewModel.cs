@@ -10,7 +10,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class UnlockViewModel : ViewModelBase
 {
-    private const string DefaultUnlockDescription = "You are opening this local encrypted vault. Enter the master password to decrypt it on this device.";
     private readonly MainWindowViewModel _root;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryService _vaultRegistry;
@@ -22,8 +21,8 @@ public partial class UnlockViewModel : ViewModelBase
     [ObservableProperty] private bool isBusy;
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public string PasswordVisibilityLabel => ShowPassword ? "Hide" : "Show";
-    public string VaultStatusDisplay => "Locked & Encrypted";
+    public string PasswordVisibilityLabel => ShowPassword ? T(_root, "Common.Hide") : T(_root, "Common.Show");
+    public string VaultStatusDisplay => T(_root, "Unlock.Status.LockedEncrypted");
     public string EncryptionDisplay => "AES-256 GCM";
     public string LastUpdatedDisplay
     {
@@ -31,7 +30,7 @@ public partial class UnlockViewModel : ViewModelBase
         {
             var value = _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.LastOpenedAtUtc;
             if (string.IsNullOrWhiteSpace(value))
-                return "Never";
+                return T(_root, "Common.Never");
 
             return DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
                 ? parsed.ToLocalTime().ToString("g", CultureInfo.InvariantCulture)
@@ -39,16 +38,16 @@ public partial class UnlockViewModel : ViewModelBase
         }
     }
     public string SessionIdDisplay => string.IsNullOrWhiteSpace(_root.VaultPath)
-        ? "SESSION UNAVAILABLE"
-        : $"SESSION {Math.Abs((_root.VaultPath ?? string.Empty).GetHashCode()):X8}";
+        ? T(_root, "Unlock.SessionUnavailable")
+        : T(_root, "Unlock.SessionId", Math.Abs((_root.VaultPath ?? string.Empty).GetHashCode()).ToString("X8", CultureInfo.InvariantCulture));
 
-    public string VaultTitle => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.DisplayName ?? "Unlock Vault";
-    public string VaultPath => _root.VaultPath ?? "(no vault selected)";
+    public string VaultTitle => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.DisplayName ?? T(_root, "Shell.VaultFallback");
+    public string VaultPath => _root.VaultPath ?? T(_root, "Common.NoVaultSelected");
     public string VaultDescription
-        => DefaultUnlockDescription;
-    public string RecoveryTitle => "Master password recovery is not available";
-    public string RecoveryBody => "If this vault is still unlocked on this device, open Settings and change the master password or export an encrypted backup before locking it again.";
-    public string RecoverySecondaryBody => "If the vault is already locked and no backup exists, the encrypted contents cannot be recovered by design.";
+        => T(_root, "Unlock.Description", VaultTitle);
+    public string RecoveryTitle => T(_root, "Unlock.Recovery.Title");
+    public string RecoveryBody => T(_root, "Unlock.Recovery.Body");
+    public string RecoverySecondaryBody => T(_root, "Unlock.Recovery.SecondaryBody");
 
     public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryService vaultRegistry)
     {
@@ -70,14 +69,16 @@ public partial class UnlockViewModel : ViewModelBase
 
             if (_root.VaultPath is null)
             {
-                Error = "No vault selected. Go back and choose a vault.";
+                Error = T(_root, "Unlock.Error.NoVaultSelected");
                 return;
             }
 
             var result = await _vaultService.UnlockAsync(_root.VaultPath, MasterPassword);
             if (!result.Success)
             {
-                Error = result.Error ?? "Unlock failed.";
+                Error = result.Error is null
+                    ? T(_root, "Unlock.Error.Failed", T(_root, "Activity.Time.Unknown"))
+                    : T(_root, "Unlock.Error.Failed", result.Error);
                 return;
             }
 
@@ -101,4 +102,19 @@ public partial class UnlockViewModel : ViewModelBase
 
     [RelayCommand]
     private void CloseRecovery() => ShowRecoveryInfo = false;
+
+    public override void RefreshLocalization()
+    {
+        NotifyLocalized(
+            nameof(PasswordVisibilityLabel),
+            nameof(VaultStatusDisplay),
+            nameof(LastUpdatedDisplay),
+            nameof(SessionIdDisplay),
+            nameof(VaultTitle),
+            nameof(VaultPath),
+            nameof(VaultDescription),
+            nameof(RecoveryTitle),
+            nameof(RecoveryBody),
+            nameof(RecoverySecondaryBody));
+    }
 }

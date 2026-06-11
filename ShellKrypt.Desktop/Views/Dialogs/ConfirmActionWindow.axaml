@@ -57,12 +57,12 @@
               ColumnSpacing="12"
               Margin="32,0,32,28">
           <Button Grid.Column="1"
-                  Content="Cancel"
+                  Content="{DynamicResource Loc.Common.Cancel}"
                   Classes="dialog-cancel-button"
                   Click="OnCancelClicked"/>
           <Button x:Name="ConfirmButton"
                   Grid.Column="2"
-                  Content="Confirm"
+                  Content="{DynamicResource Loc.Common.Confirm}"
                   Classes="dialog-danger-button"
                   IsDefault="True"
                   Click="OnConfirmClicked"/>

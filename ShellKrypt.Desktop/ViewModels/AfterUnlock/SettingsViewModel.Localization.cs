@@ -39,6 +39,7 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(RecoveryGuidanceText));
         OnPropertyChanged(nameof(BackupRecommendationText));
         OnPropertyChanged(nameof(SecurityStatusText));
+        OnPropertyChanged(nameof(ActiveVaultPathDisplay));
         OnPropertyChanged(nameof(VaultStorageDisplay));
     }
 }

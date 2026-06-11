@@ -17,8 +17,7 @@ public partial class ShellViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
 
-    public ObservableCollection<NavItemVm> NavItems { get; } = new(
-        ShellKryptSectionCatalog.DesktopSections.Select(section => new NavItemVm(section)));
+    public ObservableCollection<NavItemVm> NavItems { get; } = new();
 
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
@@ -40,6 +39,8 @@ public partial class ShellViewModel : ViewModelBase
         VaultRegistryService vaultRegistryService)
     {
         _root = root;
+        foreach (var section in ShellKryptSectionCatalog.DesktopSections)
+            NavItems.Add(new NavItemVm(section, _root.Localization));
 
         AllItems = new AllItemsViewModel(_root, this, vaultItemSummaryService);
         WebLogins = new WebLoginsViewModel(_root, webLoginService, AllItems.RefreshAfterMutationAsync);
@@ -65,4 +66,28 @@ public partial class ShellViewModel : ViewModelBase
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
     public ActivityViewModel Activity { get; }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var item in NavItems)
+            item.RefreshLocalization();
+
+        OnPropertyChanged(nameof(VaultSubtitle));
+        OnPropertyChanged(nameof(VaultFooterLabel));
+        OnPropertyChanged(nameof(SidebarToggleToolTip));
+        OnPropertyChanged(nameof(CurrentSectionTitle));
+        OnPropertyChanged(nameof(CurrentSectionSubtitle));
+        OnPropertyChanged(nameof(SearchPlaceholder));
+
+        AllItems.RefreshLocalization();
+        WebLogins.RefreshLocalization();
+        MarkdownNotes.RefreshLocalization();
+        Cards.RefreshLocalization();
+        Authenticator.RefreshLocalization();
+        ApiKeys.RefreshLocalization();
+        Tools.RefreshLocalization();
+        Health.RefreshLocalization();
+        Settings.RefreshLocalization();
+        Activity.RefreshLocalization();
+    }
 }

@@ -7,7 +7,7 @@ ShellKrypt is currently a pre-1.0 desktop product. The source repository is prep
 ## Status
 
 - Stage: pre-1.0 desktop build
-- Current app version: `0.9.13`
+- Current app version: `0.12.0`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
 - Owner: independent project owner
@@ -61,29 +61,24 @@ Before relying on a vault, create and verify a backup. If the vault is still unl
 ## Current Limitations
 
 - Windows is the primary tested desktop target.
-- The interface is currently English-first. Additional languages should be added before a broad public 1.0 release.
+- English and Turkish runtime localization are available. Additional languages should be added and validated screen by screen before a broad public 1.0 release.
 - macOS and Linux behavior should be validated separately before publishing desktop builds for those platforms.
 - Mobile app heads exist, but the mobile product is not feature-complete.
 - Code signing, installer packaging, update delivery, terms/privacy/disclaimer docs, public support processes, and export-compliance review should be finalized before broad commercial distribution.
 
 ## Project Documents
 
-- `handbook/IDEA.md` - product thesis, users, problems, non-goals, and product risks.
-- `handbook/PLAN.md` - engineering plan, architecture, phases, tests, and risks.
-- `handbook/ROADMAP.md` - milestones, sequencing, and release intent.
-- `handbook/TECH_STACK.md` - runtime, framework, database, deployment, and tooling choices.
-- `handbook/DATABASE.md` - schema, migrations, persistence, and data ownership.
-- `handbook/DEVELOPMENT.md` - local setup, commands, environment, and workflow.
-- `handbook/DECISIONS.md` - durable decision log and tradeoffs.
+Public project documents:
+
 - `SECURITY.md` - auth, data, secrets, privacy, and threat model.
 - `DISCLAIMER.md` - no-warranty, no-recovery, export, clipboard, and audit disclaimers.
 - `TERMS.md` - ShellKrypt terms of use.
 - `PRIVACY.md` - local-only privacy notice.
 - `LICENSE` - source license terms.
 - `NOTICE.md` - official-build, modified-build, and branding notice.
-- `handbook/OPERATIONS.md` - release, backup, rollback, and production operations.
 - `CHANGELOG.md` - project-level change history.
-- `AGENTS.md` - instructions for coding agents.
+
+Internal product plans, engineering notes, and agent instructions are intentionally kept outside the public documentation set.
 
 ## Repository Layout
 
@@ -98,7 +93,6 @@ ShellKrypt/
 |-- ShellKrypt.Mobile.Android/
 |-- ShellKrypt.Mobile.iOS/
 |-- ShellKrypt.Tests/
-|-- handbook/
 |-- README.md
 |-- SECURITY.md
 |-- DISCLAIMER.md
@@ -107,7 +101,6 @@ ShellKrypt/
 |-- LICENSE
 |-- NOTICE.md
 |-- CHANGELOG.md
-`-- AGENTS.md
 ```
 
 Project responsibilities:
@@ -237,8 +230,8 @@ Acceptance:
 
 ## Contributing Notes
 
-- Keep product direction aligned with `handbook/IDEA.md`.
-- Keep implementation work aligned with `handbook/PLAN.md`.
+- Keep product direction aligned with the current README, security model, and user-facing legal/privacy documents.
+- Keep implementation work scoped, testable, and consistent with the project boundaries described above.
 - Update `CHANGELOG.md` for meaningful changes.
 - Do not commit secrets, real user data, private logs, generated outputs, local vaults, local backups, plaintext exports, or local environment files.
 

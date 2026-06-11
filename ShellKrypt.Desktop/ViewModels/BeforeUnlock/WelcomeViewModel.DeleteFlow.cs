@@ -16,13 +16,13 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         if (!vault.Exists)
         {
-            Error = "The selected vault file could not be found.";
+            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
             return;
         }
 
@@ -73,7 +73,7 @@ public sealed partial class WelcomeViewModel
 
         if (string.IsNullOrWhiteSpace(DeletePassword))
         {
-            DeleteOverlayError = "Enter the master password to continue.";
+            DeleteOverlayError = T(_root, "Welcome.Delete.EnterMasterPassword");
             return;
         }
 
@@ -101,7 +101,7 @@ public sealed partial class WelcomeViewModel
 
             if (!_vaultRegistry.RemoveVault(deletePath))
             {
-                Error = "That vault is no longer registered.";
+            Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 

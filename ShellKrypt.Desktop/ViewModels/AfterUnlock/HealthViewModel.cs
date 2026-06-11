@@ -60,9 +60,9 @@ public partial class HealthViewModel : ViewModelBase
     }
 
     public string SummaryText => AnalyzedCount == 0
-        ? "Scanned session settings. Add vault records to expand the local audit."
-        : $"Scanned {AnalyzedCount} vault records and session settings.";
-    public string LastCheckedDisplay => $"Last checked: {LastCheckedText}";
+        ? T(_root, "SecurityAudit.Summary.NoRecords")
+        : T(_root, "SecurityAudit.Summary.Records", AnalyzedCount);
+    public string LastCheckedDisplay => T(_root, "SecurityAudit.LastChecked", LastCheckedText);
     public bool HasIssues => Issues.Count > 0;
     public bool HasVisibleIssues => VisibleIssues.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
@@ -70,24 +70,24 @@ public partial class HealthViewModel : ViewModelBase
     public string HealthScoreDisplay => $"{HealthScore}%";
     public string HealthScoreTitle => HealthScore switch
     {
-        >= 85 => "Vault posture looks good",
-        >= 60 => "Vault needs attention",
-        _ => "Immediate action required"
+        >= 85 => T(_root, "SecurityAudit.Score.Good"),
+        >= 60 => T(_root, "SecurityAudit.Score.Attention"),
+        _ => T(_root, "SecurityAudit.Score.Immediate")
     };
     public string HealthScoreSubtitle => TotalIssueCount > 0
-        ? $"{TotalIssueCount} local findings need review"
-        : "No local findings right now";
+        ? T(_root, "SecurityAudit.Score.Findings", TotalIssueCount)
+        : T(_root, "SecurityAudit.Score.NoFindings");
     public string SmartSuggestionTitle => PrimarySuggestionIssue is not null
         ? PrimarySuggestionIssue.Title
         : Issues.Count > 0
-            ? "All suggestions dismissed"
-            : "No urgent finding";
+            ? T(_root, "SecurityAudit.Suggestion.AllDismissed")
+            : T(_root, "SecurityAudit.Suggestion.NoUrgent");
     public string SmartSuggestionText => PrimarySuggestionIssue is not null
         ? PrimarySuggestionIssue.Details
         : Issues.Count > 0
-            ? "Dismissed suggestions stay hidden until the finding changes or a new issue appears."
-            : "Run a scan after adding or editing vault records to generate local guidance.";
-    public string SmartSuggestionActionText => PrimarySuggestionIssue?.ActionText ?? "Review";
+            ? T(_root, "SecurityAudit.Suggestion.DismissedText")
+            : T(_root, "SecurityAudit.Suggestion.EmptyText");
+    public string SmartSuggestionActionText => PrimarySuggestionIssue?.ActionText ?? T(_root, "Common.Review");
     public HealthIssueVm? PrimarySuggestionIssue => _allIssues
         .Where(issue => !string.IsNullOrWhiteSpace(issue.Fingerprint) &&
                         !_dismissedSuggestionFingerprints.Contains(issue.Fingerprint))
@@ -97,21 +97,21 @@ public partial class HealthViewModel : ViewModelBase
     public bool CanRunSmartSuggestion => PrimarySuggestionIssue is not null && !IsBusy;
     public bool CanGenerateSuggestionPassword => PrimarySuggestionIssue?.RecommendedAction == HealthAuditRecommendedAction.GenerateReplacementPassword && !IsBusy;
     public bool CanDismissSuggestion => PrimarySuggestionIssue is not null && !IsBusy;
-    public string ChecklistClipboardText => $"Clear clipboard ({Math.Max(SessionSecuritySettings.MinClipboardClearSeconds, _root.ClipboardClearSeconds)}s)";
+    public string ChecklistClipboardText => T(_root, "SecurityAudit.Checklist.Clipboard", Math.Max(SessionSecuritySettings.MinClipboardClearSeconds, _root.ClipboardClearSeconds));
     public bool HasClipboardTimeout => _root.ClipboardClearSeconds > 0;
     public bool HasAutoLock => _root.AutoLockEnabled;
     public bool HasFocusLock => _root.LockOnDeactivate;
     public string AuditStatusText => HighRiskCount > 0
-        ? "Fix high-risk findings first, then review medium and low-risk guidance."
+        ? T(_root, "SecurityAudit.Status.HighRisk", HighRiskCount)
         : TotalIssueCount > 0
-            ? "Review local findings and tighten settings where practical."
-            : "No local security findings were found.";
+            ? T(_root, "SecurityAudit.Status.Review", TotalIssueCount)
+            : T(_root, "SecurityAudit.Status.Clean");
     public string EmptyIssuesTitle => ActiveFilter == FilterAll
-        ? "No local findings right now"
-        : "No findings match this filter";
+        ? T(_root, "SecurityAudit.Empty.NoFindingsTitle")
+        : T(_root, "SecurityAudit.Empty.NoFilterTitle");
     public string EmptyIssuesText => ActiveFilter == FilterAll
-        ? "ShellKrypt scanned web logins, cards, API keys, and session settings without finding local issues."
-        : "Try another audit filter or run a new scan after changing vault records.";
+        ? T(_root, "SecurityAudit.Empty.NoFindingsText")
+        : T(_root, "SecurityAudit.Empty.NoFilterText");
     public bool IsAllFilterActive => ActiveFilter == FilterAll;
     public bool IsHighRiskFilterActive => ActiveFilter == FilterHighRisk;
     public bool IsPasswordFilterActive => ActiveFilter == FilterPasswords;
@@ -155,6 +155,12 @@ public partial class HealthViewModel : ViewModelBase
     {
         OnPropertyChanged(nameof(SummaryText));
         OnPropertyChanged(nameof(OtherFindingCount));
+        OnPropertyChanged(nameof(AllFilterLabel));
+        OnPropertyChanged(nameof(HighRiskFilterLabel));
+        OnPropertyChanged(nameof(PasswordsFilterLabel));
+        OnPropertyChanged(nameof(CardsFilterLabel));
+        OnPropertyChanged(nameof(ApiKeysFilterLabel));
+        OnPropertyChanged(nameof(SettingsFilterLabel));
         NotifyScoreChanged();
         NotifySuggestionStateChanged();
     }
@@ -189,5 +195,34 @@ public partial class HealthViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsSettingsFilterActive));
         OnPropertyChanged(nameof(EmptyIssuesTitle));
         OnPropertyChanged(nameof(EmptyIssuesText));
+    }
+
+    public string AllFilterLabel => T(_root, "SecurityAudit.Filter.All", TotalIssueCount);
+    public string HighRiskFilterLabel => T(_root, "SecurityAudit.Filter.HighRisk", HighRiskCount);
+    public string PasswordsFilterLabel => T(_root, "SecurityAudit.Filter.Passwords", PasswordFindingCount);
+    public string CardsFilterLabel => T(_root, "SecurityAudit.Filter.Cards", CardFindingCount);
+    public string ApiKeysFilterLabel => T(_root, "SecurityAudit.Filter.ApiKeys", ApiKeyFindingCount);
+    public string SettingsFilterLabel => T(_root, "SecurityAudit.Filter.Settings", SettingsFindingCount);
+
+    public override void RefreshLocalization()
+    {
+        NotifyLocalized(
+            nameof(SummaryText),
+            nameof(LastCheckedDisplay),
+            nameof(HealthScoreTitle),
+            nameof(HealthScoreSubtitle),
+            nameof(SmartSuggestionTitle),
+            nameof(SmartSuggestionText),
+            nameof(SmartSuggestionActionText),
+            nameof(ChecklistClipboardText),
+            nameof(AuditStatusText),
+            nameof(EmptyIssuesTitle),
+            nameof(EmptyIssuesText),
+            nameof(AllFilterLabel),
+            nameof(HighRiskFilterLabel),
+            nameof(PasswordsFilterLabel),
+            nameof(CardsFilterLabel),
+            nameof(ApiKeysFilterLabel),
+            nameof(SettingsFilterLabel));
     }
 }

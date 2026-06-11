@@ -115,7 +115,7 @@ public partial class MarkdownNotesViewModel
     {
         Error = string.Empty;
 
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
 
         IsBusy = true;
         try

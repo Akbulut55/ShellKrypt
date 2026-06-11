@@ -14,7 +14,7 @@
               ColumnSpacing="18"
               VerticalAlignment="Bottom">
           <StackPanel Spacing="6">
-            <TextBlock Text="Security Audit"
+            <TextBlock Text="{DynamicResource Loc.SecurityAudit.Title}"
                        FontSize="30"
                        FontWeight="Bold"/>
             <TextBlock Text="{Binding SummaryText}"
@@ -22,7 +22,7 @@
           </StackPanel>
 
           <Button Grid.Column="1"
-                  Content="Run New Scan"
+                  Content="{DynamicResource Loc.SecurityAudit.Button.RunScan}"
                   Classes="audit-run-button"
                   Command="{Binding RefreshCommand}"/>
         </Grid>
@@ -54,7 +54,7 @@
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                HorizontalAlignment="Center"/>
-                    <TextBlock Text="HEALTH SCORE"
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.HealthScore}"
                                Classes="audit-kicker"
                                HorizontalAlignment="Center"/>
                   </StackPanel>
@@ -102,7 +102,7 @@
                           CornerRadius="999"
                           Padding="10,4"
                           HorizontalAlignment="Right">
-                    <TextBlock Text="RISK"
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Risk}"
                                Foreground="{StaticResource DangerBrush}"
                                FontSize="10"
                                FontWeight="Black"/>
@@ -112,7 +112,7 @@
                   <TextBlock Text="{Binding HighRiskCount}"
                              FontSize="34"
                              FontWeight="Black"/>
-                  <TextBlock Text="High Risk"
+                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk}"
                              Classes="page-subtitle"
                              FontSize="12"/>
                 </StackPanel>
@@ -142,7 +142,7 @@
                           CornerRadius="999"
                           Padding="10,4"
                           HorizontalAlignment="Right">
-                    <TextBlock Text="LOCAL"
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Local}"
                                Foreground="{StaticResource WarningBrush}"
                                FontSize="10"
                                FontWeight="Black"/>
@@ -152,7 +152,7 @@
                   <TextBlock Text="{Binding PasswordFindingCount}"
                              FontSize="34"
                              FontWeight="Black"/>
-                  <TextBlock Text="Password Findings"
+                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings}"
                              Classes="page-subtitle"
                              FontSize="12"/>
                 </StackPanel>
@@ -182,7 +182,7 @@
                           CornerRadius="999"
                           Padding="10,4"
                           HorizontalAlignment="Right">
-                    <TextBlock Text="ITEMS"
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Items}"
                                Foreground="{StaticResource TextMutedBrush}"
                                FontSize="10"
                                FontWeight="Black"/>
@@ -192,7 +192,7 @@
                   <TextBlock Text="{Binding OtherFindingCount}"
                              FontSize="34"
                              FontWeight="Black"/>
-                  <TextBlock Text="Cards, API Keys, Settings"
+                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings}"
                              Classes="page-subtitle"
                              FontSize="12"/>
                 </StackPanel>
@@ -209,10 +209,10 @@
                 <Grid ColumnDefinitions="*,Auto"
                       ColumnSpacing="12">
                   <StackPanel Spacing="6">
-                    <TextBlock Text="Active Findings"
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.ActiveFindings}"
                                FontSize="20"
                                FontWeight="Bold"/>
-                    <TextBlock Text="Local-only checks across web logins, cards, API keys, and session settings."
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.ActiveFindings.Subtitle}"
                                Classes="page-subtitle"
                                FontSize="12"/>
                   </StackPanel>
@@ -220,27 +220,27 @@
                   <WrapPanel Grid.Column="1"
                              Orientation="Horizontal"
                              VerticalAlignment="Center">
-                    <Button Content="{Binding TotalIssueCount, StringFormat=All ({0})}"
+                    <Button Content="{Binding AllFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsAllFilterActive}"
                             Command="{Binding ShowAllFindingsCommand}"/>
-                    <Button Content="{Binding HighRiskCount, StringFormat=High Risk ({0})}"
+                    <Button Content="{Binding HighRiskFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsHighRiskFilterActive}"
                             Command="{Binding ShowHighRiskFindingsCommand}"/>
-                    <Button Content="{Binding PasswordFindingCount, StringFormat=Passwords ({0})}"
+                    <Button Content="{Binding PasswordsFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsPasswordFilterActive}"
                             Command="{Binding ShowPasswordFindingsCommand}"/>
-                    <Button Content="{Binding CardFindingCount, StringFormat=Cards ({0})}"
+                    <Button Content="{Binding CardsFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsCardFilterActive}"
                             Command="{Binding ShowCardFindingsCommand}"/>
-                    <Button Content="{Binding ApiKeyFindingCount, StringFormat=API Keys ({0})}"
+                    <Button Content="{Binding ApiKeysFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsApiKeyFilterActive}"
                             Command="{Binding ShowApiKeyFindingsCommand}"/>
-                    <Button Content="{Binding SettingsFindingCount, StringFormat=Settings ({0})}"
+                    <Button Content="{Binding SettingsFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsSettingsFilterActive}"
                             Command="{Binding ShowSettingsFindingsCommand}"/>
@@ -348,13 +348,13 @@
               <StackPanel Spacing="14">
                 <Grid ColumnDefinitions="*,Auto"
                       ColumnSpacing="12">
-                  <TextBlock Text="Smart Suggestion"
+                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.SmartSuggestion}"
                              FontSize="15"
                              FontWeight="Bold"
                              Foreground="{StaticResource AccentBrush}"
                              VerticalAlignment="Center"/>
                   <Button Grid.Column="1"
-                          Content="Dismiss"
+                          Content="{DynamicResource Loc.Common.Dismiss}"
                           Classes="audit-ghost-button"
                           Command="{Binding DismissSuggestionCommand}"
                           IsEnabled="{Binding CanDismissSuggestion}"
@@ -376,7 +376,7 @@
 
             <Border Classes="audit-side-card">
               <StackPanel Spacing="14">
-                <TextBlock Text="Security Checklist"
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Checklist.Title}"
                            FontSize="15"
                            FontWeight="Bold"/>
 
@@ -388,7 +388,7 @@
                              FontWeight="Black"
                              VerticalAlignment="Center"/>
                   <TextBlock Grid.Column="1"
-                             Text="Encrypted local vault"
+                             Text="{DynamicResource Loc.SecurityAudit.Checklist.EncryptedVault}"
                              Classes="page-subtitle"/>
                 </Grid>
 
@@ -407,7 +407,7 @@
                              VerticalAlignment="Center"
                              IsVisible="{Binding !HasAutoLock}"/>
                   <TextBlock Grid.Column="1"
-                             Text="Auto-lock enabled"
+                             Text="{DynamicResource Loc.SecurityAudit.Checklist.AutoLock}"
                              Classes="page-subtitle"/>
                 </Grid>
 
@@ -445,7 +445,7 @@
                              VerticalAlignment="Center"
                              IsVisible="{Binding !HasFocusLock}"/>
                   <TextBlock Grid.Column="1"
-                             Text="Lock on app deactivate"
+                             Text="{DynamicResource Loc.SecurityAudit.Checklist.FocusLock}"
                              Classes="page-subtitle"/>
                 </Grid>
               </StackPanel>

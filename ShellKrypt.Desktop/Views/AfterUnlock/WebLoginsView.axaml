@@ -13,7 +13,7 @@
                   MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="22">
-        <TextBlock Text="Web Logins"
+        <TextBlock Text="{DynamicResource Loc.WebLogins.Title}"
                    Margin="0,10,0,-4"
                    FontSize="28"
                    FontWeight="SemiBold"
@@ -23,7 +23,7 @@
               ColumnSpacing="18">
           <Border Classes="web-stat">
             <StackPanel Spacing="8">
-              <TextBlock Text="TOTAL LOGINS"
+              <TextBlock Text="{DynamicResource Loc.WebLogins.TotalLogins}"
                          Classes="web-kicker"/>
               <TextBlock Text="{Binding TotalLoginsCount}"
                          FontSize="24"
@@ -36,7 +36,7 @@
           <Border Grid.Column="1"
                   Classes="web-stat">
             <StackPanel Spacing="8">
-              <TextBlock Text="REUSED PASSWORDS"
+              <TextBlock Text="{DynamicResource Loc.WebLogins.ReusedPasswords}"
                          Classes="web-kicker"/>
               <TextBlock Text="{Binding ReusedPasswordCount}"
                          FontSize="24"
@@ -50,7 +50,7 @@
           <Border Grid.Column="2"
                   Classes="web-stat">
             <StackPanel Spacing="8">
-              <TextBlock Text="WEAK PASSWORDS"
+              <TextBlock Text="{DynamicResource Loc.WebLogins.WeakPasswords}"
                          Classes="web-kicker"/>
               <TextBlock Text="{Binding WeakPasswordCount}"
                          FontSize="24"
@@ -67,7 +67,7 @@
                      VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="web-search"
-                     PlaceholderText="Search by title or website..."
+                     PlaceholderText="{DynamicResource Loc.WebLogins.Search.Placeholder}"
                      VerticalAlignment="Center"/>
             <ComboBox Classes="web-select"
                       ItemsSource="{Binding UsernameFilters}"
@@ -81,7 +81,7 @@
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Content="+ Add Website Login"
+            <Button Content="{DynamicResource Loc.WebLogins.Button.Add}"
                     Classes="web-add-login-button"
                     Command="{Binding AddNewCommand}"
                     VerticalAlignment="Center"/>
@@ -95,15 +95,15 @@
           <Border Classes="table-header-row">
             <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
                   ColumnSpacing="24">
-              <TextBlock Text="TITLE" Classes="table-header-text"/>
-              <TextBlock Grid.Column="1" Text="USERNAME" Classes="table-header-text"/>
-              <TextBlock Grid.Column="2" Text="PASSWORD" Classes="table-header-text"/>
+              <TextBlock Text="{DynamicResource Loc.WebLogins.Table.Title}" Classes="table-header-text"/>
+              <TextBlock Grid.Column="1" Text="{DynamicResource Loc.WebLogins.Table.Username}" Classes="table-header-text"/>
+              <TextBlock Grid.Column="2" Text="{DynamicResource Loc.WebLogins.Table.Password}" Classes="table-header-text"/>
               <TextBlock Grid.Column="3"
-                         Text="URL"
+                         Text="{DynamicResource Loc.WebLogins.Table.Url}"
                          Classes="table-header-text"
                          TextAlignment="Center"/>
               <TextBlock Grid.Column="4"
-                         Text="ACTIONS"
+                         Text="{DynamicResource Loc.Common.Actions.Header}"
                          Classes="table-header-text"
                          HorizontalAlignment="Right"/>
             </Grid>
@@ -171,7 +171,7 @@
                                 Content="E"
                                 Command="{Binding DataContext.TogglePasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                ToolTip.Tip="Reveal password"/>
+                                ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.RevealPassword}"/>
                       </Grid>
 
                       <TextBlock Grid.Column="3"
@@ -187,15 +187,15 @@
                                   VerticalAlignment="Center"
                                   Spacing="8">
                         <Button Classes="table-action-button"
-                                Content="Details"
+                                Content="{DynamicResource Loc.Common.Details}"
                                 Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                ToolTip.Tip="View login details"/>
+                                ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.ViewDetails}"/>
                         <Button Classes="table-action-button"
-                                Content="Copy Password"
+                                Content="{DynamicResource Loc.WebLogins.Button.CopyPassword}"
                                 Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                ToolTip.Tip="Copy password"/>
+                                ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.CopyPassword}"/>
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -220,7 +220,7 @@
                          Classes="table-footer-text"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
-                      Content="Previous"
+                      Content="{DynamicResource Loc.Common.Previous}"
                       Classes="table-page-button"
                       Command="{Binding PreviousPageCommand}"
                       IsEnabled="{Binding CanGoPreviousPage}"/>
@@ -229,7 +229,7 @@
                          Classes="table-footer-text"
                          VerticalAlignment="Center"/>
               <Button Grid.Column="3"
-                      Content="Next"
+                      Content="{DynamicResource Loc.Common.Next}"
                       Classes="table-page-button"
                       Command="{Binding NextPageCommand}"
                       IsEnabled="{Binding CanGoNextPage}"/>
@@ -253,49 +253,49 @@
               RowSpacing="14"
               ColumnSpacing="16">
               <StackPanel Spacing="7">
-                <TextBlock Text="TITLE"
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Form.Title}"
                            Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
-                         PlaceholderText="ShellKrypt"/>
+                         PlaceholderText="{DynamicResource Loc.WebLogins.Form.Title.Placeholder}"/>
               </StackPanel>
 
               <StackPanel Grid.Column="1"
                           Spacing="7">
-                <TextBlock Text="WEBSITE URL"
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Form.Url}"
                            Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddUrl, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
-                         PlaceholderText="https://example.com"/>
+                         PlaceholderText="{DynamicResource Loc.WebLogins.Form.Url.Placeholder}"/>
               </StackPanel>
 
               <StackPanel Grid.Row="1"
                           Spacing="7">
-                <TextBlock Text="USERNAME"
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Form.Username}"
                            Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddUsername, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
-                         PlaceholderText="shellkrypt-user"/>
+                         PlaceholderText="{DynamicResource Loc.WebLogins.Form.Username.Placeholder}"/>
               </StackPanel>
 
               <StackPanel Grid.Row="1"
                           Grid.Column="1"
                           Spacing="7">
-                <TextBlock Text="EMAIL"
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Form.Email}"
                            Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddEmail, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="modal-shell-input"
                          IsReadOnly="{Binding IsAddFormReadOnly}"
-                         PlaceholderText="dev@shellkrypt.local"/>
+                         PlaceholderText="{DynamicResource Loc.WebLogins.Form.Email.Placeholder}"/>
               </StackPanel>
 
               <StackPanel Grid.Row="2"
                           Grid.ColumnSpan="2"
                           Spacing="7">
-                <TextBlock Text="PASSWORD"
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Form.Password}"
                            Classes="modal-shell-label"/>
                 <Border Classes="modal-shell-input-shell">
                   <Grid ColumnDefinitions="*,Auto,Auto,Auto"
@@ -305,22 +305,22 @@
                              PasswordChar="*"
                              IsReadOnly="{Binding IsAddFormReadOnly}"
                              IsVisible="{Binding !IsAddPasswordVisible}"
-                             PlaceholderText="Use Generate or enter a password"/>
+                             PlaceholderText="{DynamicResource Loc.WebLogins.Form.Password.Placeholder}"/>
                     <TextBox Text="{Binding AddPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="modal-shell-input borderless"
                              IsReadOnly="{Binding IsAddFormReadOnly}"
                              IsVisible="{Binding IsAddPasswordVisible}"
-                             PlaceholderText="Use Generate or enter a password"/>
+                             PlaceholderText="{DynamicResource Loc.WebLogins.Form.Password.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{Binding AddPasswordVisibilityLabel}"
                             Classes="modal-shell-field-action"
                             Command="{Binding ToggleAddPasswordVisibilityCommand}"/>
                     <Button Grid.Column="2"
-                            Content="Copy"
+                            Content="{DynamicResource Loc.Common.Copy}"
                             Classes="modal-shell-field-action"
                             Command="{Binding CopyAddPasswordCommand}"/>
                     <Button Grid.Column="3"
-                            Content="Generate"
+                            Content="{DynamicResource Loc.Common.Generate}"
                             Classes="modal-shell-field-action primary"
                             IsVisible="{Binding CanGenerateModalPassword}"
                             Command="{Binding GenerateAddPasswordCommand}"/>
@@ -331,7 +331,7 @@
               <StackPanel Grid.Row="3"
                           Grid.ColumnSpan="2"
                           Spacing="7">
-                <TextBlock Text="NOTES"
+                <TextBlock Text="{DynamicResource Loc.Common.Notes.Label}"
                            Classes="modal-shell-label"/>
                 <TextBox Text="{Binding AddNotes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="modal-shell-input multiline"
@@ -339,7 +339,7 @@
                          AcceptsReturn="True"
                          TextWrapping="Wrap"
                          MinHeight="110"
-                         PlaceholderText="Recovery hints, account context, or internal notes..."/>
+                         PlaceholderText="{DynamicResource Loc.WebLogins.Form.Notes.Placeholder}"/>
               </StackPanel>
             </Grid>
       </shared:ModalShell.Body>
@@ -347,42 +347,42 @@
         <Grid ColumnDefinitions="Auto,Auto"
               ColumnSpacing="12">
                 <Button Grid.Column="0"
-                        Content="Cancel"
+                        Content="{DynamicResource Loc.Common.Cancel}"
                         Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsAddWebLoginMode}"
                         Command="{Binding CancelAddCommand}"/>
                 <Button Grid.Column="1"
-                        Content="Add Web Login"
+                        Content="{DynamicResource Loc.WebLogins.Button.AddSubmit}"
                         Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsAddWebLoginMode}"
                         Command="{Binding SaveAddCommand}"/>
                 <Button Grid.Column="0"
-                        Content="Delete"
+                        Content="{DynamicResource Loc.Common.Delete}"
                         Classes="modal-shell-danger-button"
                         IsVisible="{Binding IsDetailsViewMode}"
                         Command="{Binding BeginDetailsDeleteCommand}"/>
                 <Button Grid.Column="1"
-                        Content="Edit"
+                        Content="{DynamicResource Loc.Common.Edit}"
                         Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsDetailsViewMode}"
                         Command="{Binding BeginDetailsEditCommand}"/>
                 <Button Grid.Column="0"
-                        Content="Cancel"
+                        Content="{DynamicResource Loc.Common.Cancel}"
                         Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsDetailsEditMode}"
                         Command="{Binding CancelDetailsEditCommand}"/>
                 <Button Grid.Column="1"
-                        Content="Save"
+                        Content="{DynamicResource Loc.Common.Save}"
                         Classes="modal-shell-primary-button"
                         IsVisible="{Binding IsDetailsEditMode}"
                         Command="{Binding SaveDetailsCommand}"/>
                 <Button Grid.Column="0"
-                        Content="Cancel"
+                        Content="{DynamicResource Loc.Common.Cancel}"
                         Classes="modal-shell-secondary-button"
                         IsVisible="{Binding IsDetailsDeleteConfirmMode}"
                         Command="{Binding CancelDetailsDeleteCommand}"/>
                 <Button Grid.Column="1"
-                        Content="Delete"
+                        Content="{DynamicResource Loc.Common.Delete}"
                         Classes="modal-shell-danger-button"
                         IsVisible="{Binding IsDetailsDeleteConfirmMode}"
                         Command="{Binding ConfirmDetailsDeleteCommand}"/>

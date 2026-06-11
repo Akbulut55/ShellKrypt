@@ -23,23 +23,23 @@ public partial class ActivityViewModel
 
         if (_allItems.Count == 0)
         {
-            Error = "No activity logs to export.";
+            Error = T(_root, "Activity.Export.NoLogs");
             return;
         }
 
         var suggestedName = $"ShellKrypt-{SanitizeFileName(CurrentVaultDisplayName)}-activity-{DateTimeOffset.Now:yyyyMMdd-HHmmss}.json";
         var exportPath = await _root.PickSaveFileAsync(
-            "Export activity logs report",
+            T(_root, "Activity.Export.DialogTitle"),
             suggestedName,
             ".json",
             [".json"],
-            "JSON report");
+            T(_root, "Activity.Export.FileType"));
 
         if (string.IsNullOrWhiteSpace(exportPath))
             return;
 
         await File.WriteAllTextAsync(exportPath, BuildActivityReportJson());
-        Error = "Activity report exported as plaintext JSON. Protect it and delete it when finished.";
+        Error = T(_root, "Activity.Export.PlaintextWarning");
         _root.LogActivity("activity", "Activity report exported", $"Saved {_allItems.Count} activity log entries to {Path.GetFileName(exportPath)}.", "info", affectedItem: Path.GetFileName(exportPath));
     }
 

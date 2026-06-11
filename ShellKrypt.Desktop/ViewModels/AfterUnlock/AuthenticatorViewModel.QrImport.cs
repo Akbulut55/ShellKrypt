@@ -12,9 +12,9 @@ public partial class AuthenticatorViewModel
         Error = string.Empty;
 
         var path = await _root.PickOpenFileAsync(
-            "Select QR screenshot",
+            T(_root, "Authenticator.Qr.PickerTitle"),
             [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"],
-            "Image File");
+            T(_root, "Authenticator.Qr.FileType"));
 
         if (string.IsNullOrWhiteSpace(path))
             return;
@@ -39,7 +39,7 @@ public partial class AuthenticatorViewModel
             var bitmap = await _root.TryGetClipboardBitmapAsync();
             if (bitmap is null)
             {
-                Error = "Clipboard does not contain an image to scan.";
+                Error = T(_root, "Authenticator.Qr.NoClipboardImage");
                 return;
             }
 

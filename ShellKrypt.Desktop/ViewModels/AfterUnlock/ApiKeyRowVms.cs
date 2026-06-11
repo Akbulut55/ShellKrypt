@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Application.Localization;
 using System;
 using System.Collections.ObjectModel;
 using System.Globalization;
@@ -9,6 +10,8 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class ApiKeyFieldRowVm : ObservableObject
 {
+    private readonly LocalizationService _localization;
+
     public string Id { get; }
     public int SortOrder { get; set; }
 
@@ -20,6 +23,7 @@ public sealed partial class ApiKeyFieldRowVm : ObservableObject
     [ObservableProperty] private bool isValueVisible;
 
     public ApiKeyFieldRowVm(
+        LocalizationService localization,
         string id,
         string label,
         string fieldType,
@@ -28,6 +32,7 @@ public sealed partial class ApiKeyFieldRowVm : ObservableObject
         bool isCopyable,
         int sortOrder)
     {
+        _localization = localization;
         Id = string.IsNullOrWhiteSpace(id) ? Guid.NewGuid().ToString("N") : id;
         Label = label ?? "";
         FieldType = string.IsNullOrWhiteSpace(fieldType) ? ApiKeysViewModel.DefaultFieldType : fieldType;
@@ -38,8 +43,8 @@ public sealed partial class ApiKeyFieldRowVm : ObservableObject
     }
 
     public string DisplayValue => IsSensitive && !IsValueVisible ? MaskValue(Value) : Value;
-    public string VisibilityLabel => IsValueVisible ? "Hide" : "Show";
-    public string CopyLabel => IsCopyable ? "Copy" : "Locked";
+    public string VisibilityLabel => IsValueVisible ? T("ApiKeys.Field.Hide") : T("ApiKeys.Field.Show");
+    public string CopyLabel => IsCopyable ? T("ApiKeys.Field.Copy") : T("ApiKeys.Field.Locked");
     public bool UseMaskedValueInput => IsSensitive && !IsValueVisible;
     public bool UsePlainValueInput => !UseMaskedValueInput;
     public bool CanReveal => IsSensitive;
@@ -67,10 +72,16 @@ public sealed partial class ApiKeyFieldRowVm : ObservableObject
     }
 
     public ApiKeyFieldRowVm Clone()
-        => new(Id, Label, FieldType, Value, IsSensitive, IsCopyable, SortOrder)
+        => new(_localization, Id, Label, FieldType, Value, IsSensitive, IsCopyable, SortOrder)
         {
             IsValueVisible = IsValueVisible
         };
+
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(VisibilityLabel));
+        OnPropertyChanged(nameof(CopyLabel));
+    }
 
     private static string MaskValue(string? value)
     {
@@ -82,10 +93,14 @@ public sealed partial class ApiKeyFieldRowVm : ObservableObject
             ? "****"
             : $"**** **** {visibleTail}";
     }
+
+    private string T(string key, params object[] args) => _localization.Get(key, args);
 }
 
 public sealed partial class ApiKeyRowVm : ObservableObject
 {
+    private readonly LocalizationService _localization;
+
     public string Id { get; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
@@ -97,8 +112,9 @@ public sealed partial class ApiKeyRowVm : ObservableObject
 
     public ObservableCollection<ApiKeyFieldRowVm> Fields { get; } = new();
 
-    public ApiKeyRowVm(ApiKeyEntry entry)
+    public ApiKeyRowVm(ApiKeyEntry entry, LocalizationService localization)
     {
+        _localization = localization;
         Id = entry.Id;
         CreatedAtUtc = entry.CreatedAtUtc;
         UpdatedAtUtc = entry.UpdatedAtUtc;
@@ -110,6 +126,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         foreach (var field in entry.Fields.OrderBy(field => field.SortOrder))
         {
             Fields.Add(new ApiKeyFieldRowVm(
+                _localization,
                 field.Id,
                 field.Label,
                 field.FieldType,
@@ -129,14 +146,14 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         }
     }
 
-    public string ProviderDisplay => string.IsNullOrWhiteSpace(Provider) ? "Unknown provider" : Provider.Trim();
-    public string EnvironmentDisplay => string.IsNullOrWhiteSpace(Environment) ? "Production" : Environment.Trim();
-    public string FieldCountDisplay => Fields.Count == 1 ? "1 field" : $"{Fields.Count} fields";
+    public string ProviderDisplay => string.IsNullOrWhiteSpace(Provider) ? T("ApiKeys.Field.UnknownProvider") : Provider.Trim();
+    public string EnvironmentDisplay => string.IsNullOrWhiteSpace(Environment) ? T("ApiKeys.Environment.Default") : Environment.Trim();
+    public string FieldCountDisplay => Fields.Count == 1 ? T("ApiKeys.Field.FieldCountOne") : T("ApiKeys.Field.FieldCountMany", Fields.Count);
     public ApiKeyFieldRowVm? PrimaryField => Fields.FirstOrDefault(apiField => apiField.IsSensitive && apiField.IsCopyable)
                                              ?? Fields.FirstOrDefault(apiField => apiField.IsCopyable)
                                              ?? Fields.FirstOrDefault();
-    public string PrimaryFieldLabel => PrimaryField?.Label ?? "No field";
-    public string PrimaryFieldDisplay => PrimaryField?.DisplayValue ?? "No key stored";
+    public string PrimaryFieldLabel => PrimaryField?.Label ?? T("ApiKeys.Field.NoField");
+    public string PrimaryFieldDisplay => PrimaryField?.DisplayValue ?? T("ApiKeys.Field.NoKeyStored");
     public string PrimaryCopyValue => PrimaryField?.Value ?? "";
     public string UpdatedDisplay => FormatRelativeDate(UpdatedAtUtc);
     public string SearchText => string.Join(" ", new[]
@@ -180,6 +197,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         foreach (var field in entry.Fields.OrderBy(field => field.SortOrder))
         {
             Fields.Add(new ApiKeyFieldRowVm(
+                _localization,
                 field.Id,
                 field.Label,
                 field.FieldType,
@@ -203,10 +221,22 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         OnPropertyChanged(nameof(SearchText));
     }
 
-    private static string FormatRelativeDate(string? value)
+    public void RefreshLocalization()
+    {
+        foreach (var field in Fields)
+            field.RefreshLocalization();
+
+        OnPropertyChanged(nameof(ProviderDisplay));
+        OnPropertyChanged(nameof(FieldCountDisplay));
+        OnPropertyChanged(nameof(PrimaryFieldLabel));
+        OnPropertyChanged(nameof(PrimaryFieldDisplay));
+        OnPropertyChanged(nameof(UpdatedDisplay));
+    }
+
+    private string FormatRelativeDate(string? value)
     {
         if (!DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
-            return "Unknown";
+            return T("ApiKeys.Time.Unknown");
 
         var local = parsed.ToLocalTime();
         var delta = DateTimeOffset.Now - local;
@@ -214,14 +244,16 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         if (delta < TimeSpan.Zero)
             return local.ToString("MMM d", CultureInfo.InvariantCulture);
         if (delta < TimeSpan.FromMinutes(1))
-            return "Just now";
+            return T("ApiKeys.Time.JustNow");
         if (delta < TimeSpan.FromHours(1))
-            return $"{Math.Max(1, (int)delta.TotalMinutes)}m ago";
+            return T("ApiKeys.Time.MinutesAgo", Math.Max(1, (int)delta.TotalMinutes));
         if (delta < TimeSpan.FromDays(1))
-            return $"{Math.Max(1, (int)delta.TotalHours)}h ago";
+            return T("ApiKeys.Time.HoursAgo", Math.Max(1, (int)delta.TotalHours));
         if (delta < TimeSpan.FromDays(7))
-            return $"{Math.Max(1, (int)delta.TotalDays)}d ago";
+            return T("ApiKeys.Time.DaysAgo", Math.Max(1, (int)delta.TotalDays));
 
         return local.ToString("MMM d", CultureInfo.InvariantCulture);
     }
+
+    private string T(string key, params object[] args) => _localization.Get(key, args);
 }

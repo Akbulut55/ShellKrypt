@@ -19,7 +19,7 @@ public partial class MarkdownNotesViewModel
             return;
         }
 
-        AutoSaveStatus = "Autosave pending...";
+        AutoSaveStatus = T(_root, "Notes.AutoSave.Pending");
         _autoSaveCts = new CancellationTokenSource();
         _ = DebouncedAutoSaveAsync(_autoSaveCts.Token);
     }

@@ -90,41 +90,41 @@ public partial class ApiKeysViewModel : ViewModelBase
         .Where(provider => !string.IsNullOrWhiteSpace(provider))
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .Count();
-    public string ItemsSummary => $"Showing {Rows.Count} of {_filtered.Count} API keys";
+    public string ItemsSummary => T(_root, "ApiKeys.ItemsSummary", Rows.Count, _filtered.Count);
     public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
+    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public string ApiKeyModalTitle => IsAddApiKeyMode
-        ? "Add API Key"
+        ? T(_root, "ApiKeys.Modal.AddTitle")
         : IsApiKeyDeleteConfirming
-            ? "Delete API Key?"
+            ? T(_root, "ApiKeys.Modal.DeleteTitle")
             : IsApiKeyDetailsEditing
-                ? "Edit API Key"
-                : "API Key Details";
+                ? T(_root, "ApiKeys.Modal.EditTitle")
+                : T(_root, "ApiKeys.Modal.DetailsTitle");
     public string ApiKeyModalSubtitle => IsAddApiKeyMode
-        ? "Store provider tokens, client IDs, project identifiers, and custom secret fields."
+        ? T(_root, "ApiKeys.Modal.AddSubtitle")
         : IsApiKeyDeleteConfirming
-            ? "Are you sure you want to delete this API key? This action cannot be undone."
+            ? T(_root, "ApiKeys.Modal.DeleteSubtitle")
             : IsApiKeyDetailsEditing
-                ? "Update the saved API key fields in this encrypted vault."
-                : "Review the saved API key fields stored in this encrypted vault.";
+                ? T(_root, "ApiKeys.Modal.EditSubtitle")
+                : T(_root, "ApiKeys.Modal.DetailsSubtitle");
     public bool IsApiKeyDetailsViewMode => !IsAddApiKeyMode && !IsApiKeyDetailsEditing && !IsApiKeyDeleteConfirming;
     public bool IsApiKeyDetailsEditMode => !IsAddApiKeyMode && IsApiKeyDetailsEditing && !IsApiKeyDeleteConfirming;
     public bool IsApiKeyDetailsDeleteConfirmMode => !IsAddApiKeyMode && IsApiKeyDeleteConfirming;
     public bool IsApiKeyFormReadOnly => !IsAddApiKeyMode && !IsApiKeyDetailsEditing;
     public bool IsApiKeyFormEditable => IsAddApiKeyMode || IsApiKeyDetailsEditing;
     public string ModalFooterText => IsApiKeyDetailsDeleteConfirmMode
-        ? $"Are you sure you want to delete \"{(string.IsNullOrWhiteSpace(AddName) ? "this API key" : AddName)}\"?"
-        : "All API key fields are encrypted locally before being stored.";
+        ? T(_root, "ApiKeys.Modal.DeleteFooter", string.IsNullOrWhiteSpace(AddName) ? T(_root, "ApiKeys.ThisApiKey") : AddName)
+        : T(_root, "ApiKeys.Modal.Footer");
     public string EmptyTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "No API keys stored yet"
-        : "No API keys match this search";
+        ? T(_root, "ApiKeys.Empty.NoneTitle")
+        : T(_root, "ApiKeys.Empty.NoMatchTitle");
     public string EmptySubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Add an API key with only the fields you need for that provider."
-        : "Try a different provider, name, environment, or field label.";
+        ? T(_root, "ApiKeys.Empty.NoneSubtitle")
+        : T(_root, "ApiKeys.Empty.NoMatchSubtitle");
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnSelectedEnvironmentFilterChanged(string value) => ApplyFilter();
@@ -156,5 +156,23 @@ public partial class ApiKeysViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsApiKeyFormReadOnly));
         OnPropertyChanged(nameof(IsApiKeyFormEditable));
         OnPropertyChanged(nameof(ModalFooterText));
+    }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var row in _all)
+            row.RefreshLocalization();
+
+        foreach (var field in FormFields)
+            field.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(ItemsSummary),
+            nameof(PageSummary),
+            nameof(ApiKeyModalTitle),
+            nameof(ApiKeyModalSubtitle),
+            nameof(ModalFooterText),
+            nameof(EmptyTitle),
+            nameof(EmptySubtitle));
     }
 }

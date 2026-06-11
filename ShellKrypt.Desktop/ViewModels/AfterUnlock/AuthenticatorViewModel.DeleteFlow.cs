@@ -38,13 +38,13 @@ public partial class AuthenticatorViewModel
 
         if (_root.VaultPath is null)
         {
-            Error = "No vault selected.";
+            Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
         if (SelectedEntry is null)
         {
-            Error = "No authenticator code selected.";
+            Error = T(_root, "Authenticator.Validation.NoSelection");
             return;
         }
 

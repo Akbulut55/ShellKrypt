@@ -66,4 +66,13 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         RefreshFilteredNotes(false);
         _ = LoadAsync();
     }
+
+    public override void RefreshLocalization()
+    {
+        NotifyEditorStateChanged();
+        NotifyLocalized(
+            nameof(NotesHeader),
+            nameof(EmptyStateTitle),
+            nameof(EmptyStateSubtitle));
+    }
 }

@@ -1,10 +1,13 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Localization;
 using System;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class WebLoginRowVm : ObservableObject
 {
+    private readonly LocalizationService _localization;
+
     public string Id { get; }
     public bool IsNew { get; private set; }
     public string CreatedAtUtc { get; }
@@ -19,6 +22,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
     [ObservableProperty] private bool isPasswordVisible;
 
     public WebLoginRowVm(
+        LocalizationService localization,
         string id,
         string title,
         string username,
@@ -30,6 +34,7 @@ public sealed partial class WebLoginRowVm : ObservableObject
         bool isNew,
         string email = "")
     {
+        _localization = localization;
         Id = id;
         Title = title ?? "";
         Username = username ?? "";
@@ -62,10 +67,15 @@ public sealed partial class WebLoginRowVm : ObservableObject
             : updatedAtUtc;
     }
 
-    private static string FormatUrlHost(string? value)
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(UrlHost));
+    }
+
+    private string FormatUrlHost(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "no url";
+            return _localization.Get("WebLogins.Row.NoUrl");
 
         var text = value.Trim();
         if (Uri.TryCreate(text, UriKind.Absolute, out var absolute) && !string.IsNullOrWhiteSpace(absolute.Host))

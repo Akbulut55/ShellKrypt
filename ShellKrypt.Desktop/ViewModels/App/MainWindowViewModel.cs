@@ -84,6 +84,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
         _sessionSecurity.ApplySettings(sessionSecurity);
         _localization.SetLanguage(languageId);
+        _localization.LanguageChanged += (_, _) => Current?.RefreshLocalization();
 
         Current = new WelcomeViewModel(this, _vaultRegistryService);
         ApplyTheme(themeId);
@@ -93,7 +94,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public LocalizationService Localization => _localization;
     public bool IsUnlocked => _state.VaultKey is not null;
-    public string VaultPathDisplay => VaultPath ?? "(no vault selected)";
+    public string VaultPathDisplay => VaultPath ?? _localization.Get("Common.NoVaultSelected");
     public bool HasAcceptedSecurityAcknowledgement =>
         !string.IsNullOrWhiteSpace(_securityAcknowledgementAcceptedAtUtc) &&
         _securityAcknowledgementVersionAccepted >= AppSettings.CurrentSecurityAcknowledgementVersion;

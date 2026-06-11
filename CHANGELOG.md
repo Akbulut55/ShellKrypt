@@ -6,6 +6,24 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.12.0] - 2026-06-11
+
+### Added
+
+- Expanded English/Turkish runtime localization across desktop screens, dialogs, filters, modal text, empty states, and status messages.
+
+### Changed
+
+- Cleaned public README documentation to avoid linking to private internal handbook files.
+
+### Fixed
+
+- Fixed missing localization coverage for dynamic viewmodel keys and format-string status messages.
+
+### Removed
+
+- Removed root-level mobile documentation files from the public docs set.
+
 ## [ShellKrypt 0.11.1] - 2026-06-11
 
 ### Changed

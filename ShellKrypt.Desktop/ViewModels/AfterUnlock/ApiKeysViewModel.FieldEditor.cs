@@ -9,6 +9,7 @@ public partial class ApiKeysViewModel
     private void AddField()
     {
         FormFields.Add(new ApiKeyFieldRowVm(
+            _root.Localization,
             Guid.NewGuid().ToString("N"),
             "",
             DefaultFieldType,
@@ -40,6 +41,7 @@ public partial class ApiKeysViewModel
     private void AddDefaultFields()
     {
         FormFields.Add(new ApiKeyFieldRowVm(
+            _root.Localization,
             Guid.NewGuid().ToString("N"),
             "API Key",
             DefaultFieldType,

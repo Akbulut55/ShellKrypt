@@ -15,7 +15,7 @@ public partial class HealthViewModel
             return;
 
         if (!await RouteFindingAsync(issue))
-            Error = "The affected item could not be opened.";
+            Error = T(_root, "SecurityAudit.Error.OpenAffectedItem");
     }
 
     [RelayCommand]
@@ -28,7 +28,7 @@ public partial class HealthViewModel
             return;
 
         if (!await RouteFindingAsync(issue))
-            Error = "The suggested action could not be opened.";
+            Error = T(_root, "SecurityAudit.Error.OpenSuggestedAction");
     }
 
     private async Task<bool> RouteFindingAsync(HealthIssueVm issue)

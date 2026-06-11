@@ -27,7 +27,7 @@ public sealed partial class WelcomeViewModel
             path = VaultFileGuard.EnsureExistingVaultFile(path);
             if (!File.Exists(path))
             {
-                Error = "That vault file does not exist.";
+            Error = T(_root, "Welcome.Error.VaultFileDoesNotExist");
                 return;
             }
 
@@ -43,7 +43,7 @@ public sealed partial class WelcomeViewModel
                 markOpened: false);
 
             ReloadVaults(entry.VaultPath);
-            Status = "Vault imported into the local manager.";
+        Status = T(_root, "Welcome.Status.VaultImported");
             _root.LogActivity("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath, displayName);
         }
         catch (Exception ex)
@@ -59,13 +59,13 @@ public sealed partial class WelcomeViewModel
 
         if (SelectedVault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         if (!SelectedVault.Exists)
         {
-            Error = "The selected vault file could not be found.";
+            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
             return;
         }
 
@@ -86,7 +86,7 @@ public sealed partial class WelcomeViewModel
                 markOpened: false);
 
             ReloadVaults(targetPath);
-            Status = "Vault duplicated.";
+        Status = T(_root, "Welcome.Status.VaultDuplicated");
             _root.LogActivity("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath, $"{SelectedVault.DisplayLabel} Copy");
         }
         catch (Exception ex)

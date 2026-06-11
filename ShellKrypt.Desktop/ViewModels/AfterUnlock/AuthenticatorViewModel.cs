@@ -86,6 +86,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
     }
 
     public int TotalCount => _allEntries.Count;
+    public string CodesCountDisplay => T(_root, "Authenticator.Codes.Count", TotalCount);
     public int RefreshingSoonCount => _allEntries.Count(entry => entry.HasCountdown && entry.IsCodeValid && entry.SecondsRemaining <= 5);
     public int RecentlyUsedCount => _allEntries.Count(entry => IsRecentlyUsed(entry.LastUsedAtUtc));
     public bool HasEntries => FilteredEntries.Count > 0;
@@ -93,27 +94,27 @@ public partial class AuthenticatorViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public bool CanEditSelection => SelectedEntry is not null && !IsBusy;
     public bool CanCopyCode => SelectedEntry?.IsCodeValid == true && !IsBusy;
-    public string PageSubtitle => "Import a QR screenshot or paste a secret key to generate local verification codes on this device.";
+    public string PageSubtitle => T(_root, "Authenticator.Subtitle");
     public string EmptyTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "No authenticator codes yet"
-        : "No authenticator codes match this search";
+        ? T(_root, "Authenticator.Empty.NoneTitle")
+        : T(_root, "Authenticator.Empty.NoMatchTitle");
     public string EmptySubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Add a code by importing a QR screenshot or entering a secret key manually."
-        : "Try a different name or reset the search.";
+        ? T(_root, "Authenticator.Empty.NoneSubtitle")
+        : T(_root, "Authenticator.Empty.NoMatchSubtitle");
     public string DetailSubtitle => SelectedEntry is null
-        ? "Select an authenticator code to view the current value."
+        ? T(_root, "Authenticator.Detail.SelectCode")
         : SelectedEntry.KeyTypeDisplay;
-    public string EditorModalTitle => IsEditingExisting ? "Edit Authenticator" : "Add Authenticator";
-    public string EditorModalSubtitle => "Import a QR screenshot, paste a copied QR image, or enter the secret manually. Only the name, secret, and key type are required.";
-    public string AdvancedOptionsNote => "Some authenticator apps ignore advanced settings. ShellKrypt preserves them locally when supported.";
-    public string SaveButtonText => IsEditingExisting ? "Save Changes" : "Add Code";
-    public string FormSecretVisibilityText => IsFormSecretVisible ? "Hide" : "Show";
+    public string EditorModalTitle => IsEditingExisting ? T(_root, "Authenticator.Modal.EditTitle") : T(_root, "Authenticator.Modal.AddTitle");
+    public string EditorModalSubtitle => T(_root, "Authenticator.Modal.Subtitle");
+    public string AdvancedOptionsNote => T(_root, "Authenticator.Advanced.Note");
+    public string SaveButtonText => IsEditingExisting ? T(_root, "Common.SaveChanges") : T(_root, "Authenticator.Button.AddCode");
+    public string FormSecretVisibilityText => IsFormSecretVisible ? T(_root, "Common.Hide") : T(_root, "Common.Show");
     public string DeleteConfirmationText => SelectedEntry is null
-        ? "Delete this authenticator code?"
-        : $"Delete {SelectedEntry.Name}?";
+        ? T(_root, "Authenticator.Delete.TitleFallback")
+        : T(_root, "Authenticator.Delete.Title", SelectedEntry.Name);
     public string SelectedTypeSummary => SelectedFormKeyType?.KeyType == AuthenticatorKeyType.CounterBased
-        ? $"Counter starts at {_formCounter}. {SelectedFormAlgorithm?.ShortLabel ?? "SHA1"}, {SelectedFormDigits?.Digits ?? 6} digits."
-        : $"Code rotates every {NormalizePeriodText(FormPeriodSecondsText)} seconds. {SelectedFormAlgorithm?.ShortLabel ?? "SHA1"}, {SelectedFormDigits?.Digits ?? 6} digits.";
+        ? T(_root, "Authenticator.TypeSummary.Counter", _formCounter, SelectedFormAlgorithm?.ShortLabel ?? "SHA1", SelectedFormDigits?.Digits ?? 6)
+        : T(_root, "Authenticator.TypeSummary.Time", NormalizePeriodText(FormPeriodSecondsText), SelectedFormAlgorithm?.ShortLabel ?? "SHA1", SelectedFormDigits?.Digits ?? 6);
     public bool ShowAdvancedPeriod => SelectedFormKeyType?.KeyType == AuthenticatorKeyType.TimeBased;
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
@@ -157,4 +158,27 @@ public partial class AuthenticatorViewModel : ViewModelBase
 
     partial void OnFormPeriodSecondsTextChanged(string value)
         => OnPropertyChanged(nameof(SelectedTypeSummary));
+
+    partial void OnIsFormSecretVisibleChanged(bool value)
+        => OnPropertyChanged(nameof(FormSecretVisibilityText));
+
+    public override void RefreshLocalization()
+    {
+        foreach (var entry in _allEntries)
+            entry.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(PageSubtitle),
+            nameof(CodesCountDisplay),
+            nameof(EmptyTitle),
+            nameof(EmptySubtitle),
+            nameof(DetailSubtitle),
+            nameof(EditorModalTitle),
+            nameof(EditorModalSubtitle),
+            nameof(AdvancedOptionsNote),
+            nameof(SaveButtonText),
+            nameof(FormSecretVisibilityText),
+            nameof(DeleteConfirmationText),
+            nameof(SelectedTypeSummary));
+    }
 }

@@ -85,38 +85,61 @@ public sealed partial class AllItemsViewModel
         private set
         {
             if (SetProperty(ref _totalCount, value))
+            {
                 OnPropertyChanged(nameof(TotalItemsDeltaText));
+                OnPropertyChanged(nameof(AllFilterLabel));
+            }
         }
     }
 
     public int WebCount
     {
         get => _webCount;
-        private set => SetProperty(ref _webCount, value);
+        private set
+        {
+            if (SetProperty(ref _webCount, value))
+                OnPropertyChanged(nameof(WebFilterLabel));
+        }
     }
 
     public int CardCount
     {
         get => _cardCount;
-        private set => SetProperty(ref _cardCount, value);
+        private set
+        {
+            if (SetProperty(ref _cardCount, value))
+                OnPropertyChanged(nameof(CardFilterLabel));
+        }
     }
 
     public int NoteCount
     {
         get => _noteCount;
-        private set => SetProperty(ref _noteCount, value);
+        private set
+        {
+            if (SetProperty(ref _noteCount, value))
+                OnPropertyChanged(nameof(NoteFilterLabel));
+        }
     }
 
     public int AuthenticatorCount
     {
         get => _authenticatorCount;
-        private set => SetProperty(ref _authenticatorCount, value);
+        private set
+        {
+            if (SetProperty(ref _authenticatorCount, value))
+                OnPropertyChanged(nameof(AuthenticatorFilterLabel));
+        }
     }
 
     public int ApiKeyCount
     {
         get => _apiKeyCount;
-        private set => SetProperty(ref _apiKeyCount, value);
+        private set
+        {
+            if (SetProperty(ref _apiKeyCount, value))
+                OnPropertyChanged(nameof(ApiKeyFilterLabel));
+        }
     }
 
     public int FilteredCount

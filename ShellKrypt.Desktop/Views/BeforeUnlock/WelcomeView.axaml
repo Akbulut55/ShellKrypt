@@ -38,10 +38,10 @@
                     Spacing="10"
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center">
-          <Button Content="Import Existing Vault"
+          <Button Content="{DynamicResource Loc.Welcome.Button.ImportVault}"
                   Classes="welcome-secondary-button"
                   Command="{Binding ImportVaultCommand}"/>
-          <Button Content="+ Create New Vault"
+          <Button Content="{DynamicResource Loc.Welcome.Button.CreateVault}"
                   Classes="welcome-primary-button"
                   Command="{Binding CreateVaultCommand}"/>
         </StackPanel>
@@ -52,15 +52,15 @@
                   HorizontalAlignment="Center"
                   Margin="0,18,0,4">
         <TextBlock HorizontalAlignment="Center">
-          <Run Text="Welcome to your "
+          <Run Text="{DynamicResource Loc.Welcome.HeroPrefix}"
                FontSize="48"
                FontWeight="Black"/>
-          <Run Text="Sanctum"
+          <Run Text="{DynamicResource Loc.Welcome.HeroAccent}"
                FontSize="48"
                FontWeight="Black"
                Foreground="{StaticResource AccentBrush}"/>
         </TextBlock>
-        <TextBlock Text="Open a local encrypted vault or create a new one to manage web logins, credit cards, markdown notes, and security tools."
+        <TextBlock Text="{DynamicResource Loc.Welcome.HeroSubtitle}"
                    Classes="page-subtitle"
                    FontSize="16"
                    MaxWidth="760"
@@ -74,7 +74,7 @@
             VerticalAlignment="Center">
         <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  Classes="welcome-search-box"
-                 PlaceholderText="Search your vaults..."
+                 PlaceholderText="{DynamicResource Loc.Welcome.Search.Placeholder}"
                  HorizontalAlignment="Left"
                  IsEnabled="{Binding HasVaults}"/>
 
@@ -82,16 +82,16 @@
                     Orientation="Horizontal"
                     Spacing="8"
                     VerticalAlignment="Center">
-          <TextBlock Text="SORT BY"
+          <TextBlock Text="{DynamicResource Loc.Welcome.Sort.Label}"
                      Classes="welcome-mini-label"
                      VerticalAlignment="Center"
                      Margin="0,0,4,0"/>
-          <Button Content="Recent"
+          <Button Content="{DynamicResource Loc.Welcome.Sort.Recent}"
                   Classes="welcome-sort-chip"
                   Classes.active="{Binding IsRecentSortActive}"
                   Command="{Binding SortByRecentCommand}"
                   IsEnabled="{Binding HasVaults}"/>
-          <Button Content="Name"
+          <Button Content="{DynamicResource Loc.Welcome.Sort.Name}"
                   Classes="welcome-sort-chip"
                   Classes.active="{Binding IsNameSortActive}"
                   Command="{Binding SortByNameCommand}"
@@ -139,7 +139,7 @@
                                 CornerRadius="999"
                                 Padding="10,4"
                                 IsVisible="{Binding IsDefault}">
-                          <TextBlock Text="Default"
+                          <TextBlock Text="{DynamicResource Loc.Common.Default}"
                                      Foreground="{StaticResource SuccessBrush}"
                                      FontSize="10"
                                      FontWeight="Black"/>
@@ -160,7 +160,7 @@
 
                       <StackPanel Orientation="Horizontal"
                                   Spacing="16">
-                        <TextBlock Text="{Binding LastOpenedDisplay, StringFormat=Last Accessed: {0}}"
+                        <TextBlock Text="{Binding LastOpenedDisplayLabel}"
                                    Classes="welcome-card-meta"/>
                       </StackPanel>
                     </StackPanel>
@@ -170,27 +170,27 @@
                               Orientation="Horizontal"
                               Spacing="8"
                               VerticalAlignment="Center">
-                    <Button Content="Open"
+                    <Button Content="{DynamicResource Loc.Common.Open}"
                             Classes="welcome-row-primary"
                             Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
-                    <Button Content="Edit"
+                    <Button Content="{DynamicResource Loc.Common.Edit}"
                             Classes="welcome-row-button"
                             Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
-                    <Button Content="Default"
+                    <Button Content="{DynamicResource Loc.Common.Default}"
                             Classes="welcome-row-button"
                             Command="{Binding DataContext.MakeDefaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding CanBeDefault}"/>
-                    <Button Content="Delete"
+                    <Button Content="{DynamicResource Loc.Common.Delete}"
                             Classes="welcome-row-danger"
                             Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
-                    <Button Content="Remove From List"
+                    <Button Content="{DynamicResource Loc.Common.RemoveFromList}"
                             Classes="welcome-row-button"
                             Command="{Binding DataContext.RemoveVaultFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
@@ -230,7 +230,7 @@
                     Orientation="Horizontal"
                     Spacing="10"
                     VerticalAlignment="Center">
-          <Button Content="Previous"
+          <Button Content="{DynamicResource Loc.Common.Previous}"
                   Classes="welcome-row-button"
                   Command="{Binding PreviousPageCommand}"
                   IsEnabled="{Binding CanGoPreviousPage}"/>
@@ -238,7 +238,7 @@
                      VerticalAlignment="Center"
                      FontSize="12"
                      FontWeight="SemiBold"/>
-          <Button Content="Next"
+          <Button Content="{DynamicResource Loc.Common.Next}"
                   Classes="welcome-row-button"
                   Command="{Binding NextPageCommand}"
                   IsEnabled="{Binding CanGoNextPage}"/>
@@ -257,16 +257,16 @@
                   Spacing="28"
                   VerticalAlignment="Bottom">
         <StackPanel Spacing="3">
-          <TextBlock Text="TOTAL STORAGE USED"
+          <TextBlock Text="{DynamicResource Loc.Welcome.Stats.StorageUsed}"
                      Classes="welcome-mini-label"/>
           <TextBlock Text="{Binding TotalStorageDisplay}"
                      FontSize="15"
                      FontWeight="SemiBold"/>
         </StackPanel>
         <StackPanel Spacing="3">
-          <TextBlock Text="AVAILABLE VAULTS"
+          <TextBlock Text="{DynamicResource Loc.Welcome.Stats.AvailableVaults}"
                      Classes="welcome-mini-label"/>
-          <TextBlock Text="{Binding ExistingVaultCount, StringFormat={}{0} Vaults}"
+          <TextBlock Text="{Binding ExistingVaultCountDisplay}"
                      FontSize="15"
                      FontWeight="SemiBold"/>
         </StackPanel>
@@ -312,7 +312,7 @@
                       BorderThickness="1"
                       CornerRadius="16"
                       Padding="22,18">
-                <TextBlock Text="Warning: this action is irreversible. All stored passwords, markdown notes, and encrypted data within this vault will be destroyed immediately."
+                <TextBlock Text="{DynamicResource Loc.Welcome.Delete.Warning}"
                            Foreground="{StaticResource DangerBrush}"
                            FontSize="14"
                            FontWeight="SemiBold"
@@ -323,12 +323,12 @@
                     ColumnSpacing="14">
                 <Border Background="Transparent"/>
                 <Button Grid.Column="1"
-                        Content="Cancel"
+                        Content="{DynamicResource Loc.Common.Cancel}"
                         Classes="welcome-modal-secondary-button"
                         Command="{Binding CancelDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
-                        Content="Permanently Delete"
+                        Content="{DynamicResource Loc.Welcome.Delete.PermanentlyDelete}"
                         Classes="welcome-modal-danger-button"
                         Command="{Binding ContinueDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
@@ -349,7 +349,7 @@
               </StackPanel>
 
               <StackPanel Spacing="8">
-                <TextBlock Text="MASTER PASSWORD"
+                <TextBlock Text="{DynamicResource Loc.Common.MasterPassword.Label}"
                            Classes="welcome-mini-label"/>
                 <Border Classes="welcome-modal-input-shell">
                   <Grid ColumnDefinitions="*,Auto"
@@ -358,11 +358,11 @@
                              Classes="welcome-modal-input borderless"
                              PasswordChar="*"
                              IsVisible="{Binding !IsDeletePasswordVisible}"
-                             PlaceholderText="Enter the master password"/>
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"/>
                     <TextBox Text="{Binding DeletePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="welcome-modal-input borderless"
                              IsVisible="{Binding IsDeletePasswordVisible}"
-                             PlaceholderText="Enter the master password"/>
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{Binding DeletePasswordVisibilityLabel}"
                             Classes="welcome-modal-field-action"
@@ -380,19 +380,19 @@
 
               <Grid ColumnDefinitions="*,Auto,Auto"
                     ColumnSpacing="14">
-                <TextBlock Text="This confirms that the destructive or high-sensitivity action is intentional."
+                <TextBlock Text="{DynamicResource Loc.Dialog.DestructiveConfirmation.Detail}"
                            Classes="page-subtitle"
                            FontSize="13"
                            MaxWidth="360"
                            VerticalAlignment="Center"
                            TextWrapping="Wrap"/>
                 <Button Grid.Column="1"
-                        Content="Cancel"
+                        Content="{DynamicResource Loc.Common.Cancel}"
                         Classes="welcome-modal-secondary-button"
                         Command="{Binding CancelDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
-                        Content="Delete Vault"
+                        Content="{DynamicResource Loc.Welcome.Delete.DeleteVault}"
                         Classes="welcome-modal-primary-button"
                         Command="{Binding ConfirmDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
@@ -451,12 +451,12 @@
                   ColumnSpacing="14">
               <Border Background="Transparent"/>
               <Button Grid.Column="1"
-                      Content="Cancel"
+                      Content="{DynamicResource Loc.Common.Cancel}"
                       Classes="welcome-modal-secondary-button"
                       Command="{Binding CancelRemoveOverlayCommand}"
                       IsEnabled="{Binding !IsBusy}"/>
               <Button Grid.Column="2"
-                      Content="Remove From List"
+                      Content="{DynamicResource Loc.Common.RemoveFromList}"
                       Classes="welcome-modal-primary-button"
                       Command="{Binding ConfirmRemoveOverlayCommand}"
                       IsEnabled="{Binding !IsBusy}"/>
@@ -479,12 +479,12 @@
                 Padding="34,30">
           <StackPanel Spacing="22">
             <StackPanel Spacing="8">
-              <TextBlock Text="Security Acknowledgement"
+              <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Title}"
                          Foreground="{StaticResource AccentBrush}"
                          FontSize="28"
                          FontWeight="Black"
                          TextWrapping="Wrap"/>
-              <TextBlock Text="Before creating, importing, or opening a vault, confirm that you understand these ShellKrypt limits."
+              <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Subtitle}"
                          Classes="page-subtitle"
                          FontSize="14"
                          TextWrapping="Wrap"/>
@@ -502,7 +502,7 @@
                              Classes="page-subtitle"
                              FontWeight="Black"/>
                   <TextBlock Grid.Column="1"
-                             Text="ShellKrypt has no password recovery. If you forget the master password while locked, the vault cannot be recovered without a valid backup and backup passphrase."
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.NoRecovery}"
                              TextWrapping="Wrap"/>
                 </Grid>
                 <Grid ColumnDefinitions="Auto,*"
@@ -511,7 +511,7 @@
                              Classes="page-subtitle"
                              FontWeight="Black"/>
                   <TextBlock Grid.Column="1"
-                             Text="Plaintext exports and activity reports are decrypted files. They must be protected or deleted when no longer needed."
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.PlaintextExports}"
                              TextWrapping="Wrap"/>
                 </Grid>
                 <Grid ColumnDefinitions="Auto,*"
@@ -520,7 +520,7 @@
                              Classes="page-subtitle"
                              FontWeight="Black"/>
                   <TextBlock Grid.Column="1"
-                             Text="Clipboard clearing is best-effort and is not a security boundary. Secrets can exist in memory while a vault is unlocked."
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.Clipboard}"
                              TextWrapping="Wrap"/>
                 </Grid>
                 <Grid ColumnDefinitions="Auto,*"
@@ -529,18 +529,18 @@
                              Classes="page-subtitle"
                              FontWeight="Black"/>
                   <TextBlock Grid.Column="1"
-                             Text="ShellKrypt is local-only and not externally audited yet. Create and verify encrypted backups before relying on a vault."
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.LocalOnly}"
                              TextWrapping="Wrap"/>
                 </Grid>
               </StackPanel>
             </Border>
 
-            <TextBlock Text="By continuing, you acknowledge the terms, privacy notice, disclaimer, and security notes included with this project."
+            <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Documents}"
                        Classes="page-subtitle"
                        FontSize="13"
                        TextWrapping="Wrap"/>
 
-            <CheckBox Content="I understand these limits and want to continue."
+            <CheckBox Content="{DynamicResource Loc.Welcome.Acknowledgement.Check}"
                       Classes="welcome-acknowledgement-check"
                       IsChecked="{Binding SecurityAcknowledgementConfirmed, Mode=TwoWay}"/>
 
@@ -548,11 +548,11 @@
                   ColumnSpacing="14">
               <Border Background="Transparent"/>
               <Button Grid.Column="1"
-                      Content="Cancel"
+                      Content="{DynamicResource Loc.Common.Cancel}"
                       Classes="welcome-modal-secondary-button"
                       Command="{Binding CancelSecurityAcknowledgementCommand}"/>
               <Button Grid.Column="2"
-                      Content="I Understand"
+                      Content="{DynamicResource Loc.Welcome.Acknowledgement.Accept}"
                       Classes="welcome-modal-primary-button"
                       Command="{Binding AcceptSecurityAcknowledgementCommand}"/>
             </Grid>

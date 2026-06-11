@@ -3,14 +3,18 @@ using System.Globalization;
 using System.IO;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Localization;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class ActivityItemVm : ObservableObject
 {
-    public ActivityItemVm(ActivityLogEntry entry)
+    private readonly LocalizationService _localization;
+
+    public ActivityItemVm(ActivityLogEntry entry, LocalizationService localization)
     {
         Entry = entry;
+        _localization = localization;
     }
 
     public ActivityLogEntry Entry { get; }
@@ -27,26 +31,26 @@ public sealed partial class ActivityItemVm : ObservableObject
         : string.IsNullOrWhiteSpace(Entry.VaultPath) ? Detail : VaultDisplay;
     public string CategoryLabel => Entry.Category switch
     {
-        "vault" => "Vault",
-        "web" => "Web Logins",
-        "cards" => "Credit Cards",
-        "notes" => "Markdown Notes",
-        "authenticator" => "Authenticator",
-        "api_keys" => "API Keys",
-        "audit" => "Security Audit",
-        "generator" => "Generator",
-        "settings" => "Settings",
-        "transfer" => "Export",
-        "activity" => "Activity Logs",
-        _ => "System"
+        "vault" => T("Activity.Category.Vault"),
+        "web" => T("Activity.Category.Web"),
+        "cards" => T("Activity.Category.Cards"),
+        "notes" => T("Activity.Category.Notes"),
+        "authenticator" => T("Activity.Category.Authenticator"),
+        "api_keys" => T("Activity.Category.ApiKeys"),
+        "audit" => T("Activity.Category.Audit"),
+        "generator" => T("Activity.Category.Generator"),
+        "settings" => T("Activity.Category.Settings"),
+        "transfer" => T("Activity.Category.Export"),
+        "activity" => T("Activity.Category.Activity"),
+        _ => T("Activity.Category.System")
     };
     public string TimestampDisplay => FormatTimestamp(Entry.TimestampUtc);
     public string SeverityChipText => Entry.Severity switch
     {
-        "warning" => "Warning",
-        "success" => "Success",
-        "danger" => "Danger",
-        _ => "Info"
+        "warning" => T("Activity.Severity.Warning"),
+        "success" => T("Activity.Severity.Success"),
+        "danger" => T("Activity.Severity.Danger"),
+        _ => T("Activity.Severity.Info")
     };
     public string SeverityForeground => Entry.Severity switch
     {
@@ -86,22 +90,31 @@ public sealed partial class ActivityItemVm : ObservableObject
         return parsed.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture);
     }
 
-    private static string FormatTimestamp(string timestampUtc)
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(CategoryLabel));
+        OnPropertyChanged(nameof(SeverityChipText));
+        OnPropertyChanged(nameof(TimestampDisplay));
+    }
+
+    private string T(string key, params object[] args) => _localization.Get(key, args);
+
+    private string FormatTimestamp(string timestampUtc)
     {
         if (!DateTimeOffset.TryParse(timestampUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
-            return "Unknown";
+            return T("Activity.Time.Unknown");
 
         var local = parsed.ToLocalTime();
         var delta = DateTimeOffset.Now - local;
 
         if (delta < TimeSpan.FromMinutes(1))
-            return "Just now";
+            return T("Activity.Time.JustNow");
         if (delta < TimeSpan.FromHours(1))
-            return $"{Math.Max(1, (int)delta.TotalMinutes)}m ago";
+            return T("Activity.Time.MinutesAgo", Math.Max(1, (int)delta.TotalMinutes));
         if (delta < TimeSpan.FromDays(1))
-            return $"{Math.Max(1, (int)delta.TotalHours)}h ago";
+            return T("Activity.Time.HoursAgo", Math.Max(1, (int)delta.TotalHours));
         if (delta < TimeSpan.FromDays(7))
-            return $"{Math.Max(1, (int)delta.TotalDays)}d ago";
+            return T("Activity.Time.DaysAgo", Math.Max(1, (int)delta.TotalDays));
 
         return local.ToString("MMM d, yyyy â€¢ HH:mm", CultureInfo.InvariantCulture);
     }

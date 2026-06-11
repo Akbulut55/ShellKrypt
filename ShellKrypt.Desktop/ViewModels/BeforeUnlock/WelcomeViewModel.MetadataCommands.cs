@@ -13,7 +13,7 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -34,7 +34,7 @@ public sealed partial class WelcomeViewModel
                 vault.IsDefault);
 
             ReloadVaults(vault.VaultPath);
-            Status = "Vault metadata saved.";
+        Status = T(_root, "Welcome.Status.MetadataSaved");
             _root.LogActivity("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath, displayName);
         }
         catch (Exception ex)
@@ -50,7 +50,7 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = "Select a vault first.";
+            Error = T(_root, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -58,7 +58,7 @@ public sealed partial class WelcomeViewModel
         {
             _vaultRegistry.SetDefaultVault(vault.VaultPath);
             ReloadVaults(vault.VaultPath);
-            Status = "Default vault updated.";
+        Status = T(_root, "Welcome.Status.DefaultVaultUpdated");
             _root.LogActivity("vault", "Default vault changed", $"Marked {vault.DisplayLabel} as the default vault.", "info", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)

@@ -3,12 +3,15 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.Items;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class AuthenticatorAccountVm : ObservableObject
 {
+    private readonly LocalizationService _localization;
+
     public string Id { get; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
@@ -28,8 +31,9 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
     [ObservableProperty] private bool isSelected;
     [ObservableProperty] private bool isSecretVisible;
 
-    public AuthenticatorAccountVm(AuthenticatorEntry entry)
+    public AuthenticatorAccountVm(AuthenticatorEntry entry, LocalizationService localization)
     {
+        _localization = localization;
         Id = entry.Id;
         CreatedAtUtc = entry.CreatedAtUtc;
         UpdatedAtUtc = entry.UpdatedAtUtc;
@@ -63,29 +67,29 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
     }
 
     public string AccountSubtitle => KeyType == AuthenticatorKeyType.CounterBased
-        ? "Counter based code"
-        : "Time based code";
+        ? T("Authenticator.Account.CounterBased")
+        : T("Authenticator.Account.TimeBased");
 
     public string CurrentCodeDisplay => FormatCode(CurrentCodeRaw);
     public string RemainingDisplay => SecondsRemaining <= 0 ? "0:00" : $"0:{SecondsRemaining:00}";
     public string SecretDisplay => IsSecretVisible ? FormatSecret(Secret) : "**** **** **** ****";
-    public string DigitsDisplay => $"{Digits} digits";
+    public string DigitsDisplay => T("Authenticator.Account.Digits", Digits);
     public string LastUsedDisplay => FormatRelativeTimestamp(LastUsedAtUtc);
-    public string VerifiedLabel => IsCodeValid ? "Ready" : "Invalid";
-    public string KeyTypeDisplay => KeyType == AuthenticatorKeyType.CounterBased ? "Counter Based" : "Time Based";
+    public string VerifiedLabel => IsCodeValid ? T("Authenticator.Account.Ready") : T("Authenticator.Account.Invalid");
+    public string KeyTypeDisplay => KeyType == AuthenticatorKeyType.CounterBased ? T("Authenticator.Account.CounterBased") : T("Authenticator.Account.TimeBased");
     public string AlgorithmDisplay => NormalizeAlgorithmLabel(Algorithm);
     public string RotationDisplay => KeyType == AuthenticatorKeyType.TimeBased
         ? $"{AlgorithmDisplay} \u00C2\u00B7 {PeriodSeconds}s"
-        : $"{AlgorithmDisplay} \u00C2\u00B7 Counter";
+        : $"{AlgorithmDisplay} \u00C2\u00B7 {T("Authenticator.Account.Counter")}";
     public string CounterDisplay => Counter.ToString(CultureInfo.InvariantCulture);
     public bool HasCountdown => KeyType == AuthenticatorKeyType.TimeBased;
     public string ProgressLabel => KeyType == AuthenticatorKeyType.TimeBased
-        ? $"{PeriodSeconds}s rotation"
-        : $"Counter {Counter}";
+        ? T("Authenticator.Account.Rotation", PeriodSeconds)
+        : $"{T("Authenticator.Account.Counter")} {Counter}";
     public string DetailHint => KeyType == AuthenticatorKeyType.TimeBased
-        ? "This code rotates automatically."
-        : "This code advances when you use it.";
-    public string CopyButtonText => KeyType == AuthenticatorKeyType.CounterBased ? "Copy Code & Advance" : "Copy Code";
+        ? T("Authenticator.Account.TimeHint")
+        : T("Authenticator.Account.CounterHint");
+    public string CopyButtonText => KeyType == AuthenticatorKeyType.CounterBased ? T("Authenticator.Account.CopyAndAdvance") : T("Authenticator.Account.CopyCode");
 
     partial void OnNameChanged(string value) => OnPropertyChanged(nameof(Monogram));
     partial void OnCurrentCodeRawChanged(string value) => OnPropertyChanged(nameof(CurrentCodeDisplay));
@@ -145,6 +149,19 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
         IsCodeValid = snapshot.IsValid;
     }
 
+    public void RefreshLocalization()
+    {
+        OnPropertyChanged(nameof(AccountSubtitle));
+        OnPropertyChanged(nameof(DigitsDisplay));
+        OnPropertyChanged(nameof(LastUsedDisplay));
+        OnPropertyChanged(nameof(VerifiedLabel));
+        OnPropertyChanged(nameof(KeyTypeDisplay));
+        OnPropertyChanged(nameof(RotationDisplay));
+        OnPropertyChanged(nameof(ProgressLabel));
+        OnPropertyChanged(nameof(DetailHint));
+        OnPropertyChanged(nameof(CopyButtonText));
+    }
+
     public AuthenticatorEntry ToEntry()
         => new(
             Id,
@@ -186,23 +203,23 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
         return string.Join(" ", groups);
     }
 
-    private static string FormatRelativeTimestamp(string? value)
+    private string FormatRelativeTimestamp(string? value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return "Never used";
+            return T("Authenticator.Account.NeverUsed");
 
         if (!DateTimeOffset.TryParse(value, out var timestamp))
-            return "Unknown";
+            return T("Authenticator.Time.Unknown");
 
         var delta = DateTimeOffset.UtcNow - timestamp.ToUniversalTime();
         if (delta.TotalMinutes < 1)
-            return "Just now";
+            return T("Authenticator.Time.JustNow");
         if (delta.TotalHours < 1)
-            return $"{Math.Max(1, (int)delta.TotalMinutes)}m ago";
+            return T("Authenticator.Time.MinutesAgo", Math.Max(1, (int)delta.TotalMinutes));
         if (delta.TotalDays < 1)
-            return $"{Math.Max(1, (int)delta.TotalHours)}h ago";
+            return T("Authenticator.Time.HoursAgo", Math.Max(1, (int)delta.TotalHours));
         if (delta.TotalDays < 7)
-            return $"{Math.Max(1, (int)delta.TotalDays)}d ago";
+            return T("Authenticator.Time.DaysAgo", Math.Max(1, (int)delta.TotalDays));
 
         return timestamp.ToLocalTime().ToString("MMM dd", CultureInfo.InvariantCulture);
     }
@@ -215,4 +232,6 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
             "HMAC-SHA512" => "SHA512",
             _ => "SHA1"
         };
+
+    private string T(string key, params object[] args) => _localization.Get(key, args);
 }

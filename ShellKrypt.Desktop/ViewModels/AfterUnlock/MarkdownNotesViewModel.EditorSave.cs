@@ -22,16 +22,16 @@ public partial class MarkdownNotesViewModel
         if (_root.VaultPath is null)
         {
             if (!isAutoSave)
-                Error = "No vault selected.";
+                Error = T(_root, "Common.NoVaultSelected");
             return;
         }
 
         if (string.IsNullOrWhiteSpace(EditorTitle))
         {
             if (isAutoSave)
-                AutoSaveStatus = "Autosave paused: title required.";
+                AutoSaveStatus = T(_root, "Notes.AutoSave.TitleRequired");
             else
-                Error = "Title is required.";
+                Error = T(_root, "Validation.TitleRequired");
             return;
         }
 
@@ -40,7 +40,7 @@ public partial class MarkdownNotesViewModel
 
         IsBusy = true;
         if (isAutoSave)
-            AutoSaveStatus = "Autosaving...";
+            AutoSaveStatus = T(_root, "Notes.AutoSave.Saving");
 
         var titleSnapshot = EditorTitle;
         var contentSnapshot = EditorContent;
@@ -94,7 +94,7 @@ public partial class MarkdownNotesViewModel
             }
 
             if (isAutoSave)
-                AutoSaveStatus = $"Autosaved at {DateTime.Now:HH:mm:ss}";
+                AutoSaveStatus = T(_root, "Notes.AutoSave.SavedAt", DateTime.Now.ToString("HH:mm:ss"));
 
             RefreshFilteredNotes();
             OnPropertyChanged(nameof(SelectedNoteMeta));
@@ -107,7 +107,7 @@ public partial class MarkdownNotesViewModel
         catch (Exception ex)
         {
             if (isAutoSave)
-                AutoSaveStatus = "Autosave failed.";
+                AutoSaveStatus = T(_root, "Notes.AutoSave.Failed", ex.Message);
             else
                 Error = ex.Message;
         }

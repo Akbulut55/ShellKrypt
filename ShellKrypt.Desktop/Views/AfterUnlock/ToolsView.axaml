@@ -12,11 +12,11 @@
                 Spacing="24">
       <StackPanel Spacing="8"
                   HorizontalAlignment="Left">
-        <TextBlock Text="Password Generator"
+        <TextBlock Text="{DynamicResource Loc.Generator.Password.Title}"
                    FontSize="30"
                    FontWeight="SemiBold"
                    LetterSpacing="-0.6"/>
-        <TextBlock Text="Create strong local passwords with entropy controls."
+        <TextBlock Text="{DynamicResource Loc.Generator.Password.Subtitle}"
                    Classes="page-subtitle"
                    MaxWidth="620"
                    HorizontalAlignment="Left"
@@ -67,7 +67,7 @@
                     Padding="0"
                     Classes="primary"
                     Command="{Binding CopyGeneratedPasswordCommand}"
-                    ToolTip.Tip="Copy password"/>
+                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.CopyPassword}"/>
             <Button Content="R"
                     Width="48"
                     Height="48"
@@ -76,7 +76,7 @@
                     Foreground="{StaticResource AccentBrush}"
                     BorderBrush="{StaticResource BorderBrushSoft}"
                     Command="{Binding GeneratePasswordCommand}"
-                    ToolTip.Tip="Generate new password"/>
+                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.GeneratePassword}"/>
           </StackPanel>
         </Grid>
       </Border>
@@ -88,7 +88,7 @@
           <StackPanel Spacing="22">
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="16">
-              <TextBlock Text="Password Length"
+              <TextBlock Text="{DynamicResource Loc.Generator.Password.Length}"
                          FontSize="14"
                          FontWeight="SemiBold"
                          VerticalAlignment="Center"/>
@@ -111,11 +111,11 @@
                     Value="{Binding PasswordLength}"/>
 
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="MIN (1)"
+                <TextBlock Text="{DynamicResource Loc.Generator.Password.Min}"
                          Classes="stitch-kicker"
                          Opacity="0.55"/>
               <TextBlock Grid.Column="1"
-                         Text="MAX (100)"
+                         Text="{DynamicResource Loc.Generator.Password.Max}"
                          Classes="stitch-kicker"
                          Opacity="0.55"/>
             </Grid>
@@ -127,7 +127,7 @@
                 Padding="24">
           <StackPanel Spacing="16">
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="Uppercase (A-Z)"
+              <TextBlock Text="{DynamicResource Loc.Generator.Password.Uppercase}"
                          FontSize="14"
                          FontWeight="Medium"
                          VerticalAlignment="Center"/>
@@ -136,7 +136,7 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="Lowercase (a-z)"
+              <TextBlock Text="{DynamicResource Loc.Generator.Password.Lowercase}"
                          FontSize="14"
                          FontWeight="Medium"
                          VerticalAlignment="Center"/>
@@ -145,7 +145,7 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="Numbers (0-9)"
+              <TextBlock Text="{DynamicResource Loc.Generator.Password.Numbers}"
                          FontSize="14"
                          FontWeight="Medium"
                          VerticalAlignment="Center"/>
@@ -154,7 +154,7 @@
             </Grid>
 
             <Grid ColumnDefinitions="*,Auto">
-              <TextBlock Text="Symbols (!@#$)"
+              <TextBlock Text="{DynamicResource Loc.Generator.Password.Symbols}"
                          FontSize="14"
                          FontWeight="Medium"
                          VerticalAlignment="Center"/>
@@ -169,7 +169,7 @@
             ColumnSpacing="16"
             VerticalAlignment="Center"
             Margin="0,12,0,0">
-        <TextBlock Text="Cryptographic Workbench"
+        <TextBlock Text="{DynamicResource Loc.Generator.Workbench.Title}"
                    FontSize="20"
                    FontWeight="SemiBold"/>
         <Border Grid.Column="1"
@@ -189,19 +189,19 @@
                          FontSize="16"
                          FontWeight="Black"
                          Foreground="{StaticResource AccentBrush}"/>
-              <TextBlock Text="HASH UTILITY"
+              <TextBlock Text="{DynamicResource Loc.Generator.Hash.Title}"
                          Classes="stitch-section-label"/>
             </StackPanel>
 
             <StackPanel Spacing="8">
-              <TextBlock Text="INPUT TEXT"
+              <TextBlock Text="{DynamicResource Loc.Generator.Hash.Input}"
                          Classes="stitch-kicker"/>
               <TextBox Text="{Binding HashInput}"
                        Classes="stitch-input"
                        AcceptsReturn="True"
                        TextWrapping="Wrap"
                        MinHeight="80"
-                       PlaceholderText="Paste text here..."
+                       PlaceholderText="{DynamicResource Loc.Generator.Hash.Placeholder}"
                        FontFamily="Consolas"/>
             </StackPanel>
 
@@ -217,7 +217,7 @@
             </Grid>
 
             <StackPanel Spacing="8">
-              <TextBlock Text="HASH RESULT"
+              <TextBlock Text="{DynamicResource Loc.Generator.Hash.Result}"
                          Classes="stitch-kicker"/>
               <Border Classes="stitch-output"
                       ClipToBounds="True"
@@ -243,19 +243,19 @@
                          FontSize="16"
                          FontWeight="Black"
                          Foreground="{StaticResource AccentBrush}"/>
-              <TextBlock Text="BASE64 ENCODER / DECODER"
+              <TextBlock Text="{DynamicResource Loc.Generator.Base64.Title}"
                          Classes="stitch-section-label"/>
             </StackPanel>
 
             <StackPanel Spacing="8">
-              <TextBlock Text="ORIGINAL CONTENT"
+              <TextBlock Text="{DynamicResource Loc.Generator.Base64.Input}"
                          Classes="stitch-kicker"/>
               <TextBox Text="{Binding Base64Input}"
                        Classes="stitch-input"
                        AcceptsReturn="True"
                        TextWrapping="Wrap"
                        MinHeight="80"
-                       PlaceholderText="Input string..."
+                       PlaceholderText="{DynamicResource Loc.Generator.Base64.Placeholder}"
                        FontFamily="Consolas"/>
             </StackPanel>
 
@@ -271,7 +271,7 @@
             </Grid>
 
             <StackPanel Spacing="8">
-              <TextBlock Text="OUTPUT STRING"
+              <TextBlock Text="{DynamicResource Loc.Generator.Base64.Output}"
                          Classes="stitch-kicker"/>
               <Border Classes="stitch-output"
                       ClipToBounds="True"

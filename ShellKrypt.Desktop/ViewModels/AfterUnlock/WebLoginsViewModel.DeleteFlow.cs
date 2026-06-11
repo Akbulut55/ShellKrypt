@@ -30,8 +30,8 @@ public partial class WebLoginsViewModel
     {
         Error = "";
 
-        if (_selectedDetailsRow is null) { Error = "No login selected."; return; }
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (_selectedDetailsRow is null) { Error = T(_root, "WebLogins.Error.NoSelection"); return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
 
         try
         {

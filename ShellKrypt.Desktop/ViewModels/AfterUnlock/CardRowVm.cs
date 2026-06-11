@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using ShellKrypt.Application.Localization;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -9,6 +10,8 @@ public sealed partial class CardRowVm : ObservableObject
     internal const int ExpiryMonthMaxDigits = 2;
     internal const int ExpiryYearMaxDigits = 4;
     internal const int CvcMaxDigits = 4;
+
+    private readonly LocalizationService _localization;
 
     public string Id { get; }
     public string CreatedAtUtc { get; }
@@ -28,6 +31,7 @@ public sealed partial class CardRowVm : ObservableObject
     [ObservableProperty] private bool isSecretsVisible;
 
     public CardRowVm(
+        LocalizationService localization,
         string id,
         string title,
         string bank,
@@ -42,6 +46,7 @@ public sealed partial class CardRowVm : ObservableObject
         string createdAtUtc,
         string updatedAtUtc)
     {
+        _localization = localization;
         Id = id;
         Title = title ?? "";
         Bank = bank ?? "";
@@ -56,4 +61,6 @@ public sealed partial class CardRowVm : ObservableObject
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
     }
+
+    internal string T(string key, params object[] args) => _localization.Get(key, args);
 }

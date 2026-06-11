@@ -41,7 +41,7 @@ public partial class CardsViewModel
     private async Task LoadAsync()
     {
         Error = "";
-        if (_root.VaultPath is null) { Error = "No vault selected."; return; }
+        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
 
         try
         {

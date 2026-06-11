@@ -11,20 +11,20 @@
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Padding="20,26,20,18">
             <StackPanel Spacing="10">
-              <TextBlock Text="Markdown Notes"
+              <TextBlock Text="{DynamicResource Loc.Notes.Title}"
                          FontSize="28"
                          FontWeight="SemiBold"
                          LetterSpacing="-0.8"/>
               <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        Classes="notesPanelSearch"
-                       PlaceholderText="Search notes..."
+                       PlaceholderText="{DynamicResource Loc.Notes.Search.Placeholder}"
                        Margin="0,6,0,0"/>
               <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
-                <Button Content="All"
+                <Button Content="{DynamicResource Loc.Common.All}"
                         Classes="notesSectionButton"
                         Classes.active="{Binding IsAllFilterActive}"
                         Command="{Binding ShowAllCommand}"/>
-                <Button Content="Starred"
+                <Button Content="{DynamicResource Loc.Notes.Filter.Starred}"
                         Classes="notesSectionButton"
                         Classes.active="{Binding IsFavoritesFilterActive}"
                         Command="{Binding ShowFavoritesCommand}"/>
@@ -87,7 +87,7 @@
           <Border Grid.Row="2"
                   Background="Transparent"
                   Padding="20,12,20,20">
-            <Button Content="Create New Note"
+            <Button Content="{DynamicResource Loc.Notes.Button.CreateNew}"
                     Classes="notesAddButton"
                     Command="{Binding NewNoteCommand}"
                     HorizontalAlignment="Right"/>
@@ -105,16 +105,16 @@
               </Border>
               <StackPanel Grid.Column="1" Spacing="6">
                 <TextBlock Text="{Binding EditorTitle}" Classes="notesPreviewTitle" TextWrapping="Wrap" IsVisible="{Binding !IsEditing}"/>
-                <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="notesDocumentTitle" PlaceholderText="Secure note title" IsVisible="{Binding IsEditing}"/>
+                <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Classes="notesDocumentTitle" PlaceholderText="{DynamicResource Loc.Notes.Title.Placeholder}" IsVisible="{Binding IsEditing}"/>
                 <TextBlock Text="{Binding SelectedNoteMeta}" Foreground="{StaticResource TextMutedBrush}" FontSize="12" TextWrapping="Wrap"/>
               </StackPanel>
             </Grid>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
               <Button Content="{Binding FavoriteToggleLabel}" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding CanToggleFavorite}"/>
-              <Button Content="Edit" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding BeginEditingCommand}" IsVisible="{Binding ShowEditButton}" IsEnabled="{Binding CanStartEditing}"/>
+              <Button Content="{DynamicResource Loc.Common.Edit}" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding BeginEditingCommand}" IsVisible="{Binding ShowEditButton}" IsEnabled="{Binding CanStartEditing}"/>
               <Button Content="{Binding SaveButtonText}" Classes="notesSaveButton" Command="{Binding SaveCommand}" IsVisible="{Binding ShowSaveButton}" IsEnabled="{Binding CanSave}"/>
-              <Button Content="Delete" Classes="notesHeaderButton" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanDeleteSelection}"/>
+              <Button Content="{DynamicResource Loc.Common.Delete}" Classes="notesHeaderButton" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanDeleteSelection}"/>
             </StackPanel>
           </Grid>
         </Border>
@@ -139,8 +139,8 @@
                       <StackPanel Spacing="0">
                       <Border Classes="notesPreviewPlaceholder" IsVisible="{Binding !HasPreviewContent}">
                         <StackPanel Spacing="8">
-                          <TextBlock Text="Nothing to preview yet." FontSize="17" FontWeight="Bold"/>
-                          <TextBlock Text="Switch to source mode and write markdown. The rendered note updates here immediately, even before saving." Classes="page-subtitle" TextWrapping="Wrap"/>
+                          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptyTitle}" FontSize="17" FontWeight="Bold"/>
+                          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptySubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
                         </StackPanel>
                       </Border>
 
@@ -189,7 +189,7 @@
                            VerticalContentAlignment="Top"
                            VerticalAlignment="Stretch"
                            MinHeight="0"
-                           PlaceholderText="# Title&#x0a;&#x0a;Write your note in markdown here...&#x0a;&#x0a;- bullet item&#x0a;> quote&#x0a;```&#x0a;code block&#x0a;```"
+                           PlaceholderText="{DynamicResource Loc.Notes.Editor.Placeholder}"
                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                            ScrollViewer.VerticalScrollBarVisibility="Auto"/>
                 </Grid>
@@ -206,15 +206,15 @@
 
         <Border Grid.Row="1" Background="Transparent" IsVisible="{Binding !HasEditor}">
           <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <TextBlock Text="No note selected" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
-            <TextBlock Text="Select a note from the left or create a new encrypted markdown note." Classes="page-subtitle" MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
-            <Button Content="Create Markdown Note" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Subtitle}" Classes="page-subtitle" MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
+            <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>
 
         <Border Grid.Row="2" Background="{StaticResource SidebarBrush}" BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="34,14" IsVisible="{Binding HasEditor}">
           <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="18">
-            <TextBlock Text="MARKDOWN HELP" Classes="notesKicker" VerticalAlignment="Center"/>
+            <TextBlock Text="{DynamicResource Loc.Notes.MarkdownHelp}" Classes="notesKicker" VerticalAlignment="Center"/>
             <TextBlock Grid.Column="1" Text="# Heading   |   ## Section   |   - List   |   &gt; Quote   |   ``` code ```" Classes="notesFooterStatus" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
             <TextBlock Grid.Column="2" Text="{Binding ActiveDocumentView}" Classes="notesFooterStatus" VerticalAlignment="Center"/>
           </Grid>

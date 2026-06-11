@@ -14,11 +14,11 @@
                   Spacing="22">
         <Grid Margin="0,10,0,0">
           <StackPanel Spacing="9">
-            <TextBlock Text="Activity Log"
+                <TextBlock Text="{DynamicResource Loc.Activity.Title}"
                        FontSize="28"
                        FontWeight="SemiBold"
                        LetterSpacing="-0.8"/>
-            <TextBlock Text="Review encrypted vault activity events and plaintext report exports."
+                <TextBlock Text="{DynamicResource Loc.Activity.Subtitle}"
                        Classes="page-subtitle"
                        FontSize="13"/>
           </StackPanel>
@@ -28,32 +28,32 @@
           <Border Classes="activity-search-shell">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="activity-search-box"
-                     PlaceholderText="Search audit logs..."/>
+                     PlaceholderText="{DynamicResource Loc.Activity.Search.Placeholder}"/>
           </Border>
 
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
-            <Button Content="All"
+            <Button Content="{DynamicResource Loc.Common.All}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsAllFilterActive}"
                     Command="{Binding ShowAllCommand}"/>
-            <Button Content="Vault"
+            <Button Content="{DynamicResource Loc.Activity.Filter.Vault}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsVaultFilterActive}"
                     Command="{Binding ShowVaultCommand}"/>
-            <Button Content="Items"
+            <Button Content="{DynamicResource Loc.Activity.Filter.Items}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsItemsFilterActive}"
                     Command="{Binding ShowItemsCommand}"/>
-            <Button Content="Audit"
+            <Button Content="{DynamicResource Loc.Activity.Filter.Audit}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsAuditFilterActive}"
                     Command="{Binding ShowAuditCommand}"/>
-            <Button Content="Export"
+            <Button Content="{DynamicResource Loc.Activity.Filter.Export}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsTransferFilterActive}"
                     Command="{Binding ShowTransferCommand}"/>
-            <Button Content="Settings"
+            <Button Content="{DynamicResource Loc.Activity.Filter.Settings}"
                     Classes="activity-chip"
                     Classes.active="{Binding IsSettingsFilterActive}"
                     Command="{Binding ShowSettingsCommand}"/>
@@ -69,19 +69,19 @@
               <Border Classes="table-header-row">
                 <Grid ColumnDefinitions="1.5*,1.3*,2*,2*,1.2*"
                       ColumnSpacing="16">
-                  <TextBlock Text="TIMESTAMP"
+                  <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}"
                              Classes="table-header-text"/>
                   <TextBlock Grid.Column="1"
-                             Text="SESSION ID"
+                             Text="{DynamicResource Loc.Activity.Table.SessionId}"
                              Classes="table-header-text"/>
                   <TextBlock Grid.Column="2"
-                             Text="EVENT TITLE"
+                             Text="{DynamicResource Loc.Activity.Table.EventTitle}"
                              Classes="table-header-text"/>
                   <TextBlock Grid.Column="3"
-                             Text="AFFECTED ITEM"
+                             Text="{DynamicResource Loc.Activity.Table.AffectedItem}"
                              Classes="table-header-text"/>
                   <TextBlock Grid.Column="4"
-                             Text="STATUS"
+                             Text="{DynamicResource Loc.Activity.Table.Status}"
                              Classes="table-header-text"
                              HorizontalAlignment="Right"/>
                 </Grid>
@@ -157,7 +157,7 @@
                              Classes="table-footer-text"
                              VerticalAlignment="Center"/>
                   <Button Grid.Column="1"
-                          Content="Previous"
+                          Content="{DynamicResource Loc.Common.Previous}"
                           Classes="table-page-button"
                           Command="{Binding PreviousPageCommand}"
                           IsEnabled="{Binding CanGoPreviousPage}"/>
@@ -166,7 +166,7 @@
                              Classes="table-footer-text"
                              VerticalAlignment="Center"/>
                   <Button Grid.Column="3"
-                          Content="Next"
+                          Content="{DynamicResource Loc.Common.Next}"
                           Classes="table-page-button"
                           Command="{Binding NextPageCommand}"
                           IsEnabled="{Binding CanGoNextPage}"/>
@@ -179,7 +179,7 @@
                       Spacing="18">
             <Border Classes="activity-detail-card">
               <StackPanel Spacing="16">
-                <TextBlock Text="EVENT METADATA"
+                <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Title}"
                            Foreground="{StaticResource AccentBrush}"
                            FontSize="11"
                            FontWeight="Black"
@@ -187,7 +187,7 @@
 
                 <StackPanel Spacing="12">
                   <StackPanel Spacing="4">
-                    <TextBlock Text="EVENT UUID"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Metadata.EventUuid}"
                                Classes="activity-detail-label"/>
                     <Border Classes="activity-detail-shell">
                       <TextBlock Text="{Binding SelectedEventId}"
@@ -197,21 +197,21 @@
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="TIMESTAMP"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedTimestamp}"
                                Classes="activity-detail-value"/>
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="CATEGORY"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Category}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedCategory}"
                                Classes="activity-detail-value"/>
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="STATUS"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Table.Status}"
                                Classes="activity-detail-label"/>
                     <Border Background="{Binding SelectedStatusBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                             CornerRadius="999"
@@ -225,7 +225,7 @@
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="AFFECTED ITEM"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Table.AffectedItem}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedAffectedItem}"
                                Classes="activity-detail-value"
@@ -233,7 +233,7 @@
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="VAULT PATH"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Metadata.VaultPath}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedVaultPath}"
                                Classes="activity-detail-value"
@@ -241,7 +241,7 @@
                   </StackPanel>
 
                   <StackPanel Spacing="4">
-                    <TextBlock Text="DETAIL"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Detail}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedDetail}"
                                Classes="activity-detail-value"
@@ -251,7 +251,7 @@
 
                 <Border Classes="activity-detail-shell">
                   <StackPanel Spacing="8">
-                    <TextBlock Text="SHA-256 INTEGRITY HASH"
+                    <TextBlock Text="{DynamicResource Loc.Activity.Metadata.IntegrityHash}"
                                Classes="activity-detail-label"/>
                     <TextBlock Text="{Binding SelectedIntegrityHash}"
                                Foreground="{StaticResource SuccessBrush}"
@@ -266,22 +266,22 @@
 
             <Border Classes="activity-detail-card">
               <StackPanel Spacing="14">
-                <TextBlock Text="LOG MANAGEMENT"
+                <TextBlock Text="{DynamicResource Loc.Activity.Management.Title}"
                            Foreground="{StaticResource AccentBrush}"
                            FontSize="11"
                            FontWeight="Black"
                            LetterSpacing="2.2"/>
-                <TextBlock Text="Export or clear all activity logs stored for this vault."
+                <TextBlock Text="{DynamicResource Loc.Activity.Management.Subtitle}"
                            Classes="page-subtitle"
                            FontSize="12"
                            TextWrapping="Wrap"/>
                 <Grid ColumnDefinitions="*,*"
                       ColumnSpacing="10">
-                  <Button Content="Export Report"
+                  <Button Content="{DynamicResource Loc.Activity.Button.ExportReport}"
                           Classes="activity-report-button"
                           Command="{Binding ExportReportCommand}"/>
                   <Button Grid.Column="1"
-                          Content="Clear Logs"
+                          Content="{DynamicResource Loc.Activity.Button.ClearLogs}"
                           Classes="activity-report-button"
                           Command="{Binding ClearCommand}"/>
                 </Grid>

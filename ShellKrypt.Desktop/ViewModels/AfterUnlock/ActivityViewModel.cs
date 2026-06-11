@@ -39,8 +39,8 @@ public partial class ActivityViewModel : ViewModelBase
     public int TotalEvents => _allItems.Count;
     public int FilteredEventCount => _filteredItems.Count;
     public int TotalPages => DesktopPagination.GetTotalPages(_filteredItems.Count, PageSize);
-    public string PageSummary => $"Page {CurrentPage} of {TotalPages}";
-    public string ItemsSummary => $"Showing {Items.Count} of {FilteredEventCount} events";
+    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
+    public string ItemsSummary => T(_root, "Activity.ItemsSummary", Items.Count, FilteredEventCount);
     public bool CanGoPreviousPage => CurrentPage > 1;
     public bool CanGoNextPage => CurrentPage < TotalPages;
     public int TodayCount => _allItems.Count(item => IsToday(item.Entry.TimestampUtc));
@@ -53,25 +53,25 @@ public partial class ActivityViewModel : ViewModelBase
     public bool IsSettingsFilterActive => ActiveCategory == "settings";
     public bool IsTransferFilterActive => ActiveCategory == "transfer";
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "No activity recorded yet"
-        : "No activity matches this search";
+        ? T(_root, "Activity.Empty.NoneTitle")
+        : T(_root, "Activity.Empty.NoMatchTitle");
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? "Vault lifecycle actions, item changes, copied secrets, scans, and import or export operations for this vault will appear here."
-        : "Try a different term or clear the current activity filter.";
+        ? T(_root, "Activity.Empty.NoneSubtitle")
+        : T(_root, "Activity.Empty.NoMatchSubtitle");
     public bool HasSelectedItem => SelectedItem is not null;
-    public string SelectedEventId => SelectedItem?.Id ?? "No event selected";
-    public string SelectedTimestamp => SelectedItem is null ? "No timestamp" : FormatMetadataTimestamp(SelectedItem.Entry.TimestampUtc);
-    public string SelectedCategory => SelectedItem?.CategoryLabel ?? "System";
-    public string SelectedStatus => SelectedItem?.SeverityChipText ?? "Info";
+    public string SelectedEventId => SelectedItem?.Id ?? T(_root, "Activity.Metadata.NoEvent");
+    public string SelectedTimestamp => SelectedItem is null ? T(_root, "Activity.Metadata.NoTimestamp") : FormatMetadataTimestamp(SelectedItem.Entry.TimestampUtc);
+    public string SelectedCategory => SelectedItem?.CategoryLabel ?? T(_root, "Activity.Category.System");
+    public string SelectedStatus => SelectedItem?.SeverityChipText ?? T(_root, "Activity.Severity.Info");
     public string SelectedStatusForeground => SelectedItem?.SeverityForeground ?? "InfoBrush";
     public string SelectedStatusBackground => SelectedItem?.SeverityBackground ?? "InfoMutedBrush";
-    public string SelectedAffectedItem => SelectedItem?.AffectedItemDisplay ?? "No item selected";
-    public string SelectedVaultPath => SelectedItem?.Entry.VaultPath ?? "ShellKrypt local session";
-    public string SelectedDetail => SelectedItem?.Detail ?? "Select an event to inspect its metadata.";
-    public string SelectedIntegrityHash => SelectedItem is null ? "Unavailable" : ComputeIntegrityHash(SelectedItem.Entry);
+    public string SelectedAffectedItem => SelectedItem?.AffectedItemDisplay ?? T(_root, "Activity.Metadata.NoItem");
+    public string SelectedVaultPath => SelectedItem?.Entry.VaultPath ?? T(_root, "Activity.Metadata.LocalSession");
+    public string SelectedDetail => SelectedItem?.Detail ?? T(_root, "Activity.Metadata.SelectEvent");
+    public string SelectedIntegrityHash => SelectedItem is null ? T(_root, "Settings.Profile.Unavailable") : ComputeIntegrityHash(SelectedItem.Entry);
 
     private string CurrentVaultDisplayName => string.IsNullOrWhiteSpace(_root.VaultPath)
-        ? "Current vault"
+        ? T(_root, "Activity.CurrentVault")
         : Path.GetFileNameWithoutExtension(_root.VaultPath);
 
     partial void OnSearchTextChanged(string value) => ApplyFilter(resetPage: true);
@@ -115,5 +115,25 @@ public partial class ActivityViewModel : ViewModelBase
         OnPropertyChanged(nameof(EmptyStateTitle));
         OnPropertyChanged(nameof(EmptyStateSubtitle));
         ApplyFilter(resetPage: true);
+    }
+
+    public override void RefreshLocalization()
+    {
+        foreach (var item in _allItems)
+            item.RefreshLocalization();
+
+        NotifyLocalized(
+            nameof(PageSummary),
+            nameof(ItemsSummary),
+            nameof(EmptyStateTitle),
+            nameof(EmptyStateSubtitle),
+            nameof(SelectedEventId),
+            nameof(SelectedTimestamp),
+            nameof(SelectedCategory),
+            nameof(SelectedStatus),
+            nameof(SelectedAffectedItem),
+            nameof(SelectedVaultPath),
+            nameof(SelectedDetail),
+            nameof(SelectedIntegrityHash));
     }
 }

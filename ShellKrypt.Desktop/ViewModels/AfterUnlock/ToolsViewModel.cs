@@ -42,11 +42,11 @@ public partial class ToolsViewModel : ViewModelBase
     public int PasswordStrengthScore => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Score;
     public string PasswordStrengthLabel => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
     {
-        PasswordStrengthRating.None => "NO OPTIONS SELECTED",
-        PasswordStrengthRating.Weak => "WEAK / RISKY",
-        PasswordStrengthRating.Fair => "FAIR / IMPROVE",
-        PasswordStrengthRating.Strong => "GOOD / STRONG",
-        _ => "STRONG / SECURE"
+        PasswordStrengthRating.None => T(_root, "Generator.Strength.None"),
+        PasswordStrengthRating.Weak => T(_root, "Generator.Strength.Weak"),
+        PasswordStrengthRating.Fair => T(_root, "Generator.Strength.Fair"),
+        PasswordStrengthRating.Strong => T(_root, "Generator.Strength.Strong"),
+        _ => T(_root, "Generator.Strength.Secure")
     };
     public string PasswordStrengthBrush => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
     {
@@ -153,6 +153,11 @@ public partial class ToolsViewModel : ViewModelBase
         }
 
         return string.Join(Environment.NewLine, rows);
+    }
+
+    public override void RefreshLocalization()
+    {
+        NotifyLocalized(nameof(PasswordStrengthLabel));
     }
 
 }
