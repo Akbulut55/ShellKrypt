@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.11.1] - 2026-06-11
+
+### Changed
+
+- Moved public mobile documentation to root-level files and made the internal handbook private/untracked.
+
 ## [ShellKrypt 0.11.0] - 2026-06-10
 
 ### Added

@@ -388,6 +388,12 @@ local/
 *.sqlite3-shm
 
 ############################################
+# ShellKrypt private/internal docs
+############################################
+handbook/
+AGENTS.md
+
+############################################
 # Avalonia / Accelerate optional extras
 ############################################
 *.vsix
