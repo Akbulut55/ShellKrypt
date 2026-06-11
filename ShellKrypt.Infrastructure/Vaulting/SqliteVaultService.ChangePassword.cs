@@ -65,7 +65,7 @@ public sealed partial class SqliteVaultService
             byte[] vaultKey;
             try
             {
-                vaultKey = VaultPayloadProtector.DecryptVaultKey(currentDerivedKey, meta.EncryptedVaultKey);
+                vaultKey = VaultPayloadProtector.DecryptVaultKey(currentDerivedKey, meta.Kdf, meta.Salt, meta.EncryptedVaultKey);
             }
             catch (CryptographicException)
             {
@@ -79,7 +79,7 @@ public sealed partial class SqliteVaultService
                 var newDerivedKey = await DeriveKeyAsync(newMasterPassword, newSalt, effectiveKdf, ct);
                 try
                 {
-                    var rewrappedVaultKey = VaultPayloadProtector.EncryptVaultKey(newDerivedKey, vaultKey);
+                    var rewrappedVaultKey = VaultPayloadProtector.EncryptVaultKey(newDerivedKey, effectiveKdf, newSalt, vaultKey);
                     await UpdateVaultMetaAsync(conn, effectiveKdf, newSalt, rewrappedVaultKey, ct);
                     return ChangeMasterPasswordResult.Ok();
                 }

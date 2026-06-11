@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.13.0] - 2026-06-11
+
+### Changed
+
+- Hardened vault protection with v2-only encrypted blob handling, expanded AES-GCM associated data binding, stricter backup/activity metadata authentication, safer vault deletion guards, and broader secret-leakage tests.
+
 ## [ShellKrypt 0.12.0] - 2026-06-11
 
 ### Added

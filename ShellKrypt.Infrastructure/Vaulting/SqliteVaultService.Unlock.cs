@@ -55,7 +55,7 @@ public sealed partial class SqliteVaultService
         {
             try
             {
-                var vaultKey = VaultPayloadProtector.DecryptVaultKey(derivedKey, meta.EncryptedVaultKey);
+                var vaultKey = VaultPayloadProtector.DecryptVaultKey(derivedKey, meta.Kdf, meta.Salt, meta.EncryptedVaultKey);
                 return UnlockResult.Ok(vaultKey);
             }
             catch (CryptographicException)

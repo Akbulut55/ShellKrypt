@@ -38,9 +38,18 @@ public sealed class DesktopSecurityServicesTests
         try
         {
             var secret = "KnownSecretValue-Do-Not-Persist";
+            var cardNumber = "4111111111111111";
+            var cvc = "987";
+            var apiSecret = "sk-live-known-secret-value";
+            var otpSeed = "JBSWY3DPEHPK3PXP";
+            var noteContent = "Private note body that must stay encrypted";
             var vaultService = new SqliteVaultService();
             var repo = new SqliteItemRepository();
             var web = new WebLoginService(repo);
+            var cards = new CardService(repo);
+            var apiKeys = new ApiKeyService(repo);
+            var authenticators = new AuthenticatorService(repo);
+            var notes = new NoteService(repo);
             var vaultPath = DefaultPaths.GetSuggestedVaultPath("metadata-test");
 
             await vaultService.CreateAsync(vaultPath, "Vault Master Passphrase 2026");
@@ -49,6 +58,18 @@ public sealed class DesktopSecurityServicesTests
             Assert.NotNull(unlock.VaultKey);
 
             await web.AddAsync(vaultPath, unlock.VaultKey!, new WebLoginInput("Metadata Test", "https://example.test", "user", "", secret, "notes"));
+            await cards.AddAsync(vaultPath, unlock.VaultKey!, new CardInput("Card Test", "Bank", "Holder", cardNumber, 12, 2031, cvc, "card notes", "Visa", "Credit"));
+            await apiKeys.AddAsync(
+                vaultPath,
+                unlock.VaultKey!,
+                new ApiKeyInput(
+                    "API Test",
+                    "Provider",
+                    "Production",
+                    "api notes",
+                    [new ApiKeyFieldInput("field-1", "API Key", "API Key", apiSecret, true, true, 0)]));
+            await authenticators.AddAsync(vaultPath, unlock.VaultKey!, new AuthenticatorInput("OTP Test", otpSeed, AuthenticatorKeyType.TimeBased));
+            await notes.AddAsync(vaultPath, unlock.VaultKey!, new NoteInput("Note Test", noteContent, Favorite: false));
 
             new AppSettingsService(new FileAppSettingsStore()).Save(new AppSettings { ClipboardClearSeconds = 1, ClipboardCopyEnabled = false });
             new VaultRegistryService(new FileVaultRegistryStore()).UpsertVault(vaultPath, "Metadata Test", "Local metadata only", isDefault: true);
@@ -67,11 +88,21 @@ public sealed class DesktopSecurityServicesTests
                 },
                 unlock.VaultKey);
 
-            var secretBytes = Encoding.UTF8.GetBytes(secret);
+            var secretValues = new[]
+            {
+                secret,
+                cardNumber,
+                cvc,
+                apiSecret,
+                otpSeed,
+                noteContent
+            }.Select(Encoding.UTF8.GetBytes).ToArray();
+
             foreach (var file in Directory.EnumerateFiles(DefaultPaths.AppRoot, "*", SearchOption.AllDirectories))
             {
                 var bytes = await File.ReadAllBytesAsync(file);
-                Assert.False(Contains(bytes, secretBytes), $"{file} contains the known secret.");
+                foreach (var secretBytes in secretValues)
+                    Assert.False(Contains(bytes, secretBytes), $"{file} contains a known secret.");
             }
         }
         finally

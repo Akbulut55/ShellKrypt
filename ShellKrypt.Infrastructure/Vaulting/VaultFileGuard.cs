@@ -6,6 +6,7 @@ public static class VaultFileGuard
     public const string BackupExtension = ".skbx";
     public const string JsonExtension = ".json";
     public const string CsvExtension = ".csv";
+    private static readonly string[] KnownVaultSidecarSuffixes = ["-wal", "-shm", "-journal"];
 
     public static string NormalizeFullPath(string path, string paramName = "path")
     {
@@ -33,14 +34,44 @@ public static class VaultFileGuard
         return fullPath;
     }
 
-    public static string EnsureSafeVaultDeletionTarget(string path)
+    public static string EnsureSafeVaultDeletionTarget(string path, string? expectedPath = null)
     {
         var fullPath = EnsureExistingVaultFile(path);
+        if (!string.IsNullOrWhiteSpace(expectedPath))
+        {
+            var expected = EnsureVaultFilePath(expectedPath, nameof(expectedPath));
+            if (!string.Equals(fullPath, expected, StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Refusing to delete a vault path that does not match the selected vault.");
+        }
+
         var fileName = Path.GetFileName(fullPath);
         if (string.IsNullOrWhiteSpace(fileName) || string.Equals(fullPath, Path.GetPathRoot(fullPath), StringComparison.OrdinalIgnoreCase))
             throw new InvalidOperationException("Refusing to delete an unsafe vault path.");
 
         return fullPath;
+    }
+
+    public static void DeleteVaultAndKnownSidecars(string path, string? expectedPath = null)
+    {
+        var fullPath = EnsureSafeVaultDeletionTarget(path, expectedPath);
+
+        foreach (var suffix in KnownVaultSidecarSuffixes)
+            DeleteKnownSidecarIfExists(fullPath, suffix);
+
+        File.Delete(fullPath);
+    }
+
+    private static void DeleteKnownSidecarIfExists(string fullVaultPath, string suffix)
+    {
+        if (!KnownVaultSidecarSuffixes.Contains(suffix, StringComparer.Ordinal))
+            throw new InvalidOperationException("Unsupported vault sidecar suffix.");
+
+        var sidecar = Path.GetFullPath(fullVaultPath + suffix);
+        if (!string.Equals(sidecar, fullVaultPath + suffix, StringComparison.OrdinalIgnoreCase))
+            throw new InvalidOperationException("Refusing to delete an unsafe vault sidecar path.");
+
+        if (File.Exists(sidecar))
+            File.Delete(sidecar);
     }
 
     public static string EnsureNotActiveVaultTarget(string activeVaultPath, string targetPath, string targetLabel)

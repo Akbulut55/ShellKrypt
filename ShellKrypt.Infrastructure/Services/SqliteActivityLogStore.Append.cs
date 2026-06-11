@@ -23,7 +23,7 @@ public sealed partial class SqliteActivityLogStore
         var encryptedPayload = AesGcmBlob.Encrypt(
             vaultKey,
             Encoding.UTF8.GetBytes(JsonSerializer.Serialize(payload, JsonOptions)),
-            ActivityLogAssociatedData(entry.Id));
+            ActivityLogAssociatedData(entry.Id, entry.TimestampUtc));
 
         var insert = conn.CreateCommand();
         insert.CommandText = """

@@ -90,7 +90,7 @@ public sealed partial class SqliteVaultService
         if (salt.Length != SaltSize)
             throw new InvalidDataException("Vault metadata salt is corrupted.");
 
-        if (evk.Length < AesGcmBlob.NonceSize + AesGcmBlob.TagSize)
+        if (!AesGcmBlob.HasEnvelope(evk))
             throw new InvalidDataException("Vault key metadata is corrupted.");
 
         var kdf = new VaultKdfParams(mem, iters, par);

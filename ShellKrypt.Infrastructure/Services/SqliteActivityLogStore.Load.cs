@@ -33,7 +33,7 @@ public sealed partial class SqliteActivityLogStore
                     var id = reader.GetString(0);
                     var timestampUtc = reader.GetString(1);
                     var payloadBytes = reader.GetFieldValue<byte[]>(2);
-                    var json = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, payloadBytes, ActivityLogAssociatedData(id)));
+                    var json = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, payloadBytes, ActivityLogAssociatedData(id, timestampUtc)));
                     var payload = JsonSerializer.Deserialize<ActivityLogPayload>(json, JsonOptions);
                     if (payload is null)
                         continue;

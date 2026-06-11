@@ -86,6 +86,7 @@ public sealed partial class SettingsViewModel
             }
 
             await _transferService.ExportPlaintextJsonAsync(vaultPath, vaultKey, PlaintextExportPath);
+            await _root.ClearClipboardAsync();
             TransferStatus = T("Settings.Status.PlaintextExportSaved", Path.GetFileName(PlaintextExportPath));
             _root.LogActivity("transfer", "Plaintext export created", $"Saved a decrypted JSON export named {Path.GetFileName(PlaintextExportPath)}.", "warning", vaultPath, Path.GetFileName(PlaintextExportPath));
             ConfirmPlaintextExport = false;

@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.Json;
+using System.Security.Cryptography;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Crypto;
@@ -184,7 +185,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
 
         await File.WriteAllTextAsync(packagePath, JsonSerializer.Serialize(
             new VaultEncryptedPackage(
-                Version: 1,
+                Version: 2,
                 ExportedAtUtc: DateTimeOffset.UtcNow.ToString("O"),
                 Kdf: VaultSecurityProfiles.Default.Kdf,
                 SaltBase64: "not-valid-base64",
@@ -195,6 +196,41 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
             transfer.GetEncryptedImportSummaryAsync(packagePath, "backup-pass"));
 
         Assert.Contains("Base64", ex.Message);
+    }
+
+    [Fact]
+    public async Task EncryptedImport_RejectsTamperedPackageKdfMetadata()
+    {
+        using var workspace = new TempWorkspace();
+        var repo = new SqliteItemRepository();
+        var transfer = new SqliteVaultTransferService();
+        var vaultService = new SqliteVaultService();
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var exportPath = workspace.FilePath("backup.skbx");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
+
+        await InsertWebAsync(
+            repo,
+            vaultPath,
+            vaultKey,
+            Guid.NewGuid().ToString("N"),
+            "Portal",
+            "https://example.test",
+            "user",
+            "secret",
+            "",
+            DateTimeOffset.UtcNow.AddMinutes(-1).ToString("O"),
+            DateTimeOffset.UtcNow.ToString("O"),
+            favorite: false);
+
+        await transfer.ExportEncryptedAsync(vaultPath, vaultKey, exportPath, "backup-pass");
+
+        var package = JsonSerializer.Deserialize<VaultEncryptedPackage>(await File.ReadAllTextAsync(exportPath), JsonOptions)!;
+        var tampered = package with { Kdf = package.Kdf with { Iterations = package.Kdf.Iterations + 1 } };
+        await File.WriteAllTextAsync(exportPath, JsonSerializer.Serialize(tampered, JsonOptions));
+
+        await Assert.ThrowsAnyAsync<CryptographicException>(() =>
+            transfer.GetEncryptedImportSummaryAsync(exportPath, "backup-pass"));
     }
 
     [Fact]

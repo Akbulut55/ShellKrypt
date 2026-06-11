@@ -7,7 +7,7 @@ namespace ShellKrypt.Infrastructure.Vaulting;
 
 public sealed partial class SqliteVaultTransferService : IVaultTransferService
 {
-    private const int PackageVersion = 1;
+    private const int PackageVersion = 2;
     private const int KeySize = 32;
     private const int SaltSize = 16;
     private const long MaxEncryptedPackageBytes = 64L * 1024 * 1024;

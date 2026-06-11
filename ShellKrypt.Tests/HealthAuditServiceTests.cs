@@ -1,4 +1,5 @@
 using ShellKrypt.Core.Items;
+using ShellKrypt.Infrastructure.Crypto;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -181,15 +182,19 @@ public sealed class HealthAuditServiceTests
         int daysAgo)
     {
         var row = (await repo.ListAsync(vaultPath, vaultKey)).Single(item => item.Header.Id == itemId);
+        var newHeader = new VaultItemHeader(
+            row.Header.Id,
+            itemType,
+            row.Header.Favorite,
+            row.Header.CreatedAtUtc,
+            DateTimeOffset.UtcNow.AddDays(-daysAgo).ToString("O"));
+        var plaintext = VaultPayloadProtector.DecryptItemPayload(vaultKey, row.Header, row.EncryptedPayload);
+        var encryptedPayload = VaultPayloadProtector.EncryptItemPayload(vaultKey, newHeader, plaintext);
+
         await repo.UpdateAsync(
             vaultPath,
-            new VaultItemHeader(
-                row.Header.Id,
-                itemType,
-                row.Header.Favorite,
-                row.Header.CreatedAtUtc,
-                DateTimeOffset.UtcNow.AddDays(-daysAgo).ToString("O")),
-            row.EncryptedPayload);
+            newHeader,
+            encryptedPayload);
     }
 
     private static async Task<byte[]> CreateAndUnlockVaultAsync(SqliteVaultService vaultService, string vaultPath, string masterPassword)

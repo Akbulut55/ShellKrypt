@@ -45,4 +45,14 @@ public sealed class AesGcmBlobTests
         Assert.ThrowsAny<CryptographicException>(() =>
             AesGcmBlob.Decrypt(key, encrypted[..10], AesGcmBlob.CreateAssociatedData("purpose", "one")));
     }
+
+    [Fact]
+    public void Envelope_RejectsLegacyBlobWithoutEnvelope()
+    {
+        var key = RandomNumberGenerator.GetBytes(32);
+        var legacyShape = RandomNumberGenerator.GetBytes(AesGcmBlob.NonceSize + AesGcmBlob.TagSize + 12);
+
+        Assert.ThrowsAny<CryptographicException>(() =>
+            AesGcmBlob.Decrypt(key, legacyShape, AesGcmBlob.CreateAssociatedData("purpose", "one")));
+    }
 }

@@ -37,7 +37,7 @@ public sealed partial class SqliteVaultService
         try
         {
             var vaultKey = RandomNumberGenerator.GetBytes(KeySize);
-            var encryptedVaultKey = VaultPayloadProtector.EncryptVaultKey(derivedKey, vaultKey);
+            var encryptedVaultKey = VaultPayloadProtector.EncryptVaultKey(derivedKey, effectiveKdf, salt, vaultKey);
 
             await InsertVaultMetaAsync(conn, effectiveKdf, salt, encryptedVaultKey, ct);
 

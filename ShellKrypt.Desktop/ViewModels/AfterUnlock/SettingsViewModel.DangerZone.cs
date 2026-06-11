@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.Sqlite;
@@ -18,7 +19,7 @@ public sealed partial class SettingsViewModel
             return;
         }
 
-        var vaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!);
+        var vaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!, _root.VaultPath);
         var displayName = Path.GetFileNameWithoutExtension(vaultPath);
 
         var confirmed = await _root.ConfirmDangerousActionAsync(
@@ -49,25 +50,15 @@ public sealed partial class SettingsViewModel
             }
 
             if (unlockResult.VaultKey is { Length: > 0 } vaultKeyBytes)
-                Array.Clear(vaultKeyBytes, 0, vaultKeyBytes.Length);
+                CryptographicOperations.ZeroMemory(vaultKeyBytes);
 
             SqliteConnection.ClearAllPools();
 
             await _root.ClearClipboardAsync();
-            DeleteSidecarIfExists(vaultPath, "-wal");
-            DeleteSidecarIfExists(vaultPath, "-shm");
-            DeleteSidecarIfExists(vaultPath, "-journal");
-            File.Delete(vaultPath);
+            VaultFileGuard.DeleteVaultAndKnownSidecars(vaultPath, _root.VaultPath);
             _vaultRegistry.RemoveVault(vaultPath);
             _root.SetVaultPath("");
             _root.Lock();
         });
-    }
-
-    private static void DeleteSidecarIfExists(string vaultPath, string suffix)
-    {
-        var sidecar = vaultPath + suffix;
-        if (File.Exists(sidecar))
-            File.Delete(sidecar);
     }
 }

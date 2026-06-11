@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.Sqlite;
@@ -80,7 +81,7 @@ public sealed partial class WelcomeViewModel
         IsBusy = true;
         try
         {
-            var deletePath = VaultFileGuard.EnsureSafeVaultDeletionTarget(vault.VaultPath);
+            var deletePath = VaultFileGuard.EnsureSafeVaultDeletionTarget(vault.VaultPath, vault.VaultPath);
             var unlockResult = await _vaultService.UnlockAsync(deletePath, DeletePassword);
             if (!unlockResult.Success)
             {
@@ -89,15 +90,12 @@ public sealed partial class WelcomeViewModel
             }
 
             if (unlockResult.VaultKey is { Length: > 0 } vaultKey)
-                Array.Clear(vaultKey, 0, vaultKey.Length);
+                CryptographicOperations.ZeroMemory(vaultKey);
 
             SqliteConnection.ClearAllPools();
 
             await _root.ClearClipboardAsync();
-            DeleteSidecarIfExists(deletePath, "-wal");
-            DeleteSidecarIfExists(deletePath, "-shm");
-            DeleteSidecarIfExists(deletePath, "-journal");
-            File.Delete(deletePath);
+            VaultFileGuard.DeleteVaultAndKnownSidecars(deletePath, vault.VaultPath);
 
             if (!_vaultRegistry.RemoveVault(deletePath))
             {

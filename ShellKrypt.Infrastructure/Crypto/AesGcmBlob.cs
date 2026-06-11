@@ -26,7 +26,7 @@ public static class AesGcmBlob
     public static byte[] Decrypt(byte[] key, byte[] blob, byte[]? associatedData = null)
     {
         if (!HasEnvelope(blob))
-            return DecryptLegacy(key, blob);
+            throw new CryptographicException("Invalid encrypted blob envelope.");
 
         UnpackEnvelope(blob, out var nonce, out var tag, out var ciphertext);
 
@@ -39,17 +39,6 @@ public static class AesGcmBlob
 
     public static byte[] CreateAssociatedData(params string[] parts)
         => Encoding.UTF8.GetBytes(string.Join('\u001f', parts));
-
-    private static byte[] DecryptLegacy(byte[] key, byte[] blob)
-    {
-        UnpackLegacy(blob, out var nonce, out var tag, out var ciphertext);
-
-        var plaintext = new byte[ciphertext.Length];
-        using var aes = new AesGcm(key, TagSize);
-        aes.Decrypt(nonce, ciphertext, tag, plaintext);
-
-        return plaintext;
-    }
 
     private static byte[] PackEnvelope(byte[] nonce, byte[] tag, byte[] ciphertext)
     {
@@ -65,7 +54,7 @@ public static class AesGcmBlob
         return blob;
     }
 
-    private static bool HasEnvelope(byte[] blob)
+    public static bool HasEnvelope(byte[] blob)
     {
         if (blob.Length < Magic.Length + 3)
             return false;
@@ -104,17 +93,4 @@ public static class AesGcmBlob
         Buffer.BlockCopy(blob, headerLength + nonce.Length + tag.Length, ciphertext, 0, ciphertext.Length);
     }
 
-    private static void UnpackLegacy(byte[] blob, out byte[] nonce, out byte[] tag, out byte[] ciphertext)
-    {
-        if (blob.Length < NonceSize + TagSize)
-            throw new CryptographicException("Invalid ciphertext blob.");
-
-        nonce = new byte[NonceSize];
-        tag = new byte[TagSize];
-        ciphertext = new byte[blob.Length - NonceSize - TagSize];
-
-        Buffer.BlockCopy(blob, 0, nonce, 0, NonceSize);
-        Buffer.BlockCopy(blob, NonceSize, tag, 0, TagSize);
-        Buffer.BlockCopy(blob, NonceSize + TagSize, ciphertext, 0, ciphertext.Length);
-    }
 }

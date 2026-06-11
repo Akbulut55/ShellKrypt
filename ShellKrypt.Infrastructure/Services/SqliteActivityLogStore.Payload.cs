@@ -4,8 +4,8 @@ namespace ShellKrypt.Infrastructure.Services;
 
 public sealed partial class SqliteActivityLogStore
 {
-    private static byte[] ActivityLogAssociatedData(string id)
-        => AesGcmBlob.CreateAssociatedData("activity-log", "v1", id);
+    private static byte[] ActivityLogAssociatedData(string id, string timestampUtc)
+        => AesGcmBlob.CreateAssociatedData("activity-log", "v2", id, timestampUtc);
 
     private sealed record ActivityLogPayload(
         string Category,

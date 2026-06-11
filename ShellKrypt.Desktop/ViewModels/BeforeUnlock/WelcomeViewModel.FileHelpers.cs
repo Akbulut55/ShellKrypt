@@ -13,13 +13,6 @@ public sealed partial class WelcomeViewModel
         File.Copy(source, targetPath + suffix, overwrite: false);
     }
 
-    private static void DeleteSidecarIfExists(string vaultPath, string suffix)
-    {
-        var sidecar = vaultPath + suffix;
-        if (File.Exists(sidecar))
-            File.Delete(sidecar);
-    }
-
     private static long GetVaultSize(string path)
         => File.Exists(path) ? new FileInfo(path).Length : 0L;
 

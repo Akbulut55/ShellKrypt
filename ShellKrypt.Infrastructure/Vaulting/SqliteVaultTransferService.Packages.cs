@@ -20,7 +20,7 @@ public sealed partial class SqliteVaultTransferService
         var derivedKey = await DeriveKeyAsync(passphrase, salt, kdf, ct);
         try
         {
-            var encrypted = AesGcmBlob.Encrypt(derivedKey, plaintext, BackupAssociatedData());
+            var encrypted = AesGcmBlob.Encrypt(derivedKey, plaintext, BackupAssociatedData(PackageVersion, kdf, salt));
             return new VaultEncryptedPackage(
                 PackageVersion,
                 DateTimeOffset.UtcNow.ToString("O"),
@@ -52,13 +52,13 @@ public sealed partial class SqliteVaultTransferService
             throw new InvalidOperationException("Backup salt is invalid.");
 
         var encrypted = DecodeBase64Field(package.CiphertextBase64, "Backup ciphertext");
-        if (encrypted.Length < AesGcmBlob.NonceSize + AesGcmBlob.TagSize)
+        if (!AesGcmBlob.HasEnvelope(encrypted))
             throw new InvalidOperationException("Backup ciphertext is invalid.");
 
         var derivedKey = await DeriveKeyAsync(passphrase, salt, package.Kdf, ct);
         try
         {
-            var plaintext = AesGcmBlob.Decrypt(derivedKey, encrypted, BackupAssociatedData());
+            var plaintext = AesGcmBlob.Decrypt(derivedKey, encrypted, BackupAssociatedData(package.Version, package.Kdf, salt));
             if (plaintext.Length > MaxSnapshotJsonBytes)
                 throw new InvalidOperationException("Encrypted export payload is too large.");
 
@@ -73,6 +73,13 @@ public sealed partial class SqliteVaultTransferService
         }
     }
 
-    private static byte[] BackupAssociatedData()
-        => AesGcmBlob.CreateAssociatedData("vault-backup", "v1");
+    private static byte[] BackupAssociatedData(int version, VaultKdfParams kdf, byte[] salt)
+        => AesGcmBlob.CreateAssociatedData(
+            "vault-backup",
+            "v2",
+            version.ToString(),
+            kdf.MemoryKb.ToString(),
+            kdf.Iterations.ToString(),
+            kdf.Parallelism.ToString(),
+            Convert.ToBase64String(salt));
 }
