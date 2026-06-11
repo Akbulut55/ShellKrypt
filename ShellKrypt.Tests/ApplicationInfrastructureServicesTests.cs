@@ -33,11 +33,14 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.Null(settings.SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(0, settings.SecurityAcknowledgementVersionAccepted);
         Assert.False(settings.HasCurrentSecurityAcknowledgement);
+        Assert.NotNull(settings.BackupCenterHistory);
+        Assert.Empty(settings.BackupCenterHistory.RecentEntries);
 
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
         settings.ThemeId = "ocean";
         settings.LanguageId = "tr";
+        settings.BackupCenterHistory.LastEncryptedBackupPath = workspace.FilePath("backup.skbx");
         settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:15:30.0000000+00:00");
         service.Save(settings);
 
@@ -49,10 +52,12 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ClipboardClearSeconds), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementAcceptedAtUtc), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementVersionAccepted), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.BackupCenterHistory), out _));
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
         Assert.Equal("ocean", service.Load().ThemeId);
         Assert.Equal("tr", service.Load().LanguageId);
+        Assert.Equal(workspace.FilePath("backup.skbx"), service.Load().BackupCenterHistory.LastEncryptedBackupPath);
         Assert.Equal("2026-05-31T10:15:30.0000000+00:00", service.Load().SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, service.Load().SecurityAcknowledgementVersionAccepted);
         Assert.True(service.Load().HasCurrentSecurityAcknowledgement);

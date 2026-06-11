@@ -6,6 +6,16 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.14.0] - 2026-06-11
+
+### Added
+
+- Added a dedicated desktop Backup Center for encrypted backups, backup verification, encrypted restore, plaintext JSON export, CSV import, and local backup history.
+
+### Changed
+
+- Moved backup/import/export workflows out of Settings so Settings focuses on vault security and desktop behavior.
+
 ## [ShellKrypt 0.13.0] - 2026-06-11
 
 ### Changed

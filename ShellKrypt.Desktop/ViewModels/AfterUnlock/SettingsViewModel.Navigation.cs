@@ -9,4 +9,10 @@ public sealed partial class SettingsViewModel
     {
         _shell.ShowSecurityAudit();
     }
+
+    [RelayCommand]
+    private void OpenBackupCenter()
+    {
+        _shell.ShowBackupCenter();
+    }
 }

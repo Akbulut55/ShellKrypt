@@ -22,6 +22,7 @@ public partial class ShellViewModel
             ShellKryptSectionKeys.Cards => Cards,
             ShellKryptSectionKeys.Generator => Tools,
             ShellKryptSectionKeys.Audit => Health,
+            ShellKryptSectionKeys.Backup => BackupCenter,
             ShellKryptSectionKeys.Authenticator => Authenticator,
             ShellKryptSectionKeys.ApiKeys => ApiKeys,
             ShellKryptSectionKeys.Settings => Settings,
@@ -66,6 +67,7 @@ public partial class ShellViewModel
     }
     public void ShowMarkdownNotes() => SelectNav(ShellKryptSectionKeys.Notes);
     public void ShowSecurityAudit() => SelectNav(ShellKryptSectionKeys.Audit);
+    public void ShowBackupCenter() => SelectNav(ShellKryptSectionKeys.Backup);
     public void ShowAuthenticator() => SelectNav(ShellKryptSectionKeys.Authenticator);
     public async Task<bool> ShowAuthenticatorByIdAsync(string itemId)
     {

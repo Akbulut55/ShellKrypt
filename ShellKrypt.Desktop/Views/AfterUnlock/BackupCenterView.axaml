@@ -1,0 +1,457 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.BackupCenterView"
+             x:CompileBindings="False"
+             x:DataType="vm:BackupCenterViewModel">
+
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="28,24,28,28"
+                  MaxWidth="1500"
+                  Spacing="24">
+        <StackPanel Spacing="6">
+          <TextBlock Text="{DynamicResource Loc.BackupCenter.Title}"
+                     FontSize="30"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-0.6"/>
+          <TextBlock Text="{DynamicResource Loc.BackupCenter.Subtitle}"
+                     Classes="page-subtitle"/>
+        </StackPanel>
+
+        <Grid ColumnDefinitions="*,*,*,*"
+              ColumnSpacing="16"
+              MinWidth="980">
+          <Border Classes="backup-status-card">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.ActiveVault}"
+                         Classes="backup-kicker"/>
+              <TextBlock Text="{Binding ActiveVaultDisplay}"
+                         Classes="backup-status-value"/>
+              <TextBlock Text="{Binding ActiveVaultPathDisplay}"
+                         Classes="backup-muted"
+                         TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="1"
+                  Classes="backup-status-card">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.LastBackup}"
+                         Classes="backup-kicker"/>
+              <TextBlock Text="{Binding LastEncryptedBackupDisplay}"
+                         Classes="backup-status-value"/>
+              <TextBlock Text="{Binding LastVerifiedBackupDisplay}"
+                         Classes="backup-muted"
+                         TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="2"
+                  Classes="backup-status-card">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.LastRestore}"
+                         Classes="backup-kicker"/>
+              <TextBlock Text="{Binding LastRestoreDisplay}"
+                         Classes="backup-status-value"/>
+              <TextBlock Text="{Binding LastCsvImportDisplay}"
+                         Classes="backup-muted"
+                         TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="3"
+                  Classes="backup-status-card danger">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.PlaintextRisk}"
+                         Classes="backup-kicker"/>
+              <TextBlock Text="{Binding LastPlaintextExportDisplay}"
+                         Classes="backup-status-value"/>
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.PlaintextRisk.Detail}"
+                         Classes="backup-muted"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+
+        <TextBlock Text="{Binding TransferStatus}"
+                   Classes="backup-status-message"
+                   IsVisible="{Binding HasTransferStatus}"/>
+
+        <Grid ColumnDefinitions="7*,5*"
+              ColumnSpacing="22"
+              MinWidth="980">
+          <StackPanel Spacing="22">
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Path}"
+                             Classes="backup-label"/>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Path.Placeholder}"/>
+                    <Button Grid.Column="1"
+                            Content="{DynamicResource Loc.Common.Browse}"
+                            Classes="backup-secondary-button"
+                            Command="{Binding BrowseEncryptedExportPathCommand}"/>
+                  </Grid>
+                </StackPanel>
+
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Passphrase}"
+                             Classes="backup-label"/>
+                  <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PasswordChar="*"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Passphrase.Placeholder}"/>
+                </StackPanel>
+
+                <Grid ColumnDefinitions="Auto,Auto,*"
+                      ColumnSpacing="10">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewBackup}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding PreviewExportCommand}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.BackupCenter.Button.ExportBackup}"
+                          Classes="backup-primary-button"
+                          Command="{Binding ExportEncryptedCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding ExportSummary}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding VerifyBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Path.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.Browse}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowseVerifyBackupPathCommand}"/>
+                </Grid>
+
+                <TextBox Text="{Binding VerifyPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="*"
+                         PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Passphrase.Placeholder}"/>
+
+                <Button Content="{DynamicResource Loc.BackupCenter.Button.VerifyBackup}"
+                        Classes="backup-primary-button"
+                        HorizontalAlignment="Left"
+                        Command="{Binding VerifyBackupCommand}"/>
+
+                <TextBlock Text="{Binding VerifySummary}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding RestoreBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Path.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.Browse}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowseRestoreBackupPathCommand}"/>
+                </Grid>
+
+                <TextBox Text="{Binding RestorePassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="*"
+                         PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Passphrase.Placeholder}"/>
+                <CheckBox Content="{DynamicResource Loc.BackupCenter.Restore.Confirm}"
+                          IsChecked="{Binding ConfirmRestore}"/>
+
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.RestoreBackup}"
+                          Classes="backup-danger-button"
+                          Command="{Binding RestoreEncryptedCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding RestoreSummary}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="22">
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Title}"
+                           Classes="backup-section-title"/>
+
+                <ItemsControl ItemsSource="{Binding RecentHistory}"
+                              IsVisible="{Binding HasRecentHistory}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:BackupHistoryEntryVm">
+                      <Border Classes="backup-history-row">
+                        <Grid RowDefinitions="Auto,Auto,Auto"
+                              RowSpacing="6">
+                          <Grid ColumnDefinitions="*,Auto"
+                                ColumnSpacing="10">
+                            <TextBlock Text="{Binding OperationLabel}"
+                                       FontWeight="SemiBold"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <Border Grid.Column="1"
+                                    Classes="backup-history-chip">
+                              <TextBlock Text="{Binding StatusLabel}"
+                                         FontSize="10"
+                                         FontWeight="Black"/>
+                            </Border>
+                          </Grid>
+                          <TextBlock Grid.Row="1"
+                                     Text="{Binding FileDisplay}"
+                                     Classes="backup-muted"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <Grid Grid.Row="2"
+                                ColumnDefinitions="*,Auto"
+                                ColumnSpacing="8">
+                            <TextBlock Text="{Binding CountsDisplay}"
+                                       Classes="backup-muted"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding TimestampDisplay}"
+                                       Classes="backup-muted"/>
+                          </Grid>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <Border Padding="18"
+                        IsVisible="{Binding !HasRecentHistory}">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Empty}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                </Border>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block danger">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Plaintext.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Plaintext.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding PlaintextExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Path.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.BrowseJson}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowsePlaintextExportPathCommand}"/>
+                </Grid>
+
+                <CheckBox Content="{DynamicResource Loc.BackupCenter.Plaintext.Warning}"
+                          IsChecked="{Binding ConfirmPlaintextExport}"/>
+                <TextBox Text="{Binding PlaintextExportConfirmationText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Confirmation.Placeholder}"/>
+
+                <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportPlaintext}"
+                        Classes="backup-danger-button"
+                        HorizontalAlignment="Left"
+                        Command="{Binding ExportPlaintextCommand}"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Csv.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Csv.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding CsvImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Csv.Path.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.BrowseCsv}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowseCsvImportPathCommand}"/>
+                </Grid>
+
+                <ComboBox ItemsSource="{Binding CsvDuplicateStrategyOptions}"
+                          SelectedItem="{Binding SelectedCsvDuplicateStrategyOption}">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:CsvDuplicateStrategyOption">
+                      <TextBlock Text="{Binding Label}"/>
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
+
+                <Grid ColumnDefinitions="Auto,Auto,*"
+                      ColumnSpacing="10">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewCsv}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding PreviewCsvImportCommand}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.BackupCenter.Button.ImportCsv}"
+                          Classes="backup-primary-button"
+                          Command="{Binding ImportCsvCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding CsvPreviewSummary}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding HasCsvPreview}"/>
+              </StackPanel>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.backup-block">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="Border.backup-block.danger">
+      <Setter Property="BorderBrush" Value="{StaticResource DangerMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="Border.backup-status-card">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="18"/>
+      <Setter Property="MinHeight" Value="116"/>
+    </Style>
+
+    <Style Selector="Border.backup-status-card.danger">
+      <Setter Property="BorderBrush" Value="{StaticResource WarningMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-kicker, TextBlock.backup-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.1"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-section-title">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-status-value">
+      <Setter Property="FontSize" Value="15"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-muted">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-status-message">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="16,12"/>
+    </Style>
+
+    <Style Selector="Button.backup-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.backup-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.backup-danger-button">
+      <Setter Property="Background" Value="{StaticResource DangerPanelBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource DangerMutedBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Border.backup-history-row">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+
+    <Style Selector="Border.backup-history-chip">
+      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Padding" Value="10,4"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

@@ -32,6 +32,7 @@ public sealed class AppSettings
     public bool ClipboardCopyEnabled { get; set; } = true;
     public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
     public int SecurityAcknowledgementVersionAccepted { get; set; }
+    public BackupCenterHistory BackupCenterHistory { get; set; } = new();
 
     [JsonIgnore]
     public bool HasCurrentSecurityAcknowledgement =>
@@ -53,6 +54,12 @@ public sealed class AppSettings
     public void NormalizeLanguageId()
     {
         LanguageId = NormalizeLanguageId(LanguageId);
+    }
+
+    public void NormalizeBackupCenterHistory()
+    {
+        BackupCenterHistory ??= new BackupCenterHistory();
+        BackupCenterHistory.Normalize();
     }
 
     public static string NormalizeThemeId(string? themeId)

@@ -10,6 +10,7 @@ public static class ShellKryptSectionKeys
     public const string Notes = "notes";
     public const string Generator = "generator";
     public const string Audit = "audit";
+    public const string Backup = "backup";
     public const string Settings = "settings";
     public const string Activity = "activity";
 }
@@ -34,7 +35,8 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.Notes, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes and vault reference material.", true),
         new(ShellKryptSectionKeys.Generator, "Generator", "Generator", "GE", "Generate and transform local secrets without leaving the vault.", false),
         new(ShellKryptSectionKeys.Audit, "Security Audit", "Audit", "SE", "Audit reuse, age, and password risk across the vault.", false),
-        new(ShellKryptSectionKeys.Settings, "Settings", "Settings", "ST", "Manage vault security, import/export, and desktop behavior.", false),
+        new(ShellKryptSectionKeys.Backup, "Backup Center", "Backups", "BK", "Create, verify, restore, and export local vault data.", false),
+        new(ShellKryptSectionKeys.Settings, "Settings", "Settings", "ST", "Manage vault security and desktop behavior.", false),
         new(ShellKryptSectionKeys.Activity, "Activity Logs", "Logs", "AC", "Review vault activity events and plaintext report exports.", false)
     ];
 
@@ -48,6 +50,6 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.Notes, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes.", true),
         new(ShellKryptSectionKeys.Audit, "Security Audit", "Audit", "SE", "Password risk and remediation.", false),
         new(ShellKryptSectionKeys.Activity, "Activity Logs", "Logs", "AC", "Vault activity events.", false),
-        new(ShellKryptSectionKeys.Settings, "Settings", "Settings", "ST", "Security, backup, and app behavior.", false)
+        new(ShellKryptSectionKeys.Settings, "Settings", "Settings", "ST", "Security and app behavior.", false)
     ];
 }

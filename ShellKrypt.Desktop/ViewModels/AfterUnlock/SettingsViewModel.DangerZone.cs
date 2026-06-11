@@ -15,7 +15,7 @@ public sealed partial class SettingsViewModel
     {
         if (string.IsNullOrWhiteSpace(_root.VaultPath))
         {
-            TransferStatus = T("Settings.Status.NoActiveVault");
+            Status = T("Settings.Status.NoActiveVault");
             return;
         }
 
@@ -40,12 +40,12 @@ public sealed partial class SettingsViewModel
         if (password is null)
             return;
 
-        await RunTransferAsync(async () =>
+        await RunSettingsOperationAsync(async () =>
         {
             var unlockResult = await _vaultService.UnlockAsync(vaultPath, password);
             if (!unlockResult.Success)
             {
-                TransferStatus = unlockResult.Error ?? T("Settings.Status.WrongMasterPassword");
+                Status = unlockResult.Error ?? T("Settings.Status.WrongMasterPassword");
                 return;
             }
 

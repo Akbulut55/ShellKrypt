@@ -37,7 +37,6 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(FocusLockSummary));
         OnPropertyChanged(nameof(ClipboardClearSummary));
         OnPropertyChanged(nameof(RecoveryGuidanceText));
-        OnPropertyChanged(nameof(BackupRecommendationText));
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(ActiveVaultPathDisplay));
         OnPropertyChanged(nameof(VaultStorageDisplay));

@@ -15,6 +15,12 @@ public partial class MainWindowViewModel
         SaveSettingsAndSyncSessionSecurity();
     }
 
+    public void SaveBackupCenterHistory()
+    {
+        _backupCenterHistory.Normalize();
+        SaveSettingsAndSyncSessionSecurity();
+    }
+
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
@@ -57,6 +63,7 @@ public partial class MainWindowViewModel
             {
                 ThemeId = ThemeId,
                 LanguageId = LanguageId,
+                BackupCenterHistory = _backupCenterHistory,
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };

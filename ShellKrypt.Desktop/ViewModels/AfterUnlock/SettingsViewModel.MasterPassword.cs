@@ -51,7 +51,7 @@ public sealed partial class SettingsViewModel
             return;
         }
 
-        await RunTransferAsync(async () =>
+        await RunSettingsOperationAsync(async () =>
         {
             var result = await _vaultService.ChangeMasterPasswordAsync(
                 _root.VaultPath!,
@@ -69,7 +69,7 @@ public sealed partial class SettingsViewModel
             NewMasterPassword = "";
             ConfirmNewMasterPassword = "";
             MasterPasswordStatus = T("Settings.Status.ChangeMasterPasswordSuccess");
-            TransferStatus = T("Settings.Status.ChangeMasterPasswordTransferSuccess");
+            Status = T("Settings.Status.ChangeMasterPasswordTransferSuccess");
             _root.LogActivity("vault", "Master password changed", $"Updated the master password for {GetVaultDisplayName()}.", "success", _root.VaultPath, GetVaultDisplayName());
             await LoadCurrentSecurityProfileAsync();
         });

@@ -16,6 +16,7 @@ public sealed class AppSettingsService
         var settings = _store.Load();
         settings.NormalizeThemeId();
         settings.NormalizeLanguageId();
+        settings.NormalizeBackupCenterHistory();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         return settings;
     }
@@ -24,6 +25,7 @@ public sealed class AppSettingsService
     {
         settings.NormalizeThemeId();
         settings.NormalizeLanguageId();
+        settings.NormalizeBackupCenterHistory();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         _store.Save(settings);
     }

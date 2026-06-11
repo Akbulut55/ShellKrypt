@@ -43,6 +43,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
     private string? _securityAcknowledgementAcceptedAtUtc;
     private int _securityAcknowledgementVersionAccepted;
+    private BackupCenterHistory _backupCenterHistory = new();
 
     public event EventHandler? ActivityChanged;
 
@@ -81,6 +82,7 @@ public partial class MainWindowViewModel : ViewModelBase
         languageId = settings.LanguageId;
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
         _securityAcknowledgementVersionAccepted = settings.SecurityAcknowledgementVersionAccepted;
+        _backupCenterHistory = settings.BackupCenterHistory;
 
         _sessionSecurity.ApplySettings(sessionSecurity);
         _localization.SetLanguage(languageId);
@@ -93,6 +95,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public string? VaultPath => _state.VaultPath;
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public LocalizationService Localization => _localization;
+    public BackupCenterHistory BackupCenterHistory => _backupCenterHistory;
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? _localization.Get("Common.NoVaultSelected");
     public bool HasAcceptedSecurityAcknowledgement =>

@@ -545,140 +545,23 @@
                 </Border>
 
                 <Border Classes="settings-field-shell">
-                  <StackPanel Spacing="14">
-                    <TextBlock Text="{DynamicResource Loc.Settings.Backup.Title}"
-                               Classes="settings-mini-label"/>
-                    <TextBlock Text="{Binding BackupRecommendationText}"
-                               Classes="page-subtitle"
-                               FontSize="12"
-                               TextWrapping="Wrap"/>
-
-                    <StackPanel Spacing="8">
-                      <TextBlock Text="{DynamicResource Loc.Settings.Backup.EncryptedPath}"
-                                 Classes="settings-mini-label"/>
-                      <Grid ColumnDefinitions="*,Auto"
-                            ColumnSpacing="10">
-                        <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 PlaceholderText="{DynamicResource Loc.Settings.Backup.EncryptedPath.Placeholder}"/>
-                        <Button Grid.Column="1"
-                                Content="{DynamicResource Loc.Common.Browse}"
-                                Classes="settings-secondary-button"
-                                Command="{Binding BrowseEncryptedExportPathCommand}"/>
-                      </Grid>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="14"
+                        VerticalAlignment="Center">
+                    <StackPanel Spacing="6">
+                      <TextBlock Text="{DynamicResource Loc.Settings.BackupCenter.Title}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"/>
+                      <TextBlock Text="{DynamicResource Loc.Settings.BackupCenter.Description}"
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"/>
                     </StackPanel>
-
-                    <StackPanel Spacing="8">
-                      <TextBlock Text="{DynamicResource Loc.Settings.Backup.Passphrase}"
-                                 Classes="settings-mini-label"/>
-                      <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PasswordChar="*"
-                               PlaceholderText="{DynamicResource Loc.Settings.Backup.Passphrase.Placeholder}"/>
-                    </StackPanel>
-
-                    <Grid ColumnDefinitions="Auto,Auto,*"
-                          ColumnSpacing="10">
-                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewBackup}"
-                              Classes="settings-transfer-button"
-                              Command="{Binding PreviewExportCommand}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Settings.Button.ExportBackup}"
-                              Classes="settings-primary-button"
-                              Command="{Binding ExportEncryptedCommand}"/>
-                    </Grid>
-
-                    <TextBlock Text="{Binding ExportSummary}"
-                               Classes="page-subtitle"
-                               FontSize="12"
-                               TextWrapping="Wrap"/>
-                  </StackPanel>
-                </Border>
-
-                <Border Classes="settings-field-shell">
-                  <StackPanel Spacing="14">
-                    <TextBlock Text="{DynamicResource Loc.Settings.Restore.Title}"
-                               Classes="settings-mini-label"/>
-
-                    <Grid ColumnDefinitions="*,Auto"
-                          ColumnSpacing="10">
-                      <TextBox Text="{Binding EncryptedImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="{DynamicResource Loc.Settings.Restore.ImportPath.Placeholder}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Common.Browse}"
-                              Classes="settings-secondary-button"
-                              Command="{Binding BrowseEncryptedImportPathCommand}"/>
-                    </Grid>
-
-                    <TextBox Text="{Binding EncryptedImportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PasswordChar="*"
-                             PlaceholderText="{DynamicResource Loc.Settings.Restore.Passphrase.Placeholder}"/>
-
-                    <Grid ColumnDefinitions="Auto,Auto,*"
-                          ColumnSpacing="10">
-                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewRestore}"
-                              Classes="settings-transfer-button"
-                              Command="{Binding PreviewEncryptedImportCommand}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Settings.Button.RestoreBackup}"
-                              Classes="settings-transfer-button"
-                              Command="{Binding ImportEncryptedCommand}"/>
-                    </Grid>
-
-                    <TextBlock Text="{Binding EncryptedImportSummary}"
-                               Classes="page-subtitle"
-                               FontSize="12"
-                               TextWrapping="Wrap"/>
-                  </StackPanel>
-                </Border>
-
-                <Border Classes="settings-field-shell">
-                  <StackPanel Spacing="14">
-                    <TextBlock Text="{DynamicResource Loc.Settings.Advanced.Title}"
-                               Classes="settings-mini-label"/>
-
-                    <Grid ColumnDefinitions="*,Auto"
-                          ColumnSpacing="10">
-                      <TextBox Text="{Binding CsvImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="{DynamicResource Loc.Settings.Csv.Path.Placeholder}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Common.BrowseCsv}"
-                              Classes="settings-secondary-button"
-                              Command="{Binding BrowseCsvImportPathCommand}"/>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="Auto,Auto,*"
-                          ColumnSpacing="10">
-                      <Button Content="{DynamicResource Loc.Settings.Button.PreviewCsv}"
-                              Classes="settings-transfer-button"
-                              Command="{Binding PreviewCsvImportCommand}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Settings.Button.ImportCsv}"
-                              Classes="settings-transfer-button"
-                              Command="{Binding ImportCsvCommand}"/>
-                    </Grid>
-
-                    <Grid ColumnDefinitions="*,Auto"
-                          ColumnSpacing="10">
-                      <TextBox Text="{Binding PlaintextExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="{DynamicResource Loc.Settings.Plaintext.Path.Placeholder}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.Common.BrowseJson}"
-                              Classes="settings-secondary-button"
-                              Command="{Binding BrowsePlaintextExportPathCommand}"/>
-                    </Grid>
-                    <CheckBox Content="{DynamicResource Loc.Settings.Plaintext.Warning}"
-                              IsChecked="{Binding ConfirmPlaintextExport}"/>
-                    <TextBox Text="{Binding PlaintextExportConfirmationText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="{DynamicResource Loc.Settings.Plaintext.Confirmation.Placeholder}"/>
-                    <Button Content="{DynamicResource Loc.Settings.Button.ExportPlaintext}"
-                            Classes="settings-danger-link"
-                            Command="{Binding ExportPlaintextCommand}"/>
-
-                    <TextBlock Text="{Binding CsvPreviewSummary}"
-                               Classes="page-subtitle"
-                               FontSize="12"
-                               TextWrapping="Wrap"
-                               IsVisible="{Binding HasCsvPreview}"/>
-                  </StackPanel>
+                    <Button Grid.Column="1"
+                            Content="{DynamicResource Loc.Settings.Button.OpenBackupCenter}"
+                            Classes="settings-primary-button"
+                            Command="{Binding OpenBackupCenterCommand}"/>
+                  </Grid>
                 </Border>
 
                 <Button Content="{DynamicResource Loc.Settings.Button.DestroyVault}"

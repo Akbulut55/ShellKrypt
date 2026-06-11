@@ -50,6 +50,7 @@ public partial class ShellViewModel : ViewModelBase
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         Health = new HealthViewModel(_root, this, healthAuditService, auditDismissalService);
+        BackupCenter = new BackupCenterViewModel(_root);
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);
         Activity = new ActivityViewModel(_root, activityLogService);
 
@@ -63,6 +64,7 @@ public partial class ShellViewModel : ViewModelBase
     public ApiKeysViewModel ApiKeys { get; }
     public ToolsViewModel Tools { get; }
     public HealthViewModel Health { get; }
+    public BackupCenterViewModel BackupCenter { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
     public ActivityViewModel Activity { get; }
@@ -87,6 +89,7 @@ public partial class ShellViewModel : ViewModelBase
         ApiKeys.RefreshLocalization();
         Tools.RefreshLocalization();
         Health.RefreshLocalization();
+        BackupCenter.RefreshLocalization();
         Settings.RefreshLocalization();
         Activity.RefreshLocalization();
     }

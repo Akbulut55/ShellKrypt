@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.UI.Shared.Theming;
 
@@ -14,7 +13,6 @@ public sealed partial class SettingsViewModel : ViewModelBase
 {
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
-    private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly VaultRegistryService _vaultRegistry;
 
@@ -32,37 +30,12 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool isThemePickerOpen;
     [ObservableProperty] private bool isLanguagePickerOpen;
     [ObservableProperty] private string status = "";
-    [ObservableProperty] private string transferStatus = "";
-    [ObservableProperty] private bool isTransferBusy;
     [ObservableProperty] private string currentMasterPassword = "";
     [ObservableProperty] private string newMasterPassword = "";
     [ObservableProperty] private string confirmNewMasterPassword = "";
     [ObservableProperty] private string masterPasswordStatus = "";
     [ObservableProperty] private VaultSecurityProfile? selectedSecurityProfile;
     [ObservableProperty] private string activeSecurityProfileLabel = "Unknown";
-
-    [ObservableProperty] private string encryptedExportPath = "";
-    [ObservableProperty] private string exportPassphrase = "";
-    [ObservableProperty] private string exportSummary = "";
-
-    [ObservableProperty] private string plaintextExportPath = "";
-    [ObservableProperty] private bool confirmPlaintextExport;
-    [ObservableProperty] private string plaintextExportConfirmationText = "";
-
-    [ObservableProperty] private string encryptedImportPath = "";
-    [ObservableProperty] private string encryptedImportPassphrase = "";
-    [ObservableProperty] private string encryptedImportSummary = "";
-
-    [ObservableProperty] private string csvImportPath = "";
-    [ObservableProperty] private VaultCsvDuplicateStrategy selectedCsvDuplicateStrategy = VaultCsvDuplicateStrategy.SkipDuplicates;
-    [ObservableProperty] private string csvPreviewSummary = "";
-
-    public ObservableCollection<VaultCsvDuplicateStrategy> CsvDuplicateStrategies { get; } =
-    [
-        VaultCsvDuplicateStrategy.SkipDuplicates,
-        VaultCsvDuplicateStrategy.OverwriteDuplicates,
-        VaultCsvDuplicateStrategy.ImportAll
-    ];
 
     public ObservableCollection<ThemeOption> ThemeOptions { get; } =
     [
@@ -111,28 +84,21 @@ public sealed partial class SettingsViewModel : ViewModelBase
         .. VaultSecurityProfiles.All
     ];
 
-    public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
-
     public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell, VaultRegistryService vaultRegistry)
     {
         _root = root;
         _shell = shell;
         _vaultRegistry = vaultRegistry;
-        CsvPreviewRows.CollectionChanged += (_, _) => OnPropertyChanged(nameof(HasCsvPreview));
         _root.Localization.LanguageChanged += OnLocalizationChanged;
         RefreshLocalizedOptionLabels();
         LoadFromRootSettings();
         SelectedLanguageOption = ResolveLanguageOption(_root.LanguageId);
         Status = T("Settings.Status.SettingsAutoSave");
 
-        var exportBaseName = GetVaultDisplayName();
-        EncryptedExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} Backup", ".skbx");
-        PlaintextExportPath = DefaultPaths.GetSuggestedExportPath($"{exportBaseName} DECRYPTED Plaintext Export", ".json");
         SelectedSecurityProfile = VaultSecurityProfiles.Default;
         _ = LoadCurrentSecurityProfileAsync();
     }
 
-    public bool HasCsvPreview => CsvPreviewRows.Count > 0;
     public bool HasMasterPasswordStatus => !string.IsNullOrWhiteSpace(MasterPasswordStatus);
     public string ActiveVaultDisplay => GetVaultFileName();
     public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? T("Settings.Status.NoActiveVaultPath") : _root.VaultPath;
@@ -152,7 +118,6 @@ public sealed partial class SettingsViewModel : ViewModelBase
         : T("Settings.Clipboard.Disabled");
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => T("Settings.RecoveryGuidance");
-    public string BackupRecommendationText => T("Settings.BackupRecommendation");
     public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
     public string SecurityStatusText => AutoLockEnabled
         ? T("Settings.SecurityStatus.AutoLockEnabled", SelectedAutoLockDuration?.Label ?? T("Settings.Status.Configured"))

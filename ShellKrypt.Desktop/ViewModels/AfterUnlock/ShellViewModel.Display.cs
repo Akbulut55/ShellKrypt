@@ -36,6 +36,7 @@ public partial class ShellViewModel
         ShellKryptSectionKeys.Notes => T(_root, "Sidebar.notes.Subtitle"),
         ShellKryptSectionKeys.Cards => T(_root, "Sidebar.cards.Subtitle"),
         ShellKryptSectionKeys.Audit => T(_root, "Sidebar.audit.Subtitle"),
+        ShellKryptSectionKeys.Backup => T(_root, "Sidebar.backup.Subtitle"),
         ShellKryptSectionKeys.Generator => T(_root, "Sidebar.generator.Subtitle"),
         ShellKryptSectionKeys.Authenticator => T(_root, "Sidebar.auth.Subtitle"),
         ShellKryptSectionKeys.ApiKeys => T(_root, "Sidebar.api.Subtitle"),
@@ -44,10 +45,16 @@ public partial class ShellViewModel
         _ => T(_root, "Shell.LocalWorkspace")
     };
     public bool IsSettingsSelected => SelectedNav?.Key == ShellKryptSectionKeys.Settings;
-    public bool ShowAddItemAction => !IsSettingsSelected;
+    public bool ShowAddItemAction => SelectedNav?.Key is
+        ShellKryptSectionKeys.WebLogins or
+        ShellKryptSectionKeys.Cards or
+        ShellKryptSectionKeys.ApiKeys or
+        ShellKryptSectionKeys.Authenticator or
+        ShellKryptSectionKeys.Notes;
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
         ShellKryptSectionKeys.Settings => T(_root, "Shell.Search.Settings"),
+        ShellKryptSectionKeys.Backup => T(_root, "Shell.Search.Backup"),
         ShellKryptSectionKeys.Vault => T(_root, "Shell.Search.AllItems"),
         ShellKryptSectionKeys.WebLogins => T(_root, "Shell.Search.WebLogins"),
         ShellKryptSectionKeys.Notes => T(_root, "Shell.Search.Notes"),
