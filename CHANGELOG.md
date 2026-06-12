@@ -6,6 +6,13 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.15.0] - 2026-06-12
+
+### Added
+
+- Added a desktop Emergency Kit section with recovery readiness, safe printable checklist export, and local-only recovery acknowledgements.
+- Added in-app automatic encrypted backups with session-only backup passphrase handling, backup verification, retention cleanup, and Backup Center controls.
+
 ## [ShellKrypt 0.14.0] - 2026-06-11
 
 ### Added

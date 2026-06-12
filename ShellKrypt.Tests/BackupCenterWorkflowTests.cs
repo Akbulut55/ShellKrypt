@@ -4,6 +4,7 @@ using ShellKrypt.Application.Settings;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
@@ -154,6 +155,155 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
     }
 
     [Fact]
+    public async Task BackupCenter_RunAutomaticBackupNow_ExportsVerifiesAndDoesNotPersistPassphrase()
+    {
+        using var workspace = new TempWorkspace();
+        using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
+        var repo = new SqliteItemRepository();
+        var webLogins = new WebLoginService(repo);
+
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var backupDir = workspace.FilePath("auto-backups");
+        Directory.CreateDirectory(backupDir);
+        var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
+        await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Auto Portal", "https://auto.example", "owner", "", "auto-secret", ""));
+
+        var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
+        backupCenter.AutomaticBackupEnabled = true;
+        backupCenter.AutomaticBackupDirectory = backupDir;
+        backupCenter.AutomaticBackupPassphrase = "automatic-backup-passphrase";
+        backupCenter.AutomaticBackupRetentionCount = 2;
+
+        await backupCenter.RunAutomaticBackupNowCommand.ExecuteAsync(null);
+
+        var backupPath = Assert.Single(Directory.GetFiles(backupDir, "*.skbx"));
+        Assert.Contains("ShellKrypt-vault-Auto-", Path.GetFileName(backupPath));
+        Assert.Contains("Automatic backup completed", backupCenter.AutomaticBackupStatus);
+        Assert.Contains(backupCenter.RecentHistory, row => row.OperationLabel == "Automatic backup");
+
+        var settingsJson = File.ReadAllText(DefaultPaths.SettingsPath);
+        Assert.DoesNotContain("automatic-backup-passphrase", settingsJson);
+        Assert.DoesNotContain("auto-secret", settingsJson);
+    }
+
+    [Fact]
+    public async Task BackupCenter_AutomaticBackupRequiresSessionPassphrase()
+    {
+        using var workspace = new TempWorkspace();
+        using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
+
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var backupDir = workspace.FilePath("auto-backups");
+        Directory.CreateDirectory(backupDir);
+        var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
+
+        var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
+        backupCenter.AutomaticBackupEnabled = true;
+        backupCenter.AutomaticBackupDirectory = backupDir;
+
+        await backupCenter.RunAutomaticBackupNowCommand.ExecuteAsync(null);
+
+        Assert.Empty(Directory.GetFiles(backupDir, "*.skbx"));
+        Assert.Contains("passphrase", backupCenter.AutomaticBackupStatus, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public void AutomaticBackupRetention_DeletesOnlyMatchingAutoBackupFiles()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var backupDir = workspace.FilePath("auto-backups");
+        Directory.CreateDirectory(backupDir);
+
+        var older = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 1, 10, 0, 0, TimeSpan.Zero));
+        var middle = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 2, 10, 0, 0, TimeSpan.Zero));
+        var newer = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 3, 10, 0, 0, TimeSpan.Zero));
+        var manual = Path.Combine(backupDir, "ShellKrypt-vault-Manual.skbx");
+        var otherVaultAuto = Path.Combine(backupDir, "ShellKrypt-other-Auto-20260501-100000.skbx");
+
+        File.WriteAllText(older, "old");
+        File.WriteAllText(middle, "mid");
+        File.WriteAllText(newer, "new");
+        File.WriteAllText(manual, "manual");
+        File.WriteAllText(otherVaultAuto, "other");
+        File.SetLastWriteTimeUtc(older, new DateTime(2026, 5, 1, 10, 0, 0, DateTimeKind.Utc));
+        File.SetLastWriteTimeUtc(middle, new DateTime(2026, 5, 2, 10, 0, 0, DateTimeKind.Utc));
+        File.SetLastWriteTimeUtc(newer, new DateTime(2026, 5, 3, 10, 0, 0, DateTimeKind.Utc));
+
+        var deleted = AutomaticBackupCoordinator.ApplyRetention(backupDir, vaultPath, retentionCount: 2);
+
+        Assert.Equal(1, deleted);
+        Assert.False(File.Exists(older));
+        Assert.True(File.Exists(middle));
+        Assert.True(File.Exists(newer));
+        Assert.True(File.Exists(manual));
+        Assert.True(File.Exists(otherVaultAuto));
+    }
+
+    [Fact]
+    public async Task AutomaticBackupCoordinator_CheckDueSkipsWithoutSessionPassphrase()
+    {
+        using var workspace = new TempWorkspace();
+        var transfer = new FakeVaultTransferService();
+        var schedule = new BackupScheduleSettings
+        {
+            Enabled = true,
+            BackupDirectory = workspace.Root,
+            Frequency = BackupScheduleFrequency.Daily
+        };
+        var state = new AutomaticBackupState();
+        var coordinator = new AutomaticBackupCoordinator(
+            transfer,
+            () => new AutomaticBackupContext(workspace.FilePath("vault.skvault"), [1, 2, 3], schedule, state));
+
+        var result = await coordinator.CheckDueAsync();
+
+        Assert.Null(result);
+        Assert.Equal(0, transfer.ExportEncryptedCallCount);
+        Assert.Equal("", state.LastAttemptedAtUtc);
+    }
+
+    [Fact]
+    public async Task EmergencyKit_ChecklistPersistsAndPrintableTextContainsNoSecrets()
+    {
+        using var workspace = new TempWorkspace();
+        using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
+        var root = new MainWindowViewModel();
+        root.SetVaultPath(vaultPath);
+        root.OnUnlocked(vaultKey);
+        root.SetAutomaticBackupSessionPassphrase("do-not-store-backup-passphrase");
+        root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
+        {
+            Operation = "encrypted-backup",
+            Status = "success",
+            TimestampUtc = DateTimeOffset.UtcNow.ToString("O"),
+            VaultName = "Vault",
+            FileName = "safe-backup.skbx",
+            FullPath = workspace.FilePath("safe-backup.skbx")
+        });
+
+        var shell = Assert.IsType<ShellViewModel>(root.Current);
+        var kit = shell.EmergencyKit;
+        kit.NoPasswordRecoveryAcknowledged = true;
+        kit.MasterPasswordStoredExternally = true;
+        kit.BackupPassphraseStoredExternally = true;
+        kit.BackupLocationKnown = true;
+        kit.BackupVerified = true;
+
+        var text = kit.BuildPrintableChecklistText();
+        var settingsJson = File.ReadAllText(DefaultPaths.SettingsPath);
+
+        Assert.Contains("ShellKrypt Emergency Kit", text);
+        Assert.Contains("safe-backup.skbx", text);
+        Assert.DoesNotContain("Vault Master Password 2026", text);
+        Assert.DoesNotContain("do-not-store-backup-passphrase", text);
+        Assert.DoesNotContain("do-not-store-backup-passphrase", settingsJson);
+        Assert.True(new AppSettingsService(new FileAppSettingsStore()).Load().EmergencyKit.BackupVerified);
+    }
+
+    [Fact]
     public void BackupCenterHistory_PersistsLimitsAndDoesNotStoreSecrets()
     {
         using var workspace = new TempWorkspace();
@@ -261,5 +411,37 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
             {
             }
         }
+    }
+
+    private sealed class FakeVaultTransferService : IVaultTransferService
+    {
+        public int ExportEncryptedCallCount { get; private set; }
+
+        public Task<VaultSnapshotSummary> GetExportSummaryAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
+            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0));
+
+        public Task ExportPlaintextJsonAsync(string vaultPath, byte[] vaultKey, string outputPath, CancellationToken ct = default)
+            => Task.CompletedTask;
+
+        public Task ExportEncryptedAsync(string vaultPath, byte[] vaultKey, string outputPath, string exportPassphrase, CancellationToken ct = default)
+        {
+            ExportEncryptedCallCount++;
+            return Task.CompletedTask;
+        }
+
+        public Task<VaultSnapshotSummary> GetEncryptedImportSummaryAsync(string packagePath, string exportPassphrase, CancellationToken ct = default)
+            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0));
+
+        public Task ImportEncryptedAsync(string packagePath, string exportPassphrase, string vaultPath, byte[] vaultKey, CancellationToken ct = default)
+            => Task.CompletedTask;
+
+        public Task ImportSnapshotAsync(string vaultPath, byte[] vaultKey, VaultSnapshot snapshot, CancellationToken ct = default)
+            => Task.CompletedTask;
+
+        public Task<VaultCsvImportPreview> PreviewCsvImportAsync(string vaultPath, byte[] vaultKey, string csvPath, CancellationToken ct = default)
+            => Task.FromResult(new VaultCsvImportPreview(0, 0, 0, 0, []));
+
+        public Task ImportCsvAsync(string vaultPath, byte[] vaultKey, string csvPath, VaultCsvDuplicateStrategy strategy, CancellationToken ct = default)
+            => Task.CompletedTask;
     }
 }

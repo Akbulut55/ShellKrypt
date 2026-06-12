@@ -9,6 +9,8 @@ public sealed class BackupCenterHistory
     public string LastRestoredBackupPath { get; set; } = "";
     public string LastPlaintextExportPath { get; set; } = "";
     public string LastCsvImportPath { get; set; } = "";
+    public string LastAutomaticBackupPath { get; set; } = "";
+    public string LastEmergencyKitExportPath { get; set; } = "";
     public List<BackupCenterHistoryEntry> RecentEntries { get; set; } = [];
 
     public void AddEntry(BackupCenterHistoryEntry entry)
@@ -28,6 +30,8 @@ public sealed class BackupCenterHistory
         LastRestoredBackupPath = NormalizePath(LastRestoredBackupPath);
         LastPlaintextExportPath = NormalizePath(LastPlaintextExportPath);
         LastCsvImportPath = NormalizePath(LastCsvImportPath);
+        LastAutomaticBackupPath = NormalizePath(LastAutomaticBackupPath);
+        LastEmergencyKitExportPath = NormalizePath(LastEmergencyKitExportPath);
 
         RecentEntries ??= [];
         foreach (var entry in RecentEntries)

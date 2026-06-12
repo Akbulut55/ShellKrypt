@@ -9,7 +9,10 @@ public partial class MainWindowViewModel
     {
         var nextPath = string.IsNullOrWhiteSpace(path) ? null : Path.GetFullPath(path);
         if (!string.Equals(_state.VaultPath, nextPath, StringComparison.OrdinalIgnoreCase))
+        {
             _ = _clipboardService.ClearAsync();
+            _automaticBackupCoordinator.ClearSessionPassphrase();
+        }
 
         _state.VaultPath = nextPath;
     }
@@ -41,6 +44,7 @@ public partial class MainWindowViewModel
 
         _sessionSecurity.SetUnlocked(true);
         Current = CreateShell();
+        _automaticBackupCoordinator.Start();
     }
 
     public void Lock()
@@ -57,6 +61,8 @@ public partial class MainWindowViewModel
                 affectedItem: GetVaultDisplayName(vaultPath));
         }
 
+        _automaticBackupCoordinator.Stop();
+        _automaticBackupCoordinator.ClearSessionPassphrase();
         _sessionSecurity.SetUnlocked(false);
         _ = _clipboardService.ClearAsync();
         _state.ClearSensitive();

@@ -9,6 +9,7 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Tools;
@@ -41,11 +42,17 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IApiKeyService _apiKeyService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
+    private readonly IVaultTransferService _vaultTransferService = new SqliteVaultTransferService();
+    private readonly AutomaticBackupCoordinator _automaticBackupCoordinator;
     private string? _securityAcknowledgementAcceptedAtUtc;
     private int _securityAcknowledgementVersionAccepted;
     private BackupCenterHistory _backupCenterHistory = new();
+    private EmergencyKitState _emergencyKit = new();
+    private BackupScheduleSettings _backupSchedule = new();
+    private AutomaticBackupState _automaticBackupState = new();
 
     public event EventHandler? ActivityChanged;
+    public event EventHandler? AutomaticBackupChanged;
 
     [ObservableProperty]
     private ViewModelBase current = null!;
@@ -83,6 +90,16 @@ public partial class MainWindowViewModel : ViewModelBase
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
         _securityAcknowledgementVersionAccepted = settings.SecurityAcknowledgementVersionAccepted;
         _backupCenterHistory = settings.BackupCenterHistory;
+        _emergencyKit = settings.EmergencyKit;
+        _backupSchedule = settings.BackupSchedule;
+        _automaticBackupState = settings.AutomaticBackupState;
+        _automaticBackupCoordinator = new AutomaticBackupCoordinator(_vaultTransferService, BuildAutomaticBackupContext);
+        _automaticBackupCoordinator.StateChanged += (_, _) => AutomaticBackupChanged?.Invoke(this, EventArgs.Empty);
+        _automaticBackupCoordinator.RunCompleted += (_, result) =>
+        {
+            RecordAutomaticBackupResult(result);
+            SaveBackupScheduleState();
+        };
 
         _sessionSecurity.ApplySettings(sessionSecurity);
         _localization.SetLanguage(languageId);
@@ -95,7 +112,12 @@ public partial class MainWindowViewModel : ViewModelBase
     public string? VaultPath => _state.VaultPath;
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public LocalizationService Localization => _localization;
+    public IVaultTransferService VaultTransferService => _vaultTransferService;
     public BackupCenterHistory BackupCenterHistory => _backupCenterHistory;
+    public EmergencyKitState EmergencyKit => _emergencyKit;
+    public BackupScheduleSettings BackupSchedule => _backupSchedule;
+    public AutomaticBackupState AutomaticBackupState => _automaticBackupState;
+    public AutomaticBackupCoordinator AutomaticBackups => _automaticBackupCoordinator;
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? _localization.Get("Common.NoVaultSelected");
     public bool HasAcceptedSecurityAcknowledgement =>

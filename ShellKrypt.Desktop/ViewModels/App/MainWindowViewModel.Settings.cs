@@ -21,6 +21,20 @@ public partial class MainWindowViewModel
         SaveSettingsAndSyncSessionSecurity();
     }
 
+    public void SaveEmergencyKitState()
+    {
+        _emergencyKit.Normalize();
+        SaveSettingsAndSyncSessionSecurity();
+    }
+
+    public void SaveBackupScheduleState()
+    {
+        _backupSchedule.Normalize();
+        _automaticBackupState.Normalize();
+        SaveSettingsAndSyncSessionSecurity();
+        AutomaticBackupChanged?.Invoke(this, EventArgs.Empty);
+    }
+
     partial void OnAutoLockEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnAutoLockMinutesChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnLockOnDeactivateChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
@@ -64,6 +78,9 @@ public partial class MainWindowViewModel
                 ThemeId = ThemeId,
                 LanguageId = LanguageId,
                 BackupCenterHistory = _backupCenterHistory,
+                EmergencyKit = _emergencyKit,
+                BackupSchedule = _backupSchedule,
+                AutomaticBackupState = _automaticBackupState,
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };

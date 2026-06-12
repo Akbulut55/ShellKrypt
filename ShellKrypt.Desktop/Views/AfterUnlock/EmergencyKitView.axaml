@@ -1,0 +1,230 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+             x:Class="ShellKrypt.Desktop.Views.EmergencyKitView"
+             x:CompileBindings="False"
+             x:DataType="vm:EmergencyKitViewModel">
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="28,24,28,28"
+                  MaxWidth="1500"
+                  Spacing="24">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="18">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.EmergencyKit.Title}"
+                       FontSize="30"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource Loc.EmergencyKit.Subtitle}"
+                       Classes="page-subtitle"/>
+          </StackPanel>
+
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.EmergencyKit.Button.OpenBackupCenter}"
+                  Classes="emergency-primary-button"
+                  Command="{Binding OpenBackupCenterCommand}"/>
+        </Grid>
+
+        <Grid ColumnDefinitions="4*,8*"
+              ColumnSpacing="22"
+              MinWidth="980">
+          <StackPanel Spacing="18">
+            <Border Classes="emergency-score-card">
+              <StackPanel Spacing="16"
+                          HorizontalAlignment="Center">
+                <TextBlock Text="{Binding ReadinessScoreDisplay}"
+                           FontSize="54"
+                           FontWeight="Black"
+                           Foreground="{StaticResource AccentBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding ReadinessScoreTitle}"
+                           FontSize="17"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding ChecklistProgressText}"
+                           Classes="page-subtitle"
+                           HorizontalAlignment="Center"/>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="emergency-card">
+              <StackPanel Spacing="12">
+                <TextBlock Text="{DynamicResource Loc.EmergencyKit.RecoveryFacts.Title}"
+                           Classes="emergency-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.EmergencyKit.RecoveryFacts.NoRecovery}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding LastBackupDisplay}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding LastVerifiedDisplay}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding AutomaticBackupDisplay}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="{Binding Status}"
+                       Classes="emergency-status-message"
+                       IsVisible="{Binding HasStatus}"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="18">
+            <Grid ColumnDefinitions="*,*"
+                  ColumnSpacing="18">
+              <Border Classes="emergency-card">
+                <StackPanel Spacing="14">
+                  <TextBlock Text="{DynamicResource Loc.EmergencyKit.Readiness.Title}"
+                             Classes="emergency-section-title"/>
+                  <ItemsControl ItemsSource="{Binding ReadinessItems}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:EmergencyReadinessItemVm">
+                        <Border Classes="emergency-readiness-row">
+                          <Grid ColumnDefinitions="Auto,*"
+                                ColumnSpacing="12">
+                            <TextBlock Text="{Binding StatusText}"
+                                       Foreground="{Binding StatusBrushKey, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                       FontWeight="Black"
+                                       FontSize="11"
+                                       VerticalAlignment="Center"/>
+                            <StackPanel Grid.Column="1"
+                                        Spacing="4">
+                              <TextBlock Text="{Binding Title}"
+                                         FontWeight="SemiBold"
+                                         TextWrapping="Wrap"/>
+                              <TextBlock Text="{Binding Detail}"
+                                         Classes="page-subtitle"
+                                         FontSize="12"
+                                         TextWrapping="Wrap"/>
+                            </StackPanel>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+
+              <Border Grid.Column="1"
+                      Classes="emergency-card">
+                <StackPanel Spacing="14">
+                  <TextBlock Text="{DynamicResource Loc.EmergencyKit.Checklist.Title}"
+                             Classes="emergency-section-title"/>
+                  <CheckBox Content="{DynamicResource Loc.EmergencyKit.Checklist.NoRecovery}"
+                            IsChecked="{Binding NoPasswordRecoveryAcknowledged}"/>
+                  <CheckBox Content="{DynamicResource Loc.EmergencyKit.Checklist.MasterPassword}"
+                            IsChecked="{Binding MasterPasswordStoredExternally}"/>
+                  <CheckBox Content="{DynamicResource Loc.EmergencyKit.Checklist.BackupPassphrase}"
+                            IsChecked="{Binding BackupPassphraseStoredExternally}"/>
+                  <CheckBox Content="{DynamicResource Loc.EmergencyKit.Checklist.BackupLocation}"
+                            IsChecked="{Binding BackupLocationKnown}"/>
+                  <CheckBox Content="{DynamicResource Loc.EmergencyKit.Checklist.VerifiedBackup}"
+                            IsChecked="{Binding BackupVerified}"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Classes="emergency-card">
+              <Grid ColumnDefinitions="*,Auto"
+                    ColumnSpacing="18">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.EmergencyKit.Actions.Title}"
+                             Classes="emergency-section-title"/>
+                  <TextBlock Text="{DynamicResource Loc.EmergencyKit.Actions.Description}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                  <TextBlock Text="{Binding LastChecklistExportDisplay}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <WrapPanel Grid.Column="1"
+                           Orientation="Horizontal"
+                           VerticalAlignment="Center">
+                  <Button Content="{DynamicResource Loc.EmergencyKit.Button.CreateBackup}"
+                          Classes="emergency-secondary-button"
+                          Command="{Binding CreateBackupCommand}"/>
+                  <Button Content="{DynamicResource Loc.EmergencyKit.Button.VerifyBackup}"
+                          Classes="emergency-secondary-button"
+                          Command="{Binding VerifyBackupCommand}"/>
+                  <Button Content="{DynamicResource Loc.EmergencyKit.Button.ExportChecklist}"
+                          Classes="emergency-primary-button"
+                          Command="{Binding ExportChecklistCommand}"/>
+                </WrapPanel>
+              </Grid>
+            </Border>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.emergency-card, Border.emergency-score-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="22"/>
+    </Style>
+
+    <Style Selector="Border.emergency-score-card">
+      <Setter Property="MinHeight" Value="190"/>
+    </Style>
+
+    <Style Selector="TextBlock.emergency-section-title">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.2"/>
+    </Style>
+
+    <Style Selector="Border.emergency-readiness-row">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="14"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+
+    <Style Selector="TextBlock.emergency-status-message">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="Padding" Value="16,12"/>
+    </Style>
+
+    <Style Selector="Button.emergency-primary-button">
+      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="8,0,0,0"/>
+    </Style>
+
+    <Style Selector="Button.emergency-secondary-button">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="Margin" Value="8,0,0,0"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

@@ -8,8 +8,8 @@ using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Services;
-using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -22,7 +22,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     private const string OperationCsvImport = "csv-import";
 
     private readonly MainWindowViewModel _root;
-    private readonly IVaultTransferService _transferService = new SqliteVaultTransferService();
+    private readonly IVaultTransferService _transferService;
 
     [ObservableProperty] private string encryptedExportPath = "";
     [ObservableProperty] private string exportPassphrase = "";
@@ -42,14 +42,25 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     [ObservableProperty] private bool isTransferBusy;
     [ObservableProperty] private string transferStatus = "";
     [ObservableProperty] private CsvDuplicateStrategyOption? selectedCsvDuplicateStrategyOption;
+    [ObservableProperty] private bool automaticBackupEnabled;
+    [ObservableProperty] private string automaticBackupDirectory = "";
+    [ObservableProperty] private string automaticBackupPassphrase = "";
+    [ObservableProperty] private int automaticBackupRetentionCount = BackupScheduleSettings.DefaultRetentionCount;
+    [ObservableProperty] private AutomaticBackupFrequencyOption? selectedAutomaticBackupFrequencyOption;
+    [ObservableProperty] private string automaticBackupStatus = "";
 
     public BackupCenterViewModel(MainWindowViewModel root)
     {
         _root = root;
+        _transferService = _root.VaultTransferService;
         foreach (var option in CreateDuplicateStrategyOptions())
             CsvDuplicateStrategyOptions.Add(option);
+        foreach (var option in CreateAutomaticBackupFrequencyOptions())
+            AutomaticBackupFrequencyOptions.Add(option);
 
         SelectedCsvDuplicateStrategyOption = CsvDuplicateStrategyOptions[0];
+        LoadAutomaticBackupSettings();
+        _root.AutomaticBackupChanged += (_, _) => RefreshAutomaticBackupState();
 
         var exportBaseName = GetVaultDisplayName();
         var history = _root.BackupCenterHistory;
@@ -62,6 +73,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     }
 
     public ObservableCollection<CsvDuplicateStrategyOption> CsvDuplicateStrategyOptions { get; } = new();
+    public ObservableCollection<AutomaticBackupFrequencyOption> AutomaticBackupFrequencyOptions { get; } = new();
     public ObservableCollection<VaultCsvImportRowPreview> CsvPreviewRows { get; } = new();
     public ObservableCollection<BackupHistoryEntryVm> RecentHistory { get; } = new();
 
@@ -79,20 +91,35 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     public bool HasCsvPreview => CsvPreviewRows.Count > 0;
     public bool HasTransferStatus => !string.IsNullOrWhiteSpace(TransferStatus);
     public bool HasRecentHistory => RecentHistory.Count > 0;
+    public bool HasAutomaticBackupStatus => !string.IsNullOrWhiteSpace(AutomaticBackupStatus);
+    public bool HasAutomaticBackupSessionPassphrase => _root.AutomaticBackups.HasSessionPassphrase;
+    public bool IsAutomaticBackupRunning => _root.AutomaticBackups.IsRunning;
     public string ActiveVaultDisplay => GetVaultDisplayName();
     public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? T("BackupCenter.Status.NoActiveVaultPath") : _root.VaultPath;
     public string LastEncryptedBackupDisplay => FormatLastOperation(OperationEncryptedBackup, _root.BackupCenterHistory.LastEncryptedBackupPath);
     public string LastVerifiedBackupDisplay => FormatLastOperation(OperationVerifyBackup, _root.BackupCenterHistory.LastVerifiedBackupPath);
+    public string LastAutomaticBackupDisplay => FormatLastAutomaticBackup();
     public string LastRestoreDisplay => FormatLastOperation(OperationRestoreBackup, _root.BackupCenterHistory.LastRestoredBackupPath);
     public string LastPlaintextExportDisplay => FormatLastOperation(OperationPlaintextExport, _root.BackupCenterHistory.LastPlaintextExportPath);
     public string LastCsvImportDisplay => FormatLastOperation(OperationCsvImport, _root.BackupCenterHistory.LastCsvImportPath);
+    public string AutomaticBackupSessionText => HasAutomaticBackupSessionPassphrase
+        ? T("BackupCenter.Automatic.Session.Ready")
+        : T("BackupCenter.Automatic.Session.Missing");
 
     partial void OnTransferStatusChanged(string value) => OnPropertyChanged(nameof(HasTransferStatus));
+    partial void OnAutomaticBackupStatusChanged(string value) => OnPropertyChanged(nameof(HasAutomaticBackupStatus));
     partial void OnSelectedCsvDuplicateStrategyOptionChanged(CsvDuplicateStrategyOption? value) => OnPropertyChanged(nameof(SelectedCsvDuplicateStrategy));
+    partial void OnAutomaticBackupPassphraseChanged(string value)
+    {
+        _root.SetAutomaticBackupSessionPassphrase(value);
+        RefreshAutomaticBackupState();
+    }
 
     public override void RefreshLocalization()
     {
         foreach (var option in CsvDuplicateStrategyOptions)
+            option.RefreshLocalization(_root.Localization);
+        foreach (var option in AutomaticBackupFrequencyOptions)
             option.RefreshLocalization(_root.Localization);
 
         foreach (var row in RecentHistory)
@@ -103,9 +130,11 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             nameof(ActiveVaultPathDisplay),
             nameof(LastEncryptedBackupDisplay),
             nameof(LastVerifiedBackupDisplay),
+            nameof(LastAutomaticBackupDisplay),
             nameof(LastRestoreDisplay),
             nameof(LastPlaintextExportDisplay),
-            nameof(LastCsvImportDisplay));
+            nameof(LastCsvImportDisplay),
+            nameof(AutomaticBackupSessionText));
     }
 
     [RelayCommand]
@@ -162,6 +191,41 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
 
         if (!string.IsNullOrWhiteSpace(path))
             CsvImportPath = path;
+    }
+
+    [RelayCommand]
+    private async Task BrowseAutomaticBackupDirectoryAsync()
+    {
+        var path = await _root.PickFolderAsync(T("BackupCenter.Automatic.Picker.DirectoryTitle"));
+        if (!string.IsNullOrWhiteSpace(path))
+            AutomaticBackupDirectory = path;
+    }
+
+    [RelayCommand]
+    private void SaveAutomaticBackupSettings()
+    {
+        _root.BackupSchedule.Enabled = AutomaticBackupEnabled;
+        _root.BackupSchedule.BackupDirectory = AutomaticBackupDirectory;
+        _root.BackupSchedule.Frequency = SelectedAutomaticBackupFrequencyOption?.Frequency ?? BackupScheduleFrequency.Daily;
+        _root.BackupSchedule.RetentionCount = AutomaticBackupRetentionCount;
+        _root.SaveBackupScheduleState();
+        LoadAutomaticBackupSettings();
+        AutomaticBackupStatus = T("BackupCenter.Automatic.Status.Saved");
+    }
+
+    [RelayCommand]
+    private async Task RunAutomaticBackupNowAsync()
+    {
+        SaveAutomaticBackupSettings();
+        await RunTransferAsync(async () =>
+        {
+            var result = await _root.RunAutomaticBackupNowAsync();
+            AutomaticBackupStatus = result.Success
+                ? T("BackupCenter.Automatic.Status.RunSuccess", Path.GetFileName(result.BackupPath ?? ""))
+                : result.Message;
+            TransferStatus = AutomaticBackupStatus;
+            RefreshAutomaticBackupState();
+        });
     }
 
     [RelayCommand]
@@ -262,6 +326,8 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             RestoreSummary = FormatImportSummary(summary);
             await _transferService.ImportEncryptedAsync(RestoreBackupPath, RestorePassphrase, vaultPath, vaultKey);
             RecordHistory(OperationRestoreBackup, "success", RestoreBackupPath, summary.ItemCount, summary.LabelCount);
+            AutomaticBackupPassphrase = "";
+            _root.ClearAutomaticBackupSessionPassphrase();
             _root.ReloadShell();
             TransferStatus = T("BackupCenter.Status.Restored");
             ConfirmRestore = false;
@@ -345,6 +411,8 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
 
             await _transferService.ImportCsvAsync(vaultPath, vaultKey, CsvImportPath, SelectedCsvDuplicateStrategy);
             RecordHistory(OperationCsvImport, "success", CsvImportPath, CsvPreviewRows.Count, 0);
+            AutomaticBackupPassphrase = "";
+            _root.ClearAutomaticBackupSessionPassphrase();
             _root.ReloadShell();
             TransferStatus = T("BackupCenter.Status.CsvImportFinished", SelectedCsvDuplicateStrategyOption?.Label ?? SelectedCsvDuplicateStrategy.ToString());
             _root.LogActivity("transfer", "CSV import completed", $"Imported items from {Path.GetFileName(CsvImportPath)} using {SelectedCsvDuplicateStrategy}.", "success", vaultPath, Path.GetFileName(CsvImportPath));
@@ -461,6 +529,43 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasRecentHistory));
     }
 
+    private void LoadAutomaticBackupSettings()
+    {
+        _root.BackupSchedule.Normalize();
+        AutomaticBackupEnabled = _root.BackupSchedule.Enabled;
+        AutomaticBackupDirectory = _root.BackupSchedule.BackupDirectory;
+        AutomaticBackupRetentionCount = _root.BackupSchedule.RetentionCount;
+        SelectedAutomaticBackupFrequencyOption = AutomaticBackupFrequencyOptions.FirstOrDefault(option => option.Frequency == _root.BackupSchedule.Frequency)
+            ?? AutomaticBackupFrequencyOptions.FirstOrDefault();
+        RefreshAutomaticBackupState();
+    }
+
+    private void RefreshAutomaticBackupState()
+    {
+        if (!_root.AutomaticBackups.HasSessionPassphrase && !string.IsNullOrWhiteSpace(AutomaticBackupPassphrase))
+            AutomaticBackupPassphrase = "";
+
+        RefreshHistoryRows();
+        OnPropertyChanged(nameof(HasAutomaticBackupSessionPassphrase));
+        OnPropertyChanged(nameof(IsAutomaticBackupRunning));
+        OnPropertyChanged(nameof(AutomaticBackupSessionText));
+        OnPropertyChanged(nameof(LastAutomaticBackupDisplay));
+    }
+
+    private string FormatLastAutomaticBackup()
+    {
+        var state = _root.AutomaticBackupState;
+        if (string.IsNullOrWhiteSpace(state.LastSuccessfulAtUtc))
+            return _root.BackupSchedule.Enabled
+                ? T("BackupCenter.Automatic.Status.EnabledNoRun")
+                : T("BackupCenter.Automatic.Status.Disabled");
+
+        var fileName = string.IsNullOrWhiteSpace(state.LastBackupFileName)
+            ? Path.GetFileName(state.LastBackupPath)
+            : state.LastBackupFileName;
+        return T("BackupCenter.Format.LastOperation", fileName, FormatTimestamp(state.LastSuccessfulAtUtc));
+    }
+
     private string FormatExportSummary(VaultSnapshotSummary summary)
         => T(
             "BackupCenter.Format.ExportSummary",
@@ -522,6 +627,13 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
         new(VaultCsvDuplicateStrategy.OverwriteDuplicates, "BackupCenter.Csv.Duplicate.Overwrite"),
         new(VaultCsvDuplicateStrategy.ImportAll, "BackupCenter.Csv.Duplicate.ImportAll")
     ];
+
+    private static AutomaticBackupFrequencyOption[] CreateAutomaticBackupFrequencyOptions() =>
+    [
+        new(BackupScheduleFrequency.Daily, "BackupCenter.Automatic.Frequency.Daily"),
+        new(BackupScheduleFrequency.EveryThreeDays, "BackupCenter.Automatic.Frequency.EveryThreeDays"),
+        new(BackupScheduleFrequency.Weekly, "BackupCenter.Automatic.Frequency.Weekly")
+    ];
 }
 
 public sealed partial class CsvDuplicateStrategyOption : ObservableObject
@@ -534,6 +646,27 @@ public sealed partial class CsvDuplicateStrategyOption : ObservableObject
     }
 
     public VaultCsvDuplicateStrategy Strategy { get; }
+    public string LabelKey { get; }
+    [ObservableProperty] private string label = "";
+
+    public void RefreshLocalization(LocalizationService localization)
+    {
+        Label = localization.Get(LabelKey);
+    }
+
+    public override string ToString() => Label;
+}
+
+public sealed partial class AutomaticBackupFrequencyOption : ObservableObject
+{
+    public AutomaticBackupFrequencyOption(BackupScheduleFrequency frequency, string labelKey)
+    {
+        Frequency = frequency;
+        LabelKey = labelKey;
+        Label = labelKey;
+    }
+
+    public BackupScheduleFrequency Frequency { get; }
     public string LabelKey { get; }
     [ObservableProperty] private string label = "";
 
@@ -560,9 +693,11 @@ public sealed partial class BackupHistoryEntryVm : ObservableObject
     {
         "encrypted-backup" => T("BackupCenter.Operation.EncryptedBackup"),
         "verify-backup" => T("BackupCenter.Operation.VerifyBackup"),
+        "automatic-backup" => T("BackupCenter.Operation.AutomaticBackup"),
         "restore-backup" => T("BackupCenter.Operation.RestoreBackup"),
         "plaintext-export" => T("BackupCenter.Operation.PlaintextExport"),
         "csv-import" => T("BackupCenter.Operation.CsvImport"),
+        "emergency-kit-export" => T("BackupCenter.Operation.EmergencyKitExport"),
         _ => _entry.Operation
     };
 

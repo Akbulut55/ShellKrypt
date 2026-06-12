@@ -20,9 +20,9 @@
                      Classes="page-subtitle"/>
         </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*,*"
+        <Grid ColumnDefinitions="*,*,*,*,*"
               ColumnSpacing="16"
-              MinWidth="980">
+              MinWidth="1160">
           <Border Classes="backup-status-card">
             <StackPanel Spacing="8">
               <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.ActiveVault}"
@@ -62,6 +62,19 @@
           </Border>
 
           <Border Grid.Column="3"
+                  Classes="backup-status-card">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Status.Title}"
+                         Classes="backup-kicker"/>
+              <TextBlock Text="{Binding LastAutomaticBackupDisplay}"
+                         Classes="backup-status-value"/>
+              <TextBlock Text="{Binding AutomaticBackupSessionText}"
+                         Classes="backup-muted"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+
+          <Border Grid.Column="4"
                   Classes="backup-status-card danger">
             <StackPanel Spacing="8">
               <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.PlaintextRisk}"
@@ -256,6 +269,66 @@
                              Classes="page-subtitle"
                              TextWrapping="Wrap"/>
                 </Border>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block">
+              <StackPanel Spacing="16">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <CheckBox Content="{DynamicResource Loc.BackupCenter.Automatic.Enabled}"
+                          IsChecked="{Binding AutomaticBackupEnabled}"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding AutomaticBackupDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Directory.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.Browse}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowseAutomaticBackupDirectoryCommand}"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <ComboBox ItemsSource="{Binding AutomaticBackupFrequencyOptions}"
+                            SelectedItem="{Binding SelectedAutomaticBackupFrequencyOption}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:AutomaticBackupFrequencyOption">
+                        <TextBlock Text="{Binding Label}"/>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+
+                  <TextBox Grid.Column="1"
+                           Width="92"
+                           Text="{Binding AutomaticBackupRetentionCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Retention.Placeholder}"/>
+                </Grid>
+
+                <TextBox Text="{Binding AutomaticBackupPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="*"
+                         PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Passphrase.Placeholder}"/>
+
+                <Grid ColumnDefinitions="Auto,Auto,*"
+                      ColumnSpacing="10">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.SaveAutomaticBackup}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding SaveAutomaticBackupSettingsCommand}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.BackupCenter.Button.RunAutomaticBackupNow}"
+                          Classes="backup-primary-button"
+                          Command="{Binding RunAutomaticBackupNowCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding AutomaticBackupStatus}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding HasAutomaticBackupStatus}"/>
               </StackPanel>
             </Border>
 

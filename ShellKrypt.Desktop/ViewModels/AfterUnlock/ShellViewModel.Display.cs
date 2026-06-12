@@ -36,6 +36,7 @@ public partial class ShellViewModel
         ShellKryptSectionKeys.Notes => T(_root, "Sidebar.notes.Subtitle"),
         ShellKryptSectionKeys.Cards => T(_root, "Sidebar.cards.Subtitle"),
         ShellKryptSectionKeys.Audit => T(_root, "Sidebar.audit.Subtitle"),
+        ShellKryptSectionKeys.Emergency => T(_root, "Sidebar.emergency.Subtitle"),
         ShellKryptSectionKeys.Backup => T(_root, "Sidebar.backup.Subtitle"),
         ShellKryptSectionKeys.Generator => T(_root, "Sidebar.generator.Subtitle"),
         ShellKryptSectionKeys.Authenticator => T(_root, "Sidebar.auth.Subtitle"),
@@ -54,6 +55,7 @@ public partial class ShellViewModel
     public string SearchPlaceholder => SelectedNav?.Key switch
     {
         ShellKryptSectionKeys.Settings => T(_root, "Shell.Search.Settings"),
+        ShellKryptSectionKeys.Emergency => T(_root, "Shell.Search.Emergency"),
         ShellKryptSectionKeys.Backup => T(_root, "Shell.Search.Backup"),
         ShellKryptSectionKeys.Vault => T(_root, "Shell.Search.AllItems"),
         ShellKryptSectionKeys.WebLogins => T(_root, "Shell.Search.WebLogins"),

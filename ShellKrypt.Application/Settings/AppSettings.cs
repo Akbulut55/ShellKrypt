@@ -33,6 +33,9 @@ public sealed class AppSettings
     public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
     public int SecurityAcknowledgementVersionAccepted { get; set; }
     public BackupCenterHistory BackupCenterHistory { get; set; } = new();
+    public EmergencyKitState EmergencyKit { get; set; } = new();
+    public BackupScheduleSettings BackupSchedule { get; set; } = new();
+    public AutomaticBackupState AutomaticBackupState { get; set; } = new();
 
     [JsonIgnore]
     public bool HasCurrentSecurityAcknowledgement =>
@@ -60,6 +63,20 @@ public sealed class AppSettings
     {
         BackupCenterHistory ??= new BackupCenterHistory();
         BackupCenterHistory.Normalize();
+    }
+
+    public void NormalizeEmergencyKit()
+    {
+        EmergencyKit ??= new EmergencyKitState();
+        EmergencyKit.Normalize();
+    }
+
+    public void NormalizeBackupSchedule()
+    {
+        BackupSchedule ??= new BackupScheduleSettings();
+        BackupSchedule.Normalize();
+        AutomaticBackupState ??= new AutomaticBackupState();
+        AutomaticBackupState.Normalize();
     }
 
     public static string NormalizeThemeId(string? themeId)

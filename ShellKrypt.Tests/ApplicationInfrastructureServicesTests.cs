@@ -35,12 +35,23 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.False(settings.HasCurrentSecurityAcknowledgement);
         Assert.NotNull(settings.BackupCenterHistory);
         Assert.Empty(settings.BackupCenterHistory.RecentEntries);
+        Assert.NotNull(settings.EmergencyKit);
+        Assert.NotNull(settings.BackupSchedule);
+        Assert.NotNull(settings.AutomaticBackupState);
+        Assert.False(settings.BackupSchedule.Enabled);
+        Assert.Equal(BackupScheduleSettings.DefaultRetentionCount, settings.BackupSchedule.RetentionCount);
 
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
         settings.ThemeId = "ocean";
         settings.LanguageId = "tr";
         settings.BackupCenterHistory.LastEncryptedBackupPath = workspace.FilePath("backup.skbx");
+        settings.BackupSchedule.Enabled = true;
+        settings.BackupSchedule.BackupDirectory = workspace.Root;
+        settings.BackupSchedule.Frequency = BackupScheduleFrequency.Weekly;
+        settings.BackupSchedule.RetentionCount = 7;
+        settings.AutomaticBackupState.LastStatus = "success";
+        settings.EmergencyKit.NoPasswordRecoveryAcknowledged = true;
         settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:15:30.0000000+00:00");
         service.Save(settings);
 
@@ -53,11 +64,18 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementAcceptedAtUtc), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementVersionAccepted), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.BackupCenterHistory), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.EmergencyKit), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.BackupSchedule), out _));
+        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.AutomaticBackupState), out _));
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
         Assert.Equal("ocean", service.Load().ThemeId);
         Assert.Equal("tr", service.Load().LanguageId);
         Assert.Equal(workspace.FilePath("backup.skbx"), service.Load().BackupCenterHistory.LastEncryptedBackupPath);
+        Assert.True(service.Load().BackupSchedule.Enabled);
+        Assert.Equal(BackupScheduleFrequency.Weekly, service.Load().BackupSchedule.Frequency);
+        Assert.Equal(7, service.Load().BackupSchedule.RetentionCount);
+        Assert.True(service.Load().EmergencyKit.NoPasswordRecoveryAcknowledged);
         Assert.Equal("2026-05-31T10:15:30.0000000+00:00", service.Load().SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, service.Load().SecurityAcknowledgementVersionAccepted);
         Assert.True(service.Load().HasCurrentSecurityAcknowledgement);
@@ -123,6 +141,41 @@ public sealed class ApplicationInfrastructureServicesTests
 
         Assert.True(settings.HasCurrentSecurityAcknowledgement);
         Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, settings.SecurityAcknowledgementVersionAccepted);
+    }
+
+    [Fact]
+    public void AppSettingsService_NormalizesBackupScheduleAndEmergencyState()
+    {
+        using var workspace = new TempWorkspace();
+        using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
+        Directory.CreateDirectory(Path.GetDirectoryName(DefaultPaths.SettingsPath)!);
+        File.WriteAllText(DefaultPaths.SettingsPath, """
+        {
+          "BackupSchedule": {
+            "Enabled": true,
+            "BackupDirectory": "  C:\\Backups  ",
+            "Frequency": 999,
+            "RetentionCount": 999
+          },
+          "AutomaticBackupState": {
+            "LastStatus": " SUCCESS "
+          },
+          "EmergencyKit": {
+            "LastChecklistExportPath": "  kit.txt  "
+          }
+        }
+        """);
+
+        var service = new AppSettingsService(new FileAppSettingsStore());
+        var settings = service.Load();
+        service.Save(settings);
+
+        Assert.True(settings.BackupSchedule.Enabled);
+        Assert.Equal("C:\\Backups", settings.BackupSchedule.BackupDirectory);
+        Assert.Equal(BackupScheduleFrequency.Daily, settings.BackupSchedule.Frequency);
+        Assert.Equal(BackupScheduleSettings.MaxRetentionCount, settings.BackupSchedule.RetentionCount);
+        Assert.Equal("success", settings.AutomaticBackupState.LastStatus);
+        Assert.Equal("kit.txt", settings.EmergencyKit.LastChecklistExportPath);
     }
 
     [Fact]

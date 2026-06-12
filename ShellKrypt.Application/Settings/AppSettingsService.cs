@@ -17,6 +17,8 @@ public sealed class AppSettingsService
         settings.NormalizeThemeId();
         settings.NormalizeLanguageId();
         settings.NormalizeBackupCenterHistory();
+        settings.NormalizeEmergencyKit();
+        settings.NormalizeBackupSchedule();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         return settings;
     }
@@ -26,6 +28,8 @@ public sealed class AppSettingsService
         settings.NormalizeThemeId();
         settings.NormalizeLanguageId();
         settings.NormalizeBackupCenterHistory();
+        settings.NormalizeEmergencyKit();
+        settings.NormalizeBackupSchedule();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         _store.Save(settings);
     }
