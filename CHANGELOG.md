@@ -6,6 +6,21 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.16.0] - 2026-06-13
+
+### Changed
+
+- Grouped desktop sidebar navigation by product area and moved Settings into the active-vault sidebar footer controls.
+- Reordered Settings into a single-column General, Vault Management, Security flow and moved vault destruction into the Security section.
+- Made desktop table and utility screens more compact at narrower window widths by reducing page margins, card padding, table column gaps, layout minimum widths, and wide Security Audit rows.
+- Added shared desktop Material icon resources and replaced sidebar initials with themed vector icons.
+- Renamed the Generator navigation entry to Password Generator.
+
+### Fixed
+
+- Fixed the opening screen available-vaults statistic label so it no longer shows the count format placeholder.
+- Fixed collapsed sidebar icon sizing and alignment so navigation, lock, and settings controls share a consistent footprint.
+
 ## [ShellKrypt 0.15.0] - 2026-06-12
 
 ### Added

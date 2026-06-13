@@ -394,6 +394,11 @@ handbook/
 AGENTS.md
 
 ############################################
+# ShellKrypt raw icon source downloads
+############################################
+ShellKrypt.Desktop/Assets/Icons/
+
+############################################
 # Avalonia / Accelerate optional extras
 ############################################
 *.vsix

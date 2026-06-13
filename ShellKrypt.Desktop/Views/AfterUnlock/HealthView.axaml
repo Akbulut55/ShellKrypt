@@ -5,13 +5,13 @@
              x:CompileBindings="False"
              x:DataType="vm:HealthViewModel">
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="28,24,28,28"
+      <StackPanel Margin="16"
                   MaxWidth="1500"
-                  Spacing="24">
+                  Spacing="14">
         <Grid ColumnDefinitions="*,Auto"
-              ColumnSpacing="18"
+              ColumnSpacing="12"
               VerticalAlignment="Bottom">
           <StackPanel Spacing="6">
             <TextBlock Text="{DynamicResource Loc.SecurityAudit.Title}"
@@ -27,22 +27,22 @@
                   Command="{Binding RefreshCommand}"/>
         </Grid>
 
-        <Grid ColumnDefinitions="5*,7*"
-              ColumnSpacing="22">
+        <Grid RowDefinitions="Auto,Auto"
+              RowSpacing="12">
           <Border Classes="audit-score-card">
-            <StackPanel Spacing="20"
+            <StackPanel Spacing="14"
                         HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-              <Border Width="184"
-                      Height="184"
-                      CornerRadius="92"
+              <Border Width="146"
+                      Height="146"
+                      CornerRadius="73"
                       BorderBrush="{StaticResource AccentBrush}"
-                      BorderThickness="6"
+                      BorderThickness="5"
                       Background="{StaticResource SurfaceBrush}">
                 <Grid>
-                  <Border Width="158"
-                          Height="158"
-                          CornerRadius="79"
+                  <Border Width="124"
+                          Height="124"
+                          CornerRadius="62"
                           Background="{StaticResource SurfaceBrush}"
                           HorizontalAlignment="Center"
                           VerticalAlignment="Center"/>
@@ -50,7 +50,7 @@
                               VerticalAlignment="Center"
                               Spacing="6">
                     <TextBlock Text="{Binding HealthScoreDisplay}"
-                               FontSize="46"
+                               FontSize="38"
                                FontWeight="Black"
                                Foreground="{StaticResource AccentBrush}"
                                HorizontalAlignment="Center"/>
@@ -76,46 +76,25 @@
             </StackPanel>
           </Border>
 
-          <Grid Grid.Column="1"
+          <Grid Grid.Row="1"
                 ColumnDefinitions="*,*,*"
-                ColumnSpacing="18"
+                ColumnSpacing="10"
                 VerticalAlignment="Top">
             <Border Classes="audit-metric-card"
                     BorderThickness="0,0,0,4"
                     BorderBrush="{StaticResource DangerBrush}">
-              <StackPanel Spacing="16">
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource DangerMutedBrush}">
-                    <TextBlock Text="HI"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource DangerBrush}"
-                               FontWeight="Black"
-                               FontSize="11"/>
-                  </Border>
-                  <Border Grid.Column="1"
-                          Background="{StaticResource DangerPanelBrush}"
-                          CornerRadius="999"
-                          Padding="10,4"
-                          HorizontalAlignment="Right">
-                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Risk}"
-                               Foreground="{StaticResource DangerBrush}"
-                               FontSize="10"
-                               FontWeight="Black"/>
-                  </Border>
-                </Grid>
-                <StackPanel Spacing="4">
-                  <TextBlock Text="{Binding HighRiskCount}"
-                             FontSize="34"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk}"
-                             Classes="page-subtitle"
-                             FontSize="12"/>
-                </StackPanel>
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding HighRiskCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
               </StackPanel>
             </Border>
 
@@ -123,39 +102,18 @@
                     Classes="audit-metric-card"
                     BorderThickness="0,0,0,4"
                     BorderBrush="{StaticResource WarningBrush}">
-              <StackPanel Spacing="16">
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource WarningMutedBrush}">
-                    <TextBlock Text="PW"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource WarningBrush}"
-                               FontWeight="Black"
-                               FontSize="11"/>
-                  </Border>
-                  <Border Grid.Column="1"
-                          Background="{StaticResource WarningMutedBrush}"
-                          CornerRadius="999"
-                          Padding="10,4"
-                          HorizontalAlignment="Right">
-                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Local}"
-                               Foreground="{StaticResource WarningBrush}"
-                               FontSize="10"
-                               FontWeight="Black"/>
-                  </Border>
-                </Grid>
-                <StackPanel Spacing="4">
-                  <TextBlock Text="{Binding PasswordFindingCount}"
-                             FontSize="34"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings}"
-                             Classes="page-subtitle"
-                             FontSize="12"/>
-                </StackPanel>
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding PasswordFindingCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
               </StackPanel>
             </Border>
 
@@ -163,51 +121,29 @@
                     Classes="audit-metric-card"
                     BorderThickness="0,0,0,4"
                     BorderBrush="{StaticResource BorderBrushStrong}">
-              <StackPanel Spacing="16">
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource SurfaceElevatedBrush}">
-                    <TextBlock Text="VA"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontWeight="Black"
-                               FontSize="11"/>
-                  </Border>
-                  <Border Grid.Column="1"
-                          Background="{StaticResource SurfaceElevatedBrush}"
-                          CornerRadius="999"
-                          Padding="10,4"
-                          HorizontalAlignment="Right">
-                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.Items}"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontSize="10"
-                               FontWeight="Black"/>
-                  </Border>
-                </Grid>
-                <StackPanel Spacing="4">
-                  <TextBlock Text="{Binding OtherFindingCount}"
-                             FontSize="34"
-                             FontWeight="Black"/>
-                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings}"
-                             Classes="page-subtitle"
-                             FontSize="12"/>
-                </StackPanel>
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding OtherFindingCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
               </StackPanel>
             </Border>
           </Grid>
         </Grid>
 
-        <Grid ColumnDefinitions="8*,4*"
-              ColumnSpacing="22">
+        <Grid>
           <Border Classes="audit-list-shell">
             <Grid RowDefinitions="Auto,*">
-              <Border Padding="24,20">
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="12">
+              <Border Padding="16,14">
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="10">
                   <StackPanel Spacing="6">
                     <TextBlock Text="{DynamicResource Loc.SecurityAudit.ActiveFindings}"
                                FontSize="20"
@@ -217,7 +153,7 @@
                                FontSize="12"/>
                   </StackPanel>
 
-                  <WrapPanel Grid.Column="1"
+                  <WrapPanel Grid.Row="1"
                              Orientation="Horizontal"
                              VerticalAlignment="Center">
                     <Button Content="{Binding AllFilterLabel}"
@@ -258,10 +194,10 @@
                     <DataTemplate x:DataType="vm:HealthIssueVm">
                       <Border Classes="audit-issue-row">
                         <Grid ColumnDefinitions="Auto,*,Auto"
-                              ColumnSpacing="18">
-                          <Border Width="48"
-                                  Height="48"
-                                  CornerRadius="12"
+                              ColumnSpacing="12">
+                          <Border Width="40"
+                                  Height="40"
+                                  CornerRadius="10"
                                   Background="{Binding CategoryBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                                   VerticalAlignment="Center">
                             <TextBlock Text="{Binding IconGlyph}"
@@ -328,7 +264,7 @@
 
               <Border Grid.Row="1"
                       Background="Transparent"
-                      Padding="24,12,24,24"
+                      Padding="16,10,16,16"
                       IsVisible="{Binding !HasVisibleIssues}">
                 <StackPanel Spacing="8">
                   <TextBlock Text="{Binding EmptyIssuesTitle}"
@@ -341,116 +277,6 @@
               </Border>
             </Grid>
           </Border>
-
-          <StackPanel Grid.Column="1"
-                      Spacing="18">
-            <Border Classes="audit-side-card">
-              <StackPanel Spacing="14">
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="12">
-                  <TextBlock Text="{DynamicResource Loc.SecurityAudit.SmartSuggestion}"
-                             FontSize="15"
-                             FontWeight="Bold"
-                             Foreground="{StaticResource AccentBrush}"
-                             VerticalAlignment="Center"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Common.Dismiss}"
-                          Classes="audit-ghost-button"
-                          Command="{Binding DismissSuggestionCommand}"
-                          IsEnabled="{Binding CanDismissSuggestion}"
-                          VerticalAlignment="Top"/>
-                </Grid>
-                <TextBlock Text="{Binding SmartSuggestionTitle}"
-                           FontSize="14"
-                           FontWeight="SemiBold"
-                           TextWrapping="Wrap"/>
-                <TextBlock Text="{Binding SmartSuggestionText}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-                <Button Content="{Binding SmartSuggestionActionText}"
-                        Classes="audit-side-button"
-                        Command="{Binding RunSmartSuggestionCommand}"
-                        IsEnabled="{Binding CanRunSmartSuggestion}"/>
-              </StackPanel>
-            </Border>
-
-            <Border Classes="audit-side-card">
-              <StackPanel Spacing="14">
-                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Checklist.Title}"
-                           FontSize="15"
-                           FontWeight="Bold"/>
-
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <TextBlock Text="OK"
-                             Foreground="{StaticResource AccentBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{DynamicResource Loc.SecurityAudit.Checklist.EncryptedVault}"
-                             Classes="page-subtitle"/>
-                </Grid>
-
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <TextBlock Text="OK"
-                             Foreground="{StaticResource AccentBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding HasAutoLock}"/>
-                  <TextBlock Text="--"
-                             Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding !HasAutoLock}"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{DynamicResource Loc.SecurityAudit.Checklist.AutoLock}"
-                             Classes="page-subtitle"/>
-                </Grid>
-
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <TextBlock Text="OK"
-                             Foreground="{StaticResource AccentBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding HasClipboardTimeout}"/>
-                  <TextBlock Text="--"
-                             Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding !HasClipboardTimeout}"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{Binding ChecklistClipboardText}"
-                             Classes="page-subtitle"/>
-                </Grid>
-
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <TextBlock Text="OK"
-                             Foreground="{StaticResource AccentBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding HasFocusLock}"/>
-                  <TextBlock Text="--"
-                             Foreground="{StaticResource TextMutedBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             VerticalAlignment="Center"
-                             IsVisible="{Binding !HasFocusLock}"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{DynamicResource Loc.SecurityAudit.Checklist.FocusLock}"
-                             Classes="page-subtitle"/>
-                </Grid>
-              </StackPanel>
-            </Border>
-          </StackPanel>
         </Grid>
 
         <TextBlock Text="{Binding Error}"
@@ -481,8 +307,8 @@
     <Style Selector="Border.audit-score-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="26"/>
-      <Setter Property="MinHeight" Value="320"/>
+      <Setter Property="Padding" Value="18"/>
+      <Setter Property="MinHeight" Value="240"/>
     </Style>
 
     <Style Selector="TextBlock.audit-kicker">
@@ -495,9 +321,8 @@
     <Style Selector="Border.audit-metric-card">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="20,18"/>
-      <Setter Property="MinHeight" Value="168"/>
-      <Setter Property="MaxHeight" Value="168"/>
+      <Setter Property="Padding" Value="14,12"/>
+      <Setter Property="MinHeight" Value="132"/>
       <Setter Property="VerticalAlignment" Value="Top"/>
     </Style>
 
@@ -531,7 +356,7 @@
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
       <Setter Property="BorderThickness" Value="0,0,0,1"/>
-      <Setter Property="Padding" Value="24,18"/>
+      <Setter Property="Padding" Value="16,12"/>
     </Style>
 
     <Style Selector="Button.audit-remediate-button">
@@ -540,7 +365,7 @@
       <Setter Property="BorderBrush" Value="{StaticResource AccentMutedBrush}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="Padding" Value="12,0"/>
       <Setter Property="Height" Value="34"/>
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="FontWeight" Value="Bold"/>
@@ -552,7 +377,7 @@
     <Style Selector="Border.audit-side-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="22"/>
+      <Setter Property="Padding" Value="16"/>
     </Style>
 
     <Style Selector="Button.audit-side-button">

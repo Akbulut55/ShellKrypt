@@ -1,6 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Audit;
-using ShellKrypt.Application.Settings;
 using ShellKrypt.Core.Items;
 using System;
 using System.Collections.Generic;
@@ -22,9 +21,7 @@ public partial class HealthViewModel : ViewModelBase
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
     private readonly IHealthAuditService _healthAuditService;
-    private readonly AuditDismissalService _dismissedIssueStore;
     private readonly List<HealthIssueVm> _allIssues = new();
-    private HashSet<string> _dismissedSuggestionFingerprints = new(StringComparer.OrdinalIgnoreCase);
 
     public ObservableCollection<HealthIssueVm> Issues { get; } = new();
     public ObservableCollection<HealthIssueVm> VisibleIssues { get; } = new();
@@ -47,13 +44,11 @@ public partial class HealthViewModel : ViewModelBase
     public HealthViewModel(
         MainWindowViewModel root,
         ShellViewModel shell,
-        IHealthAuditService healthAuditService,
-        AuditDismissalService dismissedIssueStore)
+        IHealthAuditService healthAuditService)
     {
         _root = root;
         _shell = shell;
         _healthAuditService = healthAuditService;
-        _dismissedIssueStore = dismissedIssueStore;
         Issues.CollectionChanged += OnIssuesChanged;
         VisibleIssues.CollectionChanged += OnVisibleIssuesChanged;
         _ = RefreshAsync();
@@ -77,30 +72,6 @@ public partial class HealthViewModel : ViewModelBase
     public string HealthScoreSubtitle => TotalIssueCount > 0
         ? T(_root, "SecurityAudit.Score.Findings", TotalIssueCount)
         : T(_root, "SecurityAudit.Score.NoFindings");
-    public string SmartSuggestionTitle => PrimarySuggestionIssue is not null
-        ? PrimarySuggestionIssue.Title
-        : Issues.Count > 0
-            ? T(_root, "SecurityAudit.Suggestion.AllDismissed")
-            : T(_root, "SecurityAudit.Suggestion.NoUrgent");
-    public string SmartSuggestionText => PrimarySuggestionIssue is not null
-        ? PrimarySuggestionIssue.Details
-        : Issues.Count > 0
-            ? T(_root, "SecurityAudit.Suggestion.DismissedText")
-            : T(_root, "SecurityAudit.Suggestion.EmptyText");
-    public string SmartSuggestionActionText => PrimarySuggestionIssue?.ActionText ?? T(_root, "Common.Review");
-    public HealthIssueVm? PrimarySuggestionIssue => _allIssues
-        .Where(issue => !string.IsNullOrWhiteSpace(issue.Fingerprint) &&
-                        !_dismissedSuggestionFingerprints.Contains(issue.Fingerprint))
-        .OrderByDescending(issue => issue.SeverityRank)
-        .ThenBy(issue => issue.DisplayOrder)
-        .FirstOrDefault();
-    public bool CanRunSmartSuggestion => PrimarySuggestionIssue is not null && !IsBusy;
-    public bool CanGenerateSuggestionPassword => PrimarySuggestionIssue?.RecommendedAction == HealthAuditRecommendedAction.GenerateReplacementPassword && !IsBusy;
-    public bool CanDismissSuggestion => PrimarySuggestionIssue is not null && !IsBusy;
-    public string ChecklistClipboardText => T(_root, "SecurityAudit.Checklist.Clipboard", Math.Max(SessionSecuritySettings.MinClipboardClearSeconds, _root.ClipboardClearSeconds));
-    public bool HasClipboardTimeout => _root.ClipboardClearSeconds > 0;
-    public bool HasAutoLock => _root.AutoLockEnabled;
-    public bool HasFocusLock => _root.LockOnDeactivate;
     public string AuditStatusText => HighRiskCount > 0
         ? T(_root, "SecurityAudit.Status.HighRisk", HighRiskCount)
         : TotalIssueCount > 0
@@ -141,7 +112,6 @@ public partial class HealthViewModel : ViewModelBase
     private void OnIssuesChanged(object? sender, NotifyCollectionChangedEventArgs e)
     {
         OnPropertyChanged(nameof(HasIssues));
-        NotifySuggestionStateChanged();
     }
 
     private void OnVisibleIssuesChanged(object? sender, NotifyCollectionChangedEventArgs e)
@@ -162,7 +132,6 @@ public partial class HealthViewModel : ViewModelBase
         OnPropertyChanged(nameof(ApiKeysFilterLabel));
         OnPropertyChanged(nameof(SettingsFilterLabel));
         NotifyScoreChanged();
-        NotifySuggestionStateChanged();
     }
 
     private void NotifyScoreChanged()
@@ -172,17 +141,6 @@ public partial class HealthViewModel : ViewModelBase
         OnPropertyChanged(nameof(HealthScoreTitle));
         OnPropertyChanged(nameof(HealthScoreSubtitle));
         OnPropertyChanged(nameof(AuditStatusText));
-    }
-
-    private void NotifySuggestionStateChanged()
-    {
-        OnPropertyChanged(nameof(SmartSuggestionTitle));
-        OnPropertyChanged(nameof(SmartSuggestionText));
-        OnPropertyChanged(nameof(SmartSuggestionActionText));
-        OnPropertyChanged(nameof(PrimarySuggestionIssue));
-        OnPropertyChanged(nameof(CanRunSmartSuggestion));
-        OnPropertyChanged(nameof(CanGenerateSuggestionPassword));
-        OnPropertyChanged(nameof(CanDismissSuggestion));
     }
 
     private void NotifyFilterStateChanged()
@@ -211,10 +169,6 @@ public partial class HealthViewModel : ViewModelBase
             nameof(LastCheckedDisplay),
             nameof(HealthScoreTitle),
             nameof(HealthScoreSubtitle),
-            nameof(SmartSuggestionTitle),
-            nameof(SmartSuggestionText),
-            nameof(SmartSuggestionActionText),
-            nameof(ChecklistClipboardText),
             nameof(AuditStatusText),
             nameof(EmptyIssuesTitle),
             nameof(EmptyIssuesText),

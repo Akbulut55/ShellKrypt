@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,6 +19,8 @@ public partial class ShellViewModel : ViewModelBase
     private readonly MainWindowViewModel _root;
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new();
+    public ObservableCollection<NavItemVm> VisibleNavItems { get; } = new();
+    public ObservableCollection<NavGroupVm> NavGroups { get; } = new();
 
     [ObservableProperty] private NavItemVm? selectedNav;
     [ObservableProperty] private ViewModelBase currentPage = null!;
@@ -35,12 +38,26 @@ public partial class ShellViewModel : ViewModelBase
         IHealthAuditService healthAuditService,
         ICryptoToolsService cryptoToolsService,
         ActivityLogService activityLogService,
-        AuditDismissalService auditDismissalService,
         VaultRegistryService vaultRegistryService)
     {
         _root = root;
+        var navItemsByKey = new Dictionary<string, NavItemVm>();
         foreach (var section in ShellKryptSectionCatalog.DesktopSections)
-            NavItems.Add(new NavItemVm(section, _root.Localization));
+        {
+            var item = new NavItemVm(section, _root.Localization);
+            navItemsByKey[section.Key] = item;
+            NavItems.Add(item);
+            if (section.Key != ShellKryptSectionKeys.Settings)
+                VisibleNavItems.Add(item);
+        }
+
+        SettingsNavItem = navItemsByKey[ShellKryptSectionKeys.Settings];
+        foreach (var group in ShellKryptSectionCatalog.DesktopSections
+                     .Where(section => section.Key != ShellKryptSectionKeys.Settings)
+                     .GroupBy(section => section.Group))
+        {
+            NavGroups.Add(new NavGroupVm(group.Key, group.Select(section => navItemsByKey[section.Key]), _root.Localization));
+        }
 
         AllItems = new AllItemsViewModel(_root, this, vaultItemSummaryService);
         WebLogins = new WebLoginsViewModel(_root, webLoginService, AllItems.RefreshAfterMutationAsync);
@@ -49,7 +66,7 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
-        Health = new HealthViewModel(_root, this, healthAuditService, auditDismissalService);
+        Health = new HealthViewModel(_root, this, healthAuditService);
         EmergencyKit = new EmergencyKitViewModel(_root, this);
         BackupCenter = new BackupCenterViewModel(_root);
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);
@@ -70,11 +87,14 @@ public partial class ShellViewModel : ViewModelBase
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
     public ActivityViewModel Activity { get; }
+    public NavItemVm SettingsNavItem { get; }
 
     public override void RefreshLocalization()
     {
         foreach (var item in NavItems)
             item.RefreshLocalization();
+        foreach (var group in NavGroups)
+            group.RefreshLocalization();
 
         OnPropertyChanged(nameof(VaultSubtitle));
         OnPropertyChanged(nameof(VaultFooterLabel));

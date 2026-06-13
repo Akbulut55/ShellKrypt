@@ -6,10 +6,10 @@
              x:DataType="vm:ToolsViewModel">
   <ScrollViewer HorizontalScrollBarVisibility="Auto"
                 VerticalScrollBarVisibility="Auto">
-    <StackPanel Margin="32"
-                MaxWidth="1024"
+    <StackPanel Margin="16"
+                MaxWidth="920"
                 HorizontalAlignment="Stretch"
-                Spacing="24">
+                Spacing="14">
       <StackPanel Spacing="8"
                   HorizontalAlignment="Left">
         <TextBlock Text="{DynamicResource Loc.Generator.Password.Title}"
@@ -26,14 +26,14 @@
 
       <Border Classes="stitch-hero-card"
               ClipToBounds="True"
-              Padding="24">
-        <Grid ColumnDefinitions="*,48"
-              ColumnSpacing="24">
-          <StackPanel Spacing="16">
+              Padding="16">
+        <Grid ColumnDefinitions="*,40"
+              ColumnSpacing="12">
+          <StackPanel Spacing="12">
             <Border Classes="stitch-output"
                     ClipToBounds="True"
-                    Height="96"
-                    Padding="18,12">
+                    Height="78"
+                    Padding="14,10">
               <SelectableTextBlock Text="{Binding GeneratedPasswordDisplay}"
                                    Classes="stitch-password-output"
                                    TextWrapping="NoWrap"
@@ -59,33 +59,45 @@
           </StackPanel>
 
           <StackPanel Grid.Column="1"
-                      Spacing="12"
+                      Spacing="8"
                       VerticalAlignment="Center">
-            <Button Content="C"
-                    Width="48"
-                    Height="48"
+            <Button Width="40"
+                    Height="40"
                     Padding="0"
                     Classes="primary"
                     Command="{Binding CopyGeneratedPasswordCommand}"
-                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.CopyPassword}"/>
-            <Button Content="R"
-                    Width="48"
-                    Height="48"
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.CopyPassword}">
+              <Path Classes="material-icon on-primary"
+                    Width="18"
+                    Height="18"
+                    Data="{StaticResource IconContentCopy}"/>
+            </Button>
+            <Button Width="40"
+                    Height="40"
                     Padding="0"
                     Background="{StaticResource SurfaceElevatedBrush}"
                     Foreground="{StaticResource AccentBrush}"
                     BorderBrush="{StaticResource BorderBrushSoft}"
                     Command="{Binding GeneratePasswordCommand}"
-                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.GeneratePassword}"/>
+                    HorizontalContentAlignment="Center"
+                    VerticalContentAlignment="Center"
+                    ToolTip.Tip="{DynamicResource Loc.Generator.Tooltip.GeneratePassword}">
+              <Path Classes="material-icon accent"
+                    Width="19"
+                    Height="19"
+                    Data="{StaticResource IconAutoRenew}"/>
+            </Button>
           </StackPanel>
         </Grid>
       </Border>
 
-      <Grid ColumnDefinitions="2*,*"
-            ColumnSpacing="24">
+      <Grid ColumnDefinitions="1.7*,*"
+            ColumnSpacing="12">
         <Border Classes="stitch-card"
-                Padding="24">
-          <StackPanel Spacing="22">
+                Padding="16">
+          <StackPanel Spacing="16">
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="16">
               <TextBlock Text="{DynamicResource Loc.Generator.Password.Length}"
@@ -124,8 +136,8 @@
 
         <Border Grid.Column="1"
                 Classes="stitch-card"
-                Padding="24">
-          <StackPanel Spacing="16">
+                Padding="16">
+          <StackPanel Spacing="12">
             <Grid ColumnDefinitions="*,Auto">
               <TextBlock Text="{DynamicResource Loc.Generator.Password.Uppercase}"
                          FontSize="14"
@@ -179,10 +191,10 @@
       </Grid>
 
       <Grid ColumnDefinitions="*,*"
-            ColumnSpacing="24">
+            ColumnSpacing="12">
         <Border Classes="stitch-card"
-                Padding="24">
-          <StackPanel Spacing="16">
+                Padding="16">
+          <StackPanel Spacing="12">
             <StackPanel Orientation="Horizontal"
                         Spacing="12">
               <TextBlock Text="F"
@@ -235,8 +247,8 @@
 
         <Border Grid.Column="1"
                 Classes="stitch-card"
-                Padding="24">
-          <StackPanel Spacing="16">
+                Padding="16">
+          <StackPanel Spacing="12">
             <StackPanel Orientation="Horizontal"
                         Spacing="12">
               <TextBlock Text="C"
@@ -318,7 +330,7 @@
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12"/>
+      <Setter Property="Padding" Value="10"/>
       <Setter Property="FontSize" Value="13"/>
     </Style>
 
@@ -330,12 +342,12 @@
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Height" Value="34"/>
+      <Setter Property="MinHeight" Value="34"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="Padding" Value="10,0"/>
     </Style>
 
     <Style Selector="Button.stitch-action:pointerover">
@@ -357,8 +369,8 @@
     <Style Selector="SelectableTextBlock.stitch-password-output">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="FontFamily" Value="Consolas"/>
-      <Setter Property="FontSize" Value="20"/>
-      <Setter Property="LineHeight" Value="30"/>
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="LineHeight" Value="26"/>
       <Setter Property="LetterSpacing" Value="0.7"/>
       <Setter Property="TextWrapping" Value="NoWrap"/>
     </Style>

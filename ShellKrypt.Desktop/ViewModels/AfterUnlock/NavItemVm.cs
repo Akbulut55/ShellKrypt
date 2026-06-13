@@ -23,6 +23,8 @@ public sealed partial class NavItemVm : ObservableObject
         }
     }
     public string ShortCode { get; }
+    public string IconResourceKey { get; }
+    public bool HasIcon => !string.IsNullOrWhiteSpace(IconResourceKey);
 
     public NavItemVm(ShellKryptSectionDescriptor section, LocalizationService localization)
         : this(section.Key, section.Title, section.Glyph, localization)
@@ -35,6 +37,7 @@ public sealed partial class NavItemVm : ObservableObject
         _titleKey = $"Sidebar.{key}.Title";
         _fallbackTitle = title;
         Key = key;
+        IconResourceKey = GetIconResourceKey(key);
         ShortCode = string.IsNullOrWhiteSpace(shortCode)
             ? key.ToUpperInvariant() switch
         {
@@ -51,6 +54,23 @@ public sealed partial class NavItemVm : ObservableObject
         }
             : shortCode;
     }
+
+    private static string GetIconResourceKey(string key) => key switch
+    {
+        ShellKryptSectionKeys.Vault => "IconViewList",
+        ShellKryptSectionKeys.WebLogins => "IconWeb",
+        ShellKryptSectionKeys.Cards => "IconCreditCard",
+        ShellKryptSectionKeys.ApiKeys => "IconKey",
+        ShellKryptSectionKeys.Authenticator => "IconChronic",
+        ShellKryptSectionKeys.Notes => "IconMarkdown",
+        ShellKryptSectionKeys.Generator => "IconPassword",
+        ShellKryptSectionKeys.Audit => "IconVitalSigns",
+        ShellKryptSectionKeys.Emergency => "IconMedicalServices",
+        ShellKryptSectionKeys.Backup => "IconBackupTable",
+        ShellKryptSectionKeys.Activity => "IconManageHistory",
+        ShellKryptSectionKeys.Settings => "IconSettings",
+        _ => string.Empty
+    };
 
     public void RefreshLocalization() => OnPropertyChanged(nameof(Title));
 

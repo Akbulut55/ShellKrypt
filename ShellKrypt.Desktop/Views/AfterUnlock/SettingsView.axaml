@@ -12,9 +12,9 @@
                   VerticalScrollBarVisibility="Auto"
                   BringIntoViewOnFocusChange="False"
                   ScrollChanged="OnSettingsScrollChanged">
-      <StackPanel Margin="28,24,28,28"
+      <StackPanel Margin="16"
                   MaxWidth="1500"
-                  Spacing="24">
+                  Spacing="14">
         <StackPanel Spacing="6">
           <TextBlock Text="{DynamicResource Loc.Settings.Title}"
                      FontSize="30"
@@ -24,11 +24,12 @@
                      Classes="page-subtitle"/>
         </StackPanel>
 
-        <Grid ColumnDefinitions="7*,5*"
-              ColumnSpacing="22">
-          <StackPanel Spacing="22">
+        <Grid RowDefinitions="Auto,Auto,Auto"
+              RowSpacing="14">
+          <StackPanel Grid.Row="2"
+                      Spacing="14">
             <Border Classes="settings-block">
-              <StackPanel Spacing="18">
+              <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
                   <Border Width="36"
@@ -61,7 +62,7 @@
                                  TextWrapping="Wrap"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="170">
+                          Width="150">
                       <Button x:Name="AutoLockPickerButton"
                               Classes="settings-picker-button"
                               Command="{Binding ToggleAutoLockPickerCommand}">
@@ -120,7 +121,7 @@
                                  TextWrapping="Wrap"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="170">
+                          Width="150">
                       <Button x:Name="FocusLockPickerButton"
                               Classes="settings-picker-button"
                               Command="{Binding ToggleFocusLockPickerCommand}">
@@ -146,7 +147,7 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="170">
+                                Width="150">
                           <ItemsControl ItemsSource="{Binding FocusLossLockDelayOptions}"
                                         HorizontalAlignment="Stretch">
                             <ItemsControl.ItemTemplate>
@@ -214,7 +215,7 @@
                                VerticalOffset="4"
                                IsLightDismissEnabled="True">
                           <Border Classes="settings-picker-popup"
-                                  Width="170">
+                                  Width="150">
                             <ItemsControl ItemsSource="{Binding ClipboardClearTimeoutOptions}"
                                           HorizontalAlignment="Stretch">
                               <ItemsControl.ItemTemplate>
@@ -320,11 +321,19 @@
                             HorizontalAlignment="Stretch"/>
                   </StackPanel>
                 </Border>
+
+                <Button Content="{DynamicResource Loc.Settings.Button.DestroyVault}"
+                        Classes="settings-danger-link"
+                        Command="{Binding DestroyVaultCommand}"/>
               </StackPanel>
             </Border>
 
+          </StackPanel>
+
+          <StackPanel Grid.Row="0"
+                      Spacing="14">
             <Border Classes="settings-block">
-              <StackPanel Spacing="18">
+              <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
                   <Border Width="36"
@@ -351,7 +360,7 @@
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                     <Grid Grid.Column="1"
-                          Width="140">
+                          Width="128">
                       <Button x:Name="ThemePickerButton"
                               Classes="settings-picker-button"
                               Command="{Binding ToggleThemePickerCommand}">
@@ -377,7 +386,7 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="140">
+                                Width="128">
                           <ItemsControl ItemsSource="{Binding ThemeOptions}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
@@ -413,7 +422,7 @@
                                  FontSize="12"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="140">
+                          Width="128">
                       <Button x:Name="LanguagePickerButton"
                               Classes="settings-picker-button"
                               Command="{Binding ToggleLanguagePickerCommand}">
@@ -439,7 +448,7 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="140">
+                                Width="128">
                           <ItemsControl ItemsSource="{Binding LanguageOptions}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
@@ -465,10 +474,10 @@
             </Border>
           </StackPanel>
 
-          <StackPanel Grid.Column="1"
-                      Spacing="22">
+          <StackPanel Grid.Row="1"
+                      Spacing="14">
             <Border Classes="settings-block">
-              <StackPanel Spacing="18">
+              <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
                   <Border Width="36"
@@ -564,9 +573,6 @@
                   </Grid>
                 </Border>
 
-                <Button Content="{DynamicResource Loc.Settings.Button.DestroyVault}"
-                        Classes="settings-danger-link"
-                        Command="{Binding DestroyVaultCommand}"/>
               </StackPanel>
             </Border>
           </StackPanel>
@@ -580,19 +586,19 @@
     <Style Selector="Border.settings-block">
       <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="22"/>
+      <Setter Property="Padding" Value="16"/>
     </Style>
 
     <Style Selector="Border.settings-field-shell">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="18"/>
+      <Setter Property="Padding" Value="12"/>
     </Style>
 
     <Style Selector="Border.settings-toggle-shell">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="16"/>
+      <Setter Property="Padding" Value="12"/>
     </Style>
 
     <Style Selector="TextBlock.settings-mini-label">
@@ -608,7 +614,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="20,0"/>
+      <Setter Property="Padding" Value="14,0"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
       <Setter Property="FontWeight" Value="Black"/>
@@ -623,7 +629,7 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="Padding" Value="12,0"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
       <Setter Property="FontWeight" Value="Bold"/>
@@ -640,7 +646,7 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Padding" Value="12,0"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -697,7 +703,7 @@
     <Style Selector="Border.settings-vault-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="18"/>
+      <Setter Property="Padding" Value="12"/>
     </Style>
 
     <Style Selector="Button.settings-transfer-button">
@@ -719,7 +725,7 @@
       <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Padding" Value="12,10"/>
       <Setter Property="HorizontalAlignment" Value="Stretch"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="13"/>

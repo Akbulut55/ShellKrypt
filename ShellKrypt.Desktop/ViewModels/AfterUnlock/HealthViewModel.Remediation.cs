@@ -18,19 +18,6 @@ public partial class HealthViewModel
             Error = T(_root, "SecurityAudit.Error.OpenAffectedItem");
     }
 
-    [RelayCommand]
-    private async Task RunSmartSuggestionAsync()
-    {
-        Error = "";
-
-        var issue = PrimarySuggestionIssue;
-        if (issue is null)
-            return;
-
-        if (!await RouteFindingAsync(issue))
-            Error = T(_root, "SecurityAudit.Error.OpenSuggestedAction");
-    }
-
     private async Task<bool> RouteFindingAsync(HealthIssueVm issue)
     {
         switch (issue.RecommendedAction)

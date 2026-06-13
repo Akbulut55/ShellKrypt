@@ -27,7 +27,6 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly AppSettingsService _settingsService = new(new FileAppSettingsStore());
     private readonly VaultRegistryService _vaultRegistryService = new(new FileVaultRegistryStore());
     private readonly ActivityLogService _activityLogService = new(new SqliteActivityLogStore());
-    private readonly AuditDismissalService _auditDismissalService = new(new FileDismissedAuditIssueStore());
     private readonly LocalizationService _localization = new();
     private readonly ClipboardService _clipboardService = new();
     private readonly AuthenticatorQrImportService _authenticatorQrImportService = new();

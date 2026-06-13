@@ -91,6 +91,5 @@ public partial class MainWindowViewModel
             _healthAuditService,
             _cryptoToolsService,
             _activityLogService,
-            _auditDismissalService,
             _vaultRegistryService);
 }

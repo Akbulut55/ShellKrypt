@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -25,9 +24,6 @@ public partial class HealthViewModel
         try
         {
             var result = await _healthAuditService.AnalyzeAsync(_root.VaultPath, _root.VaultKey, BuildAuditOptions());
-            _dismissedSuggestionFingerprints = new HashSet<string>(
-                _dismissedIssueStore.LoadFingerprints(_root.VaultPath),
-                StringComparer.OrdinalIgnoreCase);
 
             _allIssues.Clear();
             Issues.Clear();

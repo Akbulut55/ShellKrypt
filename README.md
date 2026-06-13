@@ -7,7 +7,7 @@ ShellKrypt is currently a pre-1.0 desktop product. The source repository is prep
 ## Status
 
 - Stage: pre-1.0 desktop build
-- Current app version: `0.13.0`
+- Current app version: `0.16.0`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
 - Owner: independent project owner

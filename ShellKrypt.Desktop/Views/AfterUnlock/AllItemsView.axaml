@@ -8,13 +8,13 @@
   <Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="28,24,28,28"
+      <StackPanel Margin="16"
                   MaxWidth="1500"
                   HorizontalAlignment="Stretch"
-                  Spacing="24">
+                  Spacing="14">
 
         <Grid ColumnDefinitions="*,*,*"
-              ColumnSpacing="18">
+              ColumnSpacing="8">
           <Border Classes="allitems-stat-card">
             <Grid>
               <TextBlock Text="↻"
@@ -140,11 +140,11 @@
         </Border>
 
         <Border Classes="table-shell"
-                MinWidth="900">
+                MinWidth="580">
           <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
-              <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
-                    ColumnSpacing="18">
+              <Grid ColumnDefinitions="1.78*,0.72*,0.95*,0.75*,96"
+                    ColumnSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.Common.Name.Header}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="1"
@@ -169,9 +169,9 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:AllItemEntry">
                     <Border Classes="table-row">
-                      <Grid ColumnDefinitions="2.3*,1.1*,1.4*,1.1*,170"
-                            ColumnSpacing="18"
-                            Margin="22,0"
+                      <Grid ColumnDefinitions="1.78*,0.72*,0.95*,0.75*,96"
+                            ColumnSpacing="8"
+                            Margin="12,0"
                             MinHeight="78">
                         <Grid ColumnDefinitions="Auto,*"
                               ColumnSpacing="12"
@@ -253,9 +253,21 @@
                   <Grid ColumnDefinitions="Auto,Auto"
                         ColumnSpacing="10"
                         HorizontalAlignment="Center">
-                    <Button Content="{Binding AddItemButtonText}"
-                            Classes="allitems-add-button"
-                            Command="{Binding AddItemCommand}"/>
+                    <Button Classes="allitems-add-button"
+                            Command="{Binding AddItemCommand}">
+                      <StackPanel Orientation="Horizontal"
+                                  Spacing="7"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                        <TextBlock Text="{Binding AddItemButtonText}"
+                                   Foreground="{StaticResource AccentForegroundBrush}"
+                                   FontWeight="SemiBold"/>
+                        <Path Classes="material-icon on-primary"
+                              Width="15"
+                              Height="15"
+                              Data="{StaticResource IconAdd}"/>
+                      </StackPanel>
+                    </Button>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.ResetFilters}"
                             Classes="allitems-filter-button"
@@ -304,10 +316,10 @@
     <Style Selector="Border.allitems-search-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="MinWidth" Value="320"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="MinWidth" Value="220"/>
       <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Margin" Value="0,0,12,12"/>
+      <Setter Property="Margin" Value="0,0,10,10"/>
     </Style>
 
     <Style Selector="TextBox.allitems-top-search">
@@ -365,7 +377,7 @@
     <Style Selector="Border.allitems-stat-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="24,20"/>
+      <Setter Property="Padding" Value="16,14"/>
       <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
@@ -398,7 +410,7 @@
     <Style Selector="Border.allitems-filter-shell">
       <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="14"/>
+      <Setter Property="Padding" Value="10"/>
     </Style>
 
     <Style Selector="Button.allitems-filter-button">
@@ -427,7 +439,7 @@
       <Setter Property="MinHeight" Value="0"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Margin" Value="0,0,8,12"/>
+      <Setter Property="Margin" Value="0,0,6,10"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
       <Setter Property="VerticalAlignment" Value="Center"/>

@@ -7,9 +7,9 @@
   <Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="28,24,28,28"
+      <StackPanel Margin="16"
                   MaxWidth="1500"
-                  Spacing="24">
+                  Spacing="14">
         <Grid ColumnDefinitions="*,Auto"
               ColumnSpacing="18">
           <StackPanel Spacing="6">
@@ -26,10 +26,10 @@
                   Command="{Binding OpenBackupCenterCommand}"/>
         </Grid>
 
-        <Grid ColumnDefinitions="4*,8*"
-              ColumnSpacing="22"
-              MinWidth="980">
-          <StackPanel Spacing="18">
+        <Grid ColumnDefinitions="3*,7*"
+              ColumnSpacing="10"
+              MinWidth="540">
+            <StackPanel Spacing="12">
             <Border Classes="emergency-score-card">
               <StackPanel Spacing="16"
                           HorizontalAlignment="Center">
@@ -74,8 +74,8 @@
 
           <StackPanel Grid.Column="1"
                       Spacing="18">
-            <Grid ColumnDefinitions="*,*"
-                  ColumnSpacing="18">
+              <Grid ColumnDefinitions="*,*"
+                    ColumnSpacing="10">
               <Border Classes="emergency-card">
                 <StackPanel Spacing="14">
                   <TextBlock Text="{DynamicResource Loc.EmergencyKit.Readiness.Title}"
@@ -130,7 +130,7 @@
 
             <Border Classes="emergency-card">
               <Grid ColumnDefinitions="*,Auto"
-                    ColumnSpacing="18">
+                    ColumnSpacing="10">
                 <StackPanel Spacing="8">
                   <TextBlock Text="{DynamicResource Loc.EmergencyKit.Actions.Title}"
                              Classes="emergency-section-title"/>
@@ -167,11 +167,11 @@
     <Style Selector="Border.emergency-card, Border.emergency-score-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="22"/>
+      <Setter Property="Padding" Value="16"/>
     </Style>
 
     <Style Selector="Border.emergency-score-card">
-      <Setter Property="MinHeight" Value="190"/>
+      <Setter Property="MinHeight" Value="160"/>
     </Style>
 
     <Style Selector="TextBlock.emergency-section-title">
@@ -184,8 +184,8 @@
     <Style Selector="Border.emergency-readiness-row">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14"/>
-      <Setter Property="Margin" Value="0,0,0,10"/>
+      <Setter Property="Padding" Value="12"/>
+      <Setter Property="Margin" Value="0,0,0,8"/>
     </Style>
 
     <Style Selector="TextBlock.emergency-status-message">
@@ -201,9 +201,9 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="Padding" Value="14,0"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -217,9 +217,9 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
       <Setter Property="FontWeight" Value="Bold"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>

@@ -6,7 +6,12 @@
              RequestedThemeVariant="Dark">
 
     <Application.Resources>
+        <ResourceDictionary>
+        <ResourceDictionary.MergedDictionaries>
+            <ResourceInclude Source="avares://ShellKrypt.Desktop/Resources/Icons.axaml"/>
+        </ResourceDictionary.MergedDictionaries>
         <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
+        <converters:ThemeResourceGeometryConverter x:Key="ThemeResourceGeometryConverter"/>
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
         <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0e0e0e"/>
         <SolidColorBrush x:Key="SurfaceBrush" Color="#201f1f"/>
@@ -82,6 +87,7 @@
             <GradientStop Offset="0" Color="#57f1db"/>
             <GradientStop Offset="1" Color="#2dd4bf"/>
         </LinearGradientBrush>
+        </ResourceDictionary>
     </Application.Resources>
 
     <Application.DataTemplates>
@@ -108,6 +114,25 @@
 
         <Style Selector="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+
+        <Style Selector="Path.material-icon">
+            <Setter Property="Width" Value="18"/>
+            <Setter Property="Height" Value="18"/>
+            <Setter Property="Fill" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Stretch" Value="Uniform"/>
+        </Style>
+
+        <Style Selector="Path.material-icon.accent">
+            <Setter Property="Fill" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Path.material-icon.muted">
+            <Setter Property="Fill" Value="{StaticResource TextMutedBrush}"/>
+        </Style>
+
+        <Style Selector="Path.material-icon.on-primary">
+            <Setter Property="Fill" Value="{StaticResource AccentForegroundBrush}"/>
         </Style>
 
         <Style Selector="TextBlock.page-title">
@@ -284,7 +309,7 @@
 
         <Style Selector="Border.table-header-row">
             <Setter Property="Background" Value="{StaticResource TableHeaderBrush}"/>
-            <Setter Property="Padding" Value="22,14"/>
+            <Setter Property="Padding" Value="16,12"/>
         </Style>
 
         <Style Selector="Border.table-row">
@@ -323,7 +348,7 @@
 
         <Style Selector="Border.table-footer-row">
             <Setter Property="Background" Value="{StaticResource TableFooterBrush}"/>
-            <Setter Property="Padding" Value="22,14"/>
+            <Setter Property="Padding" Value="16,12"/>
         </Style>
 
         <Style Selector="TextBlock.table-header-text">
@@ -366,10 +391,10 @@
             <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Black"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinHeight" Value="32"/>
-            <Setter Property="MinWidth" Value="64"/>
-            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="MinHeight" Value="30"/>
+            <Setter Property="MinWidth" Value="56"/>
+            <Setter Property="Padding" Value="8,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -388,8 +413,8 @@
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Height" Value="34"/>
             <Setter Property="MinHeight" Value="34"/>
-            <Setter Property="MinWidth" Value="84"/>
-            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="MinWidth" Value="74"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>

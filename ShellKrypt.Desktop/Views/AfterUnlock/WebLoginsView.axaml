@@ -9,10 +9,10 @@
   <Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="32"
+      <StackPanel Margin="16"
                   MaxWidth="1500"
                   HorizontalAlignment="Stretch"
-                  Spacing="22">
+                  Spacing="14">
         <TextBlock Text="{DynamicResource Loc.WebLogins.Title}"
                    Margin="0,10,0,-4"
                    FontSize="28"
@@ -20,7 +20,7 @@
                    LetterSpacing="-0.8"/>
 
         <Grid ColumnDefinitions="*,*,*"
-              ColumnSpacing="18">
+              ColumnSpacing="8">
           <Border Classes="web-stat">
             <StackPanel Spacing="8">
               <TextBlock Text="{DynamicResource Loc.WebLogins.TotalLogins}"
@@ -81,20 +81,32 @@
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Content="{DynamicResource Loc.WebLogins.Button.Add}"
-                    Classes="web-add-login-button"
+            <Button Classes="web-add-login-button"
                     Command="{Binding AddNewCommand}"
-                    VerticalAlignment="Center"/>
+                    VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="7"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center">
+                <TextBlock Text="{DynamicResource Loc.WebLogins.Button.Add}"
+                           Foreground="{StaticResource AccentForegroundBrush}"
+                           FontWeight="SemiBold"/>
+                <Path Classes="material-icon on-primary"
+                      Width="15"
+                      Height="15"
+                      Data="{StaticResource IconAdd}"/>
+              </StackPanel>
+            </Button>
           </WrapPanel>
         </Border>
 
       <Border Classes="table-shell"
-              MinWidth="980"
+              MinWidth="580"
               ClipToBounds="True">
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Classes="table-header-row">
-            <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
-                  ColumnSpacing="24">
+            <Grid ColumnDefinitions="1.28*,1.0*,0.9*,1.0*,162"
+                  ColumnSpacing="8">
               <TextBlock Text="{DynamicResource Loc.WebLogins.Table.Title}" Classes="table-header-text"/>
               <TextBlock Grid.Column="1" Text="{DynamicResource Loc.WebLogins.Table.Username}" Classes="table-header-text"/>
               <TextBlock Grid.Column="2" Text="{DynamicResource Loc.WebLogins.Table.Password}" Classes="table-header-text"/>
@@ -115,10 +127,10 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:WebLoginRowVm">
                   <Border Classes="table-row">
-                    <Grid ColumnDefinitions="1.55*,1.55*,1.45*,1.55*,280"
-                          ColumnSpacing="24"
+                    <Grid ColumnDefinitions="1.28*,1.0*,0.9*,1.0*,162"
+                          ColumnSpacing="8"
                           MinHeight="78"
-                          Margin="22,0">
+                          Margin="12,0">
                       <Grid ColumnDefinitions="Auto,*"
                             ColumnSpacing="12"
                             VerticalAlignment="Center">
@@ -185,7 +197,7 @@
                                   Orientation="Horizontal"
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Center"
-                                  Spacing="8">
+                                   Spacing="6">
                         <Button Classes="table-action-button"
                                 Content="{DynamicResource Loc.Common.Details}"
                                 Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -400,8 +412,8 @@
     <Style Selector="Border.web-stat">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="24,20"/>
-      <Setter Property="MinHeight" Value="112"/>
+      <Setter Property="Padding" Value="16,14"/>
+      <Setter Property="MinHeight" Value="96"/>
     </Style>
 
     <Style Selector="Border.web-filter-shell">
@@ -419,9 +431,9 @@
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="MinWidth" Value="0"/>
-      <Setter Property="Width" Value="360"/>
-      <Setter Property="Margin" Value="0,0,12,12"/>
-      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="Width" Value="280"/>
+      <Setter Property="Margin" Value="0,0,10,10"/>
+      <Setter Property="Padding" Value="12,8"/>
     </Style>
 
     <Style Selector="ComboBox.web-select">
@@ -431,10 +443,10 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Width" Value="140"/>
+      <Setter Property="Width" Value="138"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,12,12"/>
+      <Setter Property="Margin" Value="0,0,10,10"/>
       <Setter Property="Padding" Value="12,0"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -448,11 +460,11 @@
       <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="164"/>
+      <Setter Property="Width" Value="160"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,0,12"/>
-      <Setter Property="Padding" Value="20,0"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+      <Setter Property="Padding" Value="12,0"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -498,7 +510,7 @@
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontFamily" Value="Consolas"/>
       <Setter Property="FontSize" Value="13"/>
-      <Setter Property="LetterSpacing" Value="2.4"/>
+      <Setter Property="LetterSpacing" Value="1.6"/>
     </Style>
 
     <Style Selector="TextBlock.web-url">
