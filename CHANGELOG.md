@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.16.1] - 2026-06-13
+
+### Changed
+
+- Updated public root documentation to reflect the current Backup Center, Emergency Kit, automatic-backup, localization, sidebar, and distribution wording.
+
 ## [ShellKrypt 0.16.0] - 2026-06-13
 
 ### Changed

@@ -12,13 +12,15 @@ ShellKrypt intentionally has no password recovery service.
 
 If you forget the master password while a vault is locked, ShellKrypt cannot recover the encrypted data. The project owner, contributors, and official builds cannot decrypt the vault without the correct master password or a valid encrypted backup and backup passphrase.
 
-Create and verify backups before relying on a vault.
+Create and verify backups before relying on a vault. Automatic backups and Emergency Kit checks can help with readiness, but they do not recover a forgotten master password or forgotten backup passphrase.
 
 ## Security Scope
 
 ShellKrypt uses local encryption mechanisms such as Argon2id-derived unlock keys and AES-GCM encrypted payloads. These are implementation choices, not a guarantee that every build, platform, dependency, device, or user workflow is risk-free.
 
 ShellKrypt has not received an external security audit. Do not treat it as certified, independently audited, or appropriate for regulated enterprise requirements unless you perform your own review.
+
+Security Audit, Emergency Kit, and Backup Center status indicators are advisory local checks. They can miss risks and do not replace user judgment, independent review, or safe backup practices.
 
 ## User Responsibility
 
@@ -34,6 +36,12 @@ Users are responsible for:
 ## Plaintext Exports
 
 Plaintext JSON exports and activity report exports are decrypted reports. They are more sensitive than encrypted vault files and should be stored, transferred, and deleted carefully.
+
+Printable Emergency Kit exports are plaintext safe-metadata reports. They should still be stored carefully because they can reveal vault names, backup filenames, timestamps, and recovery-readiness information.
+
+## Automatic Backup Limitations
+
+In-app automatic backups run only while ShellKrypt is open, the vault is unlocked, the configured backup directory is available, and the session-only backup passphrase has been entered. They are not an operating-system backup service and do not replace manual backup verification.
 
 ## Clipboard Limitations
 

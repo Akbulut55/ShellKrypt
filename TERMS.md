@@ -8,7 +8,7 @@ By installing, running, or using ShellKrypt, you acknowledge these terms, the pr
 
 ## 2. Product Scope
 
-ShellKrypt is a local-only encrypted vault application. It is intended to store user-managed vault files on the user's own device. ShellKrypt does not provide a cloud account, hosted sync service, remote recovery service, or server-side access to user vaults by default.
+ShellKrypt is a local-only encrypted vault application. It is intended to store user-managed vault files, backups, exports, and app metadata on the user's own device or user-selected storage locations. ShellKrypt does not provide a cloud account, hosted sync service, remote recovery service, or server-side access to user vaults by default.
 
 ShellKrypt is not externally audited yet. Security claims must remain limited to the actual design and implementation described in `README.md`, `SECURITY.md`, and `DISCLAIMER.md`.
 
@@ -16,7 +16,7 @@ ShellKrypt is not externally audited yet. Security claims must remain limited to
 
 ShellKrypt cannot recover a forgotten master password. If a vault is locked and the master password is lost, the encrypted data cannot be recovered by ShellKrypt, the project owner, or anyone else unless the user has a valid backup and the required backup passphrase.
 
-Users are responsible for creating, protecting, and verifying backups.
+Users are responsible for creating, protecting, and verifying backups. Emergency Kit and automatic-backup features are readiness aids only; they do not create a password recovery service.
 
 ## 4. User Responsibilities
 
@@ -26,6 +26,7 @@ Users are responsible for:
 - keeping backups, exports, and vault files secure
 - protecting the device, operating system account, clipboard, and filesystem
 - deleting plaintext exports when they are no longer needed
+- understanding that in-app automatic backups run only while ShellKrypt is open, the vault is unlocked, and the session backup passphrase is available
 - ensuring that their use of ShellKrypt complies with applicable laws, workplace rules, and data-handling obligations
 
 ShellKrypt is not a PCI-certified product, medical-record system, legal record system, or regulated compliance platform.
@@ -44,7 +45,7 @@ Official signed builds, paid distribution channels, support services, names, log
 
 ## 7. Updates And Support
 
-Pre-release builds may change, break, or be withdrawn. Support channels, update schedules, refund rules, and commercial distribution terms are not finalized unless a separate written policy says otherwise.
+Pre-release builds may change, break, or be withdrawn. Support channels, update schedules, refund rules, and commercial distribution terms are controlled by the distribution channel or separate written policy when one is provided.
 
 Do not rely on undocumented behavior as a stable contract before a public 1.0 release.
 
@@ -56,4 +57,4 @@ To the maximum extent permitted by applicable law, the project owner is not liab
 
 ## 9. Changes
 
-These terms may change before public release. Material changes should be reflected in `CHANGELOG.md` or release notes.
+These terms may change for future builds. Material changes should be reflected in `CHANGELOG.md` or release notes.

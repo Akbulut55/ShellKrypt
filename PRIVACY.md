@@ -15,9 +15,12 @@ ShellKrypt may store these local files:
 - `.skvault` vault databases containing encrypted item payloads and encrypted vault-scoped activity logs
 - `.skbx` encrypted backup packages created by the user
 - plaintext JSON exports or activity report exports created by the user
-- app settings such as theme, auto-lock, clipboard timeout, and first-use acknowledgement state
+- app settings such as theme, language, auto-lock, clipboard timeout, and first-use acknowledgement state
 - vault launcher metadata such as vault display names and local vault paths
 - audit dismissal state
+- Backup Center history, including recent operation type, timestamp, status, safe counts, filename, and saved local path for convenience
+- automatic-backup settings and status, including enabled state, backup directory, frequency, retention count, last run timestamps, and last status/error
+- Emergency Kit checklist acknowledgement state and safe printable checklist exports created by the user
 
 App metadata is stored under the user's local app-data directory by default. The `SHELLKRYPT_APPROOT` environment variable can override that location for development and tests.
 
@@ -26,6 +29,7 @@ App metadata is stored under the user's local app-data directory by default. The
 By default, ShellKrypt does not collect or transmit:
 
 - master passwords or backup passphrases
+- automatic-backup passphrases after the current unlocked app session ends
 - item passwords, API keys, tokens, OTP seeds, CVCs, or note contents
 - vault files, backups, plaintext exports, or activity reports
 - usage analytics or telemetry
@@ -41,6 +45,8 @@ Some actions intentionally interact with the operating system:
 - Copying a secret places it in the OS clipboard.
 - File pickers and save dialogs expose selected file paths to the app.
 - Exports and backups are written to user-selected locations.
+- Automatic backups are written to the user-selected backup directory while ShellKrypt is open, the vault is unlocked, and the session-only backup passphrase is available.
+- Printable Emergency Kit exports are written to user-selected locations and contain safe recovery-readiness metadata only.
 - Users may manually share, sync, upload, or back up files outside ShellKrypt.
 
 ShellKrypt cannot control what other apps, cloud-sync clients, backup tools, clipboard managers, malware, or device administrators do outside the app.
@@ -57,6 +63,8 @@ Users control local data deletion:
 
 - Delete a vault through the app only when intentional and after confirming the selected `.skvault`.
 - Delete backups, plaintext exports, and activity report exports from their saved locations.
+- Delete printable Emergency Kit exports from their saved locations.
+- Delete automatically created backups from the configured backup directory when they are no longer needed.
 - Delete app metadata from the local app-data directory if launcher/settings history should be removed.
 
 Deleting ShellKrypt does not automatically delete every vault, backup, or export the user created elsewhere.
@@ -70,7 +78,8 @@ Security details are documented in `SECURITY.md` and `DISCLAIMER.md`. Important 
 - clipboard clearing is best-effort
 - secrets can exist in memory while a vault is unlocked
 - ShellKrypt is not externally audited yet
+- automatic backups are in-app only and do not run while ShellKrypt is closed or the vault is locked
 
 ## 8. Changes
 
-This notice may change before public release. Material privacy changes should be reflected in `CHANGELOG.md` or release notes.
+This notice may change for future builds. Material privacy changes should be reflected in `CHANGELOG.md` or release notes.

@@ -9,7 +9,7 @@ This document defines ShellKrypt's security, privacy, data-handling, and secret-
 - External providers: none by default
 - Stores user data: yes, in local `.skvault` files
 - Stores regulated data: can store payment card details if the user enters them; ShellKrypt is not a PCI-certified product
-- Production deployment target: local desktop app first; mobile app heads are in progress
+- Distribution target: local desktop app first; mobile app heads are in progress
 - Audit status: not externally audited
 - License status: prepared for GPL-3.0-or-later source release
 
@@ -25,7 +25,7 @@ Do not use claims such as "military-grade", "unhackable", or "zero risk".
 
 ## 2. Reporting A Vulnerability
 
-ShellKrypt is not public yet. Until a public security contact is created, report suspected vulnerabilities privately to the project owner.
+Report suspected vulnerabilities through the repository security contact when one is configured. Until then, report suspected vulnerabilities privately to the project owner.
 
 When reporting, include:
 
@@ -43,17 +43,17 @@ Expected handling:
 - Acknowledge the report when received.
 - Reproduce with synthetic data.
 - Assess impact against this security policy.
-- Patch privately when needed.
+- Patch privately when needed before publishing enough detail for users to update.
 - Add regression tests where practical.
 - Publish release notes without exposing exploit details before users can update.
 
-Before public release, replace this section with a real security contact such as a private email address or GitHub Security Advisories workflow.
+Before broad public distribution, configure a dedicated security contact such as a private email address or GitHub Security Advisories workflow.
 
 ## 3. Supported Versions
 
-ShellKrypt is currently pre-1.0. Only the latest private build is expected to receive fixes unless a release note says otherwise.
+ShellKrypt is currently pre-1.0. Only the latest distributed build is expected to receive fixes unless a release note says otherwise.
 
-After public release, maintain this table:
+When stable releases are published, maintain this table:
 
 | Version | Supported |
 |---|---:|
@@ -65,7 +65,7 @@ After public release, maintain this table:
 | Data Type | Examples | Storage Allowed | Logging Allowed | Notes |
 |---|---|---:|---:|---|
 | Public project data | README, docs, synthetic examples | Yes | Yes | Must not include real secrets |
-| App metadata | settings, vault registry, audit dismissals | Yes | Redacted | Must not contain raw item secrets |
+| App metadata | settings, vault registry, audit dismissals, Backup Center history, automatic-backup status, Emergency Kit checklist state | Yes | Redacted | Must not contain raw item secrets |
 | Private user data | titles, usernames, emails, URLs, notes, card metadata | Restricted | Redacted only | Store sensitive payloads encrypted |
 | Secrets | passwords, API keys, tokens, OTP seeds, CVCs, backup passphrases, master passwords | Encrypted only where required | No | Never commit or log |
 | Plaintext exports | decrypted JSON reports, activity reports | User-controlled only | No | Must be clearly labeled and warned |
@@ -78,6 +78,7 @@ After public release, maintain this table:
 - `.env` files are local only and are not required for normal desktop use.
 - Local vaults, backups, plaintext exports, screenshots containing secrets, and private logs must not be committed.
 - Master passwords and backup passphrases must not be persisted by ShellKrypt.
+- Automatic-backup passphrases are session-only memory values and must be cleared on lock, vault switch, import/restore, and app close.
 - App settings, vault registry, audit dismissal state, and activity logs must not contain raw passwords, card numbers, CVCs, OTP seeds, API secret values, or note contents.
 - Clipboard contents are outside ShellKrypt's full control; clearing is best-effort and is not a security boundary.
 - Rotate any real credentials after suspected exposure.
@@ -89,7 +90,7 @@ Approved secret locations:
 | Master password | Vault unlock | User memory only; not stored | User changes by changing master password |
 | Vault key | Active vault | Encrypted in `vault_meta.encryptedVaultKey`, present in memory while unlocked | Rewrapped on master-password change |
 | Item secrets | Vault items | AES-GCM encrypted payloads in `.skvault` | User edits/replaces records |
-| Backup passphrase | `.skbx` backup | User memory only; not stored | User creates new backup |
+| Backup passphrase | `.skbx` backup and automatic backup session | User memory/session memory only; not stored | User creates a new backup |
 
 ## 6. Authentication And Authorization
 
@@ -121,6 +122,7 @@ Rules:
 | Tampered ciphertext or swapped payload | Corrupt or malicious data | AES-GCM tag validation and associated data where practical | Tamper/swap/truncation tests |
 | Plaintext export mishandling | Full decrypted disclosure | Explicit confirmation, filename warning, post-export warning | UI/manual test and activity log review |
 | Clipboard exposure | Secret copied outside app | Copy-disabled setting, timeout clearing, clear on lock/switch/destructive flows | Clipboard setting tests/manual checks |
+| Automatic backup misconfiguration | Missing recovery copy or unexpected local backup files | Disabled by default, session-only passphrase, verification after export, retention limited to exact auto-backup filename pattern | Scheduler and retention tests/manual checks |
 | Activity log leakage | Secrets in event history | Vault-scoped encrypted logs and redaction rules | Activity log tests and code review |
 | Unsafe file deletion/overwrite | User data loss | Path canonicalization, extension guards, active-vault overwrite checks | File guard tests |
 | Malformed import package | Crash, partial import, resource exhaustion | Size limits, validation before KDF work, transactions | Import parser tests |
@@ -135,6 +137,7 @@ Rules:
 - Validate backup package fields before expensive Argon2 work.
 - Use transactions for imports/restores that can modify many records.
 - Treat plaintext JSON exports and activity report exports as decrypted reports.
+- Treat printable Emergency Kit exports as plaintext safe-metadata reports. They must not contain passwords, backup passphrases, hints, item secrets, card numbers, OTP seeds, or note contents.
 - Avoid full filesystem paths in activity log details when the basename is sufficient.
 - Keep the first-use security acknowledgement accurate when no-recovery, export, clipboard, audit, or privacy behavior changes.
 - Bump `AppSettings.CurrentSecurityAcknowledgementVersion` when material terms, privacy, disclaimer, or security text changes should require users to accept again.
@@ -144,6 +147,7 @@ Rules:
 Allowed:
 
 - High-level events such as vault created, vault unlocked, backup exported, import completed, activity logs cleared.
+- Backup Center and Emergency Kit events when they contain only safe operation names, basenames, counts, statuses, and timestamps.
 - Synthetic IDs, session IDs, timestamps, categories, and statuses.
 - File basenames for imports/exports when useful.
 - Redacted or summarized metadata.
@@ -158,11 +162,12 @@ Not allowed:
 
 ## 10. Data Retention And Deletion
 
-- Retention policy: local user controls vault files and exports.
+- Retention policy: local user controls vault files, manual backups, and exports.
 - Activity log retention: encrypted per-vault log store keeps a bounded recent history.
 - Deletion policy: deleting a vault removes the selected `.skvault` target after safety checks; backups/exports remain user-managed.
 - Export policy: encrypted backups are preferred; plaintext exports are allowed with explicit confirmation and warnings.
 - Backup policy: users should create and verify `.skbx` backups before relying on a vault.
+- Automatic-backup policy: in-app automatic backups run only while the app is open, the vault is unlocked, a backup directory is configured, and a session-only backup passphrase is available. Retention cleanup must delete only exact ShellKrypt auto-backup filenames.
 
 Rules:
 
@@ -191,6 +196,9 @@ Before release or security-sensitive changes:
 - [ ] Activity logs do not include raw secrets or note contents.
 - [ ] Plaintext export warnings and confirmation still work.
 - [ ] Backup/restore uses encrypted `.skbx` packages and validates malformed inputs.
+- [ ] Backup Center verify, restore, plaintext export, CSV import, and history flows do not persist passphrases or decrypted payloads.
+- [ ] Automatic backups skip safely when locked or missing a session passphrase, verify generated packages, and retain only matching auto-backup files.
+- [ ] Emergency Kit exports contain only safe metadata and no recovery secrets.
 - [ ] Import paths are guarded and imports are transactional.
 - [ ] Clipboard copy-disabled and clear-timeout behavior still works.
 - [ ] Vault deletion confirms the selected `.skvault` and refuses unsafe path shapes.

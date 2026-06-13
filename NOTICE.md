@@ -18,4 +18,4 @@ Redistributed modified builds should be clearly marked as modified and should no
 
 ## Trademarks And Branding
 
-The project may later define more specific trademark or branding rules before public release. Until then, use of the ShellKrypt name should be honest, non-confusing, and should not imply official endorsement for third-party builds.
+The project may later define more specific trademark or branding rules. Until then, use of the ShellKrypt name should be honest, non-confusing, and should not imply official endorsement for third-party builds.

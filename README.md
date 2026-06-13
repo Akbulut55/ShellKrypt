@@ -1,13 +1,13 @@
 # ShellKrypt
 
-ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, settings, and activity logs.
+ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, emergency readiness, backups, settings, and activity logs.
 
 ShellKrypt is currently a pre-1.0 desktop product. The source repository is prepared for public visibility, while official signed builds and paid distribution channels may be provided separately.
 
 ## Status
 
 - Stage: pre-1.0 desktop build
-- Current app version: `0.16.0`
+- Current app version: `0.16.1`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
 - Owner: independent project owner
@@ -18,9 +18,10 @@ ShellKrypt is currently a pre-1.0 desktop product. The source repository is prep
 
 - Web logins with title, username, email, password, URL, notes, copy actions, search, filters, details, edit, delete, and pagination.
 - Credit cards with bank, issuer, cardholder, card type, masked number, CVC reveal, expiry handling, copy actions, details, edit, delete, search, filters, and pagination.
-- API keys with flexible metadata fields for provider IDs, client IDs, project IDs, key names, prefixes, secrets, and custom fields.
+- API keys with provider, environment, notes, and encrypted flexible fields for API keys, tokens, client IDs, project IDs, prefixes, secrets, and custom values.
 - Authenticator entries for local TOTP/HOTP codes with manual secret entry, QR screenshot import, pasted image import, advanced code options, details, edit, and delete.
 - Markdown notes with source/preview switching, autosave after typing stops, starred notes, search, create, edit, and delete.
+- Backup Center history and automatic-backup schedule state stored as local app metadata. Backup passphrases are not stored.
 - Activity logs stored inside the active vault with category filters, pagination, metadata details, clearing, and plaintext JSON report export.
 
 ## Core Workflows
@@ -29,10 +30,14 @@ ShellKrypt is currently a pre-1.0 desktop product. The source repository is prep
 - Unlock a vault with a master password derived through Argon2id.
 - Add and manage web logins, cards, API keys, authenticators, and markdown notes from dedicated screens.
 - View all supported records from the All Items dashboard with search, filters, pagination, and cross-item overview.
-- Generate local passwords with configurable length and character classes.
+- Generate local passwords with configurable length and character classes from Password Generator.
 - Use the crypto workbench for SHA-256, SHA-512, and Base64 encode/decode utilities.
-- Run a security audit for weak, reused, and stale web login passwords with remediation routing.
-- Configure auto-lock, lock on focus loss, clipboard clearing, copy permissions, theme, backup/restore, CSV import, and master password changes.
+- Run a local Security Audit for password, card, API key, and settings posture findings with remediation routing.
+- Create, verify, restore, and track encrypted `.skbx` backups from Backup Center.
+- Export plaintext JSON reports only after explicit confirmation.
+- Preview and import CSV data through Backup Center.
+- Review Emergency Kit readiness and export a safe printable checklist.
+- Configure auto-lock, lock on focus loss, clipboard clearing, copy permissions, theme, language, and master password changes from Settings.
 
 ## Security And Privacy Model
 
@@ -44,6 +49,9 @@ ShellKrypt is designed for local storage only. There is no ShellKrypt cloud acco
 - Encrypted item payloads use AES-GCM with versioned blob envelopes.
 - Encrypted payloads are bound to practical associated data such as item type and item id.
 - Activity logs are encrypted and stored inside the active vault database.
+- Backup Center creates encrypted `.skbx` packages with a separate backup passphrase.
+- In-app automatic backups run only while ShellKrypt is open, the vault is unlocked, and the user has entered the backup passphrase for the current session.
+- Emergency Kit stores checklist acknowledgement state only. It does not store passwords, backup passphrases, hints, or recovery secrets.
 - Clipboard copy actions can be disabled or cleared automatically after a configured timeout, but clipboard clearing is best-effort and is not a security boundary.
 - The vault key and visible secrets can exist in app memory while the vault is unlocked.
 - JSON exports and activity report exports are intentionally plaintext reports. Store them carefully and delete them when no longer needed.
@@ -61,10 +69,10 @@ Before relying on a vault, create and verify a backup. If the vault is still unl
 ## Current Limitations
 
 - Windows is the primary tested desktop target.
-- English and Turkish runtime localization are available. Additional languages should be added and validated screen by screen before a broad public 1.0 release.
+- English and Turkish runtime localization are available.
 - macOS and Linux behavior should be validated separately before publishing desktop builds for those platforms.
 - Mobile app heads exist, but the mobile product is not feature-complete.
-- Code signing, installer packaging, update delivery, terms/privacy/disclaimer docs, public support processes, and export-compliance review should be finalized before broad commercial distribution.
+- Code signing, installer packaging, update delivery, public support processes, and export-compliance review should be finalized before broad commercial distribution.
 
 ## Project Documents
 
@@ -107,7 +115,7 @@ Project responsibilities:
 
 - `ShellKrypt.Core` contains domain models, payload records, service interfaces, security settings, and transfer models.
 - `ShellKrypt.Application` contains shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
-- `ShellKrypt.Infrastructure` contains SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, file stores, and activity log persistence.
+- `ShellKrypt.Infrastructure` contains SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, file stores, path guards, and activity log persistence.
 - `ShellKrypt.UI.Shared` contains shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
 - `ShellKrypt.Desktop` contains the Avalonia desktop app, views, viewmodels, UI services, assets, and desktop platform integration.
 - `ShellKrypt.Mobile` contains the shared Avalonia mobile UI and mobile viewmodels.
@@ -222,7 +230,9 @@ Acceptance:
 - Existing vault import/open works.
 - Unlock and lock flows work.
 - All item types can be added, viewed, edited, deleted, searched, and paged.
-- Backup export and restore work with a separate passphrase.
+- Backup Center can create, verify, restore, and track encrypted backups with a separate passphrase.
+- Automatic backups run only while the app is open, the vault is unlocked, and a session-only backup passphrase is available.
+- Emergency Kit readiness cards and safe printable checklist export work without storing recovery secrets.
 - Plaintext export requires explicit confirmation and produces a warning.
 - Clipboard copy, clearing, and disabled-copy settings work as documented.
 - Activity logs load, filter, export, and clear without recording raw secrets.
