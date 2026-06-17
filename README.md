@@ -1,13 +1,13 @@
 # ShellKrypt
 
-ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, emergency readiness, backups, settings, and activity logs.
+ShellKrypt is a local-only encrypted desktop vault for people who want to keep sensitive records on their own device instead of syncing them through a cloud account. It is built with .NET 10 and Avalonia, stores vaults as local `.skvault` SQLite databases, and provides workspaces for web logins, credit cards, API keys, authenticator codes, markdown notes, password generation, security review, Backup Center, settings, and activity logs.
 
 ShellKrypt is currently a pre-1.0 desktop product. The source repository is prepared for public visibility, while official signed builds and paid distribution channels may be provided separately.
 
 ## Status
 
 - Stage: pre-1.0 desktop build
-- Current app version: `0.16.1`
+- Current app version: `0.17.1`
 - Primary surface: Windows desktop
 - Secondary surfaces: shared mobile shell with Android and iOS app heads
 - Owner: independent project owner
@@ -36,7 +36,7 @@ ShellKrypt is currently a pre-1.0 desktop product. The source repository is prep
 - Create, verify, restore, and track encrypted `.skbx` backups from Backup Center.
 - Export plaintext JSON reports only after explicit confirmation.
 - Preview and import CSV data through Backup Center.
-- Review Emergency Kit readiness and export a safe printable checklist.
+- Review backup health and automatic-backup readiness from Backup Center.
 - Configure auto-lock, lock on focus loss, clipboard clearing, copy permissions, theme, language, and master password changes from Settings.
 
 ## Security And Privacy Model
@@ -51,7 +51,7 @@ ShellKrypt is designed for local storage only. There is no ShellKrypt cloud acco
 - Activity logs are encrypted and stored inside the active vault database.
 - Backup Center creates encrypted `.skbx` packages with a separate backup passphrase.
 - In-app automatic backups run only while ShellKrypt is open, the vault is unlocked, and the user has entered the backup passphrase for the current session.
-- Emergency Kit stores checklist acknowledgement state only. It does not store passwords, backup passphrases, hints, or recovery secrets.
+- Backup Center stores local backup history and automatic-backup schedule state. It does not store backup passphrases, hints, or recovery secrets.
 - Clipboard copy actions can be disabled or cleared automatically after a configured timeout, but clipboard clearing is best-effort and is not a security boundary.
 - The vault key and visible secrets can exist in app memory while the vault is unlocked.
 - JSON exports and activity report exports are intentionally plaintext reports. Store them carefully and delete them when no longer needed.
@@ -232,7 +232,7 @@ Acceptance:
 - All item types can be added, viewed, edited, deleted, searched, and paged.
 - Backup Center can create, verify, restore, and track encrypted backups with a separate passphrase.
 - Automatic backups run only while the app is open, the vault is unlocked, and a session-only backup passphrase is available.
-- Emergency Kit readiness cards and safe printable checklist export work without storing recovery secrets.
+- Backup Center backup-health and automatic-backup status work without storing recovery secrets.
 - Plaintext export requires explicit confirmation and produces a warning.
 - Clipboard copy, clearing, and disabled-copy settings work as documented.
 - Activity logs load, filter, export, and clear without recording raw secrets.

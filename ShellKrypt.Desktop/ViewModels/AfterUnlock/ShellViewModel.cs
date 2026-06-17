@@ -69,7 +69,6 @@ public partial class ShellViewModel : ViewModelBase
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, apiKeyService, authenticatorService);
         Health = new HealthViewModel(_root, this, healthAuditService);
-        EmergencyKit = new EmergencyKitViewModel(_root, this);
         BackupCenter = new BackupCenterViewModel(_root);
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);
         Activity = new ActivityViewModel(_root, activityLogService);
@@ -85,7 +84,6 @@ public partial class ShellViewModel : ViewModelBase
     public ToolsViewModel Tools { get; }
     public QuickFillViewModel QuickFill { get; }
     public HealthViewModel Health { get; }
-    public EmergencyKitViewModel EmergencyKit { get; }
     public BackupCenterViewModel BackupCenter { get; }
     public AllItemsViewModel AllItems { get; }
     public SettingsViewModel Settings { get; }
@@ -115,7 +113,6 @@ public partial class ShellViewModel : ViewModelBase
         Tools.RefreshLocalization();
         QuickFill.RefreshLocalization();
         Health.RefreshLocalization();
-        EmergencyKit.RefreshLocalization();
         BackupCenter.RefreshLocalization();
         Settings.RefreshLocalization();
         Activity.RefreshLocalization();

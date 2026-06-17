@@ -8,6 +8,7 @@ using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
+using ShellKrypt.UI.Shared.Navigation;
 using Xunit;
 
 namespace ShellKrypt.Tests;
@@ -181,7 +182,9 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         Assert.Contains("Automatic backup completed", backupCenter.AutomaticBackupStatus);
         Assert.Contains(backupCenter.RecentHistory, row => row.OperationLabel == "Automatic backup");
 
-        var settingsJson = File.ReadAllText(DefaultPaths.SettingsPath);
+        var settingsJson = File.Exists(DefaultPaths.SettingsPath)
+            ? File.ReadAllText(DefaultPaths.SettingsPath)
+            : "";
         Assert.DoesNotContain("automatic-backup-passphrase", settingsJson);
         Assert.DoesNotContain("auto-secret", settingsJson);
     }
@@ -264,7 +267,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
     }
 
     [Fact]
-    public async Task EmergencyKit_ChecklistPersistsAndPrintableTextContainsNoSecrets()
+    public async Task BackupCenter_BackupHealthReflectsBackupVerificationAndAutomaticState()
     {
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
@@ -272,8 +275,6 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
         var root = new MainWindowViewModel();
         root.SetVaultPath(vaultPath);
-        root.OnUnlocked(vaultKey);
-        root.SetAutomaticBackupSessionPassphrase("do-not-store-backup-passphrase");
         root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
         {
             Operation = "encrypted-backup",
@@ -283,24 +284,44 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
             FileName = "safe-backup.skbx",
             FullPath = workspace.FilePath("safe-backup.skbx")
         });
+        root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
+        {
+            Operation = "verify-backup",
+            Status = "success",
+            TimestampUtc = DateTimeOffset.UtcNow.ToString("O"),
+            VaultName = "Vault",
+            FileName = "safe-backup.skbx",
+            FullPath = workspace.FilePath("safe-backup.skbx")
+        });
+        root.BackupSchedule.Enabled = true;
+        root.BackupSchedule.BackupDirectory = workspace.FilePath("auto-backups");
+        root.AutomaticBackupState.LastSuccessfulAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        root.AutomaticBackupState.LastVerifiedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        root.AutomaticBackupState.LastBackupFileName = "auto-backup.skbx";
+        root.OnUnlocked(vaultKey);
+        root.SetAutomaticBackupSessionPassphrase("do-not-store-backup-passphrase");
 
         var shell = Assert.IsType<ShellViewModel>(root.Current);
-        var kit = shell.EmergencyKit;
-        kit.NoPasswordRecoveryAcknowledged = true;
-        kit.MasterPasswordStoredExternally = true;
-        kit.BackupPassphraseStoredExternally = true;
-        kit.BackupLocationKnown = true;
-        kit.BackupVerified = true;
+        var backupCenter = shell.BackupCenter;
+        var settingsJson = File.Exists(DefaultPaths.SettingsPath)
+            ? File.ReadAllText(DefaultPaths.SettingsPath)
+            : "";
 
-        var text = kit.BuildPrintableChecklistText();
-        var settingsJson = File.ReadAllText(DefaultPaths.SettingsPath);
-
-        Assert.Contains("ShellKrypt Emergency Kit", text);
-        Assert.Contains("safe-backup.skbx", text);
-        Assert.DoesNotContain("Vault Master Password 2026", text);
-        Assert.DoesNotContain("do-not-store-backup-passphrase", text);
+        Assert.Equal("Created", backupCenter.BackupHealthBackupStatus);
+        Assert.Equal("Verified", backupCenter.BackupHealthVerificationStatus);
+        Assert.Equal("Enabled", backupCenter.BackupHealthAutomaticStatus);
+        Assert.Contains("safe-backup.skbx", backupCenter.BackupHealthBackupDetail);
+        Assert.Contains("safe-backup.skbx", backupCenter.BackupHealthVerificationDetail);
+        Assert.Contains("auto-backup.skbx", backupCenter.BackupHealthAutomaticDetail);
         Assert.DoesNotContain("do-not-store-backup-passphrase", settingsJson);
-        Assert.True(new AppSettingsService(new FileAppSettingsStore()).Load().EmergencyKit.BackupVerified);
+        Assert.DoesNotContain("Vault Master Password 2026", settingsJson);
+    }
+
+    [Fact]
+    public void Sidebar_NoLongerContainsEmergencyKitSection()
+    {
+        Assert.DoesNotContain(ShellKryptSectionCatalog.DesktopSections, section => section.Key == "emergency");
+        Assert.Contains(ShellKryptSectionCatalog.DesktopSections, section => section.Key == ShellKryptSectionKeys.Backup);
     }
 
     [Fact]

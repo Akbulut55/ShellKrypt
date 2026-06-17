@@ -6,6 +6,18 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.1] - 2026-06-17
+
+### Fixed
+
+- Embedded the ShellKrypt icon into the Windows desktop executable so Task Manager and process grouping use the app icon.
+- Fixed Backup Center and Quick Fill desktop layouts so their content fits without horizontal page overflow at normal window sizes.
+
+### Changed
+
+- Reworked Backup Center into a combined backup-health dashboard with direct backup, verification, and automatic-backup actions plus a single encrypted-backup workflow panel.
+- Removed the standalone Emergency Kit page and the recovery-sheet/passphrase-reminder UI from Backup Center.
+
 ## [ShellKrypt 0.17.0] - 2026-06-17
 
 ### Added

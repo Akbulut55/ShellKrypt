@@ -20,6 +20,9 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     private const string OperationRestoreBackup = "restore-backup";
     private const string OperationPlaintextExport = "plaintext-export";
     private const string OperationCsvImport = "csv-import";
+    private const string BackupModeCreate = "create";
+    private const string BackupModeVerify = "verify";
+    private const string BackupModeRestore = "restore";
 
     private readonly MainWindowViewModel _root;
     private readonly IVaultTransferService _transferService;
@@ -48,6 +51,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     [ObservableProperty] private int automaticBackupRetentionCount = BackupScheduleSettings.DefaultRetentionCount;
     [ObservableProperty] private AutomaticBackupFrequencyOption? selectedAutomaticBackupFrequencyOption;
     [ObservableProperty] private string automaticBackupStatus = "";
+    [ObservableProperty] private string encryptedBackupMode = BackupModeCreate;
 
     public BackupCenterViewModel(MainWindowViewModel root)
     {
@@ -58,9 +62,13 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
         foreach (var option in CreateAutomaticBackupFrequencyOptions())
             AutomaticBackupFrequencyOptions.Add(option);
 
+        RefreshOptionLabels();
         SelectedCsvDuplicateStrategyOption = CsvDuplicateStrategyOptions[0];
         LoadAutomaticBackupSettings();
-        _root.AutomaticBackupChanged += (_, _) => RefreshAutomaticBackupState();
+        _root.AutomaticBackupChanged += (_, _) =>
+        {
+            RefreshAutomaticBackupState();
+        };
 
         var exportBaseName = GetVaultDisplayName();
         var history = _root.BackupCenterHistory;
@@ -70,6 +78,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
         RestoreBackupPath = FirstNotEmpty(history.LastRestoredBackupPath, history.LastVerifiedBackupPath, history.LastEncryptedBackupPath);
         CsvImportPath = history.LastCsvImportPath;
         RefreshHistoryRows();
+        RefreshBackupHealth();
     }
 
     public ObservableCollection<CsvDuplicateStrategyOption> CsvDuplicateStrategyOptions { get; } = new();
@@ -95,7 +104,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     public bool HasAutomaticBackupSessionPassphrase => _root.AutomaticBackups.HasSessionPassphrase;
     public bool IsAutomaticBackupRunning => _root.AutomaticBackups.IsRunning;
     public string ActiveVaultDisplay => GetVaultDisplayName();
-    public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? T("BackupCenter.Status.NoActiveVaultPath") : _root.VaultPath;
+    public string ActiveVaultPathDisplay => string.IsNullOrWhiteSpace(_root.VaultPath) ? T("BackupCenter.Status.NoActiveVaultPath") : Path.GetFileName(_root.VaultPath);
     public string LastEncryptedBackupDisplay => FormatLastOperation(OperationEncryptedBackup, _root.BackupCenterHistory.LastEncryptedBackupPath);
     public string LastVerifiedBackupDisplay => FormatLastOperation(OperationVerifyBackup, _root.BackupCenterHistory.LastVerifiedBackupPath);
     public string LastAutomaticBackupDisplay => FormatLastAutomaticBackup();
@@ -105,10 +114,51 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
     public string AutomaticBackupSessionText => HasAutomaticBackupSessionPassphrase
         ? T("BackupCenter.Automatic.Session.Ready")
         : T("BackupCenter.Automatic.Session.Missing");
+    public bool RecoveryBackupExists => LastBackupEntry is not null || !string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastEncryptedBackupPath) || !string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastAutomaticBackupPath);
+    public bool RecoveryBackupVerified => LastVerifiedBackupEntry is not null || !string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastVerifiedBackupPath) || !string.IsNullOrWhiteSpace(_root.AutomaticBackupState.LastVerifiedAtUtc);
+    public bool RecoveryAutomaticBackupConfigured => _root.BackupSchedule.Enabled && !string.IsNullOrWhiteSpace(_root.BackupSchedule.BackupDirectory);
+    public bool IsCreateBackupMode => EncryptedBackupMode == BackupModeCreate;
+    public bool IsVerifyBackupMode => EncryptedBackupMode == BackupModeVerify;
+    public bool IsRestoreBackupMode => EncryptedBackupMode == BackupModeRestore;
+    public string CreateBackupModeBackground => IsCreateBackupMode ? "AccentMutedBrush" : "SurfaceRaisedBrush";
+    public string VerifyBackupModeBackground => IsVerifyBackupMode ? "AccentMutedBrush" : "SurfaceRaisedBrush";
+    public string RestoreBackupModeBackground => IsRestoreBackupMode ? "AccentMutedBrush" : "SurfaceRaisedBrush";
+    public string CreateBackupModeForeground => IsCreateBackupMode ? "AccentBrush" : "TextMutedBrush";
+    public string VerifyBackupModeForeground => IsVerifyBackupMode ? "AccentBrush" : "TextMutedBrush";
+    public string RestoreBackupModeForeground => IsRestoreBackupMode ? "AccentBrush" : "TextMutedBrush";
+    public string BackupHealthBackupStatus => RecoveryBackupExists ? T("BackupCenter.Health.Status.Created") : T("BackupCenter.Health.Status.Missing");
+    public string BackupHealthVerificationStatus => RecoveryBackupVerified ? T("BackupCenter.Health.Status.Verified") : T("BackupCenter.Health.Status.NotVerified");
+    public string BackupHealthAutomaticStatus => RecoveryAutomaticBackupConfigured ? T("BackupCenter.Health.Status.Enabled") : T("BackupCenter.Health.Status.Disabled");
+    public string BackupHealthBackupDetail => RecoveryBackupExists ? RecoveryLastBackupDisplay : T("BackupCenter.Health.Backup.Missing");
+    public string BackupHealthVerificationDetail => RecoveryBackupVerified ? RecoveryLastVerifiedDisplay : T("BackupCenter.Health.Verification.Missing");
+    public string BackupHealthAutomaticDetail => RecoveryAutomaticBackupDisplay;
+    public string BackupHealthBackupBrush => RecoveryBackupExists ? "SuccessForegroundBrush" : "WarningBrush";
+    public string BackupHealthVerificationBrush => RecoveryBackupVerified ? "SuccessForegroundBrush" : "WarningBrush";
+    public string BackupHealthAutomaticBrush => RecoveryAutomaticBackupConfigured ? "SuccessForegroundBrush" : "WarningBrush";
+    public string RecoveryLastBackupDisplay => LastBackupEntry is null
+        ? FormatLastKnownBackup()
+        : T("BackupCenter.Health.Format.LastBackup", LastBackupEntry.FileName, FormatTimestamp(LastBackupEntry.TimestampUtc));
+    public string RecoveryLastVerifiedDisplay => LastVerifiedBackupEntry is null && string.IsNullOrWhiteSpace(_root.AutomaticBackupState.LastVerifiedAtUtc)
+        ? FormatLastKnownVerifiedBackup()
+        : T("BackupCenter.Health.Format.LastVerified", LastVerifiedFileName, FormatTimestamp(LastVerifiedTimestampUtc));
+    public string RecoveryAutomaticBackupDisplay => BuildRecoveryAutomaticBackupDisplay();
+    private BackupCenterHistoryEntry? LastBackupEntry => _root.BackupCenterHistory.RecentEntries
+        .FirstOrDefault(entry =>
+            (entry.Operation == OperationEncryptedBackup || entry.Operation == AutomaticBackupCoordinator.OperationAutomaticBackup) &&
+            entry.Status == AutomaticBackupCoordinator.StatusSuccess);
+    private BackupCenterHistoryEntry? LastVerifiedBackupEntry => _root.BackupCenterHistory.RecentEntries
+        .FirstOrDefault(entry => entry.Operation == OperationVerifyBackup && entry.Status == AutomaticBackupCoordinator.StatusSuccess);
+    private string LastVerifiedTimestampUtc => LastVerifiedBackupEntry?.TimestampUtc
+        ?? _root.AutomaticBackupState.LastVerifiedAtUtc;
+    private string LastVerifiedFileName => LastVerifiedBackupEntry?.FileName
+        ?? _root.AutomaticBackupState.LastBackupFileName
+        ?? Path.GetFileName(_root.BackupCenterHistory.LastVerifiedBackupPath)
+        ?? "";
 
     partial void OnTransferStatusChanged(string value) => OnPropertyChanged(nameof(HasTransferStatus));
     partial void OnAutomaticBackupStatusChanged(string value) => OnPropertyChanged(nameof(HasAutomaticBackupStatus));
     partial void OnSelectedCsvDuplicateStrategyOptionChanged(CsvDuplicateStrategyOption? value) => OnPropertyChanged(nameof(SelectedCsvDuplicateStrategy));
+    partial void OnEncryptedBackupModeChanged(string value) => RefreshEncryptedBackupModeState();
     partial void OnAutomaticBackupPassphraseChanged(string value)
     {
         _root.SetAutomaticBackupSessionPassphrase(value);
@@ -117,10 +167,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
 
     public override void RefreshLocalization()
     {
-        foreach (var option in CsvDuplicateStrategyOptions)
-            option.RefreshLocalization(_root.Localization);
-        foreach (var option in AutomaticBackupFrequencyOptions)
-            option.RefreshLocalization(_root.Localization);
+        RefreshOptionLabels();
 
         foreach (var row in RecentHistory)
             row.RefreshLocalization();
@@ -134,7 +181,57 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             nameof(LastRestoreDisplay),
             nameof(LastPlaintextExportDisplay),
             nameof(LastCsvImportDisplay),
-            nameof(AutomaticBackupSessionText));
+            nameof(AutomaticBackupSessionText),
+            nameof(BackupHealthBackupStatus),
+            nameof(BackupHealthVerificationStatus),
+            nameof(BackupHealthAutomaticStatus),
+            nameof(BackupHealthBackupDetail),
+            nameof(BackupHealthVerificationDetail),
+            nameof(BackupHealthAutomaticDetail),
+            nameof(RecoveryLastBackupDisplay),
+            nameof(RecoveryLastVerifiedDisplay),
+            nameof(RecoveryAutomaticBackupDisplay));
+    }
+
+    private void RefreshOptionLabels()
+    {
+        foreach (var option in CsvDuplicateStrategyOptions)
+            option.RefreshLocalization(_root.Localization);
+        foreach (var option in AutomaticBackupFrequencyOptions)
+            option.RefreshLocalization(_root.Localization);
+
+        OnPropertyChanged(nameof(SelectedCsvDuplicateStrategyOption));
+        OnPropertyChanged(nameof(SelectedAutomaticBackupFrequencyOption));
+    }
+
+    [RelayCommand]
+    private void ShowCreateBackup() => EncryptedBackupMode = BackupModeCreate;
+
+    [RelayCommand]
+    private void ShowVerifyBackup() => EncryptedBackupMode = BackupModeVerify;
+
+    [RelayCommand]
+    private void ShowRestoreBackup() => EncryptedBackupMode = BackupModeRestore;
+
+    [RelayCommand]
+    private void ConfigureAutomaticBackups()
+    {
+        AutomaticBackupStatus = T("BackupCenter.Health.Automatic.ConfigureHint");
+    }
+
+    [RelayCommand]
+    private void ClearRecentHistory()
+    {
+        _root.BackupCenterHistory.RecentEntries.Clear();
+        _root.SaveBackupCenterHistory();
+        RefreshHistoryRows();
+        RefreshBackupHealth();
+        NotifyLocalized(
+            nameof(LastEncryptedBackupDisplay),
+            nameof(LastVerifiedBackupDisplay),
+            nameof(LastRestoreDisplay),
+            nameof(LastPlaintextExportDisplay),
+            nameof(LastCsvImportDisplay));
     }
 
     [RelayCommand]
@@ -512,6 +609,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
 
         _root.SaveBackupCenterHistory();
         RefreshHistoryRows();
+        RefreshBackupHealth();
         NotifyLocalized(
             nameof(LastEncryptedBackupDisplay),
             nameof(LastVerifiedBackupDisplay),
@@ -550,6 +648,41 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsAutomaticBackupRunning));
         OnPropertyChanged(nameof(AutomaticBackupSessionText));
         OnPropertyChanged(nameof(LastAutomaticBackupDisplay));
+        RefreshBackupHealth();
+    }
+
+    private void RefreshBackupHealth()
+    {
+        NotifyLocalized(
+            nameof(RecoveryBackupExists),
+            nameof(RecoveryBackupVerified),
+            nameof(RecoveryAutomaticBackupConfigured),
+            nameof(BackupHealthBackupStatus),
+            nameof(BackupHealthVerificationStatus),
+            nameof(BackupHealthAutomaticStatus),
+            nameof(BackupHealthBackupDetail),
+            nameof(BackupHealthVerificationDetail),
+            nameof(BackupHealthAutomaticDetail),
+            nameof(BackupHealthBackupBrush),
+            nameof(BackupHealthVerificationBrush),
+            nameof(BackupHealthAutomaticBrush),
+            nameof(RecoveryLastBackupDisplay),
+            nameof(RecoveryLastVerifiedDisplay),
+            nameof(RecoveryAutomaticBackupDisplay));
+    }
+
+    private void RefreshEncryptedBackupModeState()
+    {
+        NotifyLocalized(
+            nameof(IsCreateBackupMode),
+            nameof(IsVerifyBackupMode),
+            nameof(IsRestoreBackupMode),
+            nameof(CreateBackupModeBackground),
+            nameof(VerifyBackupModeBackground),
+            nameof(RestoreBackupModeBackground),
+            nameof(CreateBackupModeForeground),
+            nameof(VerifyBackupModeForeground),
+            nameof(RestoreBackupModeForeground));
     }
 
     private string FormatLastAutomaticBackup()
@@ -564,6 +697,36 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             ? Path.GetFileName(state.LastBackupPath)
             : state.LastBackupFileName;
         return T("BackupCenter.Format.LastOperation", fileName, FormatTimestamp(state.LastSuccessfulAtUtc));
+    }
+
+    private string BuildRecoveryAutomaticBackupDisplay()
+    {
+        if (!_root.BackupSchedule.Enabled)
+            return T("BackupCenter.Health.Automatic.Disabled");
+
+        if (string.IsNullOrWhiteSpace(_root.AutomaticBackupState.LastSuccessfulAtUtc))
+            return T("BackupCenter.Health.Automatic.EnabledNoRun");
+
+        return T("BackupCenter.Health.Format.LastAutomatic", _root.AutomaticBackupState.LastBackupFileName, FormatTimestamp(_root.AutomaticBackupState.LastSuccessfulAtUtc));
+    }
+
+    private string FormatLastKnownBackup()
+    {
+        if (!string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastEncryptedBackupPath))
+            return FormatLastOperation(OperationEncryptedBackup, _root.BackupCenterHistory.LastEncryptedBackupPath);
+
+        if (!string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastAutomaticBackupPath))
+            return FormatLastOperation(AutomaticBackupCoordinator.OperationAutomaticBackup, _root.BackupCenterHistory.LastAutomaticBackupPath);
+
+        return T("BackupCenter.Health.Status.NoBackup");
+    }
+
+    private string FormatLastKnownVerifiedBackup()
+    {
+        if (!string.IsNullOrWhiteSpace(_root.BackupCenterHistory.LastVerifiedBackupPath))
+            return FormatLastOperation(OperationVerifyBackup, _root.BackupCenterHistory.LastVerifiedBackupPath);
+
+        return T("BackupCenter.Health.Status.NoVerifiedBackup");
     }
 
     private string FormatExportSummary(VaultSnapshotSummary summary)
@@ -697,7 +860,7 @@ public sealed partial class BackupHistoryEntryVm : ObservableObject
         "restore-backup" => T("BackupCenter.Operation.RestoreBackup"),
         "plaintext-export" => T("BackupCenter.Operation.PlaintextExport"),
         "csv-import" => T("BackupCenter.Operation.CsvImport"),
-        "emergency-kit-export" => T("BackupCenter.Operation.EmergencyKitExport"),
+        "emergency-kit-export" => T("BackupCenter.Operation.LegacyExport"),
         _ => _entry.Operation
     };
 

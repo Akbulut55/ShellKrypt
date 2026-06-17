@@ -6,10 +6,10 @@
              x:DataType="vm:BackupCenterViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="16"
-                  MaxWidth="1500"
+                  MaxWidth="1260"
                   Spacing="14">
         <StackPanel Spacing="6">
           <TextBlock Text="{DynamicResource Loc.BackupCenter.Title}"
@@ -20,315 +20,234 @@
                      Classes="page-subtitle"/>
         </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*,*,*"
-              ColumnSpacing="6"
-              MinWidth="560">
-          <Border Classes="backup-status-card">
-            <StackPanel Spacing="8">
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.ActiveVault}"
-                         Classes="backup-kicker"/>
-              <TextBlock Text="{Binding ActiveVaultDisplay}"
-                         Classes="backup-status-value"/>
-              <TextBlock Text="{Binding ActiveVaultPathDisplay}"
-                         Classes="backup-muted"
-                         TextTrimming="CharacterEllipsis"/>
-            </StackPanel>
-          </Border>
-
-          <Border Grid.Column="1"
-                  Classes="backup-status-card">
-            <StackPanel Spacing="8">
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.LastBackup}"
-                         Classes="backup-kicker"/>
-              <TextBlock Text="{Binding LastEncryptedBackupDisplay}"
-                         Classes="backup-status-value"/>
-              <TextBlock Text="{Binding LastVerifiedBackupDisplay}"
-                         Classes="backup-muted"
-                         TextTrimming="CharacterEllipsis"/>
-            </StackPanel>
-          </Border>
-
-          <Border Grid.Column="2"
-                  Classes="backup-status-card">
-            <StackPanel Spacing="8">
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.LastRestore}"
-                         Classes="backup-kicker"/>
-              <TextBlock Text="{Binding LastRestoreDisplay}"
-                         Classes="backup-status-value"/>
-              <TextBlock Text="{Binding LastCsvImportDisplay}"
-                         Classes="backup-muted"
-                         TextTrimming="CharacterEllipsis"/>
-            </StackPanel>
-          </Border>
-
-          <Border Grid.Column="3"
-                  Classes="backup-status-card">
-            <StackPanel Spacing="8">
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Status.Title}"
-                         Classes="backup-kicker"/>
-              <TextBlock Text="{Binding LastAutomaticBackupDisplay}"
-                         Classes="backup-status-value"/>
-              <TextBlock Text="{Binding AutomaticBackupSessionText}"
-                         Classes="backup-muted"
+        <Border Classes="backup-block">
+          <Grid ColumnDefinitions="*"
+                RowDefinitions="Auto,Auto"
+                ColumnSpacing="16"
+                RowSpacing="12">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Title}"
+                         Classes="backup-section-title"/>
+              <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.NoRecoveryWarning}"
+                         Classes="page-subtitle"
                          TextWrapping="Wrap"/>
             </StackPanel>
-          </Border>
 
-          <Border Grid.Column="4"
-                  Classes="backup-status-card danger">
-            <StackPanel Spacing="8">
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.PlaintextRisk}"
-                         Classes="backup-kicker"/>
-              <TextBlock Text="{Binding LastPlaintextExportDisplay}"
-                         Classes="backup-status-value"/>
-              <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.PlaintextRisk.Detail}"
-                         Classes="backup-muted"
-                         TextWrapping="Wrap"/>
-            </StackPanel>
-          </Border>
-        </Grid>
+            <WrapPanel Grid.Row="1"
+                       Orientation="Horizontal">
+              <Border Classes="backup-health-card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.ActiveVault}"
+                             Classes="backup-kicker"/>
+                  <TextBlock Text="{Binding ActiveVaultDisplay}"
+                             Classes="backup-status-value"/>
+                  <TextBlock Text="{Binding ActiveVaultPathDisplay}"
+                             Classes="backup-muted"
+                             TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="backup-health-card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Card.Backup}"
+                             Classes="backup-kicker"/>
+                  <TextBlock Text="{Binding BackupHealthBackupStatus}"
+                             Classes="backup-status-value"
+                             Foreground="{Binding BackupHealthBackupBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+                  <TextBlock Text="{Binding BackupHealthBackupDetail}"
+                             Classes="backup-muted"
+                             TextTrimming="CharacterEllipsis"/>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.CreateBackup}"
+                          Classes="backup-mini-button"
+                          HorizontalAlignment="Left"
+                          Command="{Binding ShowCreateBackupCommand}"/>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="backup-health-card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Card.Verification}"
+                             Classes="backup-kicker"/>
+                  <TextBlock Text="{Binding BackupHealthVerificationStatus}"
+                             Classes="backup-status-value"
+                             Foreground="{Binding BackupHealthVerificationBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+                  <TextBlock Text="{Binding BackupHealthVerificationDetail}"
+                             Classes="backup-muted"
+                             TextTrimming="CharacterEllipsis"/>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.VerifyBackup}"
+                          Classes="backup-mini-button"
+                          HorizontalAlignment="Left"
+                          Command="{Binding ShowVerifyBackupCommand}"/>
+                </StackPanel>
+              </Border>
+
+              <Border Classes="backup-health-card">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Status.Title}"
+                             Classes="backup-kicker"/>
+                  <TextBlock Text="{Binding BackupHealthAutomaticStatus}"
+                             Classes="backup-status-value"
+                             Foreground="{Binding BackupHealthAutomaticBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+                  <TextBlock Text="{Binding AutomaticBackupSessionText}"
+                             Classes="backup-muted"
+                             TextTrimming="CharacterEllipsis"/>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.Configure}"
+                          Classes="backup-mini-button"
+                          HorizontalAlignment="Left"
+                          Command="{Binding ConfigureAutomaticBackupsCommand}"/>
+                </StackPanel>
+              </Border>
+            </WrapPanel>
+          </Grid>
+        </Border>
 
         <TextBlock Text="{Binding TransferStatus}"
                    Classes="backup-status-message"
                    IsVisible="{Binding HasTransferStatus}"/>
 
-        <Grid ColumnDefinitions="7*,5*"
-              ColumnSpacing="12"
-              MinWidth="540">
+        <Grid ColumnDefinitions="*,*"
+              ColumnSpacing="12">
           <StackPanel Spacing="14">
             <Border Classes="backup-block">
               <StackPanel Spacing="12">
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Title}"
-                           Classes="backup-section-title"/>
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Description}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
+                <Grid ColumnDefinitions="*,Auto">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="{DynamicResource Loc.BackupCenter.Encrypted.Title}"
+                               Classes="backup-section-title"/>
+                    <TextBlock Text="{DynamicResource Loc.BackupCenter.Encrypted.Description}"
+                               Classes="page-subtitle"
+                               TextWrapping="Wrap"/>
+                  </StackPanel>
+                </Grid>
 
-                <StackPanel Spacing="8">
-                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Path}"
-                             Classes="backup-label"/>
+                <WrapPanel Orientation="Horizontal">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Mode.Create}"
+                          Classes="backup-mode-button"
+                          Background="{Binding CreateBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Foreground="{Binding CreateBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Margin="0,0,8,8"
+                          Command="{Binding ShowCreateBackupCommand}"/>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Mode.Verify}"
+                          Classes="backup-mode-button"
+                          Background="{Binding VerifyBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Foreground="{Binding VerifyBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Margin="0,0,8,8"
+                          Command="{Binding ShowVerifyBackupCommand}"/>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Mode.Restore}"
+                          Classes="backup-mode-button"
+                          Background="{Binding RestoreBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Foreground="{Binding RestoreBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          Margin="0,0,8,8"
+                          Command="{Binding ShowRestoreBackupCommand}"/>
+                </WrapPanel>
+
+                <StackPanel Spacing="12"
+                            IsVisible="{Binding IsCreateBackupMode}">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Description}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Path}"
+                               Classes="backup-label"/>
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="10">
+                      <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Path.Placeholder}"/>
+                      <Button Grid.Column="1"
+                              Content="{DynamicResource Loc.Common.Browse}"
+                              Classes="backup-secondary-button"
+                              Command="{Binding BrowseEncryptedExportPathCommand}"/>
+                    </Grid>
+                  </StackPanel>
+
+                  <StackPanel Spacing="8">
+                    <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Passphrase}"
+                               Classes="backup-label"/>
+                    <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PasswordChar="*"
+                             PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Passphrase.Placeholder}"/>
+                  </StackPanel>
+
+                  <WrapPanel Orientation="Horizontal">
+                    <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewBackup}"
+                            Classes="backup-secondary-button"
+                            Margin="0,0,10,0"
+                            Command="{Binding PreviewExportCommand}"/>
+                    <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportBackup}"
+                            Classes="backup-primary-button"
+                            Command="{Binding ExportEncryptedCommand}"/>
+                  </WrapPanel>
+
+                  <TextBlock Text="{Binding ExportSummary}"
+                             Classes="page-subtitle"
+                             FontSize="12"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <StackPanel Spacing="12"
+                            IsVisible="{Binding IsVerifyBackupMode}">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Description}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
-                    <TextBox Text="{Binding EncryptedExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Path.Placeholder}"/>
+                    <TextBox Text="{Binding VerifyBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Path.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.Browse}"
                             Classes="backup-secondary-button"
-                            Command="{Binding BrowseEncryptedExportPathCommand}"/>
+                            Command="{Binding BrowseVerifyBackupPathCommand}"/>
                   </Grid>
-                </StackPanel>
 
-                <StackPanel Spacing="8">
-                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Passphrase}"
-                             Classes="backup-label"/>
-                  <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  <TextBox Text="{Binding VerifyPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            PasswordChar="*"
-                           PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Passphrase.Placeholder}"/>
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Passphrase.Placeholder}"/>
+
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.VerifyBackup}"
+                          Classes="backup-primary-button"
+                          HorizontalAlignment="Left"
+                          Command="{Binding VerifyBackupCommand}"/>
+
+                  <TextBlock Text="{Binding VerifySummary}"
+                             Classes="page-subtitle"
+                             FontSize="12"
+                             TextWrapping="Wrap"/>
                 </StackPanel>
 
-                <Grid ColumnDefinitions="Auto,Auto,*"
-                      ColumnSpacing="10">
-                  <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewBackup}"
-                          Classes="backup-secondary-button"
-                          Command="{Binding PreviewExportCommand}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.BackupCenter.Button.ExportBackup}"
-                          Classes="backup-primary-button"
-                          Command="{Binding ExportEncryptedCommand}"/>
-                </Grid>
-
-                <TextBlock Text="{Binding ExportSummary}"
-                           Classes="page-subtitle"
-                           FontSize="12"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-            </Border>
-
-            <Border Classes="backup-block">
-              <StackPanel Spacing="12">
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Title}"
-                           Classes="backup-section-title"/>
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Description}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="10">
-                  <TextBox Text="{Binding VerifyBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Path.Placeholder}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Common.Browse}"
-                          Classes="backup-secondary-button"
-                          Command="{Binding BrowseVerifyBackupPathCommand}"/>
-                </Grid>
-
-                <TextBox Text="{Binding VerifyPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         PasswordChar="*"
-                         PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Passphrase.Placeholder}"/>
-
-                <Button Content="{DynamicResource Loc.BackupCenter.Button.VerifyBackup}"
-                        Classes="backup-primary-button"
-                        HorizontalAlignment="Left"
-                        Command="{Binding VerifyBackupCommand}"/>
-
-                <TextBlock Text="{Binding VerifySummary}"
-                           Classes="page-subtitle"
-                           FontSize="12"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-            </Border>
-
-            <Border Classes="backup-block">
-              <StackPanel Spacing="12">
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Title}"
-                           Classes="backup-section-title"/>
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Description}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="10">
-                  <TextBox Text="{Binding RestoreBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Path.Placeholder}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Common.Browse}"
-                          Classes="backup-secondary-button"
-                          Command="{Binding BrowseRestoreBackupPathCommand}"/>
-                </Grid>
-
-                <TextBox Text="{Binding RestorePassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         PasswordChar="*"
-                         PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Passphrase.Placeholder}"/>
-                <CheckBox Content="{DynamicResource Loc.BackupCenter.Restore.Confirm}"
-                          IsChecked="{Binding ConfirmRestore}"/>
-
-                <Grid ColumnDefinitions="Auto,*"
-                      ColumnSpacing="10">
-                  <Button Content="{DynamicResource Loc.BackupCenter.Button.RestoreBackup}"
-                          Classes="backup-danger-button"
-                          Command="{Binding RestoreEncryptedCommand}"/>
-                </Grid>
-
-                <TextBlock Text="{Binding RestoreSummary}"
-                           Classes="page-subtitle"
-                           FontSize="12"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-            </Border>
-          </StackPanel>
-
-          <StackPanel Grid.Column="1"
-                      Spacing="22">
-            <Border Classes="backup-block">
-              <StackPanel Spacing="12">
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Title}"
-                           Classes="backup-section-title"/>
-
-                <ItemsControl ItemsSource="{Binding RecentHistory}"
-                              IsVisible="{Binding HasRecentHistory}">
-                  <ItemsControl.ItemTemplate>
-                    <DataTemplate x:DataType="vm:BackupHistoryEntryVm">
-                      <Border Classes="backup-history-row">
-                        <Grid RowDefinitions="Auto,Auto,Auto"
-                              RowSpacing="6">
-                          <Grid ColumnDefinitions="*,Auto"
-                                ColumnSpacing="10">
-                            <TextBlock Text="{Binding OperationLabel}"
-                                       FontWeight="SemiBold"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <Border Grid.Column="1"
-                                    Classes="backup-history-chip">
-                              <TextBlock Text="{Binding StatusLabel}"
-                                         FontSize="10"
-                                         FontWeight="Black"/>
-                            </Border>
-                          </Grid>
-                          <TextBlock Grid.Row="1"
-                                     Text="{Binding FileDisplay}"
-                                     Classes="backup-muted"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <Grid Grid.Row="2"
-                                ColumnDefinitions="*,Auto"
-                                ColumnSpacing="8">
-                            <TextBlock Text="{Binding CountsDisplay}"
-                                       Classes="backup-muted"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="{Binding TimestampDisplay}"
-                                       Classes="backup-muted"/>
-                          </Grid>
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ItemsControl.ItemTemplate>
-                </ItemsControl>
-
-                <Border Padding="18"
-                        IsVisible="{Binding !HasRecentHistory}">
-                  <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Empty}"
+                <StackPanel Spacing="12"
+                            IsVisible="{Binding IsRestoreBackupMode}">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Description}"
                              Classes="page-subtitle"
                              TextWrapping="Wrap"/>
-                </Border>
-              </StackPanel>
-            </Border>
 
-            <Border Classes="backup-block">
-              <StackPanel Spacing="12">
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Title}"
-                           Classes="backup-section-title"/>
-                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Description}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="10">
+                    <TextBox Text="{Binding RestoreBackupPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Path.Placeholder}"/>
+                    <Button Grid.Column="1"
+                            Content="{DynamicResource Loc.Common.Browse}"
+                            Classes="backup-secondary-button"
+                            Command="{Binding BrowseRestoreBackupPathCommand}"/>
+                  </Grid>
 
-                <CheckBox Content="{DynamicResource Loc.BackupCenter.Automatic.Enabled}"
-                          IsChecked="{Binding AutomaticBackupEnabled}"/>
+                  <TextBox Text="{Binding RestorePassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PasswordChar="*"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Passphrase.Placeholder}"/>
+                  <CheckBox Content="{DynamicResource Loc.BackupCenter.Restore.Confirm}"
+                            IsChecked="{Binding ConfirmRestore}"/>
 
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="10">
-                  <TextBox Text="{Binding AutomaticBackupDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Directory.Placeholder}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Common.Browse}"
-                          Classes="backup-secondary-button"
-                          Command="{Binding BrowseAutomaticBackupDirectoryCommand}"/>
-                </Grid>
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.RestoreBackup}"
+                          Classes="backup-danger-button"
+                          HorizontalAlignment="Left"
+                          Command="{Binding RestoreEncryptedCommand}"/>
 
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="10">
-                  <ComboBox ItemsSource="{Binding AutomaticBackupFrequencyOptions}"
-                            SelectedItem="{Binding SelectedAutomaticBackupFrequencyOption}">
-                    <ComboBox.ItemTemplate>
-                      <DataTemplate x:DataType="vm:AutomaticBackupFrequencyOption">
-                        <TextBlock Text="{Binding Label}"/>
-                      </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                  </ComboBox>
-
-                  <TextBox Grid.Column="1"
-                           Width="92"
-                           Text="{Binding AutomaticBackupRetentionCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Retention.Placeholder}"/>
-                </Grid>
-
-                <TextBox Text="{Binding AutomaticBackupPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         PasswordChar="*"
-                         PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Passphrase.Placeholder}"/>
-
-                <Grid ColumnDefinitions="Auto,Auto,*"
-                      ColumnSpacing="10">
-                  <Button Content="{DynamicResource Loc.BackupCenter.Button.SaveAutomaticBackup}"
-                          Classes="backup-secondary-button"
-                          Command="{Binding SaveAutomaticBackupSettingsCommand}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.BackupCenter.Button.RunAutomaticBackupNow}"
-                          Classes="backup-primary-button"
-                          Command="{Binding RunAutomaticBackupNowCommand}"/>
-                </Grid>
-
-                <TextBlock Text="{Binding AutomaticBackupStatus}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"
-                           IsVisible="{Binding HasAutomaticBackupStatus}"/>
+                  <TextBlock Text="{Binding RestoreSummary}"
+                             Classes="page-subtitle"
+                             FontSize="12"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
               </StackPanel>
             </Border>
 
@@ -389,16 +308,15 @@
                   </ComboBox.ItemTemplate>
                 </ComboBox>
 
-                <Grid ColumnDefinitions="Auto,Auto,*"
-                      ColumnSpacing="10">
+                <WrapPanel Orientation="Horizontal">
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewCsv}"
                           Classes="backup-secondary-button"
+                          Margin="0,0,10,0"
                           Command="{Binding PreviewCsvImportCommand}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.BackupCenter.Button.ImportCsv}"
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.ImportCsv}"
                           Classes="backup-primary-button"
                           Command="{Binding ImportCsvCommand}"/>
-                </Grid>
+                </WrapPanel>
 
                 <TextBlock Text="{Binding CsvPreviewSummary}"
                            Classes="page-subtitle"
@@ -407,6 +325,143 @@
                            IsVisible="{Binding HasCsvPreview}"/>
               </StackPanel>
             </Border>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1"
+                      Spacing="14">
+            <Border Classes="backup-block">
+              <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="12"
+                      VerticalAlignment="Center">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Title}"
+                             Classes="backup-section-title"
+                             VerticalAlignment="Center"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.BackupCenter.History.Clear}"
+                          Classes="backup-mini-button"
+                          Command="{Binding ClearRecentHistoryCommand}"
+                          IsVisible="{Binding HasRecentHistory}"/>
+                </Grid>
+
+                <ScrollViewer Height="520"
+                              HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto"
+                              IsVisible="{Binding HasRecentHistory}">
+                  <ItemsControl ItemsSource="{Binding RecentHistory}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="vm:BackupHistoryEntryVm">
+                        <Border Classes="backup-history-row">
+                          <Grid RowDefinitions="Auto,Auto,Auto"
+                                RowSpacing="6">
+                            <Grid ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="10">
+                              <TextBlock Text="{Binding OperationLabel}"
+                                         FontWeight="SemiBold"
+                                         TextTrimming="CharacterEllipsis"/>
+                              <Border Grid.Column="1"
+                                      Classes="backup-history-chip">
+                                <TextBlock Text="{Binding StatusLabel}"
+                                           FontSize="10"
+                                           FontWeight="Black"/>
+                              </Border>
+                            </Grid>
+                            <TextBlock Grid.Row="1"
+                                       Text="{Binding FileDisplay}"
+                                       Classes="backup-muted"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <Grid Grid.Row="2"
+                                  ColumnDefinitions="*,Auto"
+                                  ColumnSpacing="8">
+                              <TextBlock Text="{Binding CountsDisplay}"
+                                         Classes="backup-muted"
+                                         TextTrimming="CharacterEllipsis"/>
+                              <TextBlock Grid.Column="1"
+                                         Text="{Binding TimestampDisplay}"
+                                         Classes="backup-muted"/>
+                            </Grid>
+                          </Grid>
+                        </Border>
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </ScrollViewer>
+
+                <Border Height="520"
+                        Padding="18"
+                        IsVisible="{Binding !HasRecentHistory}">
+                  <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Empty}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             TextAlignment="Center"/>
+                </Border>
+              </StackPanel>
+            </Border>
+
+            <Border Classes="backup-block">
+              <StackPanel Spacing="12">
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Title}"
+                           Classes="backup-section-title"/>
+                <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Description}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"/>
+
+                <CheckBox Content="{DynamicResource Loc.BackupCenter.Automatic.Enabled}"
+                          IsChecked="{Binding AutomaticBackupEnabled}"/>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <TextBox Text="{Binding AutomaticBackupDirectory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Directory.Placeholder}"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.Browse}"
+                          Classes="backup-secondary-button"
+                          Command="{Binding BrowseAutomaticBackupDirectoryCommand}"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="10">
+                  <ComboBox ItemsSource="{Binding AutomaticBackupFrequencyOptions}"
+                            SelectedItem="{Binding SelectedAutomaticBackupFrequencyOption}">
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate x:DataType="vm:AutomaticBackupFrequencyOption">
+                        <TextBlock Text="{Binding Label}"/>
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+
+                  <TextBox Grid.Column="1"
+                           Width="92"
+                           Text="{Binding AutomaticBackupRetentionCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Retention.Placeholder}"/>
+                </Grid>
+
+                <TextBox Text="{Binding AutomaticBackupPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         PasswordChar="*"
+                         PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Passphrase.Placeholder}"/>
+
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="10">
+                  <Button Content="{DynamicResource Loc.BackupCenter.Button.SaveAutomaticBackup}"
+                          Classes="backup-secondary-button"
+                          HorizontalAlignment="Stretch"
+                          Command="{Binding SaveAutomaticBackupSettingsCommand}"/>
+                  <Button Grid.Row="1"
+                          Content="{DynamicResource Loc.BackupCenter.Button.RunAutomaticBackupNow}"
+                          Classes="backup-primary-button"
+                          HorizontalAlignment="Stretch"
+                          Command="{Binding RunAutomaticBackupNowCommand}"/>
+                </Grid>
+
+                <TextBlock Text="{Binding AutomaticBackupStatus}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"
+                           IsVisible="{Binding HasAutomaticBackupStatus}"/>
+              </StackPanel>
+            </Border>
+
           </StackPanel>
         </Grid>
       </StackPanel>
@@ -425,16 +480,13 @@
       <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
-    <Style Selector="Border.backup-status-card">
-      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
-      <Setter Property="CornerRadius" Value="14"/>
+    <Style Selector="Border.backup-health-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="12"/>
       <Setter Property="Padding" Value="14"/>
-      <Setter Property="MinHeight" Value="100"/>
-    </Style>
-
-    <Style Selector="Border.backup-status-card.danger">
-      <Setter Property="BorderBrush" Value="{StaticResource WarningMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="MinHeight" Value="126"/>
+      <Setter Property="Width" Value="294"/>
+      <Setter Property="Margin" Value="0,0,8,8"/>
     </Style>
 
     <Style Selector="TextBlock.backup-kicker, TextBlock.backup-label">
@@ -455,6 +507,13 @@
       <Setter Property="FontSize" Value="15"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-health-status">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="TextAlignment" Value="Right"/>
     </Style>
 
     <Style Selector="TextBlock.backup-muted">
@@ -484,7 +543,7 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Button.backup-secondary-button">
+    <Style Selector="Button.backup-secondary-button, Button.backup-mode-button, Button.backup-mini-button">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
@@ -497,6 +556,13 @@
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.backup-mini-button">
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="MinHeight" Value="30"/>
+      <Setter Property="Padding" Value="10,0"/>
+      <Setter Property="FontSize" Value="11"/>
     </Style>
 
     <Style Selector="Button.backup-danger-button">

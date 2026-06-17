@@ -6,10 +6,10 @@
              x:CompileBindings="False"
              x:DataType="vm:QuickFillViewModel">
 
-  <ScrollViewer HorizontalScrollBarVisibility="Auto"
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                 VerticalScrollBarVisibility="Auto">
     <StackPanel Margin="16"
-                MaxWidth="1280"
+                MaxWidth="1180"
                 Spacing="14">
       <Grid ColumnDefinitions="*,Auto"
             ColumnSpacing="12">
@@ -31,8 +31,8 @@
       </Grid>
 
       <Border Classes="qf-status-card">
-        <Grid ColumnDefinitions="*,Auto"
-              ColumnSpacing="14">
+        <Grid RowDefinitions="Auto,Auto"
+              RowSpacing="12">
           <StackPanel Spacing="6">
             <TextBlock Text="{DynamicResource Loc.QuickFill.Hotkey.Title}"
                        Classes="qf-kicker"/>
@@ -44,17 +44,16 @@
                        TextWrapping="Wrap"/>
           </StackPanel>
 
-          <Button Grid.Column="1"
+          <Button Grid.Row="1"
                   Content="{DynamicResource Loc.QuickFill.Button.AcknowledgeAutoType}"
                   Classes="qf-secondary-button"
                   Command="{Binding AcknowledgeAutoTypeCommand}"
-                  VerticalAlignment="Center"/>
+                  HorizontalAlignment="Left"/>
         </Grid>
       </Border>
 
-      <Grid ColumnDefinitions="360,*"
-            ColumnSpacing="14"
-            MinWidth="780">
+      <Grid ColumnDefinitions="300,*"
+            ColumnSpacing="14">
         <Border Classes="qf-panel">
           <StackPanel Spacing="12">
             <Grid ColumnDefinitions="*,Auto"
@@ -108,7 +107,7 @@
             <TextBlock Text="{DynamicResource Loc.QuickFill.Editor.Title}"
                        Classes="qf-section-title"/>
 
-            <Grid ColumnDefinitions="*,180,Auto"
+            <Grid ColumnDefinitions="2*,150,Auto"
                   ColumnSpacing="10">
               <TextBox Text="{Binding EntryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        PlaceholderText="{DynamicResource Loc.QuickFill.Editor.EntryName}"/>
@@ -121,16 +120,19 @@
                         VerticalAlignment="Center"/>
             </Grid>
 
-            <Grid ColumnDefinitions="*,*,Auto"
-                  ColumnSpacing="10">
+            <Grid RowDefinitions="Auto,Auto"
+                  ColumnDefinitions="*,*"
+                  ColumnSpacing="10"
+                  RowSpacing="10">
               <TextBox Text="{Binding TargetProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetProcess}"/>
               <TextBox Grid.Column="1"
                        Text="{Binding TargetWindowTitleContains, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetTitle}"/>
-              <Button Grid.Column="2"
+              <Button Grid.Row="1"
                       Content="{DynamicResource Loc.QuickFill.Button.CaptureTarget}"
                       Classes="qf-secondary-button"
+                      HorizontalAlignment="Left"
                       Command="{Binding CaptureTargetCommand}"/>
             </Grid>
 
@@ -150,7 +152,7 @@
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:QuickFillFieldEditorVm">
                       <Border Classes="qf-field-row">
-                        <Grid ColumnDefinitions="180,120,*,Auto"
+                        <Grid ColumnDefinitions="2*,1.2*,1*,Auto"
                               ColumnSpacing="8">
                           <TextBlock Text="{Binding Label}"
                                      VerticalAlignment="Center"
@@ -175,8 +177,10 @@
                   </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <Grid ColumnDefinitions="150,160,*,Auto"
-                      ColumnSpacing="8">
+                <Grid RowDefinitions="Auto,Auto"
+                      ColumnDefinitions="130,*,*"
+                      ColumnSpacing="8"
+                      RowSpacing="8">
                   <ComboBox ItemsSource="{Binding FieldKindOptions}"
                             SelectedItem="{Binding SelectedOwnedFieldKind, Mode=TwoWay}"/>
                   <TextBox Grid.Column="1"
@@ -185,45 +189,56 @@
                   <TextBox Grid.Column="2"
                            Text="{Binding OwnedFieldValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                            PlaceholderText="{DynamicResource Loc.QuickFill.Field.ValuePlaceholder}"/>
-                  <Button Grid.Column="3"
+                  <Button Grid.Row="1"
+                          Grid.ColumnSpan="3"
                           Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
                           Classes="qf-secondary-button"
+                          HorizontalAlignment="Left"
                           Command="{Binding AddOwnedFieldCommand}"/>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,160,Auto"
-                      ColumnSpacing="8">
+                <Grid RowDefinitions="Auto,Auto"
+                      ColumnDefinitions="*,150"
+                      ColumnSpacing="8"
+                      RowSpacing="8">
                   <ComboBox ItemsSource="{Binding WebLoginOptions}"
                             SelectedItem="{Binding SelectedWebLoginOption, Mode=TwoWay}"/>
                   <ComboBox Grid.Column="1"
                             ItemsSource="{Binding WebLoginFieldOptions}"
                             SelectedItem="{Binding SelectedWebLoginFieldOption, Mode=TwoWay}"/>
-                  <Button Grid.Column="2"
+                  <Button Grid.Row="1"
+                          Grid.ColumnSpan="2"
                           Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
                           Classes="qf-secondary-button"
+                          HorizontalAlignment="Left"
                           Command="{Binding AddWebLoginFieldCommand}"/>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,*,Auto"
-                      ColumnSpacing="8">
+                <Grid RowDefinitions="Auto,Auto"
+                      ColumnDefinitions="*,*"
+                      ColumnSpacing="8"
+                      RowSpacing="8">
                   <ComboBox ItemsSource="{Binding ApiKeyOptions}"
                             SelectedItem="{Binding SelectedApiKeyOption, Mode=TwoWay}"/>
                   <ComboBox Grid.Column="1"
                             ItemsSource="{Binding ApiKeyFieldOptions}"
                             SelectedItem="{Binding SelectedApiKeyFieldOption, Mode=TwoWay}"/>
-                  <Button Grid.Column="2"
+                  <Button Grid.Row="1"
+                          Grid.ColumnSpan="2"
                           Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
                           Classes="qf-secondary-button"
+                          HorizontalAlignment="Left"
                           Command="{Binding AddApiKeyFieldCommand}"/>
                 </Grid>
 
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="8">
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="8">
                   <ComboBox ItemsSource="{Binding AuthenticatorOptions}"
                             SelectedItem="{Binding SelectedAuthenticatorOption, Mode=TwoWay}"/>
-                  <Button Grid.Column="1"
+                  <Button Grid.Row="1"
                           Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
                           Classes="qf-secondary-button"
+                          HorizontalAlignment="Left"
                           Command="{Binding AddAuthenticatorFieldCommand}"/>
                 </Grid>
               </StackPanel>
