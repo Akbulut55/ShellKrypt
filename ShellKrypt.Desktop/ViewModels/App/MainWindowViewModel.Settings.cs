@@ -41,6 +41,7 @@ public partial class MainWindowViewModel
     partial void OnLockOnDeactivateSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardCopyEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnCloseToTrayEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
 
     partial void OnThemeIdChanged(string value)
     {
@@ -81,6 +82,8 @@ public partial class MainWindowViewModel
                 EmergencyKit = _emergencyKit,
                 BackupSchedule = _backupSchedule,
                 AutomaticBackupState = _automaticBackupState,
+                QuickFill = _quickFill,
+                CloseToTrayEnabled = CloseToTrayEnabled,
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };

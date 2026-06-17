@@ -22,6 +22,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
     [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
     [ObservableProperty] private bool clipboardCopyEnabled;
+    [ObservableProperty] private bool closeToTrayEnabled;
     [ObservableProperty] private bool isAutoLockPickerOpen;
     [ObservableProperty] private bool isFocusLockPickerOpen;
     [ObservableProperty] private bool isClipboardClearPickerOpen;

@@ -64,6 +64,12 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
+    partial void OnCloseToTrayEnabledChanged(bool value)
+    {
+        _root.CloseToTrayEnabled = value;
+        Status = value ? T("Settings.Status.CloseToTrayEnabled") : T("Settings.Status.CloseToTrayDisabled");
+    }
+
     partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value) => OnPropertyChanged(nameof(SelectedSecurityProfileDescription));
 
     [RelayCommand]

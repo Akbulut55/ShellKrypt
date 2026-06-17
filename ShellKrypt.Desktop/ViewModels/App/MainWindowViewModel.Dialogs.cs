@@ -80,6 +80,16 @@ public partial class MainWindowViewModel
         return await dialog.ShowDialog<bool>(mainWindow);
     }
 
+    public async Task<bool> ConfirmAsync(string title, string message, string confirmText, bool destructive = false)
+    {
+        if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })
+            return false;
+
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
+        var dialog = new ConfirmActionWindow(title, message, "", confirmText);
+        return await dialog.ShowDialog<bool>(mainWindow);
+    }
+
     public async Task<string?> PromptPasswordAsync(string title, string message, string detail, string confirmText)
     {
         if (Avalonia.Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } mainWindow })

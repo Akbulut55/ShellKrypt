@@ -31,6 +31,7 @@ public sealed partial class SqliteVaultTransferService
             ItemType.Note => BuildNoteDuplicateKey(payloadJson),
             ItemType.Authenticator => BuildAuthenticatorDuplicateKey(payloadJson),
             ItemType.ApiKey => BuildApiKeyDuplicateKey(payloadJson),
+            ItemType.QuickFillEntry => BuildQuickFillDuplicateKey(payloadJson),
             _ => $"{(int)type}|{payloadJson.Trim()}"
         };
     }
@@ -84,6 +85,17 @@ public sealed partial class SqliteVaultTransferService
             "authenticator",
             NormalizeDuplicatePart(payload.ServiceName),
             NormalizeDuplicatePart(payload.KeyType));
+    }
+
+    private static string BuildQuickFillDuplicateKey(string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize<QuickFillEntryPayload>(payloadJson, JsonOptions)
+            ?? new QuickFillEntryPayload("", "Other", true, new QuickFillTargetRule("", ""), Array.Empty<QuickFillField>(), false, "");
+
+        return string.Join("|",
+            "quick-fill",
+            NormalizeDuplicatePart(payload.Name),
+            NormalizeDuplicatePart(payload.Target.ProcessName));
     }
 
     private static string NormalizeDuplicatePart(string? value)

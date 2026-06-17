@@ -202,7 +202,7 @@ dotnet publish .\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj -c Release -r win-
 The Windows executable is produced as:
 
 ```text
-publish\win-x64\ShellKrypt.Desktop.exe
+publish\win-x64\ShellKrypt.exe
 ```
 
 Do not commit generated release output such as `publish/`, `artifacts*/`, `bin/`, or `obj/`.

@@ -9,6 +9,7 @@ public static class ShellKryptSectionKeys
     public const string Authenticator = "auth";
     public const string Notes = "notes";
     public const string Generator = "generator";
+    public const string QuickFill = "quick_fill";
     public const string Audit = "audit";
     public const string Emergency = "emergency";
     public const string Backup = "backup";
@@ -46,6 +47,7 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.Authenticator, ShellKryptSectionGroups.Items, "Authenticator", "Auth", "AU", "Desktop authenticator codes from QR screenshots or pasted secret keys.", true),
         new(ShellKryptSectionKeys.Notes, ShellKryptSectionGroups.Items, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes and vault reference material.", true),
         new(ShellKryptSectionKeys.Generator, ShellKryptSectionGroups.Tools, "Password Generator", "Passwords", "GE", "Generate and transform local secrets without leaving the vault.", false),
+        new(ShellKryptSectionKeys.QuickFill, ShellKryptSectionGroups.Tools, "Quick Fill", "Fill", "QF", "Manage app-specific logins and information for desktop Quick Fill.", false),
         new(ShellKryptSectionKeys.Audit, ShellKryptSectionGroups.Security, "Security Audit", "Audit", "SE", "Audit reuse, age, and password risk across the vault.", false),
         new(ShellKryptSectionKeys.Emergency, ShellKryptSectionGroups.Security, "Emergency Kit", "Kit", "EK", "Prepare recovery steps before a lockout or device loss.", false),
         new(ShellKryptSectionKeys.Backup, ShellKryptSectionGroups.Data, "Backup Center", "Backups", "BK", "Create, verify, restore, and export local vault data.", false),

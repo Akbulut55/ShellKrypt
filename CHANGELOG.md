@@ -6,6 +6,18 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.0] - 2026-06-17
+
+### Added
+
+- Added desktop Quick Fill entries with encrypted vault-scoped app login/info storage, Windows hotkey popup, target matching, in-popup entry creation, selected linked fields, and user-driven fill support.
+- Added a Quick Fill popup scope toggle to show either current-window matches or all entries for the captured app.
+- Added optional close-to-system-tray desktop behavior with tray menu controls for opening, locking, and fully exiting ShellKrypt.
+
+### Changed
+
+- Renamed the desktop executable identity to `ShellKrypt` so Windows process/task labels no longer show `ShellKrypt.Desktop`.
+
 ## [ShellKrypt 0.16.1] - 2026-06-13
 
 ### Changed

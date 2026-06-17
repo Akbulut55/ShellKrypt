@@ -21,6 +21,7 @@ public partial class ShellViewModel
             ShellKryptSectionKeys.Notes => MarkdownNotes,
             ShellKryptSectionKeys.Cards => Cards,
             ShellKryptSectionKeys.Generator => Tools,
+            ShellKryptSectionKeys.QuickFill => QuickFill,
             ShellKryptSectionKeys.Audit => Health,
             ShellKryptSectionKeys.Emergency => EmergencyKit,
             ShellKryptSectionKeys.Backup => BackupCenter,
@@ -68,6 +69,7 @@ public partial class ShellViewModel
     }
     public void ShowMarkdownNotes() => SelectNav(ShellKryptSectionKeys.Notes);
     public void ShowSecurityAudit() => SelectNav(ShellKryptSectionKeys.Audit);
+    public void ShowQuickFill() => SelectNav(ShellKryptSectionKeys.QuickFill);
     public void ShowEmergencyKit() => SelectNav(ShellKryptSectionKeys.Emergency);
     public void ShowBackupCenter() => SelectNav(ShellKryptSectionKeys.Backup);
     public void ShowAuthenticator() => SelectNav(ShellKryptSectionKeys.Authenticator);

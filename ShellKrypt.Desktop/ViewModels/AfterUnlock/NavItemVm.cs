@@ -64,6 +64,7 @@ public sealed partial class NavItemVm : ObservableObject
         ShellKryptSectionKeys.Authenticator => "IconChronic",
         ShellKryptSectionKeys.Notes => "IconMarkdown",
         ShellKryptSectionKeys.Generator => "IconPassword",
+        ShellKryptSectionKeys.QuickFill => "IconTrendingFlat",
         ShellKryptSectionKeys.Audit => "IconVitalSigns",
         ShellKryptSectionKeys.Emergency => "IconMedicalServices",
         ShellKryptSectionKeys.Backup => "IconBackupTable",

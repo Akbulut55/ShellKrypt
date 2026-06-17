@@ -39,9 +39,13 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly INoteService _noteService;
     private readonly IAuthenticatorService _authenticatorService;
     private readonly IApiKeyService _apiKeyService;
+    private readonly IQuickFillEntryService _quickFillEntryService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
     private readonly IVaultTransferService _vaultTransferService = new SqliteVaultTransferService();
+    private readonly ForegroundWindowService _foregroundWindowService = new();
+    private readonly AutoTypeService _autoTypeService = new();
+    private readonly GlobalHotkeyService _globalHotkeyService = new();
     private readonly AutomaticBackupCoordinator _automaticBackupCoordinator;
     private string? _securityAcknowledgementAcceptedAtUtc;
     private int _securityAcknowledgementVersionAccepted;
@@ -49,6 +53,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private EmergencyKitState _emergencyKit = new();
     private BackupScheduleSettings _backupSchedule = new();
     private AutomaticBackupState _automaticBackupState = new();
+    private QuickFillSettings _quickFill = new();
 
     public event EventHandler? ActivityChanged;
     public event EventHandler? AutomaticBackupChanged;
@@ -62,6 +67,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int lockOnDeactivateSeconds;
     [ObservableProperty] private int clipboardClearSeconds;
     [ObservableProperty] private bool clipboardCopyEnabled;
+    [ObservableProperty] private bool closeToTrayEnabled;
     [ObservableProperty] private string themeId = AppSettings.DefaultThemeId;
     [ObservableProperty] private string languageId = AppSettings.DefaultLanguageId;
 
@@ -74,6 +80,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _noteService = new NoteService(_itemRepo);
         _authenticatorService = new AuthenticatorService(_itemRepo);
         _apiKeyService = new ApiKeyService(_itemRepo);
+        _quickFillEntryService = new QuickFillEntryService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 
         var settings = _settingsService.Load();
@@ -84,6 +91,7 @@ public partial class MainWindowViewModel : ViewModelBase
         lockOnDeactivateSeconds = sessionSecurity.LockOnDeactivateSeconds;
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
+        closeToTrayEnabled = settings.CloseToTrayEnabled;
         themeId = settings.ThemeId;
         languageId = settings.LanguageId;
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;
@@ -92,6 +100,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _emergencyKit = settings.EmergencyKit;
         _backupSchedule = settings.BackupSchedule;
         _automaticBackupState = settings.AutomaticBackupState;
+        _quickFill = settings.QuickFill;
         _automaticBackupCoordinator = new AutomaticBackupCoordinator(_vaultTransferService, BuildAutomaticBackupContext);
         _automaticBackupCoordinator.StateChanged += (_, _) => AutomaticBackupChanged?.Invoke(this, EventArgs.Empty);
         _automaticBackupCoordinator.RunCompleted += (_, result) =>
@@ -103,6 +112,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _sessionSecurity.ApplySettings(sessionSecurity);
         _localization.SetLanguage(languageId);
         _localization.LanguageChanged += (_, _) => Current?.RefreshLocalization();
+        _globalHotkeyService.HotkeyPressed += (_, _) => OpenQuickFillPopup();
 
         Current = new WelcomeViewModel(this, _vaultRegistryService);
         ApplyTheme(themeId);
@@ -116,6 +126,8 @@ public partial class MainWindowViewModel : ViewModelBase
     public EmergencyKitState EmergencyKit => _emergencyKit;
     public BackupScheduleSettings BackupSchedule => _backupSchedule;
     public AutomaticBackupState AutomaticBackupState => _automaticBackupState;
+    public QuickFillSettings QuickFill => _quickFill;
+    public string QuickFillHotkeyStatus => _globalHotkeyService.Status;
     public AutomaticBackupCoordinator AutomaticBackups => _automaticBackupCoordinator;
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? _localization.Get("Common.NoVaultSelected");

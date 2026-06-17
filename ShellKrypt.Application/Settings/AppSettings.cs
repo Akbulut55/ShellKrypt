@@ -30,12 +30,14 @@ public sealed class AppSettings
     public int LockOnDeactivateSeconds { get; set; } = 20;
     public int ClipboardClearSeconds { get; set; } = 15;
     public bool ClipboardCopyEnabled { get; set; } = true;
+    public bool CloseToTrayEnabled { get; set; }
     public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
     public int SecurityAcknowledgementVersionAccepted { get; set; }
     public BackupCenterHistory BackupCenterHistory { get; set; } = new();
     public EmergencyKitState EmergencyKit { get; set; } = new();
     public BackupScheduleSettings BackupSchedule { get; set; } = new();
     public AutomaticBackupState AutomaticBackupState { get; set; } = new();
+    public QuickFillSettings QuickFill { get; set; } = new();
 
     [JsonIgnore]
     public bool HasCurrentSecurityAcknowledgement =>
@@ -77,6 +79,12 @@ public sealed class AppSettings
         BackupSchedule.Normalize();
         AutomaticBackupState ??= new AutomaticBackupState();
         AutomaticBackupState.Normalize();
+    }
+
+    public void NormalizeQuickFill()
+    {
+        QuickFill ??= new QuickFillSettings();
+        QuickFill.Normalize();
     }
 
     public static string NormalizeThemeId(string? themeId)

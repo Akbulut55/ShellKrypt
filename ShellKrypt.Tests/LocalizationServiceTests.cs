@@ -102,6 +102,7 @@ public sealed class LocalizationServiceTests
         Assert.Equal("Güvenlik Denetimi", service.Get("SecurityAudit.Title"));
         Assert.Equal("Emergency Kit", service.Get("EmergencyKit.Title"));
         Assert.Equal("Backup Center", service.Get("BackupCenter.Title"));
+        Assert.Equal("Quick Fill", service.Get("QuickFill.Title"));
         Assert.Equal("Etkinlik Kayıtları", service.Get("Activity.Title"));
         Assert.Equal("1 kullanılabilir", service.Get("Welcome.Stats.AvailableVaultOne", 1));
         Assert.Equal("Üretim", service.Get("ApiKeys.Environment.Default"));

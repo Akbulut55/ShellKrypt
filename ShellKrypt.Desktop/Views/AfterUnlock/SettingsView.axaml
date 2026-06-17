@@ -470,6 +470,26 @@
                     </Grid>
                   </Grid>
                 </Border>
+
+                <Border Classes="settings-toggle-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="12">
+                    <StackPanel Spacing="3"
+                                VerticalAlignment="Center">
+                      <TextBlock Text="{DynamicResource Loc.Settings.CloseToTray.Title}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"/>
+                      <TextBlock Text="{DynamicResource Loc.Settings.CloseToTray.Description}"
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <CheckBox Grid.Column="1"
+                              Content="{DynamicResource Loc.Settings.CloseToTray.Toggle}"
+                              IsChecked="{Binding CloseToTrayEnabled}"
+                              VerticalAlignment="Center"/>
+                  </Grid>
+                </Border>
               </StackPanel>
             </Border>
           </StackPanel>

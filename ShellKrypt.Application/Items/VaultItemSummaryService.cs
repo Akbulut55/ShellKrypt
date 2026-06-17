@@ -28,7 +28,10 @@ public sealed partial class VaultItemSummaryService : IVaultItemSummaryService
     {
         var rows = await _repository.ListAsync(vaultPath, vaultKey, ct);
         var passwords = new List<string>();
-        var all = rows.Select(row => BuildSummary(row, vaultKey, passwords)).ToArray();
+        var all = rows
+            .Where(row => row.Header.Type != ItemType.QuickFillEntry)
+            .Select(row => BuildSummary(row, vaultKey, passwords))
+            .ToArray();
         var counts = BuildCounts(all, passwords);
         var filtered = ApplyQuery(all, NormalizeQuery(query)).ToArray();
         var page = BuildPage(filtered, NormalizeQuery(query));

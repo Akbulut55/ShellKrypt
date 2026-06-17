@@ -6,5 +6,6 @@ public enum ItemType
     Card = 2,
     Note = 3,
     Authenticator = 4,
-    ApiKey = 5
+    ApiKey = 5,
+    QuickFillEntry = 6
 }

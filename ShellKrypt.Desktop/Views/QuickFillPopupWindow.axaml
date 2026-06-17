@@ -1,0 +1,501 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+        x:Class="ShellKrypt.Desktop.Views.QuickFillPopupWindow"
+        x:Name="Root"
+        x:CompileBindings="False"
+        x:DataType="vm:QuickFillPopupViewModel"
+        Icon="/Assets/main-logo.ico"
+        Title="Quick Fill"
+        Width="740"
+        Height="680"
+        MinWidth="560"
+        MinHeight="520"
+        CanResize="False"
+        Topmost="True"
+        WindowDecorations="None"
+        WindowStartupLocation="CenterScreen"
+        Background="{StaticResource AppBackgroundBrush}">
+
+  <Grid RowDefinitions="40,*"
+        Background="{StaticResource AppBackgroundBrush}">
+    <Border Grid.Row="0"
+            Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="0,0,0,1"
+            PointerPressed="OnTitleBarPointerPressed">
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+            ColumnSpacing="10"
+            Margin="10,0,0,0">
+        <Border VerticalAlignment="Center"
+                IsHitTestVisible="False"
+                Width="20"
+                Height="20"
+                CornerRadius="10"
+                Background="{StaticResource AccentGradientBrush}">
+          <TextBlock Text="SK"
+                     HorizontalAlignment="Center"
+                     VerticalAlignment="Center"
+                     Foreground="{StaticResource AccentForegroundBrush}"
+                     FontSize="8"
+                     FontWeight="Black"/>
+        </Border>
+
+        <TextBlock Grid.Column="1"
+                   Text="{DynamicResource Loc.QuickFill.Popup.Title}"
+                   VerticalAlignment="Center"
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   IsHitTestVisible="False"/>
+
+        <Grid Grid.Column="2"
+              IsHitTestVisible="False"/>
+
+        <StackPanel Grid.Column="3"
+                    Orientation="Horizontal"
+                    HorizontalAlignment="Right">
+          <Button Classes="qf-window-caption-button"
+                  Click="OnMinimizeClicked">
+            <TextBlock Text="&#xE921;"
+                       FontFamily="Segoe MDL2 Assets"
+                       FontSize="10"/>
+          </Button>
+          <Button Classes="qf-window-caption-button qf-window-caption-button-close"
+                  Click="OnCloseClicked">
+            <TextBlock Text="&#xE8BB;"
+                       FontFamily="Segoe MDL2 Assets"
+                       FontSize="10"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1"
+            Margin="14"
+            Padding="18"
+            Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="1"
+            CornerRadius="12">
+      <Grid RowDefinitions="Auto,*"
+            RowSpacing="14">
+        <Grid ColumnDefinitions="*,Auto,Auto"
+              ColumnSpacing="12">
+          <TextBlock Text="{Binding TargetDisplay}"
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"
+                     TextTrimming="CharacterEllipsis"
+                     VerticalAlignment="Center"/>
+
+          <Button Grid.Column="1"
+                  Content="{Binding MatchScopeLabel}"
+                  Classes="qf-popup-secondary qf-popup-small-button"
+                  Command="{Binding ToggleMatchScopeCommand}"
+                  VerticalAlignment="Center"
+                  IsVisible="{Binding IsBrowsingEntries}"/>
+
+          <TextBlock Grid.Column="2"
+                     Text="{Binding Status}"
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"
+                     TextTrimming="CharacterEllipsis"
+                     MaxWidth="300"
+                     IsVisible="{Binding HasStatus}"
+                     VerticalAlignment="Center"/>
+        </Grid>
+
+        <Grid Grid.Row="1">
+          <StackPanel Spacing="12"
+                      MaxWidth="620"
+                      HorizontalAlignment="Stretch"
+                      IsVisible="{Binding IsLocked}">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedTitle}"
+                       FontSize="18"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedSubtitle}"
+                       Classes="page-subtitle"
+                       TextWrapping="Wrap"/>
+
+            <ComboBox ItemsSource="{Binding VaultChoices}"
+                      SelectedItem="{Binding SelectedVault, Mode=TwoWay}"
+                      HorizontalAlignment="Left"
+                      MinWidth="120"/>
+            <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PasswordChar="*"
+                     PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}">
+              <TextBox.KeyBindings>
+                <KeyBinding Gesture="Enter"
+                            Command="{Binding UnlockCommand}"/>
+              </TextBox.KeyBindings>
+            </TextBox>
+
+            <Button Content="{DynamicResource Loc.QuickFill.Button.Unlock}"
+                    Classes="qf-popup-primary"
+                    Command="{Binding UnlockCommand}"
+                    HorizontalAlignment="Left"/>
+          </StackPanel>
+
+          <Grid IsVisible="{Binding HasMatches}"
+                ColumnDefinitions="280,*"
+                ColumnSpacing="14">
+            <Border Classes="qf-panel">
+              <Grid RowDefinitions="Auto,*"
+                    RowSpacing="10">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="8">
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Entries.Title}"
+                             Classes="qf-section-title"
+                             VerticalAlignment="Center"/>
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
+                          Classes="qf-popup-secondary qf-popup-small-button"
+                          Command="{Binding StartAddEntryCommand}"/>
+                </Grid>
+
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding Matches}"
+                         SelectedItem="{Binding SelectedEntry, Mode=TwoWay}">
+                  <ListBox.ItemTemplate>
+                    <DataTemplate x:DataType="vm:QuickFillPopupEntryVm">
+                      <Border Classes="qf-popup-row">
+                        <StackPanel Spacing="5">
+                          <Grid ColumnDefinitions="*,Auto">
+                            <TextBlock Text="{Binding Name}"
+                                       FontWeight="Bold"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Grid.Column="1"
+                                       Text="{Binding Category}"
+                                       Classes="qf-mini-badge"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </Grid>
+                          <TextBlock Text="{Binding TargetDisplay}"
+                                     Classes="page-subtitle"
+                                     FontSize="12"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Text="{Binding FieldPreview}"
+                                     Classes="page-subtitle"
+                                     FontSize="12"
+                                     TextWrapping="Wrap"/>
+                        </StackPanel>
+                      </Border>
+                    </DataTemplate>
+                  </ListBox.ItemTemplate>
+                </ListBox>
+              </Grid>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Classes="qf-panel">
+              <Grid RowDefinitions="*,Auto"
+                    RowSpacing="12">
+                <StackPanel Spacing="12">
+                  <TextBlock Text="{Binding SelectedEntry.Name}"
+                             FontSize="22"
+                             FontWeight="SemiBold"
+                             TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Text="{Binding SelectedEntry.TargetDisplay}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                  <Border Classes="qf-inner-panel">
+                    <StackPanel Spacing="6">
+                      <TextBlock Text="{DynamicResource Loc.QuickFill.Fields.Title}"
+                                 Classes="qf-kicker"/>
+                      <TextBlock Text="{Binding SelectedEntry.FieldPreview}"
+                                 TextWrapping="Wrap"/>
+                    </StackPanel>
+                  </Border>
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Footer}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <Grid Grid.Row="1"
+                      ColumnDefinitions="*,Auto,Auto,Auto"
+                      ColumnSpacing="10">
+                  <Button Grid.Column="1"
+                          Content="{DynamicResource Loc.Common.Edit}"
+                          Classes="qf-popup-secondary"
+                          Command="{Binding StartEditEntryCommand}"/>
+                  <Button Grid.Column="2"
+                          Content="{DynamicResource Loc.Common.Copy}"
+                          Classes="qf-popup-secondary"
+                          Command="{Binding CopySelectedCommand}"/>
+                  <Button Grid.Column="3"
+                          Content="{DynamicResource Loc.QuickFill.Button.Fill}"
+                          Classes="qf-popup-primary"
+                          Command="{Binding FillSelectedCommand}"/>
+                </Grid>
+              </Grid>
+            </Border>
+          </Grid>
+
+          <Border Classes="qf-popup-empty"
+                  IsVisible="{Binding HasNoMatches}">
+            <StackPanel Spacing="8"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+              <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.EmptyTitle}"
+                         FontSize="18"
+                         FontWeight="SemiBold"
+                         TextAlignment="Center"/>
+              <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.EmptySubtitle}"
+                         Classes="page-subtitle"
+                         TextWrapping="Wrap"
+                         TextAlignment="Center"
+                         MaxWidth="420"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Popup.AddEntry}"
+                      Classes="qf-popup-primary"
+                      Command="{Binding StartAddEntryCommand}"
+                      HorizontalAlignment="Center"/>
+            </StackPanel>
+          </Border>
+
+          <Grid IsVisible="{Binding IsEditingEntry}"
+                RowDefinitions="*,Auto"
+                RowSpacing="12">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+              <StackPanel Spacing="12">
+                <Grid ColumnDefinitions="*,150,Auto"
+                      ColumnSpacing="8">
+                  <TextBox Text="{Binding EntryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.EntryName}"/>
+                  <TextBox Grid.Column="1"
+                           Text="{Binding EntryCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.Category}"/>
+                  <CheckBox Grid.Column="2"
+                            Content="{DynamicResource Loc.QuickFill.Editor.Enabled}"
+                            IsChecked="{Binding EntryEnabled, Mode=TwoWay}"
+                            VerticalAlignment="Center"/>
+                </Grid>
+
+                <Grid ColumnDefinitions="*,*"
+                      ColumnSpacing="8">
+                  <TextBox Text="{Binding TargetProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetProcess}"/>
+                  <TextBox Grid.Column="1"
+                           Text="{Binding TargetWindowTitleContains, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetTitle}"/>
+                </Grid>
+
+                <CheckBox Content="{DynamicResource Loc.QuickFill.Editor.IncludeEnter}"
+                          IsChecked="{Binding PressEnterAfterFill, Mode=TwoWay}"/>
+
+                <Border Classes="qf-inner-panel">
+                  <Grid RowDefinitions="Auto,Auto"
+                        RowSpacing="10">
+                    <TextBlock Text="{DynamicResource Loc.QuickFill.Fields.Title}"
+                               Classes="qf-section-title"
+                               FontSize="16"/>
+
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding Fields}">
+                      <ItemsControl.ItemTemplate>
+                        <DataTemplate x:DataType="vm:QuickFillFieldEditorVm">
+                          <Border Classes="qf-popup-field-row">
+                            <Grid ColumnDefinitions="160,110,*,Auto"
+                                  ColumnSpacing="8">
+                              <TextBlock Text="{Binding Label}"
+                                         VerticalAlignment="Center"
+                                         TextTrimming="CharacterEllipsis"/>
+                              <TextBlock Grid.Column="1"
+                                         Text="{Binding SourceDisplay}"
+                                         Classes="page-subtitle"
+                                         VerticalAlignment="Center"/>
+                              <TextBlock Grid.Column="2"
+                                         Text="{Binding Kind}"
+                                         Classes="page-subtitle"
+                                         VerticalAlignment="Center"/>
+                              <Button Grid.Column="3"
+                                      Content="{DynamicResource Loc.Common.Delete}"
+                                      Classes="qf-popup-danger"
+                                      Command="{Binding #Root.DataContext.RemoveFieldCommand}"
+                                      CommandParameter="{Binding}"/>
+                            </Grid>
+                          </Border>
+                        </DataTemplate>
+                      </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                  </Grid>
+                </Border>
+
+                <TabControl>
+                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.Manual}">
+                    <Grid ColumnDefinitions="130,150,*,Auto"
+                          ColumnSpacing="8"
+                          Margin="0,10,0,0">
+                      <ComboBox ItemsSource="{Binding FieldKindOptions}"
+                                SelectedItem="{Binding SelectedOwnedFieldKind, Mode=TwoWay}"/>
+                      <TextBox Grid.Column="1"
+                               Text="{Binding OwnedFieldLabel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="{DynamicResource Loc.QuickFill.Field.LabelPlaceholder}"/>
+                      <TextBox Grid.Column="2"
+                               Text="{Binding OwnedFieldValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               PlaceholderText="{DynamicResource Loc.QuickFill.Field.ValuePlaceholder}"/>
+                      <Button Grid.Column="3"
+                              Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
+                              Classes="qf-popup-secondary"
+                              Command="{Binding AddOwnedFieldCommand}"/>
+                    </Grid>
+                  </TabItem>
+
+                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.WebLogin}">
+                    <Grid ColumnDefinitions="*,150,Auto"
+                          ColumnSpacing="8"
+                          Margin="0,10,0,0">
+                      <ComboBox ItemsSource="{Binding WebLoginOptions}"
+                                SelectedItem="{Binding SelectedWebLoginOption, Mode=TwoWay}"/>
+                      <ComboBox Grid.Column="1"
+                                ItemsSource="{Binding WebLoginFieldOptions}"
+                                SelectedItem="{Binding SelectedWebLoginFieldOption, Mode=TwoWay}"/>
+                      <Button Grid.Column="2"
+                              Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
+                              Classes="qf-popup-secondary"
+                              Command="{Binding AddWebLoginFieldCommand}"/>
+                    </Grid>
+                  </TabItem>
+
+                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.ApiKey}">
+                    <Grid ColumnDefinitions="*,*,Auto"
+                          ColumnSpacing="8"
+                          Margin="0,10,0,0">
+                      <ComboBox ItemsSource="{Binding ApiKeyOptions}"
+                                SelectedItem="{Binding SelectedApiKeyOption, Mode=TwoWay}"/>
+                      <ComboBox Grid.Column="1"
+                                ItemsSource="{Binding ApiKeyFieldOptions}"
+                                SelectedItem="{Binding SelectedApiKeyFieldOption, Mode=TwoWay}"/>
+                      <Button Grid.Column="2"
+                              Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
+                              Classes="qf-popup-secondary"
+                              Command="{Binding AddApiKeyFieldCommand}"/>
+                    </Grid>
+                  </TabItem>
+
+                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.Authenticator}">
+                    <Grid ColumnDefinitions="*,Auto"
+                          ColumnSpacing="8"
+                          Margin="0,10,0,0">
+                      <ComboBox ItemsSource="{Binding AuthenticatorOptions}"
+                                SelectedItem="{Binding SelectedAuthenticatorOption, Mode=TwoWay}"/>
+                      <Button Grid.Column="1"
+                              Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
+                              Classes="qf-popup-secondary"
+                              Command="{Binding AddAuthenticatorFieldCommand}"/>
+                    </Grid>
+                  </TabItem>
+                </TabControl>
+
+                <TextBox Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         AcceptsReturn="True"
+                         TextWrapping="Wrap"
+                         MinHeight="70"
+                         PlaceholderText="{DynamicResource Loc.QuickFill.Editor.Notes}"/>
+              </StackPanel>
+            </ScrollViewer>
+
+            <Grid Grid.Row="1"
+                  ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="10">
+              <Button Grid.Column="1"
+                      Content="{DynamicResource Loc.Common.Cancel}"
+                      Classes="qf-popup-secondary"
+                      Command="{Binding CancelEditCommand}"/>
+              <Button Grid.Column="2"
+                      Content="{DynamicResource Loc.QuickFill.Button.SaveEntry}"
+                      Classes="qf-popup-primary"
+                      Command="{Binding SaveEntryCommand}"/>
+            </Grid>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Border>
+  </Grid>
+
+  <Window.Styles>
+    <Style Selector="Button.qf-window-caption-button">
+      <Setter Property="Width" Value="46"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Margin" Value="0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonForegroundBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.qf-window-caption-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource CaptionButtonHoverBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.qf-window-caption-button-close:pointerover">
+      <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Border.qf-panel, Border.qf-inner-panel, Border.qf-popup-row, Border.qf-popup-field-row">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="10"/>
+    </Style>
+
+    <Style Selector="Border.qf-inner-panel">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    </Style>
+
+    <Style Selector="Border.qf-popup-empty">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="1.8"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-section-title">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-mini-badge">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+
+    <Style Selector="Button.qf-popup-primary">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.qf-popup-secondary">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    </Style>
+
+    <Style Selector="Button.qf-popup-small-button">
+      <Setter Property="MinHeight" Value="32"/>
+      <Setter Property="Padding" Value="12,6"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="Button.qf-popup-danger">
+      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+  </Window.Styles>
+</Window>

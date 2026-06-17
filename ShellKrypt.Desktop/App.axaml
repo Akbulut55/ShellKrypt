@@ -8,7 +8,7 @@
     <Application.Resources>
         <ResourceDictionary>
         <ResourceDictionary.MergedDictionaries>
-            <ResourceInclude Source="avares://ShellKrypt.Desktop/Resources/Icons.axaml"/>
+            <ResourceInclude Source="avares://ShellKrypt/Resources/Icons.axaml"/>
         </ResourceDictionary.MergedDictionaries>
         <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
         <converters:ThemeResourceGeometryConverter x:Key="ThemeResourceGeometryConverter"/>

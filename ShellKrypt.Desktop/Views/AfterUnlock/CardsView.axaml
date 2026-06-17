@@ -31,7 +31,7 @@
                          FontWeight="SemiBold"/>
               <StackPanel Orientation="Horizontal"
                           Spacing="8">
-                <Image Source="avares://ShellKrypt.Desktop/Assets/trend-up.png"
+                <Image Source="avares://ShellKrypt/Assets/trend-up.png"
                        Width="18"
                        Height="12"
                        Stretch="Uniform"

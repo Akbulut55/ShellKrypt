@@ -34,6 +34,7 @@ public partial class ShellViewModel : ViewModelBase
         INoteService noteService,
         IAuthenticatorService authenticatorService,
         IApiKeyService apiKeyService,
+        IQuickFillEntryService quickFillEntryService,
         AuthenticatorQrImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
         ICryptoToolsService cryptoToolsService,
@@ -66,6 +67,7 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
+        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, apiKeyService, authenticatorService);
         Health = new HealthViewModel(_root, this, healthAuditService);
         EmergencyKit = new EmergencyKitViewModel(_root, this);
         BackupCenter = new BackupCenterViewModel(_root);
@@ -81,6 +83,7 @@ public partial class ShellViewModel : ViewModelBase
     public AuthenticatorViewModel Authenticator { get; }
     public ApiKeysViewModel ApiKeys { get; }
     public ToolsViewModel Tools { get; }
+    public QuickFillViewModel QuickFill { get; }
     public HealthViewModel Health { get; }
     public EmergencyKitViewModel EmergencyKit { get; }
     public BackupCenterViewModel BackupCenter { get; }
@@ -110,6 +113,7 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator.RefreshLocalization();
         ApiKeys.RefreshLocalization();
         Tools.RefreshLocalization();
+        QuickFill.RefreshLocalization();
         Health.RefreshLocalization();
         EmergencyKit.RefreshLocalization();
         BackupCenter.RefreshLocalization();

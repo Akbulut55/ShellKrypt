@@ -42,6 +42,17 @@ public sealed class VaultItemSummaryServiceTests
             "",
             "Visa",
             "Personal"));
+        await fixture.QuickFill.AddAsync(workspace.VaultPath, fixture.VaultKey, new QuickFillEntryInput(
+            "Chrome GitHub",
+            "Developer Tools",
+            true,
+            new QuickFillTargetRule("chrome", "GitHub"),
+            [
+                new QuickFillField("username", "Username", QuickFillFieldKind.Username, false, 0, QuickFillFieldSourceKind.Owned, "octo", "", "", ""),
+                new QuickFillField("password", "Password", QuickFillFieldKind.Password, true, 1, QuickFillFieldSourceKind.Owned, "secret-value", "", "", "")
+            ],
+            false,
+            ""));
 
         var result = await fixture.Summaries.ListAsync(
             workspace.VaultPath,
@@ -55,6 +66,7 @@ public sealed class VaultItemSummaryServiceTests
         Assert.Equal(2, result.Counts.ReusedPasswords);
         Assert.Equal(1, result.Counts.ExpiringSoonCards);
         Assert.DoesNotContain(result.AllItems, item => item.SearchText.Contains("4111111111111111", StringComparison.Ordinal));
+        Assert.DoesNotContain(result.AllItems, item => item.Type == ItemType.QuickFillEntry);
     }
 
     [Fact]
@@ -111,6 +123,7 @@ public sealed class VaultItemSummaryServiceTests
             new WebLoginService(itemRepository),
             new CardService(itemRepository),
             new NoteService(itemRepository),
+            new QuickFillEntryService(itemRepository),
             new VaultItemSummaryService(itemRepository, new VaultItemPayloadReader()));
     }
 
@@ -119,6 +132,7 @@ public sealed class VaultItemSummaryServiceTests
         WebLoginService WebLogins,
         CardService Cards,
         NoteService Notes,
+        QuickFillEntryService QuickFill,
         VaultItemSummaryService Summaries);
 
     private sealed class TempWorkspace : IDisposable

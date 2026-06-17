@@ -18,6 +18,7 @@ public sealed partial class SettingsViewModel
         SelectedFocusLossLockDelay = ResolveFocusLossLockDelay(_root.LockOnDeactivate, _root.LockOnDeactivateSeconds);
         SelectedClipboardClearDuration = ResolveSecondsDuration(ClipboardClearTimeoutOptions, _root.ClipboardClearSeconds);
         ClipboardCopyEnabled = _root.ClipboardCopyEnabled;
+        CloseToTrayEnabled = _root.CloseToTrayEnabled;
         SelectedThemeOption = ResolveThemeOption(_root.ThemeId);
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));

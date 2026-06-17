@@ -30,6 +30,7 @@ public partial class MainWindowViewModel
     public void OnUnlocked(byte[] vaultKey)
     {
         _state.VaultKey = vaultKey;
+        OnPropertyChanged(nameof(IsUnlocked));
 
         if (!string.IsNullOrWhiteSpace(_state.VaultPath))
             _vaultRegistryService.MarkOpened(_state.VaultPath);
@@ -66,6 +67,7 @@ public partial class MainWindowViewModel
         _sessionSecurity.SetUnlocked(false);
         _ = _clipboardService.ClearAsync();
         _state.ClearSensitive();
+        OnPropertyChanged(nameof(IsUnlocked));
         GoWelcome();
     }
 
@@ -87,6 +89,7 @@ public partial class MainWindowViewModel
             _noteService,
             _authenticatorService,
             _apiKeyService,
+            _quickFillEntryService,
             _authenticatorQrImportService,
             _healthAuditService,
             _cryptoToolsService,
