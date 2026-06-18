@@ -20,17 +20,19 @@
                   Height="34"
                   CornerRadius="10"
                   Background="{StaticResource AccentMutedBrush}">
-            <TextBlock Text="SK"
-                       HorizontalAlignment="Center"
-                       VerticalAlignment="Center"
-                       Foreground="{StaticResource AccentBrush}"
-                       FontWeight="Black"
-                       FontSize="11"/>
+            <Path Width="20"
+                  Height="20"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Stretch="Uniform"
+                  Fill="{StaticResource AccentBrush}"
+                  Data="{StaticResource IconShellKryptLogo}"/>
           </Border>
           <TextBlock Text="ShellKrypt"
                      Foreground="{StaticResource AccentBrush}"
                      FontSize="20"
-                     FontWeight="Black"/>
+                     FontWeight="Black"
+                     VerticalAlignment="Center"/>
         </StackPanel>
 
         <StackPanel Grid.Column="1"
@@ -137,11 +139,17 @@
                                    TextTrimming="CharacterEllipsis"/>
                         <Border Background="{StaticResource AccentMutedBrush}"
                                 CornerRadius="999"
-                                Padding="10,4"
+                                MinHeight="24"
+                                Padding="10,0"
+                                VerticalAlignment="Center"
                                 IsVisible="{Binding IsDefault}">
                           <TextBlock Text="{DynamicResource Loc.Common.Default}"
-                                     Foreground="{StaticResource SuccessBrush}"
+                                     Foreground="{StaticResource AccentBrush}"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     TextAlignment="Center"
                                      FontSize="10"
+                                     LineHeight="12"
                                      FontWeight="Black"/>
                         </Border>
                         <Border Classes="welcome-missing-badge"

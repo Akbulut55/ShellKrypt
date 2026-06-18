@@ -39,17 +39,13 @@
                                 Spacing="10"
                                 VerticalAlignment="Center"
                                 IsHitTestVisible="False">
-                        <Border Width="20"
-                                Height="20"
-                                CornerRadius="10"
-                                Background="{StaticResource AccentGradientBrush}">
-                            <TextBlock Text="SK"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource AccentForegroundBrush}"
-                                       FontSize="8"
-                                       FontWeight="Black"/>
-                        </Border>
+                        <Path Width="20"
+                              Height="20"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform"
+                              Fill="{StaticResource CaptionButtonHoverForegroundBrush}"
+                              Data="{StaticResource IconShellKryptLogo}"/>
                         <TextBlock Text="ShellKrypt"
                                    VerticalAlignment="Center"
                                    FontSize="12"

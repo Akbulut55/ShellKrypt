@@ -43,12 +43,13 @@
                 Background="{StaticResource SurfaceRaisedBrush}"
                 BorderBrush="{StaticResource BorderBrushSoft}"
                 BorderThickness="1">
-          <TextBlock Text="SK"
-                     HorizontalAlignment="Center"
-                     VerticalAlignment="Center"
-                     Foreground="{StaticResource AccentBrush}"
-                     FontWeight="Black"
-                     FontSize="20"/>
+          <Path Width="38"
+                Height="38"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Stretch="Uniform"
+                Fill="{StaticResource CaptionButtonHoverForegroundBrush}"
+                Data="{StaticResource IconShellKryptLogo}"/>
         </Border>
         <TextBlock Text="ShellKrypt"
                    FontSize="28"

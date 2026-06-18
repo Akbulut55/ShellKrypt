@@ -6,11 +6,51 @@
         CanResize="False"
         WindowStartupLocation="CenterOwner"
         Title="Import Vault"
+        Icon="/Assets/main-logo.ico"
+        WindowDecorations="None"
         TransparencyLevelHint="None"
-        Background="{StaticResource SurfaceRaisedBrush}">
-  <Border Background="{StaticResource SurfaceRaisedBrush}"
-          CornerRadius="18">
-    <Grid RowDefinitions="Auto,Auto">
+        Background="{StaticResource AppBackgroundBrush}">
+  <Grid RowDefinitions="40,*"
+        Background="{StaticResource AppBackgroundBrush}">
+    <Border Grid.Row="0"
+            Background="{StaticResource SurfaceBrush}"
+            BorderBrush="{StaticResource BorderBrushSoft}"
+            BorderThickness="0,0,0,1"
+            PointerPressed="OnTitleBarPointerPressed">
+      <Grid ColumnDefinitions="Auto,Auto,*,Auto"
+            ColumnSpacing="10"
+            Margin="10,0,0,0">
+        <Path Width="20"
+              Height="20"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Stretch="Uniform"
+              Fill="{StaticResource CaptionButtonHoverForegroundBrush}"
+              Data="{StaticResource IconShellKryptLogo}"/>
+
+        <TextBlock Grid.Column="1"
+                   Text="{DynamicResource Loc.Dialog.ImportVault.Title}"
+                   VerticalAlignment="Center"
+                   FontSize="12"
+                   FontWeight="SemiBold"
+                   IsHitTestVisible="False"/>
+
+        <Grid Grid.Column="2"
+              IsHitTestVisible="False"/>
+
+        <Button Grid.Column="3"
+                Classes="import-caption-button import-caption-button-close"
+                Click="OnCloseClicked">
+          <TextBlock Text="&#xE8BB;"
+                     FontFamily="Segoe MDL2 Assets"
+                     FontSize="10"/>
+        </Button>
+      </Grid>
+    </Border>
+
+    <Border Grid.Row="1"
+            Background="{StaticResource SurfaceRaisedBrush}">
+      <Grid RowDefinitions="Auto,Auto">
       <StackPanel Spacing="18"
                   Margin="28">
         <StackPanel Spacing="8">
@@ -57,10 +97,9 @@
       </StackPanel>
 
       <Grid Grid.Row="1"
-            Background="{StaticResource SurfaceElevatedBrush}"
             ColumnDefinitions="*,Auto,Auto"
             ColumnSpacing="10"
-            Margin="28,22">
+            Margin="28,0,28,28">
         <TextBlock Text="{DynamicResource Loc.Dialog.ImportVault.Footer}"
                    Classes="page-subtitle"
                    VerticalAlignment="Center"
@@ -75,10 +114,36 @@
                 IsDefault="True"
                 Click="OnImportClicked"/>
       </Grid>
-    </Grid>
-  </Border>
+      </Grid>
+    </Border>
+  </Grid>
 
   <Window.Styles>
+    <Style Selector="Button.import-caption-button">
+      <Setter Property="Width" Value="46"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="MinWidth" Value="46"/>
+      <Setter Property="MinHeight" Value="40"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.import-caption-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource CaptionButtonHoverBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Button.import-caption-button-close:pointerover">
+      <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+    </Style>
+
     <Style Selector="Button.dialog-cancel-button">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
@@ -87,6 +152,9 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Height" Value="42"/>
       <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="16,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
       <Setter Property="FontWeight" Value="Bold"/>
     </Style>
 
@@ -98,6 +166,9 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Height" Value="42"/>
       <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Padding" Value="18,0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
       <Setter Property="FontWeight" Value="Black"/>
     </Style>
   </Window.Styles>

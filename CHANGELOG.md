@@ -6,6 +6,15 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.2] - 2026-06-18
+
+### Changed
+
+- Updated the Quick Fill sidebar icon to the new bolt artwork, regenerated the Windows app icon as a larger white transparent glyph, and replaced visible `SK` logo badges with the main ShellKrypt icon.
+- Centered the default-vault badge and made it use the active theme accent while deepening the Crimson palette from pink to calmer blood-red tones.
+- Reworked the Import Vault dialog titlebar and footer so it uses ShellKrypt chrome, centered button text, and no extra footer strip.
+- Moved the sidebar navigation scrollbar to the sidebar edge while keeping nav item spacing intact.
+
 ## [ShellKrypt 0.17.1] - 2026-06-17
 
 ### Fixed

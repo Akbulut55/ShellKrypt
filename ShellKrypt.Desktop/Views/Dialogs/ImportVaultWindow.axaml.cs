@@ -2,6 +2,7 @@ using System.IO;
 using System.Linq;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform.Storage;
 
@@ -49,6 +50,14 @@ public partial class ImportVaultWindow : Window
     }
 
     private void OnCancelClicked(object? sender, RoutedEventArgs e) => Close(false);
+
+    private void OnCloseClicked(object? sender, RoutedEventArgs e) => Close(false);
+
+    private void OnTitleBarPointerPressed(object? sender, PointerPressedEventArgs e)
+    {
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
+            BeginMoveDrag(e);
+    }
 
     private void OnImportClicked(object? sender, RoutedEventArgs e)
     {
