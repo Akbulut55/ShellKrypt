@@ -10,6 +10,8 @@
         <ResourceDictionary.MergedDictionaries>
             <ResourceInclude Source="avares://ShellKrypt/Resources/Icons.axaml"/>
         </ResourceDictionary.MergedDictionaries>
+        <FontFamily x:Key="AppFontFamily">avares://ShellKrypt/Resources/Fonts/Inter#Inter</FontFamily>
+        <FontFamily x:Key="MonoFontFamily">avares://ShellKrypt/Resources/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
         <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
         <converters:ThemeResourceGeometryConverter x:Key="ThemeResourceGeometryConverter"/>
         <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
@@ -105,7 +107,7 @@
         <Style Selector="Window">
             <Setter Property="Background" Value="{StaticResource AppBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-            <Setter Property="FontFamily" Value="avares://Avalonia.Fonts.Inter#Inter"/>
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
         </Style>
 
         <Style Selector="UserControl">
@@ -114,6 +116,11 @@
 
         <Style Selector="TextBlock">
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+        </Style>
+
+        <Style Selector="SelectableTextBlock">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
         </Style>
 
         <Style Selector="Path.material-icon">
@@ -214,6 +221,7 @@
         </Style>
 
         <Style Selector="Button">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -221,6 +229,9 @@
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
         <Style Selector="Button:pointerover">
@@ -281,6 +292,7 @@
         </Style>
 
         <Style Selector="TextBox">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -354,8 +366,8 @@
         <Style Selector="TextBlock.table-header-text">
             <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Black"/>
-            <Setter Property="LetterSpacing" Value="2.4"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="LetterSpacing" Value="1.2"/>
         </Style>
 
         <Style Selector="TextBlock.table-footer-text">
@@ -390,7 +402,7 @@
             <Setter Property="CornerRadius" Value="4"/>
             <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Black"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Height" Value="30"/>
             <Setter Property="MinHeight" Value="30"/>
             <Setter Property="MinWidth" Value="56"/>
@@ -436,6 +448,7 @@
         </Style>
 
         <Style Selector="ComboBox">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -455,6 +468,7 @@
         </Style>
 
         <Style Selector="ComboBoxItem">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="MinHeight" Value="38"/>
@@ -473,6 +487,7 @@
         </Style>
 
         <Style Selector="CheckBox">
+            <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
         </Style>
 

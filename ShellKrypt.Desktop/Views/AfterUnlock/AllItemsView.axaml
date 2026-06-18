@@ -6,10 +6,9 @@
              x:DataType="vm:AllItemsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="16"
-                  MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="14">
 
@@ -143,7 +142,7 @@
                 MinWidth="580">
           <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
-              <Grid ColumnDefinitions="1.78*,0.72*,0.95*,0.75*,96"
+              <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
                     ColumnSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.Common.Name.Header}"
                            Classes="table-header-text"/>
@@ -169,7 +168,7 @@
                 <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:AllItemEntry">
                     <Border Classes="table-row">
-                      <Grid ColumnDefinitions="1.78*,0.72*,0.95*,0.75*,96"
+                      <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
                             ColumnSpacing="8"
                             Margin="12,0"
                             MinHeight="78">
@@ -215,7 +214,7 @@
 
                         <TextBlock Grid.Column="2"
                                    Text="{Binding IdentifierDisplay}"
-                                   FontFamily="Consolas"
+                                   FontFamily="{StaticResource MonoFontFamily}"
                                    FontSize="12"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"/>

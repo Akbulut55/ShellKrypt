@@ -242,8 +242,8 @@
     <Style Selector="TextBlock.unlock-kicker">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="10"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.2"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="LetterSpacing" Value="1.2"/>
     </Style>
 
     <Style Selector="Button.unlock-primary-button">
@@ -254,7 +254,7 @@
       <Setter Property="CornerRadius" Value="10"/>
       <Setter Property="Height" Value="44"/>
       <Setter Property="MinHeight" Value="44"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -288,7 +288,7 @@
       <Setter Property="MinWidth" Value="60"/>
       <Setter Property="Height" Value="32"/>
       <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -320,7 +320,7 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
       <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="11"/>
     </Style>
 

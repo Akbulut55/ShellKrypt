@@ -37,6 +37,10 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyFieldOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedAuthenticatorOption;
+    [ObservableProperty] private string searchText = "";
+    [ObservableProperty] private QuickFillFilterOption? selectedCategoryFilter;
+    [ObservableProperty] private QuickFillFilterOption? selectedTargetFilter;
+    [ObservableProperty] private bool enabledOnly;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private bool isBusy;
 
@@ -65,6 +69,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     }
 
     public ObservableCollection<QuickFillEntryRowVm> Entries { get; } = new();
+    public ObservableCollection<QuickFillEntryRowVm> FilteredEntries { get; } = new();
     public ObservableCollection<QuickFillFieldEditorVm> Fields { get; } = new();
     public ObservableCollection<QuickFillFieldKindOption> FieldKindOptions { get; } = new();
     public ObservableCollection<QuickFillWebLoginFieldOption> WebLoginFieldOptions { get; } = new();
@@ -72,10 +77,23 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyFieldOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> AuthenticatorOptions { get; } = new();
+    public ObservableCollection<QuickFillFilterOption> CategoryFilters { get; } = new();
+    public ObservableCollection<QuickFillFilterOption> TargetFilters { get; } = new();
 
     public bool HasEntries => Entries.Count > 0;
+    public bool HasFilteredEntries => FilteredEntries.Count > 0;
     public bool HasFields => Fields.Count > 0;
     public bool HasStatus => !string.IsNullOrWhiteSpace(Status);
+    public int EnabledEntryCount => Entries.Count(entry => entry.Entry.Enabled);
+    public int TargetAppCount => Entries
+        .Select(entry => NormalizeFilterId(entry.Entry.Target.ProcessName))
+        .Where(value => value.Length > 0)
+        .Distinct(StringComparer.OrdinalIgnoreCase)
+        .Count();
+    public int LinkedFieldCount => Entries.Sum(entry => entry.Entry.Fields.Count(itemField => itemField.SourceKind != QuickFillFieldSourceKind.Owned));
+    public string AutoTypeReadyStatus => _root.QuickFill.HasAutoTypeAcknowledgement
+        ? T("QuickFill.State.Ready")
+        : T("QuickFill.State.NeedsWarning");
     public string HotkeyStatus => _root.QuickFillHotkeyStatus;
     public string AutoTypeAcknowledgementText => _root.QuickFill.HasAutoTypeAcknowledgement
         ? T("QuickFill.AutoType.Acknowledged")
@@ -84,6 +102,10 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
     partial void OnSelectedEntryChanged(QuickFillEntryRowVm? value) => PopulateEditor(value?.Entry);
     partial void OnSelectedApiKeyOptionChanged(QuickFillLinkedItemOption? value) => RefreshApiKeyFieldOptions(value?.Id);
+    partial void OnSearchTextChanged(string value) => ApplyEntryFilters();
+    partial void OnSelectedCategoryFilterChanged(QuickFillFilterOption? value) => ApplyEntryFilters();
+    partial void OnSelectedTargetFilterChanged(QuickFillFilterOption? value) => ApplyEntryFilters();
+    partial void OnEnabledOnlyChanged(bool value) => ApplyEntryFilters();
 
     public async Task LoadAsync()
     {
@@ -103,9 +125,11 @@ public sealed partial class QuickFillViewModel : ViewModelBase
             foreach (var entry in entries.OrderBy(entry => entry.Category, StringComparer.OrdinalIgnoreCase).ThenBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase))
                 Entries.Add(new QuickFillEntryRowVm(entry, _root));
 
-            OnPropertyChanged(nameof(HasEntries));
-            if (SelectedEntry is null && Entries.Count > 0)
-                SelectedEntry = Entries[0];
+            RefreshEntryFilterOptions();
+            ApplyEntryFilters();
+            NotifyEntryMetricsChanged();
+            if (SelectedEntry is null && FilteredEntries.Count > 0)
+                SelectedEntry = FilteredEntries[0];
         }
         catch (Exception ex)
         {
@@ -142,7 +166,9 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         foreach (var entry in Entries)
             entry.RefreshLocalization();
 
+        RefreshEntryFilterOptions();
         NotifyLocalized(nameof(AutoTypeAcknowledgementText));
+        NotifyLocalized(nameof(AutoTypeReadyStatus));
     }
 
     [RelayCommand]
@@ -332,8 +358,92 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     {
         _root.AcceptQuickFillAutoTypeAcknowledgement();
         OnPropertyChanged(nameof(AutoTypeAcknowledgementText));
+        OnPropertyChanged(nameof(AutoTypeReadyStatus));
         Status = T("QuickFill.Status.AutoTypeAcknowledged");
     }
+
+    private void RefreshEntryFilterOptions()
+    {
+        var selectedCategoryId = SelectedCategoryFilter?.Id ?? "";
+        var selectedTargetId = SelectedTargetFilter?.Id ?? "";
+
+        CategoryFilters.Clear();
+        CategoryFilters.Add(new QuickFillFilterOption("", T("QuickFill.Filter.AllCategories")));
+        foreach (var category in Entries
+                     .Select(entry => entry.Entry.Category)
+                     .Where(value => !string.IsNullOrWhiteSpace(value))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(value => value, StringComparer.OrdinalIgnoreCase))
+        {
+            CategoryFilters.Add(new QuickFillFilterOption(NormalizeFilterId(category), category));
+        }
+
+        TargetFilters.Clear();
+        TargetFilters.Add(new QuickFillFilterOption("", T("QuickFill.Filter.AllTargets")));
+        foreach (var target in Entries
+                     .Select(entry => entry.Entry.Target.ProcessName)
+                     .Where(value => !string.IsNullOrWhiteSpace(value))
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(value => value, StringComparer.OrdinalIgnoreCase))
+        {
+            TargetFilters.Add(new QuickFillFilterOption(NormalizeFilterId(target), target));
+        }
+
+        SelectedCategoryFilter = CategoryFilters.FirstOrDefault(option => string.Equals(option.Id, selectedCategoryId, StringComparison.OrdinalIgnoreCase))
+            ?? CategoryFilters.FirstOrDefault();
+        SelectedTargetFilter = TargetFilters.FirstOrDefault(option => string.Equals(option.Id, selectedTargetId, StringComparison.OrdinalIgnoreCase))
+            ?? TargetFilters.FirstOrDefault();
+    }
+
+    private void ApplyEntryFilters()
+    {
+        FilteredEntries.Clear();
+        IEnumerable<QuickFillEntryRowVm> filtered = Entries;
+
+        var search = SearchText.Trim();
+        if (!string.IsNullOrWhiteSpace(search))
+            filtered = filtered.Where(entry => EntryMatchesSearch(entry, search));
+
+        var categoryId = SelectedCategoryFilter?.Id ?? "";
+        if (!string.IsNullOrWhiteSpace(categoryId))
+            filtered = filtered.Where(entry => string.Equals(NormalizeFilterId(entry.Entry.Category), categoryId, StringComparison.OrdinalIgnoreCase));
+
+        var targetId = SelectedTargetFilter?.Id ?? "";
+        if (!string.IsNullOrWhiteSpace(targetId))
+            filtered = filtered.Where(entry => string.Equals(NormalizeFilterId(entry.Entry.Target.ProcessName), targetId, StringComparison.OrdinalIgnoreCase));
+
+        if (EnabledOnly)
+            filtered = filtered.Where(entry => entry.Entry.Enabled);
+
+        foreach (var entry in filtered)
+            FilteredEntries.Add(entry);
+
+        OnPropertyChanged(nameof(HasFilteredEntries));
+    }
+
+    private static bool EntryMatchesSearch(QuickFillEntryRowVm entry, string search)
+    {
+        var haystack = string.Join(' ', [
+            entry.Entry.Name,
+            entry.Entry.Category,
+            entry.Entry.Target.ProcessName,
+            entry.Entry.Target.WindowTitleContains,
+            .. entry.Entry.Fields.Select(field => field.Label),
+            .. entry.Entry.Fields.Select(field => field.SourceKind.ToString())
+        ]);
+        return haystack.Contains(search, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void NotifyEntryMetricsChanged()
+    {
+        OnPropertyChanged(nameof(HasEntries));
+        OnPropertyChanged(nameof(EnabledEntryCount));
+        OnPropertyChanged(nameof(TargetAppCount));
+        OnPropertyChanged(nameof(LinkedFieldCount));
+    }
+
+    private static string NormalizeFilterId(string? value)
+        => (value ?? "").Trim().ToUpperInvariant();
 
     private QuickFillEntryInput BuildInput()
     {
@@ -570,6 +680,20 @@ public sealed partial class QuickFillWebLoginFieldOption : ObservableObject
 public sealed class QuickFillLinkedItemOption
 {
     public QuickFillLinkedItemOption(string id, string label)
+    {
+        Id = id;
+        Label = label;
+    }
+
+    public string Id { get; }
+    public string Label { get; }
+
+    public override string ToString() => Label;
+}
+
+public sealed class QuickFillFilterOption
+{
+    public QuickFillFilterOption(string id, string label)
     {
         Id = id;
         Label = label;

@@ -4,10 +4,9 @@
              x:Class="ShellKrypt.Desktop.Views.ToolsView"
              x:CompileBindings="False"
              x:DataType="vm:ToolsViewModel">
-  <ScrollViewer HorizontalScrollBarVisibility="Auto"
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                 VerticalScrollBarVisibility="Auto">
     <StackPanel Margin="16"
-                MaxWidth="920"
                 HorizontalAlignment="Stretch"
                 Spacing="14">
       <StackPanel Spacing="8"
@@ -93,7 +92,7 @@
         </Grid>
       </Border>
 
-      <Grid ColumnDefinitions="1.7*,*"
+      <Grid ColumnDefinitions="1.35*,*"
             ColumnSpacing="12">
         <Border Classes="stitch-card"
                 Padding="16">
@@ -111,7 +110,7 @@
                       CornerRadius="4"
                       Padding="12,5">
                 <TextBlock Text="{Binding PasswordLengthDisplay}"
-                           FontFamily="Consolas"
+                           FontFamily="{StaticResource MonoFontFamily}"
                            FontSize="18"
                            FontWeight="Bold"
                            Foreground="{StaticResource AccentBrush}"/>
@@ -190,7 +189,7 @@
                 VerticalAlignment="Center"/>
       </Grid>
 
-      <Grid ColumnDefinitions="*,*"
+      <Grid ColumnDefinitions="1.05*,*"
             ColumnSpacing="12">
         <Border Classes="stitch-card"
                 Padding="16">
@@ -214,7 +213,7 @@
                        TextWrapping="Wrap"
                        MinHeight="80"
                        PlaceholderText="{DynamicResource Loc.Generator.Hash.Placeholder}"
-                       FontFamily="Consolas"/>
+                       FontFamily="{StaticResource MonoFontFamily}"/>
             </StackPanel>
 
             <Grid ColumnDefinitions="*,*"
@@ -268,7 +267,7 @@
                        TextWrapping="Wrap"
                        MinHeight="80"
                        PlaceholderText="{DynamicResource Loc.Generator.Base64.Placeholder}"
-                       FontFamily="Consolas"/>
+                       FontFamily="{StaticResource MonoFontFamily}"/>
             </StackPanel>
 
             <Grid ColumnDefinitions="*,*"
@@ -368,7 +367,7 @@
 
     <Style Selector="SelectableTextBlock.stitch-password-output">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="18"/>
       <Setter Property="LineHeight" Value="26"/>
       <Setter Property="LetterSpacing" Value="0.7"/>
@@ -377,7 +376,7 @@
 
     <Style Selector="SelectableTextBlock.stitch-utility-output">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="LineHeight" Value="18"/>
       <Setter Property="LetterSpacing" Value="0.2"/>

@@ -590,8 +590,8 @@
     <Style Selector="TextBlock.welcome-mini-label">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="10"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.2"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="LetterSpacing" Value="1.2"/>
     </Style>
 
     <Style Selector="Button.welcome-sort-chip">
@@ -604,7 +604,7 @@
       <Setter Property="Height" Value="32"/>
       <Setter Property="MinHeight" Value="32"/>
       <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -623,7 +623,7 @@
       <Setter Property="Padding" Value="18,0"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -638,7 +638,7 @@
       <Setter Property="Padding" Value="18,0"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -676,7 +676,7 @@
       <Setter Property="Height" Value="34"/>
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -691,7 +691,7 @@
       <Setter Property="Height" Value="34"/>
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -706,7 +706,7 @@
       <Setter Property="Height" Value="34"/>
       <Setter Property="MinHeight" Value="34"/>
       <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -775,7 +775,7 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="Height" Value="32"/>
       <Setter Property="MinHeight" Value="32"/>
       <Setter Property="Padding" Value="14,0"/>
@@ -812,7 +812,7 @@
       <Setter Property="MinHeight" Value="42"/>
       <Setter Property="Padding" Value="24,0"/>
       <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -828,7 +828,7 @@
       <Setter Property="MinHeight" Value="42"/>
       <Setter Property="Padding" Value="24,0"/>
       <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>

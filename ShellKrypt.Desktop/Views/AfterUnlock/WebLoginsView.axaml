@@ -1,4 +1,4 @@
-﻿<UserControl xmlns="https://github.com/avaloniaui"
+<UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:shared="using:ShellKrypt.UI.Shared.Controls"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
@@ -7,10 +7,9 @@
              x:DataType="vm:WebLoginsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="16"
-                  MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="14">
         <TextBlock Text="{DynamicResource Loc.WebLogins.Title}"
@@ -105,7 +104,7 @@
               ClipToBounds="True">
         <Grid RowDefinitions="Auto,*,Auto">
           <Border Classes="table-header-row">
-            <Grid ColumnDefinitions="1.28*,1.0*,0.9*,1.0*,162"
+            <Grid ColumnDefinitions="1.16*,0.84*,0.74*,0.86*,156"
                   ColumnSpacing="8">
               <TextBlock Text="{DynamicResource Loc.WebLogins.Table.Title}" Classes="table-header-text"/>
               <TextBlock Grid.Column="1" Text="{DynamicResource Loc.WebLogins.Table.Username}" Classes="table-header-text"/>
@@ -127,7 +126,7 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:WebLoginRowVm">
                   <Border Classes="table-row">
-                    <Grid ColumnDefinitions="1.28*,1.0*,0.9*,1.0*,162"
+                    <Grid ColumnDefinitions="1.16*,0.84*,0.74*,0.86*,156"
                           ColumnSpacing="8"
                           MinHeight="78"
                           Margin="12,0">
@@ -431,7 +430,7 @@
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="MinWidth" Value="0"/>
-      <Setter Property="Width" Value="280"/>
+      <Setter Property="Width" Value="260"/>
       <Setter Property="Margin" Value="0,0,10,10"/>
       <Setter Property="Padding" Value="12,8"/>
     </Style>
@@ -443,7 +442,7 @@
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Width" Value="138"/>
+      <Setter Property="Width" Value="124"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="Margin" Value="0,0,10,10"/>
@@ -508,14 +507,14 @@
 
     <Style Selector="TextBlock.web-password">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="LetterSpacing" Value="1.6"/>
     </Style>
 
     <Style Selector="TextBlock.web-url">
       <Setter Property="Foreground" Value="{StaticResource BorderBrushStrong}"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="LetterSpacing" Value="0.6"/>
     </Style>

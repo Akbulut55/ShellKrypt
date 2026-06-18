@@ -30,7 +30,6 @@ namespace ShellKrypt.Desktop
                         Win32RenderingMode.Software
                     ]
                 })
-                .WithInterFont()
                 .LogToTrace();
     }
 }

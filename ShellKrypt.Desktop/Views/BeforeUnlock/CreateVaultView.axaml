@@ -214,8 +214,8 @@
     <Style Selector="TextBlock.create-kicker">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="10"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.2"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="LetterSpacing" Value="1.2"/>
     </Style>
 
     <Style Selector="Button.create-primary-button">
@@ -228,7 +228,7 @@
       <Setter Property="MinWidth" Value="136"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -244,7 +244,7 @@
       <Setter Property="MinWidth" Value="96"/>
       <Setter Property="Height" Value="40"/>
       <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>

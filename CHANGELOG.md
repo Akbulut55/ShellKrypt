@@ -6,6 +6,12 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+### Changed
+
+- Added bundled Inter and JetBrains Mono font resources, switched UI typography to the bundled Inter font, and moved code/secret displays from Consolas to JetBrains Mono.
+- Removed obsolete PNG icon assets that were replaced by shared vector icon resources.
+- Reworked the Quick Fill manager tab into a dashboard-style list/detail layout with summary cards, entry search/filter controls, and compact field-source tabs.
+
 ## [ShellKrypt 0.17.2] - 2026-06-18
 
 ### Changed

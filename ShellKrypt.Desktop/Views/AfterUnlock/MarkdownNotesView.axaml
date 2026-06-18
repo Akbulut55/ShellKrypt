@@ -310,7 +310,7 @@
       <Setter Property="MinHeight" Value="0"/>
       <Setter Property="FontSize" Value="15"/>
       <Setter Property="LineHeight" Value="24"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
     </Style>
 
     <Style Selector="TextBox.notesMarkdownEditor:focus">
@@ -451,7 +451,7 @@
     </Style>
 
     <Style Selector="TextBlock.notesMarkdownCode">
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="LineHeight" Value="21"/>
     </Style>

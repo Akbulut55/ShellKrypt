@@ -6,10 +6,9 @@
              x:DataType="vm:ActivityViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Auto"
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="16"
-                  MaxWidth="1500"
                   HorizontalAlignment="Stretch"
                   Spacing="14">
         <Grid Margin="0,10,0,0">
@@ -60,14 +59,14 @@
           </WrapPanel>
         </WrapPanel>
 
-        <Grid ColumnDefinitions="*,240"
-              MinWidth="600"
+        <Grid ColumnDefinitions="*,220"
+              MinWidth="560"
               ColumnSpacing="12">
           <Border Classes="table-shell"
                   ClipToBounds="True">
             <Grid RowDefinitions="Auto,*,Auto">
               <Border Classes="table-header-row">
-                <Grid ColumnDefinitions="1.12*,0.82*,1.45*,1.45*,0.78*"
+                <Grid ColumnDefinitions="0.82*,0.66*,1.22*,1.04*,0.58*"
                       ColumnSpacing="8">
                   <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}"
                              Classes="table-header-text"/>
@@ -95,7 +94,7 @@
                   <ListBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:ActivityItemVm">
                       <Border Classes="table-row">
-                        <Grid ColumnDefinitions="1.12*,0.82*,1.45*,1.45*,0.78*"
+                        <Grid ColumnDefinitions="0.82*,0.66*,1.22*,1.04*,0.58*"
                               ColumnSpacing="8"
                               MinHeight="72"
                               Margin="12,0">
@@ -256,7 +255,7 @@
                     <TextBlock Text="{Binding SelectedIntegrityHash}"
                                Foreground="{StaticResource SuccessBrush}"
                                FontSize="11"
-                               FontFamily="Consolas"
+                               FontFamily="{StaticResource MonoFontFamily}"
                                TextWrapping="Wrap"/>
                   </StackPanel>
                 </Border>
@@ -346,13 +345,13 @@
     <Style Selector="TextBlock.activity-row-meta">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
     </Style>
 
     <Style Selector="TextBlock.activity-row-accent">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontFamily" Value="Consolas"/>
+      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
     </Style>
 
     <Style Selector="Border.activity-detail-card">
