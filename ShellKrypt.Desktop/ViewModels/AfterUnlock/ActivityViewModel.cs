@@ -10,8 +10,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ActivityViewModel : ViewModelBase
 {
-    private const int PageSize = 8;
-
     private readonly MainWindowViewModel _root;
     private readonly ActivityLogService _store;
     private readonly List<ActivityItemVm> _allItems = new();
@@ -23,7 +21,6 @@ public partial class ActivityViewModel : ViewModelBase
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private string activeCategory = "all";
     [ObservableProperty] private string error = "";
-    [ObservableProperty] private int currentPage = 1;
 
     public ActivityViewModel(MainWindowViewModel root, ActivityLogService store)
     {
@@ -38,11 +35,7 @@ public partial class ActivityViewModel : ViewModelBase
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public int TotalEvents => _allItems.Count;
     public int FilteredEventCount => _filteredItems.Count;
-    public int TotalPages => DesktopPagination.GetTotalPages(_filteredItems.Count, PageSize);
-    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
-    public string ItemsSummary => T(_root, "Activity.ItemsSummary", Items.Count, FilteredEventCount);
-    public bool CanGoPreviousPage => CurrentPage > 1;
-    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string ItemsSummary => T(_root, "Activity.ItemsSummary", FilteredEventCount);
     public int TodayCount => _allItems.Count(item => IsToday(item.Entry.TimestampUtc));
     public int WarningCount => _allItems.Count(item => item.Severity is "warning" or "danger");
     public int VaultEventCount => _allItems.Count(item => string.Equals(item.Category, "vault", StringComparison.Ordinal));
@@ -78,17 +71,6 @@ public partial class ActivityViewModel : ViewModelBase
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
 
-    partial void OnCurrentPageChanged(int value)
-    {
-        RenderPage();
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(ItemsSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
-    }
-
     partial void OnSelectedItemChanged(ActivityItemVm? value)
     {
         OnPropertyChanged(nameof(HasSelectedItem));
@@ -123,7 +105,6 @@ public partial class ActivityViewModel : ViewModelBase
             item.RefreshLocalization();
 
         NotifyLocalized(
-            nameof(PageSummary),
             nameof(ItemsSummary),
             nameof(EmptyStateTitle),
             nameof(EmptyStateSubtitle),

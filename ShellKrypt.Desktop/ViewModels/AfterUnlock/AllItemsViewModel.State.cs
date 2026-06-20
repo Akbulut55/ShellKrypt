@@ -19,7 +19,6 @@ public sealed partial class AllItemsViewModel
         {
             if (SetProperty(ref _searchText, value))
             {
-                CurrentPage = 1;
                 ApplyFilter();
             }
         }
@@ -32,7 +31,6 @@ public sealed partial class AllItemsViewModel
         {
             if (SetProperty(ref _activeScope, value))
             {
-                CurrentPage = 1;
                 OnPropertyChanged(nameof(IsAllScopeActive));
                 OnPropertyChanged(nameof(IsFavoritesScopeActive));
                 OnPropertyChanged(nameof(IsRecentScopeActive));
@@ -50,7 +48,6 @@ public sealed partial class AllItemsViewModel
         {
             if (SetProperty(ref _activeType, value))
             {
-                CurrentPage = 1;
                 OnPropertyChanged(nameof(IsAllTypeActive));
                 OnPropertyChanged(nameof(IsWebTypeActive));
                 OnPropertyChanged(nameof(IsCardTypeActive));
@@ -149,10 +146,6 @@ public sealed partial class AllItemsViewModel
         {
             if (SetProperty(ref _filteredCount, value))
             {
-                OnPropertyChanged(nameof(TotalPages));
-                OnPropertyChanged(nameof(PageSummary));
-                OnPropertyChanged(nameof(CanGoPrevious));
-                OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(FooterSummary));
             }
         }
@@ -198,14 +191,4 @@ public sealed partial class AllItemsViewModel
         }
     }
 
-    public int CurrentPage
-    {
-        get => _currentPage;
-        set
-        {
-            var safeValue = value < 1 ? 1 : value;
-            if (SetProperty(ref _currentPage, safeValue))
-                RefreshVisibleRows();
-        }
-    }
 }

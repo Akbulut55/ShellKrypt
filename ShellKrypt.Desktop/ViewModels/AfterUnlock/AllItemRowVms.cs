@@ -7,19 +7,6 @@ using ShellKrypt.Core.Items;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
-public sealed class PageChipVm
-{
-    public PageChipVm(int number, bool isCurrent)
-    {
-        Number = number;
-        IsCurrent = isCurrent;
-    }
-
-    public int Number { get; }
-    public bool IsCurrent { get; }
-    public string Label => Number.ToString(CultureInfo.InvariantCulture);
-}
-
 public sealed class AllItemEntry : ObservableObject
 {
     private readonly LocalizationService _localization;

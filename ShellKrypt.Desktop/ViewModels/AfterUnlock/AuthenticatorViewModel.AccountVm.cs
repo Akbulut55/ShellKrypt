@@ -79,8 +79,8 @@ public sealed partial class AuthenticatorAccountVm : ObservableObject
     public string KeyTypeDisplay => KeyType == AuthenticatorKeyType.CounterBased ? T("Authenticator.Account.CounterBased") : T("Authenticator.Account.TimeBased");
     public string AlgorithmDisplay => NormalizeAlgorithmLabel(Algorithm);
     public string RotationDisplay => KeyType == AuthenticatorKeyType.TimeBased
-        ? $"{AlgorithmDisplay} \u00C2\u00B7 {PeriodSeconds}s"
-        : $"{AlgorithmDisplay} \u00C2\u00B7 {T("Authenticator.Account.Counter")}";
+        ? $"{AlgorithmDisplay} - {PeriodSeconds}s"
+        : $"{AlgorithmDisplay} - {T("Authenticator.Account.Counter")}";
     public string CounterDisplay => Counter.ToString(CultureInfo.InvariantCulture);
     public bool HasCountdown => KeyType == AuthenticatorKeyType.TimeBased;
     public string ProgressLabel => KeyType == AuthenticatorKeyType.TimeBased

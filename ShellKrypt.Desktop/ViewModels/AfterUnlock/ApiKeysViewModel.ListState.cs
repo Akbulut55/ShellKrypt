@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,26 +7,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ApiKeysViewModel
 {
-    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
-    private void PreviousPage()
-    {
-        if (!CanGoPreviousPage)
-            return;
-
-        CurrentPage--;
-        RenderPage();
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
-    private void NextPage()
-    {
-        if (!CanGoNextPage)
-            return;
-
-        CurrentPage++;
-        RenderPage();
-    }
-
     public async Task<bool> OpenEntryByIdAsync(string itemId)
     {
         if (string.IsNullOrWhiteSpace(itemId))
@@ -46,8 +25,6 @@ public partial class ApiKeysViewModel
         SelectedSortOption = SortNewest;
         ApplyFilter();
 
-        var index = _filtered.FindIndex(item => string.Equals(item.Id, row.Id, StringComparison.Ordinal));
-        CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
         RenderPage();
         ShowDetails(row);
         return true;
@@ -114,11 +91,6 @@ public partial class ApiKeysViewModel
         _filtered.Clear();
         _filtered.AddRange(filtered);
 
-        if (resetPage)
-            CurrentPage = 1;
-        else
-            CurrentPage = DesktopPagination.ClampPage(CurrentPage, _filtered.Count, PageSize);
-
         RenderPage();
         NotifySummaryChanged();
     }
@@ -127,16 +99,11 @@ public partial class ApiKeysViewModel
     {
         Rows.Clear();
 
-        foreach (var row in DesktopPagination.Page(_filtered, CurrentPage, PageSize))
+        foreach (var row in _filtered)
             Rows.Add(row);
 
         OnPropertyChanged(nameof(HasRows));
         OnPropertyChanged(nameof(ItemsSummary));
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
     }
 
     private void RefreshProviderFilters()

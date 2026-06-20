@@ -102,7 +102,7 @@
       <Border Classes="table-shell"
               MinWidth="580"
               ClipToBounds="True">
-        <Grid RowDefinitions="Auto,*,Auto">
+        <Grid RowDefinitions="Auto,390,Auto">
           <Border Classes="table-header-row">
             <Grid ColumnDefinitions="1.16*,0.84*,0.74*,0.86*,156"
                   ColumnSpacing="8">
@@ -120,10 +120,12 @@
             </Grid>
           </Border>
 
-          <Grid Grid.Row="1"
-                MinHeight="390">
-            <ItemsControl ItemsSource="{Binding Rows}">
-              <ItemsControl.ItemTemplate>
+          <Grid Grid.Row="1">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                          VerticalScrollBarVisibility="Auto"
+                          IsVisible="{Binding HasRows}">
+              <ItemsControl ItemsSource="{Binding Rows}">
+                <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="vm:WebLoginRowVm">
                   <Border Classes="table-row">
                     <Grid ColumnDefinitions="1.16*,0.84*,0.74*,0.86*,156"
@@ -211,8 +213,9 @@
                     </Grid>
                   </Border>
                 </DataTemplate>
-              </ItemsControl.ItemTemplate>
-            </ItemsControl>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </ScrollViewer>
 
             <StackPanel Classes="table-empty"
                         IsVisible="{Binding !HasRows}">
@@ -225,25 +228,10 @@
 
           <Border Grid.Row="2"
                   Classes="table-footer-row">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
-                  ColumnSpacing="10">
+            <Grid ColumnDefinitions="*">
               <TextBlock Text="{Binding ItemsSummary}"
                          Classes="table-footer-text"
                          VerticalAlignment="Center"/>
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Common.Previous}"
-                      Classes="table-page-button"
-                      Command="{Binding PreviousPageCommand}"
-                      IsEnabled="{Binding CanGoPreviousPage}"/>
-              <TextBlock Grid.Column="2"
-                         Text="{Binding PageSummary}"
-                         Classes="table-footer-text"
-                         VerticalAlignment="Center"/>
-              <Button Grid.Column="3"
-                      Content="{DynamicResource Loc.Common.Next}"
-                      Classes="table-page-button"
-                      Command="{Binding NextPageCommand}"
-                      IsEnabled="{Binding CanGoNextPage}"/>
             </Grid>
           </Border>
         </Grid>

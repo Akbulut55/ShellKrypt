@@ -1,26 +1,11 @@
 using System;
 using System.Globalization;
 using System.Linq;
-using CommunityToolkit.Mvvm.Input;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ActivityViewModel
 {
-    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
-    private void PreviousPage()
-    {
-        if (CanGoPreviousPage)
-            CurrentPage--;
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
-    private void NextPage()
-    {
-        if (CanGoNextPage)
-            CurrentPage++;
-    }
-
     public void ReloadFromStore()
     {
         try
@@ -64,31 +49,21 @@ public partial class ActivityViewModel
 
         _filteredItems.AddRange(items);
 
-        var targetPage = resetPage ? 1 : DesktopPagination.ClampPage(CurrentPage, _filteredItems.Count, PageSize);
-        if (CurrentPage != targetPage)
-            CurrentPage = targetPage;
-        else
-            RenderPage();
+        RenderItems();
 
         OnPropertyChanged(nameof(FilteredEventCount));
-        OnPropertyChanged(nameof(TotalPages));
-        OnPropertyChanged(nameof(PageSummary));
         OnPropertyChanged(nameof(ItemsSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
         OnPropertyChanged(nameof(HasItems));
         OnPropertyChanged(nameof(HasFilteredItems));
         OnPropertyChanged(nameof(EmptyStateTitle));
         OnPropertyChanged(nameof(EmptyStateSubtitle));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
     }
 
-    private void RenderPage()
+    private void RenderItems()
     {
         Items.Clear();
 
-        foreach (var item in DesktopPagination.Page(_filteredItems, CurrentPage, PageSize))
+        foreach (var item in _filteredItems)
             Items.Add(item);
 
         SelectedItem = Items.FirstOrDefault();

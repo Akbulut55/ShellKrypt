@@ -7,7 +7,7 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class AllItemsViewModel : ViewModelBase
 {
-    private const int PageSize = 5;
+    private const int AllRowsQuerySize = int.MaxValue;
 
     private readonly MainWindowViewModel _root;
     private readonly ShellViewModel _shell;
@@ -31,7 +31,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     private int _reusedPasswordCount;
     private int _expiringSoonCardCount;
     private int _createdThisMonthCount;
-    private int _currentPage = 1;
 
     public AllItemsViewModel(MainWindowViewModel root, ShellViewModel shell, IVaultItemSummaryService summaryService)
     {
@@ -40,7 +39,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
         _summaryService = summaryService;
 
         Rows = new ObservableCollection<AllItemEntry>();
-        PageChips = new ObservableCollection<PageChipVm>();
 
         ShowAllCommand = new RelayCommand(ShowAll);
         ShowFavoritesCommand = new RelayCommand(ShowFavorites);
@@ -53,9 +51,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResetFiltersCommand = new RelayCommand(ResetFilters);
         CycleSortCommand = new RelayCommand(CycleSort);
-        GoPreviousPageCommand = new RelayCommand(GoPreviousPage);
-        GoNextPageCommand = new RelayCommand(GoNextPage);
-        GoToPageCommand = new RelayCommand<PageChipVm?>(GoToPage);
         AddItemCommand = new RelayCommand(AddItem);
         OpenRowCommand = new RelayCommand<AllItemEntry?>(OpenRow);
 
@@ -63,7 +58,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     }
 
     public ObservableCollection<AllItemEntry> Rows { get; }
-    public ObservableCollection<PageChipVm> PageChips { get; }
 
     public ICommand ShowAllCommand { get; }
     public ICommand ShowFavoritesCommand { get; }
@@ -76,9 +70,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     public ICommand RefreshCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand CycleSortCommand { get; }
-    public ICommand GoPreviousPageCommand { get; }
-    public ICommand GoNextPageCommand { get; }
-    public ICommand GoToPageCommand { get; }
     public ICommand AddItemCommand { get; }
     public ICommand OpenRowCommand { get; }
 
@@ -88,7 +79,6 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             row.RefreshLocalization();
 
         NotifyLocalized(
-            nameof(PageSummary),
             nameof(TotalItemsDeltaText),
             nameof(WeakPasswordSubtitle),
             nameof(ReusedPasswordSubtitle),

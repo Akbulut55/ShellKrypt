@@ -17,10 +17,6 @@ public sealed partial class AllItemsViewModel
 
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public int TotalPages => DesktopPagination.GetTotalPages(FilteredCount, PageSize);
-    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
-    public bool CanGoPrevious => CurrentPage > 1;
-    public bool CanGoNext => CurrentPage < TotalPages;
     public string TotalItemsDeltaText => CreatedThisMonthCount <= 0
         ? T(_root, "AllItems.CreatedThisMonth.None")
         : T(_root, "AllItems.CreatedThisMonth.Count", CreatedThisMonthCount);
@@ -34,7 +30,7 @@ public sealed partial class AllItemsViewModel
         1 => T(_root, "AllItems.ExpiringCards.One"),
         _ => T(_root, "AllItems.ExpiringCards.Many", ExpiringSoonCardCount)
     };
-    public string FooterSummary => T(_root, "AllItems.FooterSummary", Rows.Count, FilteredCount);
+    public string FooterSummary => T(_root, "AllItems.FooterSummary", FilteredCount);
 
     public string AllFilterLabel => T(_root, "AllItems.Filter.All", TotalCount);
     public string WebFilterLabel => T(_root, "AllItems.Filter.Logins", WebCount);

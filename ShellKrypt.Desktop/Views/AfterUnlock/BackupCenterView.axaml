@@ -6,7 +6,8 @@
              x:DataType="vm:BackupCenterViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+    <ScrollViewer x:Name="BackupCenterScrollViewer"
+                  HorizontalScrollBarVisibility="Disabled"
                   VerticalScrollBarVisibility="Auto">
       <StackPanel Margin="16"
                   MaxWidth="1260"
@@ -111,10 +112,6 @@
             </Grid>
           </Grid>
         </Border>
-
-        <TextBlock Text="{Binding TransferStatus}"
-                   Classes="backup-status-message"
-                   IsVisible="{Binding HasTransferStatus}"/>
 
         <Grid ColumnDefinitions="*,*"
               RowDefinitions="Auto,Auto,Auto"
@@ -408,6 +405,16 @@
               </StackPanel>
             </Border>
 
+            <Border Grid.Row="0"
+                    Grid.RowSpan="2"
+                    Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Classes="backup-status-overlay"
+                    IsVisible="{Binding HasTransferStatus}">
+              <TextBlock Text="{Binding TransferStatus}"
+                         Classes="backup-status-overlay-text"/>
+            </Border>
+
             <Border Grid.Row="2"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
@@ -537,11 +544,23 @@
       <Setter Property="FontSize" Value="12"/>
     </Style>
 
-    <Style Selector="TextBlock.backup-status-message">
+    <Style Selector="Border.backup-status-overlay">
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="18,12"/>
+      <Setter Property="MaxWidth" Value="520"/>
+    </Style>
+
+    <Style Selector="TextBlock.backup-status-overlay-text">
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Padding" Value="16,12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="TextAlignment" Value="Center"/>
+      <Setter Property="TextWrapping" Value="Wrap"/>
     </Style>
 
     <Style Selector="Button.backup-primary-button">

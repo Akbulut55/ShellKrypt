@@ -1,4 +1,3 @@
-using CommunityToolkit.Mvvm.Input;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,8 +30,6 @@ public partial class CardsViewModel
         SelectedSortOption = SortNewest;
         ApplyFilter();
 
-        var index = _filtered.FindIndex(item => string.Equals(item.Id, row.Id, StringComparison.Ordinal));
-        CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
         RenderPage();
         ShowDetails(row);
         return true;
@@ -58,26 +55,6 @@ public partial class CardsViewModel
         {
             Error = ex.Message;
         }
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
-    private void PreviousPage()
-    {
-        if (!CanGoPreviousPage)
-            return;
-
-        CurrentPage--;
-        RenderPage();
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
-    private void NextPage()
-    {
-        if (!CanGoNextPage)
-            return;
-
-        CurrentPage++;
-        RenderPage();
     }
 
     private void ApplyFilter() => ApplyFilter(resetPage: true);
@@ -124,11 +101,6 @@ public partial class CardsViewModel
         _filtered.Clear();
         _filtered.AddRange(filtered);
 
-        if (resetPage)
-            CurrentPage = 1;
-        else
-            CurrentPage = DesktopPagination.ClampPage(CurrentPage, _filtered.Count, PageSize);
-
         RenderPage();
         NotifyCardSummaryChanged();
     }
@@ -137,15 +109,10 @@ public partial class CardsViewModel
     {
         Rows.Clear();
 
-        foreach (var row in DesktopPagination.Page(_filtered, CurrentPage, PageSize))
+        foreach (var row in _filtered)
             Rows.Add(row);
 
         OnPropertyChanged(nameof(ItemsSummary));
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
     }
 
     private void NotifyCardSummaryChanged()

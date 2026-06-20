@@ -10,7 +10,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class CardsViewModel : ViewModelBase
 {
-    private const int PageSize = 5;
     private const string AllBankFilter = "Bank: All";
     private const string AllCardTypeFilter = "Type: All";
     private const string SortNewest = "Sort: Newest";
@@ -62,7 +61,6 @@ public partial class CardsViewModel : ViewModelBase
     [ObservableProperty] private string selectedBankFilter = AllBankFilter;
     [ObservableProperty] private string selectedCardTypeFilter = AllCardTypeFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
-    [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isAddCardModalOpen;
     [ObservableProperty] private bool isAddCardMode = true;
     [ObservableProperty] private bool isCardDetailsEditing;
@@ -92,11 +90,7 @@ public partial class CardsViewModel : ViewModelBase
     public string ExpiredCardsSummary => ExpiredCardsCount == 1
         ? T(_root, "Cards.Summary.ExpiredOne")
         : T(_root, "Cards.Summary.ExpiredMany", ExpiredCardsCount);
-    public string ItemsSummary => T(_root, "Cards.ItemsSummary", Rows.Count, _filtered.Count);
-    public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
-    public bool CanGoPreviousPage => CurrentPage > 1;
-    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string ItemsSummary => T(_root, "Cards.ItemsSummary", _filtered.Count);
     public bool HasRows => Rows.Count > 0;
     public string EmptyTableTitle => _all.Count == 0
         ? T(_root, "Cards.Empty.NoneTitle")
@@ -186,18 +180,6 @@ public partial class CardsViewModel : ViewModelBase
             AddCvc = normalized;
     }
 
-    partial void OnCurrentPageChanged(int value)
-    {
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-        OnPropertyChanged(nameof(HasRows));
-        OnPropertyChanged(nameof(EmptyTableTitle));
-        OnPropertyChanged(nameof(EmptyTableSubtitle));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
-    }
-
     private void NotifyCardModalModeChanged()
     {
         OnPropertyChanged(nameof(CardModalTitle));
@@ -220,7 +202,6 @@ public partial class CardsViewModel : ViewModelBase
             nameof(ExpiringSoonSummary),
             nameof(ExpiredCardsSummary),
             nameof(ItemsSummary),
-            nameof(PageSummary),
             nameof(EmptyTableTitle),
             nameof(EmptyTableSubtitle),
             nameof(CardModalTitle),

@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Infrastructure.Vaulting;
@@ -10,8 +11,33 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class SettingsViewModel
 {
+    private string? _destroyVaultPath;
+
+    [ObservableProperty] private bool isDestroyVaultModalOpen;
+    [ObservableProperty] private bool isDestroyVaultPasswordStep;
+    [ObservableProperty] private string destroyVaultDisplayName = "";
+    [ObservableProperty] private string destroyVaultPassword = "";
+    [ObservableProperty] private string destroyVaultError = "";
+
+    public string DestroyVaultModalTitle => IsDestroyVaultPasswordStep
+        ? T("Settings.DestroyVault.PasswordTitle")
+        : T("Settings.DestroyVault.Title");
+
+    public string DestroyVaultModalSubtitle => IsDestroyVaultPasswordStep
+        ? T("Settings.DestroyVault.PasswordSubtitle", DestroyVaultDisplayName)
+        : T("Settings.DestroyVault.Subtitle", DestroyVaultDisplayName);
+
+    public string DestroyVaultFooterText => IsDestroyVaultPasswordStep
+        ? T("Settings.DestroyVault.PasswordFooter")
+        : T("Settings.DestroyVault.Footer");
+
+    public string DestroyVaultWarningText => T("Settings.DestroyVault.Warning");
+    public string DestroyVaultPasswordLabel => T("Settings.DestroyVault.MasterPassword");
+    public string DestroyVaultPasswordPlaceholder => T("Settings.DestroyVault.MasterPassword.Placeholder");
+    public bool IsDestroyVaultWarningStep => IsDestroyVaultModalOpen && !IsDestroyVaultPasswordStep;
+
     [RelayCommand]
-    private async Task DestroyVaultAsync()
+    private void DestroyVault()
     {
         if (string.IsNullOrWhiteSpace(_root.VaultPath))
         {
@@ -19,33 +45,60 @@ public sealed partial class SettingsViewModel
             return;
         }
 
-        var vaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!, _root.VaultPath);
-        var displayName = Path.GetFileNameWithoutExtension(vaultPath);
+        try
+        {
+            _destroyVaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!, _root.VaultPath);
+            DestroyVaultDisplayName = Path.GetFileNameWithoutExtension(_destroyVaultPath);
+            DestroyVaultPassword = "";
+            DestroyVaultError = "";
+            IsDestroyVaultPasswordStep = false;
+            IsDestroyVaultModalOpen = true;
+            RefreshDestroyVaultModalText();
+        }
+        catch (Exception ex)
+        {
+            Status = ex.Message;
+        }
+    }
 
-        var confirmed = await _root.ConfirmDangerousActionAsync(
-            "Permanently Delete Vault?",
-            $"Permanently delete {displayName}?",
-            "Warning: this action is irreversible. All stored passwords, markdown notes, and encrypted data within this vault will be destroyed immediately.",
-            "Permanently Delete");
+    [RelayCommand]
+    private void CancelDestroyVault()
+    {
+        ClearDestroyVaultModal();
+    }
 
-        if (!confirmed)
+    [RelayCommand]
+    private void ContinueDestroyVault()
+    {
+        DestroyVaultPassword = "";
+        DestroyVaultError = "";
+        IsDestroyVaultPasswordStep = true;
+        RefreshDestroyVaultModalText();
+    }
+
+    [RelayCommand]
+    private async Task ConfirmDestroyVaultAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_destroyVaultPath))
+        {
+            DestroyVaultError = T("Settings.Status.NoActiveVault");
             return;
+        }
 
-        var password = await _root.PromptPasswordAsync(
-            "Confirm Master Password",
-            "Enter the master password to permanently delete this vault.",
-            vaultPath,
-            "Delete Vault");
-
-        if (password is null)
+        if (string.IsNullOrWhiteSpace(DestroyVaultPassword))
+        {
+            DestroyVaultError = T("Settings.DestroyVault.EnterPassword");
             return;
+        }
 
-        await RunSettingsOperationAsync(async () =>
+        var vaultPath = _destroyVaultPath;
+        var password = DestroyVaultPassword;
+        try
         {
             var unlockResult = await _vaultService.UnlockAsync(vaultPath, password);
             if (!unlockResult.Success)
             {
-                Status = unlockResult.Error ?? T("Settings.Status.WrongMasterPassword");
+                DestroyVaultError = unlockResult.Error ?? T("Settings.Status.WrongMasterPassword");
                 return;
             }
 
@@ -57,8 +110,49 @@ public sealed partial class SettingsViewModel
             await _root.ClearClipboardAsync();
             VaultFileGuard.DeleteVaultAndKnownSidecars(vaultPath, _root.VaultPath);
             _vaultRegistry.RemoveVault(vaultPath);
+            ClearDestroyVaultModal();
             _root.SetVaultPath("");
             _root.Lock();
-        });
+        }
+        catch (Exception ex)
+        {
+            DestroyVaultError = ex.Message;
+        }
+    }
+
+    partial void OnIsDestroyVaultModalOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsDestroyVaultWarningStep));
+    }
+
+    partial void OnIsDestroyVaultPasswordStepChanged(bool value)
+    {
+        RefreshDestroyVaultModalText();
+        OnPropertyChanged(nameof(IsDestroyVaultWarningStep));
+    }
+
+    partial void OnDestroyVaultDisplayNameChanged(string value)
+    {
+        RefreshDestroyVaultModalText();
+    }
+
+    private void ClearDestroyVaultModal()
+    {
+        _destroyVaultPath = null;
+        IsDestroyVaultModalOpen = false;
+        IsDestroyVaultPasswordStep = false;
+        DestroyVaultDisplayName = "";
+        DestroyVaultPassword = "";
+        DestroyVaultError = "";
+    }
+
+    private void RefreshDestroyVaultModalText()
+    {
+        OnPropertyChanged(nameof(DestroyVaultModalTitle));
+        OnPropertyChanged(nameof(DestroyVaultModalSubtitle));
+        OnPropertyChanged(nameof(DestroyVaultFooterText));
+        OnPropertyChanged(nameof(DestroyVaultWarningText));
+        OnPropertyChanged(nameof(DestroyVaultPasswordLabel));
+        OnPropertyChanged(nameof(DestroyVaultPasswordPlaceholder));
     }
 }

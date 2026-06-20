@@ -140,7 +140,7 @@
 
         <Border Classes="table-shell"
                 MinWidth="580">
-          <Grid RowDefinitions="Auto,*,Auto">
+          <Grid RowDefinitions="Auto,390,Auto">
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
                     ColumnSpacing="8">
@@ -162,10 +162,12 @@
             </Border>
 
             <Grid Grid.Row="1">
-              <ItemsControl ItemsSource="{Binding Rows}"
-                            Classes="allitems-list"
+              <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto"
                             IsVisible="{Binding HasRows}">
-                <ItemsControl.ItemTemplate>
+                <ItemsControl ItemsSource="{Binding Rows}"
+                              Classes="allitems-list">
+                  <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:AllItemEntry">
                     <Border Classes="table-row">
                       <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
@@ -238,8 +240,9 @@
                       </Grid>
                     </Border>
                   </DataTemplate>
-                </ItemsControl.ItemTemplate>
-              </ItemsControl>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
 
               <Border Padding="30,30"
                       Background="Transparent"
@@ -278,8 +281,7 @@
 
             <Border Grid.Row="2"
                     Classes="table-footer-row">
-              <Grid ColumnDefinitions="*,Auto,Auto,Auto"
-                    ColumnSpacing="10">
+              <Grid ColumnDefinitions="*">
                 <StackPanel Spacing="4"
                             VerticalAlignment="Center">
                   <TextBlock Text="{Binding FooterSummary}"
@@ -289,20 +291,6 @@
                              FontSize="12"
                              IsVisible="{Binding HasError}"/>
                 </StackPanel>
-                <Button Grid.Column="1"
-                        Content="{DynamicResource Loc.Common.Previous}"
-                        Classes="table-page-button"
-                        Command="{Binding GoPreviousPageCommand}"
-                        IsEnabled="{Binding CanGoPrevious}"/>
-                <TextBlock Grid.Column="2"
-                           Text="{Binding PageSummary}"
-                           Classes="table-footer-text"
-                           VerticalAlignment="Center"/>
-                <Button Grid.Column="3"
-                        Content="{DynamicResource Loc.Common.Next}"
-                        Classes="table-page-button"
-                        Command="{Binding GoNextPageCommand}"
-                        IsEnabled="{Binding CanGoNext}"/>
               </Grid>
             </Border>
           </Grid>

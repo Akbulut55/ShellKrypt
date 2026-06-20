@@ -292,19 +292,26 @@
                         ColumnSpacing="10">
                     <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
                                Classes="auth-secret-text"
-                               TextWrapping="Wrap"/>
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"/>
                     <Button Grid.Column="1"
-                            Content="{DynamicResource Loc.Common.Show}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
+                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibility}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
                     <Button Grid.Column="1"
-                            Content="{DynamicResource Loc.Common.Hide}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding SelectedEntry.IsSecretVisible}"/>
+                            IsVisible="{Binding SelectedEntry.IsSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
                   </Grid>
                 </StackPanel>
 
@@ -434,19 +441,26 @@
                         ColumnSpacing="10">
                     <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
                                Classes="auth-secret-text"
-                               TextWrapping="Wrap"/>
+                               TextWrapping="NoWrap"
+                               TextTrimming="CharacterEllipsis"/>
                     <Button Grid.Column="1"
-                            Content="{DynamicResource Loc.Common.Show}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}"/>
+                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibility}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
                     <Button Grid.Column="1"
-                            Content="{DynamicResource Loc.Common.Hide}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding SelectedEntry.IsSecretVisible}"/>
+                            IsVisible="{Binding SelectedEntry.IsSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
                   </Grid>
                 </StackPanel>
 
@@ -580,11 +594,25 @@
                              IsVisible="{Binding IsFormSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <Button Grid.Column="1"
-                            Content="{Binding FormSecretVisibilityText}"
                             Classes="auth-inline-button"
                             Command="{Binding ToggleFormSecretVisibilityCommand}"
                             VerticalAlignment="Center"
-                            Margin="0,0,4,0"/>
+                            Margin="0,0,4,0"
+                            IsVisible="{Binding !IsFormSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibility}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
+                    <Button Grid.Column="1"
+                            Classes="auth-inline-button"
+                            Command="{Binding ToggleFormSecretVisibilityCommand}"
+                            VerticalAlignment="Center"
+                            Margin="0,0,4,0"
+                            IsVisible="{Binding IsFormSecretVisible}">
+                      <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                Width="17"
+                                Height="17"/>
+                    </Button>
                   </Grid>
                 </Border>
               </StackPanel>
@@ -925,7 +953,8 @@
     <Style Selector="TextBlock.auth-secret-text">
       <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="13"/>
-      <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="TextWrapping" Value="NoWrap"/>
+      <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
     <Style Selector="TextBlock.auth-shield-glyph">
@@ -946,8 +975,9 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="MinWidth" Value="60"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Width" Value="34"/>
+      <Setter Property="MinWidth" Value="34"/>
       <Setter Property="Height" Value="30"/>
       <Setter Property="MinHeight" Value="30"/>
       <Setter Property="FontSize" Value="11"/>

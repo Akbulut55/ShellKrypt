@@ -10,7 +10,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class WebLoginsViewModel : ViewModelBase
 {
-    private const int PageSize = 5;
     private const int GeneratedLoginPasswordLength = 32;
     private const string AllUsernameFilter = "Username: All";
     private const string AllEmailFilter = "Email: All";
@@ -43,7 +42,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     [ObservableProperty] private string selectedEmailFilterChoice = AllEmailFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
     [ObservableProperty] private string error = "";
-    [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isAddWebLoginModalOpen;
     [ObservableProperty] private bool isAddWebLoginMode = true;
     [ObservableProperty] private bool isLoginDetailsEditing;
@@ -72,11 +70,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     public string WeakPasswordSummary => WeakPasswordCount == 1
         ? T(_root, "WebLogins.Summary.WeakOne")
         : T(_root, "WebLogins.Summary.WeakMany", WeakPasswordCount);
-    public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string ItemsSummary => T(_root, "WebLogins.ItemsSummary", Rows.Count, _filtered.Count);
-    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
-    public bool CanGoPreviousPage => CurrentPage > 1;
-    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string ItemsSummary => T(_root, "WebLogins.ItemsSummary", _filtered.Count);
     public bool HasRows => Rows.Count > 0;
     public string EmptyTableTitle => _all.Count == 0
         ? T(_root, "WebLogins.Empty.NoneTitle")
@@ -152,12 +146,6 @@ public partial class WebLoginsViewModel : ViewModelBase
     }
     partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
 
-    partial void OnCurrentPageChanged(int value)
-    {
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-    }
     partial void OnIsAddPasswordVisibleChanged(bool value) => OnPropertyChanged(nameof(AddPasswordVisibilityLabel));
     partial void OnIsAddWebLoginModeChanged(bool value)
         => NotifyModalModeChanged();
@@ -193,7 +181,6 @@ public partial class WebLoginsViewModel : ViewModelBase
             nameof(ReusedPasswordSummary),
             nameof(WeakPasswordSummary),
             nameof(ItemsSummary),
-            nameof(PageSummary),
             nameof(EmptyTableTitle),
             nameof(EmptyTableSubtitle),
             nameof(AddModalTitle),

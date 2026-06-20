@@ -75,11 +75,6 @@ public partial class WebLoginsViewModel
         _filtered.Clear();
         _filtered.AddRange(filtered);
 
-        if (resetPage)
-            CurrentPage = 1;
-        else
-            CurrentPage = DesktopPagination.ClampPage(CurrentPage, _filtered.Count, PageSize);
-
         RenderPage();
     }
 
@@ -87,20 +82,14 @@ public partial class WebLoginsViewModel
     {
         Rows.Clear();
 
-        foreach (var row in DesktopPagination.Page(_filtered, CurrentPage, PageSize))
+        foreach (var row in _filtered)
             Rows.Add(row);
 
         OnPropertyChanged(nameof(ItemsSummary));
-        OnPropertyChanged(nameof(TotalPages));
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
         OnPropertyChanged(nameof(HasRows));
         OnPropertyChanged(nameof(EmptyTableTitle));
         OnPropertyChanged(nameof(EmptyTableSubtitle));
         NotifySummaryChanged();
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
     }
 
     private void RefreshLoginFilters()
@@ -120,26 +109,6 @@ public partial class WebLoginsViewModel
         SelectedEmailFilterChoice = string.IsNullOrWhiteSpace(SelectedEmailFilter)
             ? AllEmailFilter
             : SelectedEmailFilter;
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoPreviousPage))]
-    private void PreviousPage()
-    {
-        if (!CanGoPreviousPage)
-            return;
-
-        CurrentPage--;
-        RenderPage();
-    }
-
-    [RelayCommand(CanExecute = nameof(CanGoNextPage))]
-    private void NextPage()
-    {
-        if (!CanGoNextPage)
-            return;
-
-        CurrentPage++;
-        RenderPage();
     }
 
     private void NotifySummaryChanged()

@@ -22,7 +22,6 @@ public sealed partial class AllItemsViewModel
         SearchText = string.Empty;
         ActiveScope = "all";
         ActiveType = "all";
-        CurrentPage = 1;
         ApplyFilter();
     }
 
@@ -36,25 +35,6 @@ public sealed partial class AllItemsViewModel
             _ => AllItemsSortMode.UpdatedDescending
         };
 
-        CurrentPage = 1;
         ApplyFilter();
-    }
-
-    private void GoPreviousPage()
-    {
-        if (CanGoPrevious)
-            CurrentPage--;
-    }
-
-    private void GoNextPage()
-    {
-        if (CanGoNext)
-            CurrentPage++;
-    }
-
-    private void GoToPage(PageChipVm? page)
-    {
-        if (page is not null)
-            CurrentPage = page.Number;
     }
 }

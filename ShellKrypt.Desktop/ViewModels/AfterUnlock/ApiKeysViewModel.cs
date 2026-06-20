@@ -12,7 +12,6 @@ public partial class ApiKeysViewModel : ViewModelBase
 {
     internal const string DefaultFieldType = "API Key";
 
-    private const int PageSize = 5;
     private const string AllEnvironmentFilter = "Env: All";
     private const string AllProviderFilter = "Provider: All";
     private const string SortNewest = "Sort: Newest";
@@ -64,7 +63,6 @@ public partial class ApiKeysViewModel : ViewModelBase
     [ObservableProperty] private string selectedEnvironmentFilter = AllEnvironmentFilter;
     [ObservableProperty] private string selectedProviderFilter = AllProviderFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
-    [ObservableProperty] private int currentPage = 1;
     [ObservableProperty] private bool isApiKeyModalOpen;
     [ObservableProperty] private bool isAddApiKeyMode = true;
     [ObservableProperty] private bool isApiKeyDetailsEditing;
@@ -90,11 +88,7 @@ public partial class ApiKeysViewModel : ViewModelBase
         .Where(provider => !string.IsNullOrWhiteSpace(provider))
         .Distinct(StringComparer.OrdinalIgnoreCase)
         .Count();
-    public string ItemsSummary => T(_root, "ApiKeys.ItemsSummary", Rows.Count, _filtered.Count);
-    public int TotalPages => DesktopPagination.GetTotalPages(_filtered.Count, PageSize);
-    public string PageSummary => T(_root, "Common.PageSummary", CurrentPage, TotalPages);
-    public bool CanGoPreviousPage => CurrentPage > 1;
-    public bool CanGoNextPage => CurrentPage < TotalPages;
+    public string ItemsSummary => T(_root, "ApiKeys.ItemsSummary", _filtered.Count);
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public string ApiKeyModalTitle => IsAddApiKeyMode
@@ -131,15 +125,6 @@ public partial class ApiKeysViewModel : ViewModelBase
     partial void OnSelectedProviderFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
 
-    partial void OnCurrentPageChanged(int value)
-    {
-        OnPropertyChanged(nameof(PageSummary));
-        OnPropertyChanged(nameof(CanGoPreviousPage));
-        OnPropertyChanged(nameof(CanGoNextPage));
-        PreviousPageCommand.NotifyCanExecuteChanged();
-        NextPageCommand.NotifyCanExecuteChanged();
-    }
-
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
     partial void OnIsAddApiKeyModeChanged(bool value) => NotifyModalStateChanged();
     partial void OnIsApiKeyDetailsEditingChanged(bool value) => NotifyModalStateChanged();
@@ -168,7 +153,6 @@ public partial class ApiKeysViewModel : ViewModelBase
 
         NotifyLocalized(
             nameof(ItemsSummary),
-            nameof(PageSummary),
             nameof(ApiKeyModalTitle),
             nameof(ApiKeyModalSubtitle),
             nameof(ModalFooterText),

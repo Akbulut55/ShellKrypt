@@ -63,8 +63,9 @@
               MinWidth="560"
               ColumnSpacing="12">
           <Border Classes="table-shell"
-                  ClipToBounds="True">
-            <Grid RowDefinitions="Auto,*,Auto">
+                  ClipToBounds="True"
+                  VerticalAlignment="Top">
+            <Grid RowDefinitions="Auto,576,Auto">
               <Border Classes="table-header-row">
                 <Grid ColumnDefinitions="0.82*,0.66*,1.22*,1.04*,0.58*"
                       ColumnSpacing="8">
@@ -150,26 +151,9 @@
               <Border Grid.Row="2"
                       Classes="table-footer-row"
                       IsVisible="{Binding HasFilteredItems}">
-                <Grid ColumnDefinitions="*,Auto,Auto,Auto"
-                      ColumnSpacing="10">
-                  <TextBlock Text="{Binding ItemsSummary}"
-                             Classes="table-footer-text"
-                             VerticalAlignment="Center"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Common.Previous}"
-                          Classes="table-page-button"
-                          Command="{Binding PreviousPageCommand}"
-                          IsEnabled="{Binding CanGoPreviousPage}"/>
-                  <TextBlock Grid.Column="2"
-                             Text="{Binding PageSummary}"
-                             Classes="table-footer-text"
-                             VerticalAlignment="Center"/>
-                  <Button Grid.Column="3"
-                          Content="{DynamicResource Loc.Common.Next}"
-                          Classes="table-page-button"
-                          Command="{Binding NextPageCommand}"
-                          IsEnabled="{Binding CanGoNextPage}"/>
-                </Grid>
+                <TextBlock Text="{Binding ItemsSummary}"
+                           Classes="table-footer-text"
+                           VerticalAlignment="Center"/>
               </Border>
             </Grid>
           </Border>

@@ -1,5 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="using:ShellKrypt.UI.Shared.Controls"
              xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
              xmlns:vaulting="using:ShellKrypt.Core.Vaulting"
              x:Class="ShellKrypt.Desktop.Views.SettingsView"
@@ -600,6 +601,59 @@
 
       </StackPanel>
     </ScrollViewer>
+
+    <shared:ModalShell IsOpen="{Binding IsDestroyVaultModalOpen}"
+                       Title="{Binding DestroyVaultModalTitle}"
+                       Subtitle="{Binding DestroyVaultModalSubtitle}"
+                       Error="{Binding DestroyVaultError}"
+                       FooterText="{Binding DestroyVaultFooterText}"
+                       DialogWidth="640"
+                       CloseCommand="{Binding CancelDestroyVaultCommand}">
+      <shared:ModalShell.Body>
+        <Grid RowDefinitions="Auto,Auto">
+          <Border Background="{StaticResource SurfaceBrush}"
+                  CornerRadius="10"
+                  Padding="16"
+                  IsVisible="{Binding IsDestroyVaultWarningStep}">
+            <TextBlock Text="{Binding DestroyVaultWarningText}"
+                       Classes="page-subtitle"
+                       FontSize="13"
+                       LineHeight="19"
+                       TextWrapping="Wrap"/>
+          </Border>
+
+          <StackPanel Grid.Row="1"
+                      Spacing="8"
+                      IsVisible="{Binding IsDestroyVaultPasswordStep}">
+            <TextBlock Text="{Binding DestroyVaultPasswordLabel}"
+                       Classes="modal-shell-label"/>
+            <TextBox Text="{Binding DestroyVaultPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Classes="modal-shell-input"
+                     PasswordChar="*"
+                     PlaceholderText="{Binding DestroyVaultPasswordPlaceholder}"/>
+          </StackPanel>
+        </Grid>
+      </shared:ModalShell.Body>
+      <shared:ModalShell.FooterActions>
+        <Grid ColumnDefinitions="Auto,Auto"
+              ColumnSpacing="12">
+          <Button Grid.Column="0"
+                  Content="{DynamicResource Loc.Common.Cancel}"
+                  Classes="modal-shell-secondary-button"
+                  Command="{Binding CancelDestroyVaultCommand}"/>
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.Settings.DestroyVault.Continue}"
+                  Classes="modal-shell-danger-button"
+                  IsVisible="{Binding IsDestroyVaultWarningStep}"
+                  Command="{Binding ContinueDestroyVaultCommand}"/>
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.Settings.DestroyVault.Delete}"
+                  Classes="modal-shell-danger-button"
+                  IsVisible="{Binding IsDestroyVaultPasswordStep}"
+                  Command="{Binding ConfirmDestroyVaultCommand}"/>
+        </Grid>
+      </shared:ModalShell.FooterActions>
+    </shared:ModalShell>
   </Grid>
 
   <UserControl.Styles>

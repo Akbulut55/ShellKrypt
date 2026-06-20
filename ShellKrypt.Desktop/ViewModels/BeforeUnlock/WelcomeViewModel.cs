@@ -77,7 +77,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public bool IsDeleteWarningStep => IsDeleteOverlayOpen && !IsDeletePasswordStep;
     public string DeleteWarningTitle => T(_root, "Welcome.Delete.Title", DeleteTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
     public string DeletePasswordTitle => T(_root, "Welcome.Delete.PasswordTitle");
-    public string DeletePasswordDetail => DeleteTarget?.VaultPath ?? "";
+    public string DeletePasswordDetail => DeleteTarget is null ? "" : $"Vault: {DeleteTarget.DisplayLabel}";
     public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? T(_root, "Common.Hide") : T(_root, "Common.Show");
     public string RemoveOverlayTitle => T(_root, "Welcome.Remove.Title", RemoveTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
     public string RemoveOverlayDetail => T(_root, "Welcome.Remove.Detail");

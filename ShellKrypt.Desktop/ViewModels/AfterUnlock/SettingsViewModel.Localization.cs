@@ -40,5 +40,6 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(SecurityStatusText));
         OnPropertyChanged(nameof(ActiveVaultPathDisplay));
         OnPropertyChanged(nameof(VaultStorageDisplay));
+        RefreshDestroyVaultModalText();
     }
 }

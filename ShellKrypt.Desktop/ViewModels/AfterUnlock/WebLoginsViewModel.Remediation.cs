@@ -31,8 +31,6 @@ public partial class WebLoginsViewModel
         SelectedEmailFilter = "";
         SelectedEmailFilterChoice = AllEmailFilter;
 
-        var index = _all.FindIndex(entry => string.Equals(entry.Id, itemId, StringComparison.Ordinal));
-        CurrentPage = index < 0 ? 1 : (index / PageSize) + 1;
         RenderPage();
 
         _selectedDetailsRow = row;
