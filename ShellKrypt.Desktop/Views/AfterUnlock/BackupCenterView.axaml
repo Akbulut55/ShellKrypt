@@ -114,7 +114,7 @@
         </Border>
 
         <Grid ColumnDefinitions="*,*"
-              RowDefinitions="Auto,Auto,Auto"
+              RowDefinitions="Auto,Auto,Auto,Auto"
               ColumnSpacing="12"
               RowSpacing="14">
             <Border Grid.Row="0"
@@ -296,6 +296,15 @@
 
             <Border Grid.Row="1"
                     Grid.Column="0"
+                    Grid.ColumnSpan="2"
+                    Classes="backup-status-message"
+                    IsVisible="{Binding HasTransferStatus}">
+              <TextBlock Text="{Binding TransferStatus}"
+                         Classes="backup-status-message-text"/>
+            </Border>
+
+            <Border Grid.Row="2"
+                    Grid.Column="0"
                     Classes="backup-block">
               <StackPanel Spacing="16">
                 <TextBlock Text="{DynamicResource Loc.BackupCenter.Csv.Title}"
@@ -341,7 +350,7 @@
               </StackPanel>
             </Border>
 
-            <Border Grid.Row="1"
+            <Border Grid.Row="2"
                     Grid.Column="1"
                     Classes="backup-block">
               <StackPanel Spacing="12">
@@ -405,17 +414,7 @@
               </StackPanel>
             </Border>
 
-            <Border Grid.Row="0"
-                    Grid.RowSpan="2"
-                    Grid.Column="0"
-                    Grid.ColumnSpan="2"
-                    Classes="backup-status-overlay"
-                    IsVisible="{Binding HasTransferStatus}">
-              <TextBlock Text="{Binding TransferStatus}"
-                         Classes="backup-status-overlay-text"/>
-            </Border>
-
-            <Border Grid.Row="2"
+            <Border Grid.Row="3"
                     Grid.Column="0"
                     Grid.ColumnSpan="2"
                     Classes="backup-block">
@@ -544,23 +543,24 @@
       <Setter Property="FontSize" Value="12"/>
     </Style>
 
-    <Style Selector="Border.backup-status-overlay">
-      <Setter Property="HorizontalAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
+    <Style Selector="Border.backup-status-message">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="18,12"/>
-      <Setter Property="MaxWidth" Value="520"/>
+      <Setter Property="Padding" Value="16,12"/>
+      <Setter Property="MinHeight" Value="52"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
     </Style>
 
-    <Style Selector="TextBlock.backup-status-overlay-text">
+    <Style Selector="TextBlock.backup-status-message-text">
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="TextAlignment" Value="Center"/>
       <Setter Property="TextWrapping" Value="Wrap"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Button.backup-primary-button">
