@@ -1,4 +1,5 @@
 using ShellKrypt.Core.Items;
+using ShellKrypt.Application.QuickFill;
 
 namespace ShellKrypt.Infrastructure.Items;
 
@@ -21,21 +22,26 @@ public sealed partial class QuickFillEntryService
             Target: target,
             Fields: fields,
             PressEnterAfterFill: input.PressEnterAfterFill,
-            Notes: NormalizeText(input.Notes));
+            Notes: NormalizeText(input.Notes),
+            SequenceSteps: NormalizeSequenceSteps(input.SequenceSteps, fields).ToArray());
     }
 
     private static QuickFillEntry ToEntry(VaultItemHeader header, QuickFillEntryPayload payload)
-        => new(
+    {
+        var fields = NormalizeFields(payload.Fields).ToArray();
+        return new QuickFillEntry(
             Id: header.Id,
             Name: payload.Name,
             Category: string.IsNullOrWhiteSpace(payload.Category) ? "Other" : payload.Category,
             Enabled: payload.Enabled,
             Target: NormalizeTarget(payload.Target),
-            Fields: NormalizeFields(payload.Fields).ToArray(),
+            Fields: fields,
             PressEnterAfterFill: payload.PressEnterAfterFill,
             Notes: payload.Notes,
             CreatedAtUtc: header.CreatedAtUtc,
-            UpdatedAtUtc: header.UpdatedAtUtc);
+            UpdatedAtUtc: header.UpdatedAtUtc,
+            SequenceSteps: NormalizeSequenceSteps(payload.SequenceSteps, fields).ToArray());
+    }
 
     private static QuickFillTargetRule NormalizeTarget(QuickFillTargetRule? target)
         => target is null
@@ -71,6 +77,11 @@ public sealed partial class QuickFillEntryService
             order++;
         }
     }
+
+    private static IEnumerable<QuickFillSequenceStep> NormalizeSequenceSteps(
+        IEnumerable<QuickFillSequenceStep>? steps,
+        IReadOnlyList<QuickFillField> fields)
+        => QuickFillSequencePreviewer.NormalizeSequenceSteps(fields, steps?.ToArray());
 
     private static bool IsSensitiveKind(QuickFillFieldKind kind)
         => kind is QuickFillFieldKind.Password or QuickFillFieldKind.Secret or QuickFillFieldKind.Otp;

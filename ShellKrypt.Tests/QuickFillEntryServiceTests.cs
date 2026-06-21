@@ -45,6 +45,39 @@ public sealed class QuickFillEntryServiceTests
     }
 
     [Fact]
+    public async Task Entries_PreserveExplicitSequenceSteps()
+    {
+        using var workspace = new TempWorkspace();
+        var fixture = await CreateUnlockedFixtureAsync(workspace.VaultPath);
+
+        var entry = await fixture.QuickFill.AddAsync(workspace.VaultPath, fixture.VaultKey, new QuickFillEntryInput(
+            Name: "VPN Login",
+            Category: "Work",
+            Enabled: true,
+            Target: new QuickFillTargetRule("vpn.exe", ""),
+            Fields:
+            [
+                new QuickFillField("password", "Password", QuickFillFieldKind.Password, true, 0, QuickFillFieldSourceKind.Owned, KnownOwnedSecret, "", "", ""),
+                new QuickFillField("tenant", "Tenant", QuickFillFieldKind.Text, false, 1, QuickFillFieldSourceKind.Owned, "corp", "", "", "")
+            ],
+            PressEnterAfterFill: true,
+            Notes: "",
+            SequenceSteps:
+            [
+                new QuickFillSequenceStep("step-1", QuickFillSequenceStepKind.Field, 0, "tenant", QuickFillKeystrokeKind.Tab, "", 0),
+                new QuickFillSequenceStep("step-2", QuickFillSequenceStepKind.Keystroke, 1, "", QuickFillKeystrokeKind.Tab, "", 0),
+                new QuickFillSequenceStep("step-3", QuickFillSequenceStepKind.Field, 2, "password", QuickFillKeystrokeKind.Tab, "", 0),
+                new QuickFillSequenceStep("step-4", QuickFillSequenceStepKind.Delay, 3, "", QuickFillKeystrokeKind.Tab, "", 750)
+            ]));
+
+        Assert.Equal(
+            [QuickFillSequenceStepKind.Field, QuickFillSequenceStepKind.Keystroke, QuickFillSequenceStepKind.Field, QuickFillSequenceStepKind.Delay],
+            (entry.SequenceSteps ?? []).Select(step => step.Kind));
+        Assert.Equal(["Tenant", "[Tab]", "Password (masked)", "Delay 750ms"], QuickFillSequencePreviewer.BuildPreview(entry));
+        Assert.DoesNotContain(KnownOwnedSecret, string.Join(" ", QuickFillSequencePreviewer.BuildPreview(entry)), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void MatchingAndPreview_UseSafeTargetAndMaskedSelectedFields()
     {
         var entry = new QuickFillEntry(
@@ -72,7 +105,7 @@ public sealed class QuickFillEntryServiceTests
         Assert.True(QuickFillMatcher.IsProcessMatch(entry, new QuickFillTargetContext("chrome.exe", "Other tab")));
 
         var preview = QuickFillSequencePreviewer.BuildPreview(entry);
-        Assert.Equal(["Username", "Password (masked)"], preview);
+        Assert.Equal(["Username", "[Tab]", "Password (masked)"], preview);
         Assert.DoesNotContain(KnownOwnedSecret, string.Join(" ", preview), StringComparison.Ordinal);
     }
 

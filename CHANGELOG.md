@@ -11,6 +11,7 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 - Added bundled Inter and JetBrains Mono font resources, switched UI typography to the bundled Inter font, and moved code/secret displays from Consolas to JetBrains Mono.
 - Removed obsolete PNG icon assets that were replaced by shared vector icon resources.
 - Reworked the Quick Fill manager tab into a dashboard-style list/detail layout with summary cards, entry search/filter controls, and compact field-source tabs.
+- Redesigned Quick Fill entries around explicit fill-sequence steps and a shared editor used by both the manager page and popup add/edit flow.
 - Reworked vault deletion from Settings to use the shared dimmed in-page modal shell for the warning and master-password confirmation steps.
 - Replaced Authenticator secret reveal text buttons with eye icons and tightened secret-key/algorithm detail text rendering.
 - Changed Activity Logs from paged navigation to an internally scrollable event table.

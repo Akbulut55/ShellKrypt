@@ -33,6 +33,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     [ObservableProperty] private bool isLocked;
     [ObservableProperty] private bool isEditingEntry;
     [ObservableProperty] private string masterPassword = "";
+    [ObservableProperty] private bool showPassword;
     [ObservableProperty] private VaultChoiceVm? selectedVault;
     [ObservableProperty] private QuickFillPopupEntryVm? selectedEntry;
     [ObservableProperty] private string status = "";
@@ -53,6 +54,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyFieldOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedAuthenticatorOption;
+    [ObservableProperty] private QuickFillSequenceStepEditorVm? selectedSequenceStep;
 
     public QuickFillPopupViewModel(
         MainWindowViewModel root,
@@ -78,6 +80,10 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             FieldKindOptions.Add(option);
         foreach (var option in CreateWebLoginFieldOptions())
             WebLoginFieldOptions.Add(option);
+        foreach (var option in CreateSequenceStepKindOptions())
+            SequenceStepKindOptions.Add(option);
+        foreach (var option in CreateKeystrokeOptions())
+            KeystrokeOptions.Add(option);
         RefreshOptionLocalization();
         SelectedOwnedFieldKind = FieldKindOptions.FirstOrDefault();
         SelectedWebLoginFieldOption = WebLoginFieldOptions.FirstOrDefault();
@@ -94,13 +100,24 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyFieldOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> AuthenticatorOptions { get; } = new();
+    public ObservableCollection<QuickFillSequenceStepEditorVm> SequenceSteps { get; } = new();
+    public ObservableCollection<QuickFillSequenceStepKindOption> SequenceStepKindOptions { get; } = new();
+    public ObservableCollection<QuickFillKeystrokeOption> KeystrokeOptions { get; } = new();
+    public ObservableCollection<QuickFillSequenceFieldOption> SequenceFieldOptions { get; } = new();
 
     public bool IsUnlocked => !IsLocked;
     public bool IsBrowsingEntries => IsUnlocked && !IsEditingEntry;
+    public bool ShowHeaderStatus => HasStatus && !IsLocked;
     public bool HasMatches => IsBrowsingEntries && Matches.Count > 0;
     public bool HasNoMatches => IsBrowsingEntries && Matches.Count == 0;
     public bool HasFields => Fields.Count > 0;
+    public bool HasSequenceSteps => SequenceSteps.Count > 0;
     public bool HasStatus => !string.IsNullOrWhiteSpace(Status);
+    public bool HasTargetWindowTitleContains => !string.IsNullOrWhiteSpace(TargetWindowTitleContains);
+    public string TargetProcessDisplay => string.IsNullOrWhiteSpace(TargetProcessName)
+        ? T("QuickFill.Editor.TargetNotSet")
+        : TargetProcessName;
+    public string SequenceStepCountText => T("QuickFill.Sequence.ConfiguredCount", SequenceSteps.Count);
     public string MatchScopeLabel => ShowAllForApp
         ? T("QuickFill.Popup.Scope.Window")
         : T("QuickFill.Popup.Scope.App", SafeTargetName(_target));
@@ -109,6 +126,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         : string.IsNullOrWhiteSpace(_target.WindowTitle)
             ? _target.ProcessName
             : $"{_target.ProcessName} - {SafeWindowTitle(_target.WindowTitle)}";
+    public string PasswordVisibilityLabel => ShowPassword ? T("Common.Hide") : T("Common.Show");
 
     partial void OnIsLockedChanged(bool value)
     {
@@ -116,6 +134,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsBrowsingEntries));
         OnPropertyChanged(nameof(HasMatches));
         OnPropertyChanged(nameof(HasNoMatches));
+        OnPropertyChanged(nameof(ShowHeaderStatus));
     }
 
     partial void OnIsEditingEntryChanged(bool value)
@@ -125,7 +144,14 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasNoMatches));
     }
 
-    partial void OnStatusChanged(string value) => OnPropertyChanged(nameof(HasStatus));
+    partial void OnStatusChanged(string value)
+    {
+        OnPropertyChanged(nameof(HasStatus));
+        OnPropertyChanged(nameof(ShowHeaderStatus));
+    }
+    partial void OnShowPasswordChanged(bool value) => OnPropertyChanged(nameof(PasswordVisibilityLabel));
+    partial void OnTargetProcessNameChanged(string value) => OnPropertyChanged(nameof(TargetProcessDisplay));
+    partial void OnTargetWindowTitleContainsChanged(string value) => OnPropertyChanged(nameof(HasTargetWindowTitleContains));
     partial void OnShowAllForAppChanged(bool value)
     {
         OnPropertyChanged(nameof(MatchScopeLabel));
@@ -166,6 +192,12 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private void ToggleMatchScope()
     {
         ShowAllForApp = !ShowAllForApp;
+    }
+
+    [RelayCommand]
+    private void TogglePasswordVisibility()
+    {
+        ShowPassword = !ShowPassword;
     }
 
     [RelayCommand]
@@ -259,9 +291,12 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         PressEnterAfterFill = false;
         Notes = "";
         Fields.Clear();
+        SequenceSteps.Clear();
+        RefreshSequenceFieldOptions();
         ResetAddFieldInputs();
         Status = "";
         OnPropertyChanged(nameof(HasFields));
+        OnPropertyChanged(nameof(HasSequenceSteps));
     }
 
     [RelayCommand]
@@ -288,7 +323,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     {
         var kind = SelectedOwnedFieldKind?.Kind ?? QuickFillFieldKind.Text;
         var label = string.IsNullOrWhiteSpace(OwnedFieldLabel) ? DefaultFieldLabel(kind) : OwnedFieldLabel.Trim();
-        Fields.Add(QuickFillFieldEditorVm.FromField(new QuickFillField(
+        AppendFieldAndStep(QuickFillFieldEditorVm.FromField(new QuickFillField(
             Guid.NewGuid().ToString("N"),
             label,
             kind,
@@ -301,7 +336,6 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             "")));
         OwnedFieldLabel = "";
         OwnedFieldValue = "";
-        OnPropertyChanged(nameof(HasFields));
     }
 
     [RelayCommand]
@@ -310,7 +344,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         if (SelectedWebLoginOption is null || SelectedWebLoginFieldOption is null)
             return;
 
-        Fields.Add(QuickFillFieldEditorVm.FromField(new QuickFillField(
+        AppendFieldAndStep(QuickFillFieldEditorVm.FromField(new QuickFillField(
             Guid.NewGuid().ToString("N"),
             SelectedWebLoginFieldOption.Label,
             SelectedWebLoginFieldOption.Kind,
@@ -321,7 +355,6 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             SelectedWebLoginOption.Id,
             "",
             SelectedWebLoginFieldOption.FieldName)));
-        OnPropertyChanged(nameof(HasFields));
     }
 
     [RelayCommand]
@@ -330,7 +363,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         if (SelectedApiKeyOption is null || SelectedApiKeyFieldOption is null)
             return;
 
-        Fields.Add(QuickFillFieldEditorVm.FromField(new QuickFillField(
+        AppendFieldAndStep(QuickFillFieldEditorVm.FromField(new QuickFillField(
             Guid.NewGuid().ToString("N"),
             SelectedApiKeyFieldOption.Label,
             QuickFillFieldKind.Secret,
@@ -341,7 +374,6 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             SelectedApiKeyOption.Id,
             SelectedApiKeyFieldOption.Id,
             "")));
-        OnPropertyChanged(nameof(HasFields));
     }
 
     [RelayCommand]
@@ -350,7 +382,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         if (SelectedAuthenticatorOption is null)
             return;
 
-        Fields.Add(QuickFillFieldEditorVm.FromField(new QuickFillField(
+        AppendFieldAndStep(QuickFillFieldEditorVm.FromField(new QuickFillField(
             Guid.NewGuid().ToString("N"),
             T("QuickFill.Field.Otp"),
             QuickFillFieldKind.Otp,
@@ -361,7 +393,6 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             SelectedAuthenticatorOption.Id,
             "",
             "totp")));
-        OnPropertyChanged(nameof(HasFields));
     }
 
     [RelayCommand]
@@ -371,8 +402,92 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             return;
 
         Fields.Remove(field);
+        foreach (var step in SequenceSteps.Where(step => string.Equals(step.FieldId, field.Id, StringComparison.OrdinalIgnoreCase)).ToArray())
+            SequenceSteps.Remove(step);
         ResequenceFields();
+        ResequenceSequenceSteps();
+        RefreshSequenceFieldOptions();
         OnPropertyChanged(nameof(HasFields));
+        OnPropertyChanged(nameof(HasSequenceSteps));
+    }
+
+    [RelayCommand]
+    private void AddSequenceStep()
+    {
+        if (SequenceFieldOptions.Count > 0)
+        {
+            var field = SequenceFieldOptions.First();
+            AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Field, SequenceSteps.Count, field.Id, QuickFillKeystrokeKind.Tab, "", 0));
+            return;
+        }
+
+        AddTabSequenceStep();
+    }
+
+    [RelayCommand]
+    private void AddFieldSequenceStep()
+    {
+        if (SequenceFieldOptions.Count == 0)
+            return;
+
+        var selected = SelectedSequenceStep?.SelectedFieldOption ?? SequenceFieldOptions.First();
+        AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Field, SequenceSteps.Count, selected.Id, QuickFillKeystrokeKind.Tab, "", 0));
+    }
+
+    [RelayCommand]
+    private void AddTabSequenceStep()
+        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Keystroke, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 0));
+
+    [RelayCommand]
+    private void AddEnterSequenceStep()
+        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Keystroke, SequenceSteps.Count, "", QuickFillKeystrokeKind.Enter, "", 0));
+
+    [RelayCommand]
+    private void AddTextSequenceStep()
+        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.LiteralText, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 0));
+
+    [RelayCommand]
+    private void AddDelaySequenceStep()
+        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Delay, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 250));
+
+    [RelayCommand]
+    private void MoveSequenceStepUp(QuickFillSequenceStepEditorVm? step)
+    {
+        if (step is null)
+            return;
+
+        var index = SequenceSteps.IndexOf(step);
+        if (index <= 0)
+            return;
+
+        SequenceSteps.Move(index, index - 1);
+        ResequenceSequenceSteps();
+    }
+
+    [RelayCommand]
+    private void MoveSequenceStepDown(QuickFillSequenceStepEditorVm? step)
+    {
+        if (step is null)
+            return;
+
+        var index = SequenceSteps.IndexOf(step);
+        if (index < 0 || index >= SequenceSteps.Count - 1)
+            return;
+
+        SequenceSteps.Move(index, index + 1);
+        ResequenceSequenceSteps();
+    }
+
+    [RelayCommand]
+    private void RemoveSequenceStep(QuickFillSequenceStepEditorVm? step)
+    {
+        if (step is null)
+            return;
+
+        SequenceSteps.Remove(step);
+        ResequenceSequenceSteps();
+        OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(SequenceStepCountText));
     }
 
     [RelayCommand]
@@ -409,6 +524,31 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         {
             Status = ex.Message;
         }
+    }
+
+    [RelayCommand]
+    private async Task DeleteEntryAsync()
+    {
+        if (_editingEntry is null || string.IsNullOrWhiteSpace(_root.VaultPath))
+            return;
+
+        var entryName = _editingEntry.Entry.Name;
+        var confirmed = await _root.ConfirmAsync(
+            T("QuickFill.Delete.Title"),
+            T("QuickFill.Delete.Subtitle", entryName),
+            T("Common.Delete"),
+            destructive: true);
+
+        if (!confirmed)
+            return;
+
+        await _entryService.DeleteAsync(_root.VaultPath, _editingEntry.Entry.Id);
+        _root.LogActivity("quick-fill", "Quick Fill entry deleted", $"Deleted Quick Fill entry {entryName}.", "warning", _root.VaultPath, entryName);
+
+        IsEditingEntry = false;
+        _editingEntry = null;
+        await LoadMatchesAsync();
+        Status = T("QuickFill.Status.Deleted", entryName);
     }
 
     [RelayCommand]
@@ -457,25 +597,37 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
 
     private async Task<IReadOnlyList<AutoTypeStep>> BuildAutoTypeStepsAsync(QuickFillEntry entry)
     {
-        var values = new List<string>();
-        var fields = QuickFillSequencePreviewer.ChooseFillFields(entry);
-        foreach (var field in fields)
-        {
-            var value = await ResolveFieldAsync(field);
-            if (!string.IsNullOrEmpty(value))
-                values.Add(value);
-        }
-
-        if (values.Count == 0)
-            return Array.Empty<AutoTypeStep>();
-
         var steps = new List<AutoTypeStep>();
-        for (var i = 0; i < values.Count; i++)
+        foreach (var sequenceStep in QuickFillSequencePreviewer.NormalizeSequenceSteps(entry).OrderBy(step => step.SortOrder))
         {
-            if (i > 0)
-                steps.Add(new AutoTypeStep(AutoTypeStepKind.Tab));
-            steps.Add(new AutoTypeStep(AutoTypeStepKind.Text, values[i]));
+            switch (sequenceStep.Kind)
+            {
+                case QuickFillSequenceStepKind.Field:
+                    var field = entry.Fields.FirstOrDefault(field => string.Equals(field.Id, sequenceStep.FieldId, StringComparison.OrdinalIgnoreCase));
+                    if (field is not null)
+                    {
+                        var value = await ResolveFieldAsync(field);
+                        if (!string.IsNullOrEmpty(value))
+                            steps.Add(new AutoTypeStep(AutoTypeStepKind.Text, value));
+                    }
+                    break;
+                case QuickFillSequenceStepKind.Keystroke:
+                    steps.Add(new AutoTypeStep(sequenceStep.Keystroke == QuickFillKeystrokeKind.Enter
+                        ? AutoTypeStepKind.Enter
+                        : AutoTypeStepKind.Tab));
+                    break;
+                case QuickFillSequenceStepKind.LiteralText:
+                    if (!string.IsNullOrEmpty(sequenceStep.Text))
+                        steps.Add(new AutoTypeStep(AutoTypeStepKind.Text, sequenceStep.Text));
+                    break;
+                case QuickFillSequenceStepKind.Delay:
+                    steps.Add(new AutoTypeStep(AutoTypeStepKind.Delay, DelayMilliseconds: Math.Clamp(sequenceStep.DelayMilliseconds, 0, 10_000)));
+                    break;
+            }
         }
+
+        if (steps.Count == 0)
+            return Array.Empty<AutoTypeStep>();
 
         if (entry.PressEnterAfterFill)
             steps.Add(new AutoTypeStep(AutoTypeStepKind.Enter));
@@ -534,6 +686,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private QuickFillEntryInput BuildInput()
     {
         ResequenceFields();
+        ResequenceSequenceSteps();
         return new QuickFillEntryInput(
             EntryName,
             EntryCategory,
@@ -541,7 +694,8 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             new QuickFillTargetRule(TargetProcessName, TargetWindowTitleContains),
             Fields.Select(field => field.ToField()).ToArray(),
             PressEnterAfterFill,
-            Notes);
+            Notes,
+            SequenceSteps.Select(step => step.ToStep()).ToArray());
     }
 
     private void PopulateEditor(QuickFillEntry entry)
@@ -556,8 +710,13 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         Fields.Clear();
         foreach (var field in entry.Fields.OrderBy(field => field.SortOrder))
             Fields.Add(QuickFillFieldEditorVm.FromField(field));
+        RefreshSequenceFieldOptions();
+        SequenceSteps.Clear();
+        foreach (var step in QuickFillSequencePreviewer.NormalizeSequenceSteps(entry))
+            AddSequenceStep(step, notify: false);
         ResetAddFieldInputs();
         OnPropertyChanged(nameof(HasFields));
+        OnPropertyChanged(nameof(HasSequenceSteps));
     }
 
     private void RefreshLinkedOptions()
@@ -606,12 +765,76 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         SelectedAuthenticatorOption = AuthenticatorOptions.FirstOrDefault();
     }
 
+    private void AppendFieldAndStep(QuickFillFieldEditorVm field)
+    {
+        Fields.Add(field);
+        RefreshSequenceFieldOptions();
+        EnsureSequenceStepForField(field.Id);
+        OnPropertyChanged(nameof(HasFields));
+    }
+
+    private void EnsureSequenceStepForField(string fieldId)
+    {
+        if (SequenceSteps.Any(step => step.Kind == QuickFillSequenceStepKind.Field && string.Equals(step.FieldId, fieldId, StringComparison.OrdinalIgnoreCase)))
+            return;
+
+        AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Field, SequenceSteps.Count, fieldId, QuickFillKeystrokeKind.Tab, "", 0));
+    }
+
+    private void AddSequenceStep(QuickFillSequenceStep step, bool notify = true)
+    {
+        SequenceSteps.Add(QuickFillSequenceStepEditorVm.FromStep(step, SequenceStepKindOptions, KeystrokeOptions, SequenceFieldOptions));
+        ResequenceSequenceSteps();
+        if (notify)
+            OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(SequenceStepCountText));
+    }
+
+    private void RefreshSequenceFieldOptions()
+    {
+        SequenceFieldOptions.Clear();
+        foreach (var field in Fields.OrderBy(field => field.SortOrder))
+            SequenceFieldOptions.Add(new QuickFillSequenceFieldOption(field.Id, SequenceFieldLabel(field), SequenceSourceKey(field), SequenceSourceLabel(field), field.IsSensitive));
+
+        foreach (var step in SequenceSteps)
+            step.ReplaceFieldOptions(SequenceFieldOptions);
+    }
+
     private void ResequenceFields()
     {
         var order = 0;
         foreach (var field in Fields)
             field.SortOrder = order++;
     }
+
+    private void ResequenceSequenceSteps()
+    {
+        var order = 0;
+        foreach (var step in SequenceSteps)
+            step.SortOrder = order++;
+        OnPropertyChanged(nameof(SequenceStepCountText));
+    }
+
+    private string SequenceSourceKey(QuickFillFieldEditorVm field)
+        => field.SourceKind switch
+        {
+            QuickFillFieldSourceKind.WebLogin => $"web:{field.LinkedItemId}",
+            QuickFillFieldSourceKind.ApiKeyField => $"api:{field.LinkedItemId}",
+            QuickFillFieldSourceKind.Authenticator => $"auth:{field.LinkedItemId}",
+            _ => "manual"
+        };
+
+    private string SequenceSourceLabel(QuickFillFieldEditorVm field)
+        => field.SourceKind switch
+        {
+            QuickFillFieldSourceKind.WebLogin => $"{T("QuickFill.Source.WebLogin")} - {WebLoginOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
+            QuickFillFieldSourceKind.ApiKeyField => $"{T("QuickFill.Source.ApiKey")} - {ApiKeyOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
+            QuickFillFieldSourceKind.Authenticator => $"{T("QuickFill.Source.Authenticator")} - {AuthenticatorOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
+            _ => T("QuickFill.Source.Manual")
+        };
+
+    private static string SequenceFieldLabel(QuickFillFieldEditorVm field)
+        => field.IsSensitive ? $"*** {field.Label}" : field.Label;
 
     private string DefaultFieldLabel(QuickFillFieldKind kind)
         => kind switch
@@ -631,6 +854,10 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         foreach (var option in FieldKindOptions)
             option.RefreshLocalization(_root);
         foreach (var option in WebLoginFieldOptions)
+            option.RefreshLocalization(_root);
+        foreach (var option in SequenceStepKindOptions)
+            option.RefreshLocalization(_root);
+        foreach (var option in KeystrokeOptions)
             option.RefreshLocalization(_root);
     }
 
@@ -660,6 +887,20 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         new("email", QuickFillFieldKind.Username, false, "QuickFill.Field.Email"),
         new("password", QuickFillFieldKind.Password, true, "QuickFill.Field.Password"),
         new("url", QuickFillFieldKind.Text, false, "QuickFill.Field.Url")
+    ];
+
+    private static QuickFillSequenceStepKindOption[] CreateSequenceStepKindOptions() =>
+    [
+        new(QuickFillSequenceStepKind.Field, "QuickFill.Sequence.Kind.Field"),
+        new(QuickFillSequenceStepKind.Keystroke, "QuickFill.Sequence.Kind.Keystroke"),
+        new(QuickFillSequenceStepKind.LiteralText, "QuickFill.Sequence.Kind.LiteralText"),
+        new(QuickFillSequenceStepKind.Delay, "QuickFill.Sequence.Kind.Delay")
+    ];
+
+    private static QuickFillKeystrokeOption[] CreateKeystrokeOptions() =>
+    [
+        new(QuickFillKeystrokeKind.Tab, "QuickFill.Sequence.Keystroke.Tab"),
+        new(QuickFillKeystrokeKind.Enter, "QuickFill.Sequence.Keystroke.Enter")
     ];
 }
 

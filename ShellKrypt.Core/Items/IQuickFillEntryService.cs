@@ -17,6 +17,20 @@ public enum QuickFillFieldSourceKind
     Authenticator = 4
 }
 
+public enum QuickFillSequenceStepKind
+{
+    Field = 1,
+    Keystroke = 2,
+    LiteralText = 3,
+    Delay = 4
+}
+
+public enum QuickFillKeystrokeKind
+{
+    Tab = 1,
+    Enter = 2
+}
+
 public sealed record QuickFillTargetRule(
     string ProcessName,
     string WindowTitleContains);
@@ -33,6 +47,15 @@ public sealed record QuickFillField(
     string LinkedFieldId,
     string LinkedFieldName);
 
+public sealed record QuickFillSequenceStep(
+    string Id,
+    QuickFillSequenceStepKind Kind,
+    int SortOrder,
+    string FieldId,
+    QuickFillKeystrokeKind Keystroke,
+    string Text,
+    int DelayMilliseconds);
+
 public sealed record QuickFillEntryPayload(
     string Name,
     string Category,
@@ -40,7 +63,8 @@ public sealed record QuickFillEntryPayload(
     QuickFillTargetRule Target,
     IReadOnlyList<QuickFillField> Fields,
     bool PressEnterAfterFill,
-    string Notes);
+    string Notes,
+    IReadOnlyList<QuickFillSequenceStep>? SequenceSteps = null);
 
 public sealed record QuickFillEntryInput(
     string Name,
@@ -49,7 +73,8 @@ public sealed record QuickFillEntryInput(
     QuickFillTargetRule Target,
     IReadOnlyList<QuickFillField> Fields,
     bool PressEnterAfterFill,
-    string Notes);
+    string Notes,
+    IReadOnlyList<QuickFillSequenceStep>? SequenceSteps = null);
 
 public sealed record QuickFillEntry(
     string Id,
@@ -61,7 +86,8 @@ public sealed record QuickFillEntry(
     bool PressEnterAfterFill,
     string Notes,
     string CreatedAtUtc,
-    string UpdatedAtUtc);
+    string UpdatedAtUtc,
+    IReadOnlyList<QuickFillSequenceStep>? SequenceSteps = null);
 
 public sealed record QuickFillTargetContext(
     string ProcessName,

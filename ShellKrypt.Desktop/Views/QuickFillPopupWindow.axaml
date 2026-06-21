@@ -1,6 +1,7 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
+        xmlns:views="using:ShellKrypt.Desktop.Views"
         x:Class="ShellKrypt.Desktop.Views.QuickFillPopupWindow"
         x:Name="Root"
         x:CompileBindings="False"
@@ -73,61 +74,129 @@
             CornerRadius="12">
       <Grid RowDefinitions="Auto,*"
             RowSpacing="14">
-        <Grid ColumnDefinitions="*,Auto,Auto"
-              ColumnSpacing="12">
-          <TextBlock Text="{Binding TargetDisplay}"
-                     Classes="page-subtitle"
-                     TextWrapping="Wrap"
-                     TextTrimming="CharacterEllipsis"
-                     VerticalAlignment="Center"/>
-
-          <Button Grid.Column="1"
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="12"
+              IsVisible="{Binding IsBrowsingEntries}">
+          <Button Grid.Column="0"
                   Content="{Binding MatchScopeLabel}"
                   Classes="qf-popup-secondary qf-popup-small-button"
                   Command="{Binding ToggleMatchScopeCommand}"
                   VerticalAlignment="Center"
+                  HorizontalAlignment="Left"
                   IsVisible="{Binding IsBrowsingEntries}"/>
 
-          <TextBlock Grid.Column="2"
+          <TextBlock Grid.Column="1"
                      Text="{Binding Status}"
                      Classes="page-subtitle"
                      TextWrapping="Wrap"
                      TextTrimming="CharacterEllipsis"
                      MaxWidth="300"
-                     IsVisible="{Binding HasStatus}"
+                     IsVisible="{Binding ShowHeaderStatus}"
                      VerticalAlignment="Center"/>
         </Grid>
 
         <Grid Grid.Row="1">
-          <StackPanel Spacing="12"
-                      MaxWidth="620"
+          <Border Classes="qf-unlock-card"
+                  IsVisible="{Binding IsLocked}">
+            <StackPanel Spacing="18">
+              <Border Classes="qf-unlock-icon-tile">
+                <Path Width="32"
+                      Height="32"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Stretch="Uniform"
+                      Fill="{StaticResource AccentBrush}"
+                      Data="{StaticResource IconShellKryptLogo}"/>
+              </Border>
+
+              <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedTitle}"
+                           FontSize="22"
+                           FontWeight="SemiBold"
+                           TextAlignment="Center"/>
+                <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedSubtitle}"
+                           Classes="page-subtitle"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"/>
+              </StackPanel>
+
+              <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.TargetVault}"
+                           Classes="qf-unlock-label"/>
+                <ComboBox ItemsSource="{Binding VaultChoices}"
+                          SelectedItem="{Binding SelectedVault, Mode=TwoWay}"
+                          Classes="qf-unlock-combo"
+                          HorizontalAlignment="Stretch"/>
+              </StackPanel>
+
+              <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.MasterPassword}"
+                           Classes="qf-unlock-label"/>
+                <Border Classes="qf-unlock-password-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="8">
+                    <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="qf-unlock-input"
+                             PasswordChar="*"
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"
+                             IsVisible="{Binding !ShowPassword}">
+                      <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter"
+                                    Command="{Binding UnlockCommand}"/>
+                      </TextBox.KeyBindings>
+                    </TextBox>
+                    <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="qf-unlock-input"
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"
+                             IsVisible="{Binding ShowPassword}">
+                      <TextBox.KeyBindings>
+                        <KeyBinding Gesture="Enter"
+                                    Command="{Binding UnlockCommand}"/>
+                      </TextBox.KeyBindings>
+                    </TextBox>
+                    <Button Grid.Column="1"
+                            Classes="qf-unlock-eye-button"
+                            Command="{Binding TogglePasswordVisibilityCommand}"
+                            ToolTip.Tip="{Binding PasswordVisibilityLabel}">
+                      <Grid>
+                        <PathIcon Data="{StaticResource IconVisibility}"
+                                  Width="18"
+                                  Height="18"
+                                  IsVisible="{Binding !ShowPassword}"/>
+                        <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                  Width="18"
+                                  Height="18"
+                                  IsVisible="{Binding ShowPassword}"/>
+                      </Grid>
+                    </Button>
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <Border Classes="qf-unlock-status"
+                      IsVisible="{Binding HasStatus}">
+                <TextBlock Text="{Binding Status}"
+                           TextWrapping="Wrap"
+                           TextAlignment="Center"/>
+              </Border>
+
+              <Button Classes="qf-unlock-primary"
+                      Command="{Binding UnlockCommand}"
                       HorizontalAlignment="Stretch"
-                      IsVisible="{Binding IsLocked}">
-            <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedTitle}"
-                       FontSize="18"
-                       FontWeight="SemiBold"/>
-            <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.LockedSubtitle}"
-                       Classes="page-subtitle"
-                       TextWrapping="Wrap"/>
-
-            <ComboBox ItemsSource="{Binding VaultChoices}"
-                      SelectedItem="{Binding SelectedVault, Mode=TwoWay}"
-                      HorizontalAlignment="Left"
-                      MinWidth="120"/>
-            <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     PasswordChar="*"
-                     PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}">
-              <TextBox.KeyBindings>
-                <KeyBinding Gesture="Enter"
-                            Command="{Binding UnlockCommand}"/>
-              </TextBox.KeyBindings>
-            </TextBox>
-
-            <Button Content="{DynamicResource Loc.QuickFill.Button.Unlock}"
-                    Classes="qf-popup-primary"
-                    Command="{Binding UnlockCommand}"
-                    HorizontalAlignment="Left"/>
-          </StackPanel>
+                      IsDefault="True">
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Button.Unlock}"
+                             Foreground="{StaticResource AccentForegroundBrush}"/>
+                  <TextBlock Text="-&gt;"
+                             Foreground="{StaticResource AccentForegroundBrush}"
+                             FontWeight="Bold"/>
+                </StackPanel>
+              </Button>
+            </StackPanel>
+          </Border>
 
           <Grid IsVisible="{Binding HasMatches}"
                 ColumnDefinitions="280,*"
@@ -245,159 +314,10 @@
           </Border>
 
           <Grid IsVisible="{Binding IsEditingEntry}"
-                RowDefinitions="*,Auto"
-                RowSpacing="12">
+                RowDefinitions="*">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
-              <StackPanel Spacing="12">
-                <Grid ColumnDefinitions="*,150,Auto"
-                      ColumnSpacing="8">
-                  <TextBox Text="{Binding EntryName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.EntryName}"/>
-                  <TextBox Grid.Column="1"
-                           Text="{Binding EntryCategory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.Category}"/>
-                  <CheckBox Grid.Column="2"
-                            Content="{DynamicResource Loc.QuickFill.Editor.Enabled}"
-                            IsChecked="{Binding EntryEnabled, Mode=TwoWay}"
-                            VerticalAlignment="Center"/>
-                </Grid>
-
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="8">
-                  <TextBox Text="{Binding TargetProcessName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetProcess}"/>
-                  <TextBox Grid.Column="1"
-                           Text="{Binding TargetWindowTitleContains, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           PlaceholderText="{DynamicResource Loc.QuickFill.Editor.TargetTitle}"/>
-                </Grid>
-
-                <CheckBox Content="{DynamicResource Loc.QuickFill.Editor.IncludeEnter}"
-                          IsChecked="{Binding PressEnterAfterFill, Mode=TwoWay}"/>
-
-                <Border Classes="qf-inner-panel">
-                  <Grid RowDefinitions="Auto,Auto"
-                        RowSpacing="10">
-                    <TextBlock Text="{DynamicResource Loc.QuickFill.Fields.Title}"
-                               Classes="qf-section-title"
-                               FontSize="16"/>
-
-                    <ItemsControl Grid.Row="1"
-                                  ItemsSource="{Binding Fields}">
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:QuickFillFieldEditorVm">
-                          <Border Classes="qf-popup-field-row">
-                            <Grid ColumnDefinitions="160,110,*,Auto"
-                                  ColumnSpacing="8">
-                              <TextBlock Text="{Binding Label}"
-                                         VerticalAlignment="Center"
-                                         TextTrimming="CharacterEllipsis"/>
-                              <TextBlock Grid.Column="1"
-                                         Text="{Binding SourceDisplay}"
-                                         Classes="page-subtitle"
-                                         VerticalAlignment="Center"/>
-                              <TextBlock Grid.Column="2"
-                                         Text="{Binding Kind}"
-                                         Classes="page-subtitle"
-                                         VerticalAlignment="Center"/>
-                              <Button Grid.Column="3"
-                                      Content="{DynamicResource Loc.Common.Delete}"
-                                      Classes="qf-popup-danger"
-                                      Command="{Binding #Root.DataContext.RemoveFieldCommand}"
-                                      CommandParameter="{Binding}"/>
-                            </Grid>
-                          </Border>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                  </Grid>
-                </Border>
-
-                <TabControl>
-                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.Manual}">
-                    <Grid ColumnDefinitions="130,150,*,Auto"
-                          ColumnSpacing="8"
-                          Margin="0,10,0,0">
-                      <ComboBox ItemsSource="{Binding FieldKindOptions}"
-                                SelectedItem="{Binding SelectedOwnedFieldKind, Mode=TwoWay}"/>
-                      <TextBox Grid.Column="1"
-                               Text="{Binding OwnedFieldLabel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="{DynamicResource Loc.QuickFill.Field.LabelPlaceholder}"/>
-                      <TextBox Grid.Column="2"
-                               Text="{Binding OwnedFieldValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                               PlaceholderText="{DynamicResource Loc.QuickFill.Field.ValuePlaceholder}"/>
-                      <Button Grid.Column="3"
-                              Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
-                              Classes="qf-popup-secondary"
-                              Command="{Binding AddOwnedFieldCommand}"/>
-                    </Grid>
-                  </TabItem>
-
-                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.WebLogin}">
-                    <Grid ColumnDefinitions="*,150,Auto"
-                          ColumnSpacing="8"
-                          Margin="0,10,0,0">
-                      <ComboBox ItemsSource="{Binding WebLoginOptions}"
-                                SelectedItem="{Binding SelectedWebLoginOption, Mode=TwoWay}"/>
-                      <ComboBox Grid.Column="1"
-                                ItemsSource="{Binding WebLoginFieldOptions}"
-                                SelectedItem="{Binding SelectedWebLoginFieldOption, Mode=TwoWay}"/>
-                      <Button Grid.Column="2"
-                              Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
-                              Classes="qf-popup-secondary"
-                              Command="{Binding AddWebLoginFieldCommand}"/>
-                    </Grid>
-                  </TabItem>
-
-                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.ApiKey}">
-                    <Grid ColumnDefinitions="*,*,Auto"
-                          ColumnSpacing="8"
-                          Margin="0,10,0,0">
-                      <ComboBox ItemsSource="{Binding ApiKeyOptions}"
-                                SelectedItem="{Binding SelectedApiKeyOption, Mode=TwoWay}"/>
-                      <ComboBox Grid.Column="1"
-                                ItemsSource="{Binding ApiKeyFieldOptions}"
-                                SelectedItem="{Binding SelectedApiKeyFieldOption, Mode=TwoWay}"/>
-                      <Button Grid.Column="2"
-                              Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
-                              Classes="qf-popup-secondary"
-                              Command="{Binding AddApiKeyFieldCommand}"/>
-                    </Grid>
-                  </TabItem>
-
-                  <TabItem Header="{DynamicResource Loc.QuickFill.Source.Authenticator}">
-                    <Grid ColumnDefinitions="*,Auto"
-                          ColumnSpacing="8"
-                          Margin="0,10,0,0">
-                      <ComboBox ItemsSource="{Binding AuthenticatorOptions}"
-                                SelectedItem="{Binding SelectedAuthenticatorOption, Mode=TwoWay}"/>
-                      <Button Grid.Column="1"
-                              Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
-                              Classes="qf-popup-secondary"
-                              Command="{Binding AddAuthenticatorFieldCommand}"/>
-                    </Grid>
-                  </TabItem>
-                </TabControl>
-
-                <TextBox Text="{Binding Notes, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         AcceptsReturn="True"
-                         TextWrapping="Wrap"
-                         MinHeight="70"
-                         PlaceholderText="{DynamicResource Loc.QuickFill.Editor.Notes}"/>
-              </StackPanel>
+              <views:QuickFillEntryEditorView/>
             </ScrollViewer>
-
-            <Grid Grid.Row="1"
-                  ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="10">
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="qf-popup-secondary"
-                      Command="{Binding CancelEditCommand}"/>
-              <Button Grid.Column="2"
-                      Content="{DynamicResource Loc.QuickFill.Button.SaveEntry}"
-                      Classes="qf-popup-primary"
-                      Command="{Binding SaveEntryCommand}"/>
-            </Grid>
           </Grid>
         </Grid>
       </Grid>
@@ -427,6 +347,120 @@
     <Style Selector="Button.qf-window-caption-button-close:pointerover">
       <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+    </Style>
+
+    <Style Selector="Border.qf-unlock-card">
+      <Setter Property="Width" Value="460"/>
+      <Setter Property="MaxWidth" Value="460"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="34"/>
+    </Style>
+
+    <Style Selector="Border.qf-unlock-icon-tile">
+      <Setter Property="Width" Value="66"/>
+      <Setter Property="Height" Value="66"/>
+      <Setter Property="HorizontalAlignment" Value="Center"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="14"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-unlock-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="ComboBox.qf-unlock-combo">
+      <Setter Property="MinHeight" Value="44"/>
+      <Setter Property="Padding" Value="14,8"/>
+      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+
+    <Style Selector="Border.qf-unlock-password-shell">
+      <Setter Property="MinHeight" Value="48"/>
+      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12,0,8,0"/>
+    </Style>
+
+    <Style Selector="Border.qf-unlock-password-shell:focus-within">
+      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="TextBox.qf-unlock-input">
+      <Setter Property="MinHeight" Value="46"/>
+      <Setter Property="Padding" Value="4,0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBox.qf-unlock-input /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+    </Style>
+
+    <Style Selector="TextBox.qf-unlock-input:pointerover /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBox.qf-unlock-input:focus /template/ Border#PART_BorderElement">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Button.qf-unlock-eye-button">
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Button.qf-unlock-eye-button:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Border.qf-unlock-status">
+      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12,9"/>
+    </Style>
+
+    <Style Selector="Button.qf-unlock-primary">
+      <Setter Property="MinHeight" Value="46"/>
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.qf-panel, Border.qf-inner-panel, Border.qf-popup-row, Border.qf-popup-field-row">
