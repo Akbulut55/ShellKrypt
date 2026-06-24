@@ -185,26 +185,3 @@ Rules:
 ```powershell
 dotnet list .\ShellKrypt.slnx package --vulnerable --include-transitive
 ```
-
-## 12. Security Review Checklist
-
-Before release or security-sensitive changes:
-
-- [ ] No secrets, vaults, backups, plaintext exports, private screenshots, or private logs committed.
-- [ ] Build and tests pass.
-- [ ] Dependency vulnerability check passes or findings are triaged.
-- [ ] Activity logs do not include raw secrets or note contents.
-- [ ] Plaintext export warnings and confirmation still work.
-- [ ] Backup/restore uses encrypted `.skbx` packages and validates malformed inputs.
-- [ ] Backup Center verify, restore, plaintext export, CSV import, and history flows do not persist passphrases or decrypted payloads.
-- [ ] Automatic backups skip safely when locked or missing a session passphrase, verify generated packages, and retain only matching auto-backup files.
-- [ ] Emergency Kit exports contain only safe metadata and no recovery secrets.
-- [ ] Import paths are guarded and imports are transactional.
-- [ ] Clipboard copy-disabled and clear-timeout behavior still works.
-- [ ] Vault deletion confirms the selected `.skvault` and refuses unsafe path shapes.
-- [ ] README and product text avoid exaggerated security claims.
-- [ ] `DISCLAIMER.md` is accurate for the release state.
-- [ ] `TERMS.md` and `PRIVACY.md` are accurate for the release state.
-- [ ] First-use security acknowledgement matches current security/privacy behavior.
-- [ ] `AppSettings.CurrentSecurityAcknowledgementVersion` was bumped if material acknowledgement text changed.
-- [ ] Security-relevant changes are recorded in `CHANGELOG.md`.
