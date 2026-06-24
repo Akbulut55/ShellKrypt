@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using ShellKrypt.Desktop.ViewModels;
 
@@ -277,12 +278,20 @@ public partial class MainWindow : Window
             : WindowState.Maximized;
     }
 
+    private static readonly Geometry MaximizeGeometry =
+        Geometry.Parse("M 1.5,1.5 L 8.5,1.5 L 8.5,8.5 L 1.5,8.5 Z");
+
+    private static readonly Geometry RestoreGeometry =
+        Geometry.Parse("M 3,1.5 L 8.5,1.5 L 8.5,7 M 1.5,3 L 7,3 L 7,8.5 L 1.5,8.5 Z");
+
     private void UpdateMaximizeRestoreButton()
     {
-        if (MaximizeRestoreGlyph is null)
+        if (MaximizeRestoreIcon is null)
             return;
 
-        MaximizeRestoreGlyph.Text = WindowState == WindowState.Maximized ? "\uE923" : "\uE922";
+        MaximizeRestoreIcon.Data = WindowState == WindowState.Maximized
+            ? RestoreGeometry
+            : MaximizeGeometry;
     }
 
     private void BeginResize(WindowEdge edge, PointerPressedEventArgs e)

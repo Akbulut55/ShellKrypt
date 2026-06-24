@@ -49,18 +49,24 @@
         <StackPanel Grid.Column="3"
                     Orientation="Horizontal"
                     HorizontalAlignment="Right">
-          <Button Classes="qf-window-caption-button"
-                  Click="OnMinimizeClicked">
-            <TextBlock Text="&#xE921;"
-                       FontFamily="Segoe MDL2 Assets"
-                       FontSize="10"/>
-          </Button>
-          <Button Classes="qf-window-caption-button qf-window-caption-button-close"
-                  Click="OnCloseClicked">
-            <TextBlock Text="&#xE8BB;"
-                       FontFamily="Segoe MDL2 Assets"
-                       FontSize="10"/>
-          </Button>
+                  <Button Classes="qf-window-caption-button"
+                          Click="OnMinimizeClicked">
+                    <Border Width="10"
+                            Height="1.5"
+                            CornerRadius="1"
+                            Background="{StaticResource CaptionButtonForegroundBrush}"/>
+                  </Button>
+
+                  <Button Classes="qf-window-caption-button qf-window-caption-button-close"
+                          Click="OnCloseClicked">
+                    <Path Width="10"
+                          Height="10"
+                          Stretch="Uniform"
+                          Stroke="{StaticResource CaptionButtonForegroundBrush}"
+                          StrokeThickness="1.5"
+                          StrokeLineCap="Round"
+                          Data="M 2,2 L 8,8 M 8,2 L 2,8"/>
+                  </Button>
         </StackPanel>
       </Grid>
     </Border>
