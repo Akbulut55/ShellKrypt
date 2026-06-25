@@ -6,8 +6,18 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.3] - 2026-06-25
+
+### Added
+
+- Added Quick Fill macro-style key sequence steps with modifier keys, repeats, and expanded navigation/function/letter/digit key choices.
+- Added Linux X11 Quick Fill global-hotkey, target-capture, and auto-type service paths, plus XDG Desktop Portal global-shortcut registration for opening the popup on Wayland sessions.
+
 ### Changed
 
+- Updated Quick Fill popup and manager rows to show target applications and expose row-level enable and delete actions.
+- Moved the Quick Fill popup app/window scope control into the target-application header.
+- Made native Wayland Quick Fill behavior explicit: portal shortcuts can open the popup, while target capture and Auto-Type remain unavailable in restricted Wayland sessions.
 - Added bundled Inter and JetBrains Mono font resources, switched UI typography to the bundled Inter font, and moved code/secret displays from Consolas to JetBrains Mono.
 - Removed obsolete PNG icon assets that were replaced by shared vector icon resources.
 - Reworked the Quick Fill manager tab into a dashboard-style list/detail layout with summary cards, entry search/filter controls, and compact field-source tabs.
@@ -16,6 +26,11 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 - Replaced Authenticator secret reveal text buttons with eye icons and tightened secret-key/algorithm detail text rendering.
 - Changed Activity Logs from paged navigation to an internally scrollable event table.
 - Changed Web Logins, Credit Cards, API Keys, and All Items from paged table navigation to internally scrollable tables.
+
+### Fixed
+
+- Fixed stale Quick Fill editor bindings for category, manual field creation, literal-text sequence steps, and sequence step numbering.
+- Fixed the Quick Fill popup scope button spacing so it no longer sits tight against the target header edge.
 
 ## [ShellKrypt 0.17.2] - 2026-06-18
 

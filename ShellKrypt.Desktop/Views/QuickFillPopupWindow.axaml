@@ -80,26 +80,41 @@
             CornerRadius="12">
       <Grid RowDefinitions="Auto,*"
             RowSpacing="14">
-        <Grid ColumnDefinitions="*,Auto"
-              ColumnSpacing="12"
-              IsVisible="{Binding IsBrowsingEntries}">
-          <Button Grid.Column="0"
-                  Content="{Binding MatchScopeLabel}"
-                  Classes="qf-popup-secondary qf-popup-small-button"
-                  Command="{Binding ToggleMatchScopeCommand}"
-                  VerticalAlignment="Center"
-                  HorizontalAlignment="Left"
-                  IsVisible="{Binding IsBrowsingEntries}"/>
-
-          <TextBlock Grid.Column="1"
-                     Text="{Binding Status}"
-                     Classes="page-subtitle"
-                     TextWrapping="Wrap"
-                     TextTrimming="CharacterEllipsis"
-                     MaxWidth="300"
-                     IsVisible="{Binding ShowHeaderStatus}"
-                     VerticalAlignment="Center"/>
-        </Grid>
+        <Border Classes="qf-target-card"
+                IsVisible="{Binding IsUnlocked}">
+          <Grid ColumnDefinitions="Auto,*,Auto,Auto"
+                MinHeight="56">
+            <Border Grid.Column="0"
+                    Classes="qf-target-strip"/>
+            <StackPanel Grid.Column="1"
+                        Spacing="4"
+                        Margin="14,8">
+              <TextBlock Text="{DynamicResource Loc.QuickFill.Editor.TargetApplication}"
+                         Classes="qf-kicker"/>
+              <TextBlock Text="{Binding TargetDisplay}"
+                         FontSize="17"
+                         FontWeight="SemiBold"
+                         TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
+            <Button Grid.Column="2"
+                    Content="{Binding MatchScopeLabel}"
+                    Classes="qf-popup-secondary qf-popup-small-button"
+                    Command="{Binding ToggleMatchScopeCommand}"
+                    Margin="0,0,10,0"
+                    VerticalAlignment="Center"
+                    HorizontalAlignment="Right"
+                    IsVisible="{Binding IsBrowsingEntries}"/>
+            <TextBlock Grid.Column="3"
+                       Text="{Binding Status}"
+                       Classes="page-subtitle"
+                       TextWrapping="Wrap"
+                       TextTrimming="CharacterEllipsis"
+                       MaxWidth="220"
+                       Margin="10,0,0,0"
+                       IsVisible="{Binding ShowHeaderStatus}"
+                       VerticalAlignment="Center"/>
+          </Grid>
+        </Border>
 
         <Grid Grid.Row="1">
           <Border Classes="qf-unlock-card"
@@ -228,16 +243,27 @@
                     <DataTemplate x:DataType="vm:QuickFillPopupEntryVm">
                       <Border Classes="qf-popup-row">
                         <StackPanel Spacing="5">
-                          <Grid ColumnDefinitions="*,Auto">
+                          <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                                ColumnSpacing="8">
                             <TextBlock Text="{Binding Name}"
                                        FontWeight="Bold"
                                        TextTrimming="CharacterEllipsis"/>
                             <TextBlock Grid.Column="1"
-                                       Text="{Binding Category}"
+                                       Text="{Binding TargetDisplay}"
                                        Classes="qf-mini-badge"
                                        TextTrimming="CharacterEllipsis"/>
+                            <CheckBox Grid.Column="2"
+                                      IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                      Command="{Binding DataContext.SetEntryEnabledCommand, ElementName=Root}"
+                                      CommandParameter="{Binding}"
+                                      VerticalAlignment="Center"/>
+                            <Button Grid.Column="3"
+                                    Content="X"
+                                    Classes="qf-popup-secondary qf-popup-small-button"
+                                    Command="{Binding DataContext.DeleteEntryRowCommand, ElementName=Root}"
+                                    CommandParameter="{Binding}"/>
                           </Grid>
-                          <TextBlock Text="{Binding TargetDisplay}"
+                          <TextBlock Text="{Binding Category}"
                                      Classes="page-subtitle"
                                      FontSize="12"
                                      TextTrimming="CharacterEllipsis"/>
@@ -292,6 +318,7 @@
                   <Button Grid.Column="3"
                           Content="{DynamicResource Loc.QuickFill.Button.Fill}"
                           Classes="qf-popup-primary"
+                          IsEnabled="{Binding CanFillSelected}"
                           Command="{Binding FillSelectedCommand}"/>
                 </Grid>
               </Grid>
@@ -343,6 +370,20 @@
       <Setter Property="Foreground" Value="{StaticResource CaptionButtonForegroundBrush}"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Border.qf-target-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="4"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+
+    <Style Selector="Border.qf-target-strip">
+      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Width" Value="3"/>
+      <Setter Property="CornerRadius" Value="2,0,0,2"/>
     </Style>
 
     <Style Selector="Button.qf-window-caption-button:pointerover">

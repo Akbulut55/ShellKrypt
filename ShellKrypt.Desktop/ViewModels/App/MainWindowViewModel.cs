@@ -113,6 +113,13 @@ public partial class MainWindowViewModel : ViewModelBase
         _localization.SetLanguage(languageId);
         _localization.LanguageChanged += (_, _) => Current?.RefreshLocalization();
         _globalHotkeyService.HotkeyPressed += (_, _) => OpenQuickFillPopup();
+        _globalHotkeyService.StatusChanged += (_, _) =>
+        {
+            OnPropertyChanged(nameof(QuickFillHotkeyStatus));
+            OnPropertyChanged(nameof(CanConfigureQuickFillSystemShortcut));
+            if (Current is ShellViewModel shell)
+                shell.QuickFill.RefreshHotkeyStatus();
+        };
 
         Current = new WelcomeViewModel(this, _vaultRegistryService);
         ApplyTheme(themeId);
@@ -128,6 +135,7 @@ public partial class MainWindowViewModel : ViewModelBase
     public AutomaticBackupState AutomaticBackupState => _automaticBackupState;
     public QuickFillSettings QuickFill => _quickFill;
     public string QuickFillHotkeyStatus => _globalHotkeyService.Status;
+    public bool CanConfigureQuickFillSystemShortcut => _globalHotkeyService.CanConfigurePortalShortcut;
     public AutomaticBackupCoordinator AutomaticBackups => _automaticBackupCoordinator;
     public bool IsUnlocked => _state.VaultKey is not null;
     public string VaultPathDisplay => VaultPath ?? _localization.Get("Common.NoVaultSelected");

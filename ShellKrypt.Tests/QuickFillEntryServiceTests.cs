@@ -78,6 +78,40 @@ public sealed class QuickFillEntryServiceTests
     }
 
     [Fact]
+    public async Task Entries_PreserveMacroKeystrokesWithoutLeakingSecrets()
+    {
+        using var workspace = new TempWorkspace();
+        var fixture = await CreateUnlockedFixtureAsync(workspace.VaultPath);
+
+        var entry = await fixture.QuickFill.AddAsync(workspace.VaultPath, fixture.VaultKey, new QuickFillEntryInput(
+            Name: "Macro Login",
+            Category: "Work",
+            Enabled: true,
+            Target: new QuickFillTargetRule("terminal", ""),
+            Fields:
+            [
+                new QuickFillField("password", "Password", QuickFillFieldKind.Password, true, 0, QuickFillFieldSourceKind.Owned, KnownOwnedSecret, "", "", "")
+            ],
+            PressEnterAfterFill: false,
+            Notes: "",
+            SequenceSteps:
+            [
+                new QuickFillSequenceStep("select-all", QuickFillSequenceStepKind.Keystroke, 0, "", QuickFillKeystrokeKind.A, "", 0, QuickFillKeyModifiers.Ctrl, 1),
+                new QuickFillSequenceStep("clear", QuickFillSequenceStepKind.Keystroke, 1, "", QuickFillKeystrokeKind.Backspace, "", 0, QuickFillKeyModifiers.None, 1),
+                new QuickFillSequenceStep("field", QuickFillSequenceStepKind.Field, 2, "password", QuickFillKeystrokeKind.Tab, "", 0),
+                new QuickFillSequenceStep("enter", QuickFillSequenceStepKind.Keystroke, 3, "", QuickFillKeystrokeKind.Enter, "", 0, QuickFillKeyModifiers.None, 2)
+            ]));
+
+        var steps = entry.SequenceSteps ?? Array.Empty<QuickFillSequenceStep>();
+        Assert.Contains(steps, step => step.Keystroke == QuickFillKeystrokeKind.A && step.Modifiers == QuickFillKeyModifiers.Ctrl);
+        Assert.Contains(steps, step => step.Keystroke == QuickFillKeystrokeKind.Enter && step.RepeatCount == 2);
+
+        var preview = QuickFillSequencePreviewer.BuildPreview(entry);
+        Assert.Equal(["[Ctrl+A]", "[Backspace]", "Password (masked)", "[Enter] x2"], preview);
+        Assert.DoesNotContain(KnownOwnedSecret, string.Join(" ", preview), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void MatchingAndPreview_UseSafeTargetAndMaskedSelectedFields()
     {
         var entry = new QuickFillEntry(

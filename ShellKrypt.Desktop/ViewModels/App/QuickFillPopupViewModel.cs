@@ -113,6 +113,9 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     public bool HasFields => Fields.Count > 0;
     public bool HasSequenceSteps => SequenceSteps.Count > 0;
     public bool HasStatus => !string.IsNullOrWhiteSpace(Status);
+    public bool CanDeleteEntry => _editingEntry is not null;
+    public bool CanFillSelected => SelectedEntry is not null && _target.WindowHandle != 0 && !string.IsNullOrWhiteSpace(_target.ProcessName);
+    public bool IsRestrictedTargetMode => string.IsNullOrWhiteSpace(_target.ProcessName) || _target.WindowHandle == 0;
     public bool HasTargetWindowTitleContains => !string.IsNullOrWhiteSpace(TargetWindowTitleContains);
     public string TargetProcessDisplay => string.IsNullOrWhiteSpace(TargetProcessName)
         ? T("QuickFill.Editor.TargetNotSet")
@@ -149,6 +152,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasStatus));
         OnPropertyChanged(nameof(ShowHeaderStatus));
     }
+    partial void OnSelectedEntryChanged(QuickFillPopupEntryVm? value) => OnPropertyChanged(nameof(CanFillSelected));
     partial void OnShowPasswordChanged(bool value) => OnPropertyChanged(nameof(PasswordVisibilityLabel));
     partial void OnTargetProcessNameChanged(string value) => OnPropertyChanged(nameof(TargetProcessDisplay));
     partial void OnTargetWindowTitleContainsChanged(string value) => OnPropertyChanged(nameof(HasTargetWindowTitleContains));
@@ -223,8 +227,11 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     [RelayCommand]
     private async Task FillSelectedAsync()
     {
-        if (SelectedEntry is null)
+        if (!CanFillSelected || SelectedEntry is null)
+        {
+            Status = T("QuickFill.Status.AutoTypeUnavailableWayland");
             return;
+        }
 
         if (!_root.QuickFill.HasAutoTypeAcknowledgement)
         {
@@ -282,6 +289,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private void StartAddEntry()
     {
         _editingEntry = null;
+        OnPropertyChanged(nameof(CanDeleteEntry));
         IsEditingEntry = true;
         EntryName = string.IsNullOrWhiteSpace(_target.ProcessName) ? T("QuickFill.Editor.NewEntry") : _target.ProcessName;
         EntryCategory = "Other";
@@ -306,6 +314,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             return;
 
         _editingEntry = SelectedEntry;
+        OnPropertyChanged(nameof(CanDeleteEntry));
         IsEditingEntry = true;
         PopulateEditor(SelectedEntry.Entry);
     }
@@ -315,6 +324,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     {
         IsEditingEntry = false;
         _editingEntry = null;
+        OnPropertyChanged(nameof(CanDeleteEntry));
         Status = "";
     }
 
@@ -516,6 +526,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
 
             IsEditingEntry = false;
             _editingEntry = null;
+            OnPropertyChanged(nameof(CanDeleteEntry));
             await LoadMatchesAsync();
             SelectedEntry = Matches.FirstOrDefault(entry => entry.Entry.Id == saved.Id) ?? Matches.FirstOrDefault();
             Status = T("QuickFill.Status.Saved", saved.Name);
@@ -547,6 +558,43 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
 
         IsEditingEntry = false;
         _editingEntry = null;
+        OnPropertyChanged(nameof(CanDeleteEntry));
+        await LoadMatchesAsync();
+        Status = T("QuickFill.Status.Deleted", entryName);
+    }
+
+    [RelayCommand]
+    private async Task SetEntryEnabledAsync(QuickFillPopupEntryVm? row)
+    {
+        if (row is null || string.IsNullOrWhiteSpace(_root.VaultPath))
+            return;
+
+        var entry = row.Entry;
+        var input = ToInput(entry, row.IsEnabled);
+        var updated = await _entryService.UpdateAsync(_root.VaultPath, _root.VaultKey, entry.Id, entry.CreatedAtUtc, input);
+        _root.LogActivity("quick-fill", "Quick Fill entry updated", $"Updated Quick Fill entry {updated.Name}.", "success", _root.VaultPath, updated.Name);
+        await LoadMatchesAsync();
+        SelectedEntry = Matches.FirstOrDefault(match => match.Entry.Id == updated.Id) ?? Matches.FirstOrDefault();
+        Status = T("QuickFill.Status.Saved", updated.Name);
+    }
+
+    [RelayCommand]
+    private async Task DeleteEntryRowAsync(QuickFillPopupEntryVm? row)
+    {
+        if (row is null || string.IsNullOrWhiteSpace(_root.VaultPath))
+            return;
+
+        var entryName = row.Entry.Name;
+        var confirmed = await _root.ConfirmAsync(
+            T("QuickFill.Delete.Title"),
+            T("QuickFill.Delete.Subtitle", entryName),
+            T("Common.Delete"),
+            destructive: true);
+        if (!confirmed)
+            return;
+
+        await _entryService.DeleteAsync(_root.VaultPath, row.Entry.Id);
+        _root.LogActivity("quick-fill", "Quick Fill entry deleted", $"Deleted Quick Fill entry {entryName}.", "warning", _root.VaultPath, entryName);
         await LoadMatchesAsync();
         Status = T("QuickFill.Status.Deleted", entryName);
     }
@@ -583,16 +631,21 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             return;
 
         var entries = await _entryService.ListAsync(_root.VaultPath, _root.VaultKey);
-        var matched = entries.Where(entry => ShowAllForApp
-            ? QuickFillMatcher.IsProcessMatch(entry, _target)
-            : QuickFillMatcher.IsMatch(entry, _target));
+        var matched = IsRestrictedTargetMode
+            ? entries.Where(entry => entry.Enabled)
+            : entries.Where(entry => ShowAllForApp
+                ? QuickFillMatcher.IsProcessMatch(entry, _target)
+                : QuickFillMatcher.IsMatch(entry, _target));
 
         foreach (var entry in matched.OrderBy(entry => entry.Category, StringComparer.OrdinalIgnoreCase).ThenBy(entry => entry.Name, StringComparer.OrdinalIgnoreCase))
             Matches.Add(new QuickFillPopupEntryVm(entry));
 
         SelectedEntry = Matches.FirstOrDefault();
+        if (IsRestrictedTargetMode && Matches.Count > 0)
+            Status = T("QuickFill.Status.WaylandRestricted");
         OnPropertyChanged(nameof(HasMatches));
         OnPropertyChanged(nameof(HasNoMatches));
+        OnPropertyChanged(nameof(CanFillSelected));
     }
 
     private async Task<IReadOnlyList<AutoTypeStep>> BuildAutoTypeStepsAsync(QuickFillEntry entry)
@@ -612,9 +665,11 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
                     }
                     break;
                 case QuickFillSequenceStepKind.Keystroke:
-                    steps.Add(new AutoTypeStep(sequenceStep.Keystroke == QuickFillKeystrokeKind.Enter
-                        ? AutoTypeStepKind.Enter
-                        : AutoTypeStepKind.Tab));
+                    steps.Add(new AutoTypeStep(
+                        AutoTypeStepKind.Key,
+                        Key: sequenceStep.Keystroke,
+                        Modifiers: sequenceStep.Modifiers,
+                        RepeatCount: sequenceStep.RepeatCount));
                     break;
                 case QuickFillSequenceStepKind.LiteralText:
                     if (!string.IsNullOrEmpty(sequenceStep.Text))
@@ -630,7 +685,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             return Array.Empty<AutoTypeStep>();
 
         if (entry.PressEnterAfterFill)
-            steps.Add(new AutoTypeStep(AutoTypeStepKind.Enter));
+            steps.Add(new AutoTypeStep(AutoTypeStepKind.Key, Key: QuickFillKeystrokeKind.Enter));
 
         return steps;
     }
@@ -697,6 +752,17 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             Notes,
             SequenceSteps.Select(step => step.ToStep()).ToArray());
     }
+
+    private static QuickFillEntryInput ToInput(QuickFillEntry entry, bool enabled)
+        => new(
+            entry.Name,
+            entry.Category,
+            enabled,
+            entry.Target,
+            entry.Fields,
+            entry.PressEnterAfterFill,
+            entry.Notes,
+            entry.SequenceSteps);
 
     private void PopulateEditor(QuickFillEntry entry)
     {
@@ -900,18 +966,42 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private static QuickFillKeystrokeOption[] CreateKeystrokeOptions() =>
     [
         new(QuickFillKeystrokeKind.Tab, "QuickFill.Sequence.Keystroke.Tab"),
-        new(QuickFillKeystrokeKind.Enter, "QuickFill.Sequence.Keystroke.Enter")
+        new(QuickFillKeystrokeKind.Enter, "QuickFill.Sequence.Keystroke.Enter"),
+        new(QuickFillKeystrokeKind.Escape, "QuickFill.Sequence.Keystroke.Escape", "Escape"),
+        new(QuickFillKeystrokeKind.Space, "QuickFill.Sequence.Keystroke.Space", "Space"),
+        new(QuickFillKeystrokeKind.Backspace, "QuickFill.Sequence.Keystroke.Backspace", "Backspace"),
+        new(QuickFillKeystrokeKind.Delete, "QuickFill.Sequence.Keystroke.Delete", "Delete"),
+        new(QuickFillKeystrokeKind.ArrowLeft, "QuickFill.Sequence.Keystroke.ArrowLeft", "Left"),
+        new(QuickFillKeystrokeKind.ArrowRight, "QuickFill.Sequence.Keystroke.ArrowRight", "Right"),
+        new(QuickFillKeystrokeKind.ArrowUp, "QuickFill.Sequence.Keystroke.ArrowUp", "Up"),
+        new(QuickFillKeystrokeKind.ArrowDown, "QuickFill.Sequence.Keystroke.ArrowDown", "Down"),
+        new(QuickFillKeystrokeKind.Home, "QuickFill.Sequence.Keystroke.Home", "Home"),
+        new(QuickFillKeystrokeKind.End, "QuickFill.Sequence.Keystroke.End", "End"),
+        new(QuickFillKeystrokeKind.PageUp, "QuickFill.Sequence.Keystroke.PageUp", "Page Up"),
+        new(QuickFillKeystrokeKind.PageDown, "QuickFill.Sequence.Keystroke.PageDown", "Page Down"),
+        new(QuickFillKeystrokeKind.Insert, "QuickFill.Sequence.Keystroke.Insert", "Insert"),
+        .. Enum.GetValues<QuickFillKeystrokeKind>()
+            .Where(key => key is >= QuickFillKeystrokeKind.F1 and <= QuickFillKeystrokeKind.F12)
+            .Select(key => new QuickFillKeystrokeOption(key, $"QuickFill.Sequence.Keystroke.{key}", key.ToString())),
+        .. Enum.GetValues<QuickFillKeystrokeKind>()
+            .Where(key => key is >= QuickFillKeystrokeKind.A and <= QuickFillKeystrokeKind.Z)
+            .Select(key => new QuickFillKeystrokeOption(key, $"QuickFill.Sequence.Keystroke.{key}", key.ToString())),
+        .. Enum.GetValues<QuickFillKeystrokeKind>()
+            .Where(key => key is >= QuickFillKeystrokeKind.D0 and <= QuickFillKeystrokeKind.D9)
+            .Select(key => new QuickFillKeystrokeOption(key, $"QuickFill.Sequence.Keystroke.{key}", key.ToString()[1..]))
     ];
 }
 
-public sealed class QuickFillPopupEntryVm
+public sealed partial class QuickFillPopupEntryVm : ObservableObject
 {
     public QuickFillPopupEntryVm(QuickFillEntry entry)
     {
         Entry = entry;
+        isEnabled = entry.Enabled;
     }
 
     public QuickFillEntry Entry { get; }
+    [ObservableProperty] private bool isEnabled;
     public string Name => Entry.Name;
     public string Category => Entry.Category;
     public string TargetDisplay => string.IsNullOrWhiteSpace(Entry.Target.WindowTitleContains)

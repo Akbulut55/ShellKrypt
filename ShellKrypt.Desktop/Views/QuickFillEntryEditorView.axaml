@@ -170,11 +170,10 @@
                PlaceholderText="{DynamicResource Loc.QuickFill.Entry.NamePlaceholder}"
                Text="{Binding EntryName}"
                Classes="qfe-input" />
-      <ComboBox Grid.Row="1"
-                Grid.Column="1"
-                ItemsSource="{Binding CategoryOptions}"
-                SelectedItem="{Binding SelectedCategoryOption}"
-                Classes="qfe-input" />
+      <TextBox Grid.Row="1"
+               Grid.Column="1"
+               Text="{Binding EntryCategory}"
+               Classes="qfe-input" />
       <CheckBox Grid.Row="1"
                 Grid.Column="2"
                 IsChecked="{Binding EntryEnabled}"
@@ -201,7 +200,7 @@
           <ItemsControl.ItemTemplate>
             <DataTemplate>
               <Border Classes="qfe-sequence-row">
-                <Grid ColumnDefinitions="24,32,170,*,*,Auto,Auto,Auto"
+                <Grid ColumnDefinitions="24,32,150,*,2*,Auto,Auto,Auto"
                       ColumnSpacing="10"
                       VerticalAlignment="Center">
                   <TextBlock Grid.Column="0"
@@ -231,11 +230,35 @@
                               SelectedItem="{Binding SelectedFieldOption}"
                               IsVisible="{Binding ShowFieldSelector}"
                               Classes="qfe-input" />
-                    <ComboBox ItemsSource="{Binding KeystrokeOptions}"
-                              SelectedItem="{Binding SelectedKeystrokeOption}"
-                              IsVisible="{Binding ShowValueSelector}"
-                              Classes="qfe-input" />
-                    <TextBox Text="{Binding TextValue}"
+                    <Grid IsVisible="{Binding ShowValueSelector}"
+                          ColumnDefinitions="*,Auto,Auto,Auto,Auto,72"
+                          ColumnSpacing="8">
+                      <ComboBox Grid.Column="0"
+                                ItemsSource="{Binding KeystrokeOptions}"
+                                SelectedItem="{Binding SelectedKeystrokeOption}"
+                                Classes="qfe-input" />
+                      <CheckBox Grid.Column="1"
+                                Content="Ctrl"
+                                IsChecked="{Binding CtrlModifier}"
+                                VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="2"
+                                Content="Alt"
+                                IsChecked="{Binding AltModifier}"
+                                VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="3"
+                                Content="Shift"
+                                IsChecked="{Binding ShiftModifier}"
+                                VerticalAlignment="Center" />
+                      <CheckBox Grid.Column="4"
+                                Content="Meta"
+                                IsChecked="{Binding MetaModifier}"
+                                VerticalAlignment="Center" />
+                      <TextBox Grid.Column="5"
+                               Text="{Binding RepeatCount}"
+                               PlaceholderText="x1"
+                               Classes="qfe-input" />
+                    </Grid>
+                    <TextBox Text="{Binding Text}"
                              PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.TextPlaceholder}"
                              IsVisible="{Binding ShowTextInput}"
                              Classes="qfe-input" />
@@ -285,19 +308,19 @@
                         ColumnSpacing="10">
                     <ComboBox Grid.Column="0"
                               ItemsSource="{Binding FieldKindOptions}"
-                              SelectedItem="{Binding SelectedManualFieldKindOption}"
+                              SelectedItem="{Binding SelectedOwnedFieldKind}"
                               Classes="qfe-input" />
                     <TextBox Grid.Column="1"
-                             Text="{Binding ManualFieldLabel}"
+                             Text="{Binding OwnedFieldLabel}"
                              PlaceholderText="{DynamicResource Loc.QuickFill.Field.Label}"
                              Classes="qfe-input" />
                     <TextBox Grid.Column="2"
-                             Text="{Binding ManualFieldValue}"
+                             Text="{Binding OwnedFieldValue}"
                              PlaceholderText="{DynamicResource Loc.QuickFill.Field.Value}"
                              Classes="qfe-input" />
                     <Button Grid.Column="3"
                             Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
-                            Command="{Binding AddManualFieldCommand}"
+                            Command="{Binding AddOwnedFieldCommand}"
                             Classes="qfe-secondary" />
                   </Grid>
 

@@ -45,13 +45,17 @@ public static class QuickFillSequencePreviewer
                 continue;
             }
 
+            var modifiers = step.Modifiers & (QuickFillKeyModifiers.Ctrl | QuickFillKeyModifiers.Alt | QuickFillKeyModifiers.Shift | QuickFillKeyModifiers.Meta);
+
             normalized.Add(step with
             {
                 Id = string.IsNullOrWhiteSpace(step.Id) ? Guid.NewGuid().ToString("N") : step.Id.Trim(),
                 SortOrder = order++,
                 FieldId = fieldId,
                 Text = step.Text ?? "",
-                DelayMilliseconds = Math.Clamp(step.DelayMilliseconds, 0, 10_000)
+                DelayMilliseconds = Math.Clamp(step.DelayMilliseconds, 0, 10_000),
+                Modifiers = modifiers,
+                RepeatCount = Math.Clamp(step.RepeatCount <= 0 ? 1 : step.RepeatCount, 1, 100)
             });
         }
 
@@ -85,9 +89,47 @@ public static class QuickFillSequencePreviewer
         {
             QuickFillSequenceStepKind.Field => DescribeField(fields.FirstOrDefault(field => string.Equals(field.Id, step.FieldId, StringComparison.OrdinalIgnoreCase))
                 ?? new QuickFillField("", "Field", QuickFillFieldKind.Text, false, 0, QuickFillFieldSourceKind.Owned, "", "", "", "")),
-            QuickFillSequenceStepKind.Keystroke => step.Keystroke == QuickFillKeystrokeKind.Enter ? "[Enter]" : "[Tab]",
+            QuickFillSequenceStepKind.Keystroke => DescribeKeystroke(step),
             QuickFillSequenceStepKind.LiteralText => string.IsNullOrWhiteSpace(step.Text) ? "Text" : "Text",
             QuickFillSequenceStepKind.Delay => $"Delay {Math.Clamp(step.DelayMilliseconds, 0, 10_000)}ms",
             _ => ""
+        };
+
+    private static string DescribeKeystroke(QuickFillSequenceStep step)
+    {
+        var parts = new List<string>();
+        if (step.Modifiers.HasFlag(QuickFillKeyModifiers.Ctrl))
+            parts.Add("Ctrl");
+        if (step.Modifiers.HasFlag(QuickFillKeyModifiers.Alt))
+            parts.Add("Alt");
+        if (step.Modifiers.HasFlag(QuickFillKeyModifiers.Shift))
+            parts.Add("Shift");
+        if (step.Modifiers.HasFlag(QuickFillKeyModifiers.Meta))
+            parts.Add("Meta");
+
+        parts.Add(DescribeKey(step.Keystroke));
+        var value = $"[{string.Join("+", parts)}]";
+        var repeat = Math.Clamp(step.RepeatCount <= 0 ? 1 : step.RepeatCount, 1, 100);
+        return repeat == 1 ? value : $"{value} x{repeat}";
+    }
+
+    private static string DescribeKey(QuickFillKeystrokeKind key)
+        => key switch
+        {
+            QuickFillKeystrokeKind.ArrowLeft => "Left",
+            QuickFillKeystrokeKind.ArrowRight => "Right",
+            QuickFillKeystrokeKind.ArrowUp => "Up",
+            QuickFillKeystrokeKind.ArrowDown => "Down",
+            QuickFillKeystrokeKind.D0 => "0",
+            QuickFillKeystrokeKind.D1 => "1",
+            QuickFillKeystrokeKind.D2 => "2",
+            QuickFillKeystrokeKind.D3 => "3",
+            QuickFillKeystrokeKind.D4 => "4",
+            QuickFillKeystrokeKind.D5 => "5",
+            QuickFillKeystrokeKind.D6 => "6",
+            QuickFillKeystrokeKind.D7 => "7",
+            QuickFillKeystrokeKind.D8 => "8",
+            QuickFillKeystrokeKind.D9 => "9",
+            _ => key.ToString()
         };
 }

@@ -78,6 +78,11 @@
             <TextBlock Text="{Binding HotkeyStatus}"
                        Classes="qf-muted"
                        TextTrimming="CharacterEllipsis"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Button.ConfigureSystemShortcut}"
+                    Classes="qf-secondary-button"
+                    Command="{Binding ConfigureSystemShortcutCommand}"
+                    IsVisible="{Binding CanConfigureSystemShortcut}"
+                    HorizontalAlignment="Left"/>
           </StackPanel>
         </Border>
       </Grid>
@@ -128,7 +133,7 @@
                     <Border Classes="qf-entry-row">
                       <Grid RowDefinitions="Auto,Auto,Auto"
                             RowSpacing="6">
-                        <Grid ColumnDefinitions="*,Auto"
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                               ColumnSpacing="8">
                           <TextBlock Text="{Binding Name}"
                                      FontWeight="SemiBold"
@@ -136,6 +141,18 @@
                           <TextBlock Grid.Column="1"
                                      Text="{Binding EnabledDisplay}"
                                      Classes="qf-badge"/>
+                          <CheckBox Grid.Column="2"
+                                    IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                    Command="{Binding DataContext.SetEntryEnabledCommand, ElementName=Root}"
+                                    CommandParameter="{Binding}"
+                                    VerticalAlignment="Center"/>
+                          <Button Grid.Column="3"
+                                  Content="X"
+                                  Classes="qf-secondary-button"
+                                  Command="{Binding DataContext.DeleteEntryRowCommand, ElementName=Root}"
+                                  CommandParameter="{Binding}"
+                                  Height="28"
+                                  Padding="8,0"/>
                         </Grid>
                         <TextBlock Grid.Row="1"
                                    Text="{Binding TargetDisplay}"

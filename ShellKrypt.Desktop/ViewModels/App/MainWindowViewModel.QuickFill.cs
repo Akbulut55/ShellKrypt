@@ -12,6 +12,7 @@ public partial class MainWindowViewModel
     {
         _globalHotkeyService.Start(_quickFill);
         OnPropertyChanged(nameof(QuickFillHotkeyStatus));
+        OnPropertyChanged(nameof(CanConfigureQuickFillSystemShortcut));
         if (Current is ShellViewModel shell)
             shell.QuickFill.RefreshHotkeyStatus();
     }
@@ -41,6 +42,15 @@ public partial class MainWindowViewModel
     public IDisposable SuppressTransientFocusLoss() => _sessionSecurity.SuppressTransientFocusLoss();
 
     public QuickFillTargetContext CaptureQuickFillTarget() => _foregroundWindowService.Capture();
+
+    public void ConfigureQuickFillSystemShortcut()
+    {
+        _globalHotkeyService.ConfigurePortalShortcut();
+        OnPropertyChanged(nameof(QuickFillHotkeyStatus));
+        OnPropertyChanged(nameof(CanConfigureQuickFillSystemShortcut));
+        if (Current is ShellViewModel shell)
+            shell.QuickFill.RefreshHotkeyStatus();
+    }
 
     public void OpenQuickFillPopup()
     {

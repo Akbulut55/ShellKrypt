@@ -15,6 +15,11 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     [ObservableProperty] private QuickFillKeystrokeKind keystroke = QuickFillKeystrokeKind.Tab;
     [ObservableProperty] private string text = "";
     [ObservableProperty] private int delayMilliseconds = 250;
+    [ObservableProperty] private bool ctrlModifier;
+    [ObservableProperty] private bool altModifier;
+    [ObservableProperty] private bool shiftModifier;
+    [ObservableProperty] private bool metaModifier;
+    [ObservableProperty] private int repeatCount = 1;
     [ObservableProperty] private QuickFillSequenceStepKindOption? selectedKindOption;
     [ObservableProperty] private QuickFillSequenceSourceOption? selectedSourceOption;
     [ObservableProperty] private QuickFillSequenceFieldOption? selectedFieldOption;
@@ -27,6 +32,7 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     public ObservableCollection<QuickFillKeystrokeOption> KeystrokeOptions { get; } = new();
 
     public int StepNumber => SortOrder + 1;
+    public int DisplayNumber => StepNumber;
     public bool IsFieldStep => Kind == QuickFillSequenceStepKind.Field;
     public bool IsKeystrokeStep => Kind == QuickFillSequenceStepKind.Keystroke;
     public bool IsTextStep => Kind == QuickFillSequenceStepKind.LiteralText;
@@ -51,7 +57,12 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
             FieldId = step.FieldId,
             Keystroke = step.Keystroke,
             Text = step.Text,
-            DelayMilliseconds = step.DelayMilliseconds <= 0 ? 250 : step.DelayMilliseconds
+            DelayMilliseconds = step.DelayMilliseconds <= 0 ? 250 : step.DelayMilliseconds,
+            CtrlModifier = step.Modifiers.HasFlag(QuickFillKeyModifiers.Ctrl),
+            AltModifier = step.Modifiers.HasFlag(QuickFillKeyModifiers.Alt),
+            ShiftModifier = step.Modifiers.HasFlag(QuickFillKeyModifiers.Shift),
+            MetaModifier = step.Modifiers.HasFlag(QuickFillKeyModifiers.Meta),
+            RepeatCount = step.RepeatCount <= 0 ? 1 : step.RepeatCount
         };
         vm.ReplaceKindOptions(kindOptions);
         vm.ReplaceKeystrokeOptions(keystrokeOptions);
@@ -70,7 +81,9 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
             FieldId,
             Keystroke,
             Text,
-            DelayMilliseconds);
+            DelayMilliseconds,
+            BuildModifiers(),
+            RepeatCount <= 0 ? 1 : RepeatCount);
 
     public void ReplaceKindOptions(IEnumerable<QuickFillSequenceStepKindOption> options)
     {
@@ -130,7 +143,11 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
             ?? FilteredFieldOptions.FirstOrDefault();
     }
 
-    partial void OnSortOrderChanged(int value) => OnPropertyChanged(nameof(StepNumber));
+    partial void OnSortOrderChanged(int value)
+    {
+        OnPropertyChanged(nameof(StepNumber));
+        OnPropertyChanged(nameof(DisplayNumber));
+    }
 
     partial void OnSelectedKindOptionChanged(QuickFillSequenceStepKindOption? value)
     {
@@ -165,6 +182,20 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     {
         if (value is not null)
             Keystroke = value.Keystroke;
+    }
+
+    private QuickFillKeyModifiers BuildModifiers()
+    {
+        var modifiers = QuickFillKeyModifiers.None;
+        if (CtrlModifier)
+            modifiers |= QuickFillKeyModifiers.Ctrl;
+        if (AltModifier)
+            modifiers |= QuickFillKeyModifiers.Alt;
+        if (ShiftModifier)
+            modifiers |= QuickFillKeyModifiers.Shift;
+        if (MetaModifier)
+            modifiers |= QuickFillKeyModifiers.Meta;
+        return modifiers;
     }
 }
 
@@ -203,18 +234,24 @@ public sealed partial class QuickFillSequenceStepKindOption : ObservableObject
 public sealed partial class QuickFillKeystrokeOption : ObservableObject
 {
     private readonly string _labelKey;
+    private readonly string _fallbackLabel;
 
-    public QuickFillKeystrokeOption(QuickFillKeystrokeKind keystroke, string labelKey)
+    public QuickFillKeystrokeOption(QuickFillKeystrokeKind keystroke, string labelKey, string? fallbackLabel = null)
     {
         Keystroke = keystroke;
         _labelKey = labelKey;
+        _fallbackLabel = fallbackLabel ?? labelKey;
         Label = labelKey;
     }
 
     public QuickFillKeystrokeKind Keystroke { get; }
     [ObservableProperty] private string label = "";
 
-    public void RefreshLocalization(MainWindowViewModel root) => Label = root.Localization.Get(_labelKey);
+    public void RefreshLocalization(MainWindowViewModel root)
+    {
+        var localized = root.Localization.Get(_labelKey);
+        Label = string.Equals(localized, _labelKey, System.StringComparison.Ordinal) ? _fallbackLabel : localized;
+    }
     public override string ToString() => Label;
 }
 

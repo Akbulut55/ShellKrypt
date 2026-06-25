@@ -39,7 +39,7 @@ public sealed class DesktopSecurityServicesTests
         {
             var secret = "KnownSecretValue-Do-Not-Persist";
             var cardNumber = "4111111111111111";
-            var cvc = "987";
+            var cvc = "9876";
             var apiSecret = "sk-live-known-secret-value";
             var otpSeed = "JBSWY3DPEHPK3PXP";
             var noteContent = "Private note body that must stay encrypted";
