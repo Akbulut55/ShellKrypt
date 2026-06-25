@@ -70,6 +70,7 @@ Before relying on a vault, create and verify a backup. If the vault is still unl
 
 - Windows is the primary tested desktop target.
 - English and Turkish runtime localization are available.
+- Quick Fill is unfinished/experimental and should not be treated as a release-ready auto-fill feature yet.
 - macOS and Linux behavior should be validated separately before publishing desktop builds for those platforms.
 - Mobile app heads exist, but the mobile product is not feature-complete.
 - Code signing, installer packaging, update delivery, public support processes, and export-compliance review should be finalized before broad commercial distribution.

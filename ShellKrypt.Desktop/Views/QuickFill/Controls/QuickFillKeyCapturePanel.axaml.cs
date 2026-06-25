@@ -2,13 +2,13 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.ViewModels.QuickFill;
 
-namespace ShellKrypt.Desktop.Views;
+namespace ShellKrypt.Desktop.Views.QuickFill.Controls;
 
-public partial class QuickFillEntryEditorView : UserControl
+public partial class QuickFillKeyCapturePanel : UserControl
 {
-    public QuickFillEntryEditorView()
+    public QuickFillKeyCapturePanel()
     {
         InitializeComponent();
         AddHandler(KeyDownEvent, OnKeyCaptureKeyDown, RoutingStrategies.Tunnel);
@@ -16,7 +16,7 @@ public partial class QuickFillEntryEditorView : UserControl
 
     private void OnKeyCaptureKeyDown(object? sender, KeyEventArgs e)
     {
-        if (!CanCaptureQuickFillKey())
+        if (DataContext is not QuickFillEntryEditorVm editor || !editor.CanCaptureQuickFillKey)
             return;
 
         if (!TryMapKey(e.Key, out var key))
@@ -32,21 +32,9 @@ public partial class QuickFillEntryEditorView : UserControl
         if (e.KeyModifiers.HasFlag(KeyModifiers.Meta))
             modifiers |= QuickFillKeyModifiers.Meta;
 
-        if (DataContext is QuickFillViewModel manager)
-            manager.AddCapturedKeyStep(key, modifiers);
-        else if (DataContext is QuickFillPopupViewModel popup)
-            popup.AddCapturedKeyStep(key, modifiers);
-
+        editor.AddCapturedKeyStep(key, modifiers);
         e.Handled = true;
     }
-
-    private bool CanCaptureQuickFillKey()
-        => DataContext switch
-        {
-            QuickFillViewModel manager => manager.CanCaptureQuickFillKey,
-            QuickFillPopupViewModel popup => popup.CanCaptureQuickFillKey,
-            _ => false
-        };
 
     private static bool TryMapKey(Key key, out QuickFillKeystrokeKind kind)
     {

@@ -6,6 +6,10 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+### Changed
+
+- Marked Quick Fill as unfinished/experimental in public and handbook planning docs.
+
 ## [ShellKrypt 0.17.4] - 2026-06-26
 
 ### Added

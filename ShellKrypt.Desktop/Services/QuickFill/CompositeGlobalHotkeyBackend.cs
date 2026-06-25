@@ -8,21 +8,9 @@ using Avalonia.Threading;
 using ShellKrypt.Application.Settings;
 using Tmds.DBus.Protocol;
 
-namespace ShellKrypt.Desktop.Services;
+namespace ShellKrypt.Desktop.Services.QuickFill;
 
-public enum QuickFillPortalHotkeyState
-{
-    PortalUnavailable,
-    PortalUnsupportedVersion,
-    PortalSessionCreated,
-    PortalShortcutListed,
-    PortalShortcutBound,
-    PortalNeedsConfiguration,
-    PortalReady,
-    PortalFailed
-}
-
-public sealed class GlobalHotkeyService : IDisposable
+internal sealed class CompositeGlobalHotkeyBackend : IQuickFillHotkeyBackend
 {
     private const int WhKeyboardLl = 13;
     private const int WmKeyDown = 0x0100;
@@ -61,7 +49,7 @@ public sealed class GlobalHotkeyService : IDisposable
     private volatile bool _xRunning;
     private bool _shortcutDown;
 
-    public GlobalHotkeyService()
+    public CompositeGlobalHotkeyBackend()
     {
         _proc = HookCallback;
     }
@@ -551,7 +539,7 @@ public sealed class GlobalHotkeyService : IDisposable
                 if (exception is not null)
                     return;
 
-                var service = (GlobalHotkeyService)state!;
+                var service = (CompositeGlobalHotkeyBackend)state!;
                 if (service._portalSessionHandle is { } sessionHandle &&
                     activation.SessionHandle == sessionHandle &&
                     string.Equals(activation.ShortcutId, ShortcutId, StringComparison.Ordinal))
@@ -586,7 +574,7 @@ public sealed class GlobalHotkeyService : IDisposable
                 if (exception is not null)
                     return;
 
-                var service = (GlobalHotkeyService)state!;
+                var service = (CompositeGlobalHotkeyBackend)state!;
                 if (service._portalSessionHandle is { } current && sessionHandle == current)
                     _ = service.RefreshPortalShortcutsAsync();
             },

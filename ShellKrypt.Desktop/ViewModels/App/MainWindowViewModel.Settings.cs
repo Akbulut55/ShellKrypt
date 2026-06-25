@@ -99,13 +99,13 @@ public partial class MainWindowViewModel
 
     private static void ApplyTheme(string themeId)
     {
-        if (Avalonia.Application.Current is App app)
+        if (Avalonia.Application.Current is ShellKrypt.Desktop.App app)
             app.ApplyTheme(themeId);
     }
 
     private void ApplyLocalization()
     {
-        if (Avalonia.Application.Current is App app)
+        if (Avalonia.Application.Current is ShellKrypt.Desktop.App app)
             app.ApplyLocalization(_localization);
     }
 

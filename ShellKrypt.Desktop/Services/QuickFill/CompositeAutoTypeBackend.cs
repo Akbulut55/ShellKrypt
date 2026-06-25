@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ShellKrypt.Core.Items;
 
-namespace ShellKrypt.Desktop.Services;
+namespace ShellKrypt.Desktop.Services.QuickFill;
 
 public enum AutoTypeStepKind
 {
@@ -23,7 +23,7 @@ public sealed record AutoTypeStep(
     QuickFillKeyModifiers Modifiers = QuickFillKeyModifiers.None,
     int RepeatCount = 1);
 
-public sealed class AutoTypeService
+internal sealed class CompositeAutoTypeBackend : IQuickFillAutoTypeBackend
 {
     private const uint InputKeyboard = 1;
     private const uint KeyEventFKeyUp = 0x0002;

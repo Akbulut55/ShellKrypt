@@ -10,6 +10,7 @@ using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Services.QuickFill;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Tools;

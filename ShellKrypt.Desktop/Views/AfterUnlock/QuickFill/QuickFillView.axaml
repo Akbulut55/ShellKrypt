@@ -1,8 +1,8 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
-             xmlns:views="using:ShellKrypt.Desktop.Views"
-             x:Class="ShellKrypt.Desktop.Views.QuickFillView"
+             xmlns:vm="using:ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill"
+             xmlns:qfcontrols="using:ShellKrypt.Desktop.Views.QuickFill.Controls"
+             x:Class="ShellKrypt.Desktop.Views.AfterUnlock.QuickFill.QuickFillView"
              x:Name="Root"
              x:CompileBindings="False"
              x:DataType="vm:QuickFillViewModel">
@@ -201,7 +201,7 @@
                 Classes="qf-panel">
           <ScrollViewer VerticalScrollBarVisibility="Auto"
                         HorizontalScrollBarVisibility="Disabled">
-            <views:QuickFillEntryEditorView/>
+            <qfcontrols:QuickFillEntryEditorView DataContext="{Binding Editor}"/>
           </ScrollViewer>
         </Border>
       </Grid>

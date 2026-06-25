@@ -10,6 +10,7 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Tools;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
 using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.ViewModels;

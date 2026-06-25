@@ -2,7 +2,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 
-namespace ShellKrypt.Desktop.Views;
+namespace ShellKrypt.Desktop.Views.App.QuickFill;
 
 public partial class QuickFillPopupWindow : Window
 {

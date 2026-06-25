@@ -1,6 +1,6 @@
 using Avalonia.Controls;
 
-namespace ShellKrypt.Desktop.Views;
+namespace ShellKrypt.Desktop.Views.AfterUnlock.QuickFill;
 
 public partial class QuickFillView : UserControl
 {

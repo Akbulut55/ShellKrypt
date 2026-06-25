@@ -2,7 +2,8 @@ using System;
 using System.IO;
 using System.Threading.Tasks;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.Views;
+using ShellKrypt.Desktop.ViewModels.App.QuickFill;
+using ShellKrypt.Desktop.Views.App.QuickFill;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
