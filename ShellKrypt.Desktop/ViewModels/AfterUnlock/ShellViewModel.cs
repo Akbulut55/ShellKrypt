@@ -67,7 +67,7 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
-        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, apiKeyService, authenticatorService);
+        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorService);
         Health = new HealthViewModel(_root, this, healthAuditService);
         BackupCenter = new BackupCenterViewModel(_root);
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);

@@ -1,21 +1,10 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="using:ShellKrypt.UI.Shared.Controls"
              x:Class="ShellKrypt.Desktop.Views.QuickFillEntryEditorView"
              x:Name="EditorRoot"
              x:CompileBindings="False">
   <UserControl.Styles>
-    <Style Selector="Border.qfe-target-card">
-      <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="2" />
-      <Setter Property="Padding" Value="0" />
-    </Style>
-    <Style Selector="Border.qfe-target-strip">
-      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
-      <Setter Property="Width" Value="3" />
-      <Setter Property="CornerRadius" Value="2,0,0,2" />
-    </Style>
     <Style Selector="Border.qfe-chip">
       <Setter Property="Background" Value="{DynamicResource TableHeaderBrush}" />
       <Setter Property="CornerRadius" Value="2" />
@@ -31,10 +20,26 @@
     </Style>
     <Style Selector="Border.qfe-sequence-row">
       <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
-      <Setter Property="CornerRadius" Value="4" />
+      <Setter Property="CornerRadius" Value="6" />
       <Setter Property="Padding" Value="10,8" />
-      <Setter Property="MinHeight" Value="54" />
-      <Setter Property="Margin" Value="0,0,0,8" />
+      <Setter Property="MinHeight" Value="48" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.qfe-sequence-empty">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="16" />
+      <Setter Property="MinHeight" Value="96" />
+    </Style>
+    <Style Selector="TextBlock.qfe-sequence-arrow">
+      <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+      <Setter Property="FontFamily" Value="{DynamicResource MonoFontFamily}" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="4,0,12,0" />
     </Style>
     <Style Selector="Border.qfe-step-number">
       <Setter Property="Background" Value="{DynamicResource AppBackgroundBrush}" />
@@ -102,53 +107,13 @@
       <Setter Property="Padding" Value="8,0" />
       <Setter Property="FontSize" Value="12" />
     </Style>
-    <Style Selector="Border.qfe-add-flyout">
-      <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="6" />
-      <Setter Property="Padding" Value="14" />
-      <Setter Property="Width" Value="620" />
-    </Style>
   </UserControl.Styles>
 
-  <Grid RowDefinitions="Auto,Auto,Auto,Auto"
-        RowSpacing="20">
-    <Border Grid.Row="0" Classes="qfe-target-card">
-      <Grid ColumnDefinitions="Auto,*"
-            MinHeight="52">
-        <Border Grid.Column="0" Classes="qfe-target-strip" />
-        <Grid Grid.Column="1"
-              RowDefinitions="Auto,Auto"
-              ColumnDefinitions="*"
-              RowSpacing="4"
-              Margin="16,8">
-          <TextBlock Grid.Row="0"
-                     Text="{DynamicResource Loc.QuickFill.Editor.TargetApplication}"
-                     Classes="qfe-label" />
-          <StackPanel Grid.Row="1"
-                      Orientation="Horizontal"
-                      Spacing="12"
-                      VerticalAlignment="Center">
-            <TextBlock Text="{Binding TargetProcessDisplay}"
-                       Foreground="{DynamicResource TextPrimaryBrush}"
-                       FontWeight="SemiBold"
-                       FontSize="17"
-                       VerticalAlignment="Center" />
-            <Border Classes="qfe-chip"
-                    IsVisible="{Binding HasTargetWindowTitleContains}">
-              <TextBlock Text="{Binding TargetWindowTitleContains}"
-                         Foreground="{DynamicResource TextMutedBrush}"
-                         FontFamily="{DynamicResource MonoFontFamily}"
-                         FontSize="12" />
-            </Border>
-          </StackPanel>
-        </Grid>
-      </Grid>
-    </Border>
-
-    <Grid Grid.Row="1"
-          ColumnDefinitions="*,*,Auto"
+  <Grid>
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          RowSpacing="20">
+    <Grid Grid.Row="0"
+          ColumnDefinitions="*,*"
           RowDefinitions="Auto,Auto"
           ColumnSpacing="18"
           RowSpacing="8">
@@ -160,11 +125,6 @@
                  Grid.Column="1"
                  Text="{DynamicResource Loc.QuickFill.Entry.Category}"
                  Classes="qfe-label" />
-      <TextBlock Grid.Row="0"
-                 Grid.Column="2"
-                 Text="{DynamicResource Loc.QuickFill.Entry.Enabled}"
-                 Classes="qfe-label"
-                 HorizontalAlignment="Center" />
       <TextBox Grid.Row="1"
                Grid.Column="0"
                PlaceholderText="{DynamicResource Loc.QuickFill.Entry.NamePlaceholder}"
@@ -174,14 +134,9 @@
                Grid.Column="1"
                Text="{Binding EntryCategory}"
                Classes="qfe-input" />
-      <CheckBox Grid.Row="1"
-                Grid.Column="2"
-                IsChecked="{Binding EntryEnabled}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center" />
     </Grid>
 
-    <Border Grid.Row="2" Classes="qfe-sequence-card">
+    <Border Grid.Row="1" Classes="qfe-sequence-card">
       <Grid RowDefinitions="Auto,Auto,Auto"
             RowSpacing="12">
         <Grid Grid.Row="0"
@@ -196,94 +151,62 @@
           </Border>
         </Grid>
 
-        <ItemsControl Grid.Row="1" ItemsSource="{Binding SequenceSteps}">
+        <Border Grid.Row="1"
+                Classes="qfe-sequence-empty"
+                IsVisible="{Binding HasNoSequenceSteps}">
+          <StackPanel Spacing="6"
+                      VerticalAlignment="Center">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.EmptyTitle}"
+                       Foreground="{DynamicResource TextPrimaryBrush}"
+                       FontWeight="SemiBold"/>
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.EmptyExample}"
+                       Foreground="{DynamicResource TextMutedBrush}"/>
+          </StackPanel>
+        </Border>
+
+        <ItemsControl Grid.Row="1"
+                      ItemsSource="{Binding SequenceSteps}"
+                      IsVisible="{Binding HasSequenceSteps}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
           <ItemsControl.ItemTemplate>
             <DataTemplate>
-              <Border Classes="qfe-sequence-row">
-                <Grid ColumnDefinitions="24,32,150,*,2*,Auto,Auto,Auto"
-                      ColumnSpacing="10"
-                      VerticalAlignment="Center">
-                  <TextBlock Grid.Column="0"
-                             Text="::"
-                             Foreground="{DynamicResource TextMutedBrush}"
-                             FontFamily="{DynamicResource MonoFontFamily}"
-                             VerticalAlignment="Center"
-                             HorizontalAlignment="Center" />
-                  <Border Grid.Column="1" Classes="qfe-step-number">
-                    <TextBlock Text="{Binding DisplayNumber}"
+              <StackPanel Orientation="Horizontal"
+                          Margin="0,0,0,10">
+                <Border Classes="qfe-sequence-row"
+                        MinWidth="130"
+                        MaxWidth="230">
+                  <Grid RowDefinitions="Auto,Auto"
+                        ColumnDefinitions="*,Auto"
+                        RowSpacing="4"
+                        ColumnSpacing="8">
+                    <TextBlock Text="{Binding DisplayLabel}"
                                Foreground="{DynamicResource TextPrimaryBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               FontFamily="{DynamicResource MonoFontFamily}" />
-                  </Border>
-                  <ComboBox Grid.Column="2"
-                            ItemsSource="{Binding KindOptions}"
-                            SelectedItem="{Binding SelectedKindOption}"
-                            Classes="qfe-input" />
-                  <ComboBox Grid.Column="3"
-                            ItemsSource="{Binding SourceOptions}"
-                            SelectedItem="{Binding SelectedSourceOption}"
-                            IsVisible="{Binding ShowSourceSelector}"
-                            Classes="qfe-input" />
-                  <Grid Grid.Column="4">
-                    <ComboBox ItemsSource="{Binding FilteredFieldOptions}"
-                              SelectedItem="{Binding SelectedFieldOption}"
-                              IsVisible="{Binding ShowFieldSelector}"
-                              Classes="qfe-input" />
-                    <Grid IsVisible="{Binding ShowValueSelector}"
-                          ColumnDefinitions="*,Auto,Auto,Auto,Auto,72"
-                          ColumnSpacing="8">
-                      <ComboBox Grid.Column="0"
-                                ItemsSource="{Binding KeystrokeOptions}"
-                                SelectedItem="{Binding SelectedKeystrokeOption}"
-                                Classes="qfe-input" />
-                      <CheckBox Grid.Column="1"
-                                Content="Ctrl"
-                                IsChecked="{Binding CtrlModifier}"
-                                VerticalAlignment="Center" />
-                      <CheckBox Grid.Column="2"
-                                Content="Alt"
-                                IsChecked="{Binding AltModifier}"
-                                VerticalAlignment="Center" />
-                      <CheckBox Grid.Column="3"
-                                Content="Shift"
-                                IsChecked="{Binding ShiftModifier}"
-                                VerticalAlignment="Center" />
-                      <CheckBox Grid.Column="4"
-                                Content="Meta"
-                                IsChecked="{Binding MetaModifier}"
-                                VerticalAlignment="Center" />
-                      <TextBox Grid.Column="5"
-                               Text="{Binding RepeatCount}"
-                               PlaceholderText="x1"
-                               Classes="qfe-input" />
-                    </Grid>
-                    <TextBox Text="{Binding Text}"
-                             PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.TextPlaceholder}"
-                             IsVisible="{Binding ShowTextInput}"
-                             Classes="qfe-input" />
-                    <TextBox Text="{Binding DelayMilliseconds}"
-                             PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.DelayPlaceholder}"
-                             IsVisible="{Binding ShowDelayInput}"
-                             Classes="qfe-input" />
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"/>
+                    <Button Grid.Column="1"
+                            Content="x"
+                            Command="{Binding DataContext.RemoveSequenceStepCommand, ElementName=EditorRoot}"
+                            CommandParameter="{Binding}"
+                            Classes="qfe-row-button"
+                            MinWidth="24"
+                            MinHeight="24"
+                            Padding="4,0"/>
+                    <TextBlock Grid.Row="1"
+                               Grid.ColumnSpan="2"
+                               Text="{Binding DisplaySubLabel}"
+                               Foreground="{DynamicResource TextMutedBrush}"
+                               FontSize="12"
+                               TextTrimming="CharacterEllipsis"/>
                   </Grid>
-                  <Button Grid.Column="5"
-                          Content="{DynamicResource Loc.QuickFill.Sequence.MoveUp}"
-                          Command="{Binding DataContext.MoveSequenceStepUpCommand, ElementName=EditorRoot}"
-                          CommandParameter="{Binding}"
-                          Classes="qfe-row-button" />
-                  <Button Grid.Column="6"
-                          Content="{DynamicResource Loc.QuickFill.Sequence.MoveDown}"
-                          Command="{Binding DataContext.MoveSequenceStepDownCommand, ElementName=EditorRoot}"
-                          CommandParameter="{Binding}"
-                          Classes="qfe-row-button" />
-                  <Button Grid.Column="7"
-                          Content="X"
-                          Command="{Binding DataContext.RemoveSequenceStepCommand, ElementName=EditorRoot}"
-                          CommandParameter="{Binding}"
-                          Classes="qfe-danger" />
-                </Grid>
-              </Border>
+                </Border>
+                <TextBlock Text="-&gt;"
+                           Classes="qfe-sequence-arrow"
+                           IsVisible="{Binding HasNextStep}"/>
+              </StackPanel>
             </DataTemplate>
           </ItemsControl.ItemTemplate>
         </ItemsControl>
@@ -291,94 +214,12 @@
         <Button Grid.Row="2"
                 Content="{DynamicResource Loc.QuickFill.Sequence.AddStep}"
                 Classes="qfe-secondary"
-                HorizontalAlignment="Left">
-          <Button.Flyout>
-            <Flyout Placement="Bottom">
-              <Border Classes="qfe-add-flyout">
-                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto"
-                      RowSpacing="12">
-                  <Button Grid.Row="0"
-                          Content="{DynamicResource Loc.QuickFill.Sequence.AddBlankStep}"
-                          Command="{Binding AddSequenceStepCommand}"
-                          Classes="qfe-secondary"
-                          HorizontalAlignment="Stretch" />
-
-                  <Grid Grid.Row="1"
-                        ColumnDefinitions="150,*,*,Auto"
-                        ColumnSpacing="10">
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding FieldKindOptions}"
-                              SelectedItem="{Binding SelectedOwnedFieldKind}"
-                              Classes="qfe-input" />
-                    <TextBox Grid.Column="1"
-                             Text="{Binding OwnedFieldLabel}"
-                             PlaceholderText="{DynamicResource Loc.QuickFill.Field.Label}"
-                             Classes="qfe-input" />
-                    <TextBox Grid.Column="2"
-                             Text="{Binding OwnedFieldValue}"
-                             PlaceholderText="{DynamicResource Loc.QuickFill.Field.Value}"
-                             Classes="qfe-input" />
-                    <Button Grid.Column="3"
-                            Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
-                            Command="{Binding AddOwnedFieldCommand}"
-                            Classes="qfe-secondary" />
-                  </Grid>
-
-                  <Grid Grid.Row="2"
-                        ColumnDefinitions="*,*,Auto"
-                        ColumnSpacing="10">
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding WebLoginOptions}"
-                              SelectedItem="{Binding SelectedWebLoginOption}"
-                              Classes="qfe-input" />
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding WebLoginFieldOptions}"
-                              SelectedItem="{Binding SelectedWebLoginFieldOption}"
-                              Classes="qfe-input" />
-                    <Button Grid.Column="2"
-                            Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
-                            Command="{Binding AddWebLoginFieldCommand}"
-                            Classes="qfe-secondary" />
-                  </Grid>
-
-                  <Grid Grid.Row="3"
-                        ColumnDefinitions="*,*,Auto"
-                        ColumnSpacing="10">
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding ApiKeyOptions}"
-                              SelectedItem="{Binding SelectedApiKeyOption}"
-                              Classes="qfe-input" />
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding ApiKeyFieldOptions}"
-                              SelectedItem="{Binding SelectedApiKeyFieldOption}"
-                              Classes="qfe-input" />
-                    <Button Grid.Column="2"
-                            Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
-                            Command="{Binding AddApiKeyFieldCommand}"
-                            Classes="qfe-secondary" />
-                  </Grid>
-
-                  <Grid Grid.Row="4"
-                        ColumnDefinitions="*,Auto"
-                        ColumnSpacing="10">
-                    <ComboBox Grid.Column="0"
-                              ItemsSource="{Binding AuthenticatorOptions}"
-                              SelectedItem="{Binding SelectedAuthenticatorOption}"
-                              Classes="qfe-input" />
-                    <Button Grid.Column="1"
-                            Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
-                            Command="{Binding AddAuthenticatorFieldCommand}"
-                            Classes="qfe-secondary" />
-                  </Grid>
-                </Grid>
-              </Border>
-            </Flyout>
-          </Button.Flyout>
-        </Button>
+                Command="{Binding OpenAddStepModalCommand}"
+                HorizontalAlignment="Left"/>
       </Grid>
     </Border>
 
-    <Grid Grid.Row="3"
+    <Grid Grid.Row="2"
           RowDefinitions="Auto,Auto"
           RowSpacing="16">
       <TextBox Grid.Row="0"
@@ -386,29 +227,210 @@
                PlaceholderText="{DynamicResource Loc.QuickFill.Entry.Notes}"
                Classes="qfe-notes" />
       <Grid Grid.Row="1"
-            ColumnDefinitions="Auto,Auto,*,Auto,Auto,Auto"
+            ColumnDefinitions="*,Auto,Auto,Auto"
             ColumnSpacing="14"
             VerticalAlignment="Center">
-        <CheckBox Grid.Column="0"
-                  Content="{DynamicResource Loc.QuickFill.Entry.Enabled}"
-                  IsChecked="{Binding EntryEnabled}" />
-        <CheckBox Grid.Column="1"
-                  Content="{DynamicResource Loc.QuickFill.Entry.PressEnter}"
-                  IsChecked="{Binding PressEnterAfterFill}" />
-        <Button Grid.Column="3"
+        <Button Grid.Column="1"
                 Content="{DynamicResource Loc.Common.Cancel}"
                 Command="{Binding CancelEditCommand}"
                 Classes="qfe-secondary" />
-        <Button Grid.Column="4"
+        <Button Grid.Column="2"
                 Content="{DynamicResource Loc.Common.Delete}"
                 Command="{Binding DeleteEntryCommand}"
                 IsVisible="{Binding CanDeleteEntry}"
                 Classes="qfe-danger" />
-        <Button Grid.Column="5"
+        <Button Grid.Column="3"
                 Content="{DynamicResource Loc.QuickFill.Button.SaveEntry}"
                 Command="{Binding SaveEntryCommand}"
                 Classes="qfe-primary" />
       </Grid>
     </Grid>
+    </Grid>
+
+    <shared:ModalShell IsOpen="{Binding IsAddStepModalOpen}"
+                       Title="{DynamicResource Loc.QuickFill.Sequence.AddStepPrompt}"
+                       CloseCommand="{Binding CloseAddStepModalCommand}"
+                       FooterText="{Binding PendingKeyPreviewText}"
+                       DialogWidth="520">
+      <shared:ModalShell.Body>
+        <Grid RowDefinitions="Auto,Auto"
+              RowSpacing="14">
+          <WrapPanel Grid.Row="0">
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddFieldChoice}"
+                    Command="{Binding SelectAddFieldModeCommand}"
+                    Classes="qfe-secondary"
+                    Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddKeyChoice}"
+                    Command="{Binding SelectAddKeyModeCommand}"
+                    Classes="qfe-secondary"
+                    Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddTextChoice}"
+                    Command="{Binding SelectAddTextModeCommand}"
+                    Classes="qfe-secondary"
+                    Margin="0,0,8,8"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelayChoice}"
+                    Command="{Binding SelectAddDelayModeCommand}"
+                    Classes="qfe-secondary"
+                    Margin="0,0,8,8"/>
+          </WrapPanel>
+
+          <Grid Grid.Row="1">
+            <StackPanel Spacing="12"
+                        IsVisible="{Binding IsAddFieldMode}">
+              <WrapPanel>
+                <Button Content="{DynamicResource Loc.QuickFill.Source.Manual}"
+                        Command="{Binding SelectManualFieldSourceCommand}"
+                        Classes="qfe-secondary"
+                        Margin="0,0,8,8"/>
+                <Button Content="{DynamicResource Loc.QuickFill.Source.WebLogin}"
+                        Command="{Binding SelectWebLoginFieldSourceCommand}"
+                        Classes="qfe-secondary"
+                        Margin="0,0,8,8"/>
+                <Button Content="{DynamicResource Loc.QuickFill.Source.CreditCard}"
+                        Command="{Binding SelectCreditCardFieldSourceCommand}"
+                        Classes="qfe-secondary"
+                        Margin="0,0,8,8"/>
+                <Button Content="{DynamicResource Loc.QuickFill.Source.ApiKey}"
+                        Command="{Binding SelectApiKeyFieldSourceCommand}"
+                        Classes="qfe-secondary"
+                        Margin="0,0,8,8"/>
+                <Button Content="{DynamicResource Loc.QuickFill.Source.Authenticator}"
+                        Command="{Binding SelectAuthenticatorFieldSourceCommand}"
+                        Classes="qfe-secondary"
+                        Margin="0,0,8,8"/>
+              </WrapPanel>
+
+              <StackPanel Spacing="10"
+                          IsVisible="{Binding IsManualFieldSource}">
+                <TextBox Text="{Binding OwnedFieldLabel}"
+                         PlaceholderText="{DynamicResource Loc.QuickFill.Field.Label}"
+                         Classes="qfe-input" />
+                <TextBox Text="{Binding OwnedFieldValue}"
+                         PlaceholderText="{DynamicResource Loc.QuickFill.Field.Value}"
+                         Classes="qfe-input" />
+                <Button Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
+                        Command="{Binding AddOwnedFieldCommand}"
+                        Classes="qfe-secondary"
+                        HorizontalAlignment="Right" />
+              </StackPanel>
+
+              <StackPanel Spacing="10"
+                          IsVisible="{Binding IsWebLoginFieldSource}">
+                <ComboBox ItemsSource="{Binding WebLoginOptions}"
+                          SelectedItem="{Binding SelectedWebLoginOption}"
+                          Classes="qfe-input" />
+                <ComboBox ItemsSource="{Binding WebLoginFieldOptions}"
+                          SelectedItem="{Binding SelectedWebLoginFieldOption}"
+                          Classes="qfe-input" />
+                <Button Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
+                        Command="{Binding AddWebLoginFieldCommand}"
+                        Classes="qfe-secondary"
+                        HorizontalAlignment="Right" />
+              </StackPanel>
+
+              <StackPanel Spacing="10"
+                          IsVisible="{Binding IsCreditCardFieldSource}">
+                <ComboBox ItemsSource="{Binding CreditCardOptions}"
+                          SelectedItem="{Binding SelectedCreditCardOption}"
+                          Classes="qfe-input" />
+                <ComboBox ItemsSource="{Binding CreditCardFieldOptions}"
+                          SelectedItem="{Binding SelectedCreditCardFieldOption}"
+                          Classes="qfe-input" />
+                <Button Content="{DynamicResource Loc.QuickFill.Button.AddCreditCardField}"
+                        Command="{Binding AddCreditCardFieldCommand}"
+                        Classes="qfe-secondary"
+                        HorizontalAlignment="Right" />
+              </StackPanel>
+
+              <StackPanel Spacing="10"
+                          IsVisible="{Binding IsApiKeyFieldSource}">
+                <ComboBox ItemsSource="{Binding ApiKeyOptions}"
+                          SelectedItem="{Binding SelectedApiKeyOption}"
+                          Classes="qfe-input" />
+                <ComboBox ItemsSource="{Binding ApiKeyFieldOptions}"
+                          SelectedItem="{Binding SelectedApiKeyFieldOption}"
+                          Classes="qfe-input" />
+                <Button Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
+                        Command="{Binding AddApiKeyFieldCommand}"
+                        Classes="qfe-secondary"
+                        HorizontalAlignment="Right" />
+              </StackPanel>
+
+              <StackPanel Spacing="10"
+                          IsVisible="{Binding IsAuthenticatorFieldSource}">
+                <ComboBox ItemsSource="{Binding AuthenticatorOptions}"
+                          SelectedItem="{Binding SelectedAuthenticatorOption}"
+                          Classes="qfe-input" />
+                <Button Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
+                        Command="{Binding AddAuthenticatorFieldCommand}"
+                        Classes="qfe-secondary"
+                        HorizontalAlignment="Right" />
+              </StackPanel>
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsAddKeyMode}">
+              <Border Background="{DynamicResource SurfaceBrush}"
+                      BorderBrush="{DynamicResource BorderBrushSoft}"
+                      BorderThickness="1"
+                      CornerRadius="4"
+                      Padding="12"
+                      Focusable="True">
+                <StackPanel Spacing="4">
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.KeyCaptureTitle}"
+                             Foreground="{DynamicResource TextPrimaryBrush}"
+                             FontWeight="SemiBold"/>
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.KeyCaptureSubtitle}"
+                             Foreground="{DynamicResource TextMutedBrush}"
+                             FontSize="12"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsAddTextMode}">
+              <TextBox Text="{Binding AddStepText}"
+                       PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.TextPlaceholder}"
+                       Classes="qfe-input"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddText}"
+                      Command="{Binding AddTextSequenceStepCommand}"
+                      Classes="qfe-secondary"
+                      HorizontalAlignment="Right"/>
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsAddDelayMode}">
+              <TextBox Text="{Binding AddStepDelayMilliseconds}"
+                       PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.DelayPlaceholder}"
+                       Classes="qfe-input"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelay}"
+                      Command="{Binding AddDelaySequenceStepCommand}"
+                      Classes="qfe-secondary"
+                      HorizontalAlignment="Right"/>
+            </StackPanel>
+          </Grid>
+        </Grid>
+      </shared:ModalShell.Body>
+      <shared:ModalShell.FooterActions>
+        <Grid ColumnDefinitions="Auto,Auto,Auto"
+              ColumnSpacing="10">
+          <Button Grid.Column="0"
+                  Content="{DynamicResource Loc.QuickFill.Sequence.ClearPendingKey}"
+                  Classes="modal-shell-secondary-button"
+                  IsVisible="{Binding HasPendingKeyStep}"
+                  Command="{Binding ClearPendingKeyStepCommand}"/>
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.QuickFill.Sequence.ConfirmPendingKey}"
+                  Classes="modal-shell-primary-button"
+                  IsVisible="{Binding HasPendingKeyStep}"
+                  Command="{Binding ConfirmPendingKeyStepCommand}"/>
+          <Button Grid.Column="2"
+                  Content="{DynamicResource Loc.Common.Cancel}"
+                  Classes="modal-shell-secondary-button"
+                  Command="{Binding CloseAddStepModalCommand}"/>
+        </Grid>
+      </shared:ModalShell.FooterActions>
+    </shared:ModalShell>
   </Grid>
 </UserControl>

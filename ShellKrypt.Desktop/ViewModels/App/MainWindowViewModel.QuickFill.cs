@@ -63,6 +63,7 @@ public partial class MainWindowViewModel
             _vaultService,
             _quickFillEntryService,
             _webLoginService,
+            _cardService,
             _apiKeyService,
             _authenticatorService,
             _autoTypeService,

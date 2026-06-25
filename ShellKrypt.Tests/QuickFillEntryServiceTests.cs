@@ -175,6 +175,46 @@ public sealed class QuickFillEntryServiceTests
         Assert.DoesNotContain(entry.Fields, field => field.LinkedFieldName == "url");
     }
 
+    [Fact]
+    public async Task LinkedCreditCardSelection_StoresOnlyLinkedFieldReference()
+    {
+        using var workspace = new TempWorkspace();
+        var fixture = await CreateUnlockedFixtureAsync(workspace.VaultPath);
+        var cardNumber = "4111111111111111";
+        var cvc = "321";
+        var card = await fixture.Cards.AddAsync(workspace.VaultPath, fixture.VaultKey, new CardInput(
+            "Personal Visa",
+            "Local Bank",
+            "Test Holder",
+            cardNumber,
+            12,
+            2031,
+            cvc,
+            "",
+            "Visa",
+            "Credit Card"));
+
+        var entry = await fixture.QuickFill.AddAsync(workspace.VaultPath, fixture.VaultKey, new QuickFillEntryInput(
+            "Card Checkout",
+            "Payments",
+            true,
+            new QuickFillTargetRule("browser", ""),
+            [
+                new QuickFillField("card-number", "Card number", QuickFillFieldKind.Secret, true, 0, QuickFillFieldSourceKind.CreditCard, "", card.Id, "number", "number"),
+                new QuickFillField("card-cvc", "CVC", QuickFillFieldKind.Secret, true, 1, QuickFillFieldSourceKind.CreditCard, "", card.Id, "cvc", "cvc")
+            ],
+            false,
+            ""));
+
+        Assert.All(entry.Fields, field => Assert.Equal("", field.Value));
+        Assert.Contains(entry.Fields, field => field.SourceKind == QuickFillFieldSourceKind.CreditCard && field.LinkedItemId == card.Id && field.LinkedFieldName == "number");
+        Assert.Contains(entry.Fields, field => field.SourceKind == QuickFillFieldSourceKind.CreditCard && field.LinkedItemId == card.Id && field.LinkedFieldName == "cvc");
+
+        var rawQuickFillPayload = string.Join(" ", entry.Fields.Select(field => field.Value));
+        Assert.DoesNotContain(cardNumber, rawQuickFillPayload, StringComparison.Ordinal);
+        Assert.DoesNotContain(cvc, rawQuickFillPayload, StringComparison.Ordinal);
+    }
+
     private static QuickFillEntryInput BuildInput(string name, string secret) => new(
         Name: name,
         Category: "Developer Tools",
@@ -196,7 +236,7 @@ public sealed class QuickFillEntryServiceTests
         var unlock = await vaultService.UnlockAsync(vaultPath, MasterPassword);
         Assert.True(unlock.Success, unlock.Error);
 
-        return new Fixture(unlock.VaultKey!, new QuickFillEntryService(itemRepository), new WebLoginService(itemRepository));
+        return new Fixture(unlock.VaultKey!, new QuickFillEntryService(itemRepository), new WebLoginService(itemRepository), new CardService(itemRepository));
     }
 
     private static byte[] ReadWorkspaceBytes(string root)
@@ -211,7 +251,7 @@ public sealed class QuickFillEntryServiceTests
         return stream.ToArray();
     }
 
-    private sealed record Fixture(byte[] VaultKey, QuickFillEntryService QuickFill, WebLoginService WebLogins);
+    private sealed record Fixture(byte[] VaultKey, QuickFillEntryService QuickFill, WebLoginService WebLogins, CardService Cards);
 
     private sealed class TempWorkspace : IDisposable
     {

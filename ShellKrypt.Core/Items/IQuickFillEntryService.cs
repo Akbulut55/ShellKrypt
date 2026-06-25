@@ -14,7 +14,8 @@ public enum QuickFillFieldSourceKind
     Owned = 1,
     WebLogin = 2,
     ApiKeyField = 3,
-    Authenticator = 4
+    Authenticator = 4,
+    CreditCard = 5
 }
 
 public enum QuickFillSequenceStepKind

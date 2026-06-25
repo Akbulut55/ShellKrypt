@@ -6,6 +6,21 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.4] - 2026-06-26
+
+### Added
+
+- Added linked credit-card fields to Quick Fill entries without duplicating card values into Quick Fill storage.
+
+### Changed
+
+- Replaced the Quick Fill sequence row editor with readable sequence chips and a smaller guided Add Step builder.
+- Added key-combination capture for Quick Fill key steps in the Add Step builder.
+
+### Fixed
+
+- Kept sensitive linked field values out of Quick Fill sequence chip labels.
+
 ## [ShellKrypt 0.17.3] - 2026-06-25
 
 ### Added

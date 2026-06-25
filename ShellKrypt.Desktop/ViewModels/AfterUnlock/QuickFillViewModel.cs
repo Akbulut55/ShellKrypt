@@ -15,10 +15,12 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     private readonly MainWindowViewModel _root;
     private readonly IQuickFillEntryService _entryService;
     private readonly IWebLoginService _webLoginService;
+    private readonly ICardService _cardService;
     private readonly IApiKeyService _apiKeyService;
     private readonly IAuthenticatorService _authenticatorService;
 
     private IReadOnlyList<WebLoginEntry> _webLogins = [];
+    private IReadOnlyList<CardEntry> _creditCards = [];
     private IReadOnlyList<ApiKeyEntry> _apiKeys = [];
     private IReadOnlyList<AuthenticatorEntry> _authenticators = [];
 
@@ -32,9 +34,19 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     [ObservableProperty] private string notes = "";
     [ObservableProperty] private string ownedFieldLabel = "";
     [ObservableProperty] private string ownedFieldValue = "";
+    [ObservableProperty] private string addStepText = "";
+    [ObservableProperty] private int addStepDelayMilliseconds = 250;
+    [ObservableProperty] private bool isAddStepModalOpen;
+    [ObservableProperty] private bool hasPendingKeyStep;
+    [ObservableProperty] private QuickFillKeystrokeKind pendingKeyStep = QuickFillKeystrokeKind.Tab;
+    [ObservableProperty] private QuickFillKeyModifiers pendingKeyModifiers = QuickFillKeyModifiers.None;
+    [ObservableProperty] private QuickFillAddStepMode addStepMode = QuickFillAddStepMode.Field;
+    [ObservableProperty] private QuickFillAddFieldSource addFieldSource = QuickFillAddFieldSource.Manual;
     [ObservableProperty] private QuickFillFieldKindOption? selectedOwnedFieldKind;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedWebLoginOption;
     [ObservableProperty] private QuickFillWebLoginFieldOption? selectedWebLoginFieldOption;
+    [ObservableProperty] private QuickFillLinkedItemOption? selectedCreditCardOption;
+    [ObservableProperty] private QuickFillCreditCardFieldOption? selectedCreditCardFieldOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedApiKeyFieldOption;
     [ObservableProperty] private QuickFillLinkedItemOption? selectedAuthenticatorOption;
@@ -50,12 +62,14 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         MainWindowViewModel root,
         IQuickFillEntryService entryService,
         IWebLoginService webLoginService,
+        ICardService cardService,
         IApiKeyService apiKeyService,
         IAuthenticatorService authenticatorService)
     {
         _root = root;
         _entryService = entryService;
         _webLoginService = webLoginService;
+        _cardService = cardService;
         _apiKeyService = apiKeyService;
         _authenticatorService = authenticatorService;
 
@@ -64,6 +78,8 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
         foreach (var option in CreateWebLoginFieldOptions())
             WebLoginFieldOptions.Add(option);
+        foreach (var option in CreateCreditCardFieldOptions())
+            CreditCardFieldOptions.Add(option);
         foreach (var option in CreateSequenceStepKindOptions())
             SequenceStepKindOptions.Add(option);
         foreach (var option in CreateKeystrokeOptions())
@@ -71,6 +87,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
         SelectedOwnedFieldKind = FieldKindOptions.FirstOrDefault();
         SelectedWebLoginFieldOption = WebLoginFieldOptions.FirstOrDefault();
+        SelectedCreditCardFieldOption = CreditCardFieldOptions.FirstOrDefault();
         _ = LoadAsync();
     }
 
@@ -80,6 +97,8 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     public ObservableCollection<QuickFillFieldKindOption> FieldKindOptions { get; } = new();
     public ObservableCollection<QuickFillWebLoginFieldOption> WebLoginFieldOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> WebLoginOptions { get; } = new();
+    public ObservableCollection<QuickFillLinkedItemOption> CreditCardOptions { get; } = new();
+    public ObservableCollection<QuickFillCreditCardFieldOption> CreditCardFieldOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> ApiKeyFieldOptions { get; } = new();
     public ObservableCollection<QuickFillLinkedItemOption> AuthenticatorOptions { get; } = new();
@@ -94,6 +113,22 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     public bool HasFilteredEntries => FilteredEntries.Count > 0;
     public bool HasFields => Fields.Count > 0;
     public bool HasSequenceSteps => SequenceSteps.Count > 0;
+    public bool HasNoSequenceSteps => SequenceSteps.Count == 0;
+    public bool IsAddFieldMode => AddStepMode == QuickFillAddStepMode.Field;
+    public bool IsAddKeyMode => AddStepMode == QuickFillAddStepMode.Key;
+    public bool IsAddTextMode => AddStepMode == QuickFillAddStepMode.Text;
+    public bool IsAddDelayMode => AddStepMode == QuickFillAddStepMode.Delay;
+    public bool CanCaptureQuickFillKey => IsAddStepModalOpen && IsAddKeyMode;
+    public string PendingKeyPreviewText => !IsAddKeyMode
+        ? ""
+        : HasPendingKeyStep
+        ? T("QuickFill.Sequence.PendingKeyPreview", QuickFillKeyDisplayFormatter.Format(PendingKeyStep, PendingKeyModifiers))
+        : T("QuickFill.Sequence.PendingKeyEmpty");
+    public bool IsManualFieldSource => AddFieldSource == QuickFillAddFieldSource.Manual;
+    public bool IsWebLoginFieldSource => AddFieldSource == QuickFillAddFieldSource.WebLogin;
+    public bool IsCreditCardFieldSource => AddFieldSource == QuickFillAddFieldSource.CreditCard;
+    public bool IsApiKeyFieldSource => AddFieldSource == QuickFillAddFieldSource.ApiKey;
+    public bool IsAuthenticatorFieldSource => AddFieldSource == QuickFillAddFieldSource.Authenticator;
     public bool HasStatus => !string.IsNullOrWhiteSpace(Status);
     public bool HasTargetWindowTitleContains => !string.IsNullOrWhiteSpace(TargetWindowTitleContains);
     public string TargetProcessDisplay => string.IsNullOrWhiteSpace(TargetProcessName)
@@ -130,6 +165,34 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     partial void OnSelectedCategoryFilterChanged(QuickFillFilterOption? value) => ApplyEntryFilters();
     partial void OnSelectedTargetFilterChanged(QuickFillFilterOption? value) => ApplyEntryFilters();
     partial void OnEnabledOnlyChanged(bool value) => ApplyEntryFilters();
+    partial void OnAddStepModeChanged(QuickFillAddStepMode value)
+    {
+        OnPropertyChanged(nameof(IsAddFieldMode));
+        OnPropertyChanged(nameof(IsAddKeyMode));
+        OnPropertyChanged(nameof(IsAddTextMode));
+        OnPropertyChanged(nameof(IsAddDelayMode));
+        OnPropertyChanged(nameof(CanCaptureQuickFillKey));
+        OnPropertyChanged(nameof(PendingKeyPreviewText));
+        if (value != QuickFillAddStepMode.Key)
+            ClearPendingKeyStep();
+    }
+    partial void OnIsAddStepModalOpenChanged(bool value)
+    {
+        OnPropertyChanged(nameof(CanCaptureQuickFillKey));
+        if (!value)
+            ClearPendingKeyStep();
+    }
+    partial void OnHasPendingKeyStepChanged(bool value) => OnPropertyChanged(nameof(PendingKeyPreviewText));
+    partial void OnPendingKeyStepChanged(QuickFillKeystrokeKind value) => OnPropertyChanged(nameof(PendingKeyPreviewText));
+    partial void OnPendingKeyModifiersChanged(QuickFillKeyModifiers value) => OnPropertyChanged(nameof(PendingKeyPreviewText));
+    partial void OnAddFieldSourceChanged(QuickFillAddFieldSource value)
+    {
+        OnPropertyChanged(nameof(IsManualFieldSource));
+        OnPropertyChanged(nameof(IsWebLoginFieldSource));
+        OnPropertyChanged(nameof(IsCreditCardFieldSource));
+        OnPropertyChanged(nameof(IsApiKeyFieldSource));
+        OnPropertyChanged(nameof(IsAuthenticatorFieldSource));
+    }
 
     public async Task LoadAsync()
     {
@@ -140,6 +203,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         try
         {
             _webLogins = await _webLoginService.ListAsync(_root.VaultPath, _root.VaultKey);
+            _creditCards = await _cardService.ListAsync(_root.VaultPath, _root.VaultKey);
             _apiKeys = await _apiKeyService.ListAsync(_root.VaultPath, _root.VaultKey);
             _authenticators = await _authenticatorService.ListAsync(_root.VaultPath, _root.VaultKey);
             RefreshLinkedOptions();
@@ -188,6 +252,8 @@ public sealed partial class QuickFillViewModel : ViewModelBase
             option.RefreshLocalization(_root);
         foreach (var option in WebLoginFieldOptions)
             option.RefreshLocalization(_root);
+        foreach (var option in CreditCardFieldOptions)
+            option.RefreshLocalization(_root);
         foreach (var option in SequenceStepKindOptions)
             option.RefreshLocalization(_root);
         foreach (var option in KeystrokeOptions)
@@ -209,6 +275,49 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     private void ConfigureSystemShortcut() => _root.ConfigureQuickFillSystemShortcut();
 
     [RelayCommand]
+    private void OpenAddStepModal()
+    {
+        AddStepMode = QuickFillAddStepMode.Field;
+        AddFieldSource = QuickFillAddFieldSource.Manual;
+        ClearPendingKeyStep();
+        IsAddStepModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseAddStepModal()
+    {
+        ClearPendingKeyStep();
+        IsAddStepModalOpen = false;
+    }
+
+    [RelayCommand]
+    private void SelectAddFieldMode() => AddStepMode = QuickFillAddStepMode.Field;
+
+    [RelayCommand]
+    private void SelectAddKeyMode() => AddStepMode = QuickFillAddStepMode.Key;
+
+    [RelayCommand]
+    private void SelectAddTextMode() => AddStepMode = QuickFillAddStepMode.Text;
+
+    [RelayCommand]
+    private void SelectAddDelayMode() => AddStepMode = QuickFillAddStepMode.Delay;
+
+    [RelayCommand]
+    private void SelectManualFieldSource() => AddFieldSource = QuickFillAddFieldSource.Manual;
+
+    [RelayCommand]
+    private void SelectWebLoginFieldSource() => AddFieldSource = QuickFillAddFieldSource.WebLogin;
+
+    [RelayCommand]
+    private void SelectCreditCardFieldSource() => AddFieldSource = QuickFillAddFieldSource.CreditCard;
+
+    [RelayCommand]
+    private void SelectApiKeyFieldSource() => AddFieldSource = QuickFillAddFieldSource.ApiKey;
+
+    [RelayCommand]
+    private void SelectAuthenticatorFieldSource() => AddFieldSource = QuickFillAddFieldSource.Authenticator;
+
+    [RelayCommand]
     private void NewEntry()
     {
         SelectedEntry = null;
@@ -226,12 +335,13 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         Status = "";
         OnPropertyChanged(nameof(HasFields));
         OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(HasNoSequenceSteps));
     }
 
     [RelayCommand]
     private void AddOwnedField()
     {
-        var kind = SelectedOwnedFieldKind?.Kind ?? QuickFillFieldKind.Text;
+        var kind = QuickFillFieldKind.Text;
         var label = string.IsNullOrWhiteSpace(OwnedFieldLabel)
             ? DefaultFieldLabel(kind)
             : OwnedFieldLabel.Trim();
@@ -289,6 +399,25 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void AddCreditCardField()
+    {
+        if (SelectedCreditCardOption is null || SelectedCreditCardFieldOption is null)
+            return;
+
+        AppendFieldAndStep(QuickFillFieldEditorVm.FromField(new QuickFillField(
+            Guid.NewGuid().ToString("N"),
+            SelectedCreditCardFieldOption.Label,
+            SelectedCreditCardFieldOption.Kind,
+            SelectedCreditCardFieldOption.IsSensitive,
+            Fields.Count,
+            QuickFillFieldSourceKind.CreditCard,
+            "",
+            SelectedCreditCardOption.Id,
+            SelectedCreditCardFieldOption.FieldName,
+            SelectedCreditCardFieldOption.FieldName)));
+    }
+
+    [RelayCommand]
     private void AddAuthenticatorField()
     {
         if (SelectedAuthenticatorOption is null)
@@ -321,6 +450,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         RefreshSequenceFieldOptions();
         OnPropertyChanged(nameof(HasFields));
         OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(HasNoSequenceSteps));
     }
 
     [RelayCommand]
@@ -348,19 +478,59 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
     [RelayCommand]
     private void AddTabSequenceStep()
-        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Keystroke, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 0));
+        => CaptureKeyStep(QuickFillKeystrokeKind.Tab, QuickFillKeyModifiers.None);
 
     [RelayCommand]
     private void AddEnterSequenceStep()
-        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Keystroke, SequenceSteps.Count, "", QuickFillKeystrokeKind.Enter, "", 0));
+        => CaptureKeyStep(QuickFillKeystrokeKind.Enter, QuickFillKeyModifiers.None);
+
+    public void AddCapturedKeyStep(QuickFillKeystrokeKind key, QuickFillKeyModifiers modifiers)
+        => CaptureKeyStep(key, modifiers);
+
+    [RelayCommand]
+    private void ConfirmPendingKeyStep()
+    {
+        if (!HasPendingKeyStep)
+            return;
+
+        AddSequenceStep(new QuickFillSequenceStep(
+            Guid.NewGuid().ToString("N"),
+            QuickFillSequenceStepKind.Keystroke,
+            SequenceSteps.Count,
+            "",
+            PendingKeyStep,
+            "",
+            0,
+            PendingKeyModifiers,
+            1));
+        ClearPendingKeyStep();
+    }
+
+    [RelayCommand]
+    private void ClearPendingKeyStep()
+    {
+        HasPendingKeyStep = false;
+        PendingKeyStep = QuickFillKeystrokeKind.Tab;
+        PendingKeyModifiers = QuickFillKeyModifiers.None;
+    }
+
+    private void CaptureKeyStep(QuickFillKeystrokeKind key, QuickFillKeyModifiers modifiers)
+    {
+        PendingKeyStep = key;
+        PendingKeyModifiers = modifiers;
+        HasPendingKeyStep = true;
+    }
 
     [RelayCommand]
     private void AddTextSequenceStep()
-        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.LiteralText, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 0));
+    {
+        AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.LiteralText, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, AddStepText, 0));
+        AddStepText = "";
+    }
 
     [RelayCommand]
     private void AddDelaySequenceStep()
-        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Delay, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", 250));
+        => AddSequenceStep(new QuickFillSequenceStep(Guid.NewGuid().ToString("N"), QuickFillSequenceStepKind.Delay, SequenceSteps.Count, "", QuickFillKeystrokeKind.Tab, "", Math.Clamp(AddStepDelayMilliseconds, 0, 10_000)));
 
     [RelayCommand]
     private void MoveSequenceStepUp(QuickFillSequenceStepEditorVm? step)
@@ -399,6 +569,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         SequenceSteps.Remove(step);
         ResequenceSequenceSteps();
         OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(HasNoSequenceSteps));
         OnPropertyChanged(nameof(SequenceStepCountText));
     }
 
@@ -656,6 +827,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         Status = "";
         OnPropertyChanged(nameof(HasFields));
         OnPropertyChanged(nameof(HasSequenceSteps));
+        OnPropertyChanged(nameof(HasNoSequenceSteps));
         OnPropertyChanged(nameof(SequenceStepCountText));
     }
 
@@ -664,6 +836,10 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         WebLoginOptions.Clear();
         foreach (var login in _webLogins.OrderBy(login => login.Title, StringComparer.OrdinalIgnoreCase))
             WebLoginOptions.Add(new QuickFillLinkedItemOption(login.Id, login.Title));
+
+        CreditCardOptions.Clear();
+        foreach (var card in _creditCards.OrderBy(card => card.Title, StringComparer.OrdinalIgnoreCase))
+            CreditCardOptions.Add(new QuickFillLinkedItemOption(card.Id, string.IsNullOrWhiteSpace(card.Title) ? card.CardType : card.Title));
 
         ApiKeyOptions.Clear();
         foreach (var apiKey in _apiKeys.OrderBy(apiKey => apiKey.Name, StringComparer.OrdinalIgnoreCase))
@@ -675,6 +851,8 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
         SelectedWebLoginOption ??= WebLoginOptions.FirstOrDefault();
         SelectedWebLoginFieldOption ??= WebLoginFieldOptions.FirstOrDefault();
+        SelectedCreditCardOption ??= CreditCardOptions.FirstOrDefault();
+        SelectedCreditCardFieldOption ??= CreditCardFieldOptions.FirstOrDefault();
         SelectedApiKeyOption ??= ApiKeyOptions.FirstOrDefault();
         SelectedAuthenticatorOption ??= AuthenticatorOptions.FirstOrDefault();
         RefreshApiKeyFieldOptions(SelectedApiKeyOption?.Id);
@@ -700,6 +878,8 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         SelectedOwnedFieldKind = FieldKindOptions.FirstOrDefault();
         SelectedWebLoginOption = WebLoginOptions.FirstOrDefault();
         SelectedWebLoginFieldOption = WebLoginFieldOptions.FirstOrDefault();
+        SelectedCreditCardOption = CreditCardOptions.FirstOrDefault();
+        SelectedCreditCardFieldOption = CreditCardFieldOptions.FirstOrDefault();
         SelectedApiKeyOption = ApiKeyOptions.FirstOrDefault();
         SelectedApiKeyFieldOption = ApiKeyFieldOptions.FirstOrDefault();
         SelectedAuthenticatorOption = AuthenticatorOptions.FirstOrDefault();
@@ -726,7 +906,10 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         SequenceSteps.Add(QuickFillSequenceStepEditorVm.FromStep(step, SequenceStepKindOptions, KeystrokeOptions, SequenceFieldOptions));
         ResequenceSequenceSteps();
         if (notify)
+        {
             OnPropertyChanged(nameof(HasSequenceSteps));
+            OnPropertyChanged(nameof(HasNoSequenceSteps));
+        }
         OnPropertyChanged(nameof(SequenceStepCountText));
     }
 
@@ -751,7 +934,10 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     {
         var order = 0;
         foreach (var step in SequenceSteps)
+        {
             step.SortOrder = order++;
+            step.HasNextStep = order < SequenceSteps.Count;
+        }
         OnPropertyChanged(nameof(SequenceStepCountText));
     }
 
@@ -759,6 +945,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         => field.SourceKind switch
         {
             QuickFillFieldSourceKind.WebLogin => $"web:{field.LinkedItemId}",
+            QuickFillFieldSourceKind.CreditCard => $"card:{field.LinkedItemId}",
             QuickFillFieldSourceKind.ApiKeyField => $"api:{field.LinkedItemId}",
             QuickFillFieldSourceKind.Authenticator => $"auth:{field.LinkedItemId}",
             _ => "manual"
@@ -768,13 +955,14 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         => field.SourceKind switch
         {
             QuickFillFieldSourceKind.WebLogin => $"{T("QuickFill.Source.WebLogin")} - {WebLoginOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
+            QuickFillFieldSourceKind.CreditCard => $"{T("QuickFill.Source.CreditCard")} - {CreditCardOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
             QuickFillFieldSourceKind.ApiKeyField => $"{T("QuickFill.Source.ApiKey")} - {ApiKeyOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
             QuickFillFieldSourceKind.Authenticator => $"{T("QuickFill.Source.Authenticator")} - {AuthenticatorOptions.FirstOrDefault(option => option.Id == field.LinkedItemId)?.Label ?? field.SourceDisplay}",
             _ => T("QuickFill.Source.Manual")
         };
 
     private static string SequenceFieldLabel(QuickFillFieldEditorVm field)
-        => field.IsSensitive ? $"*** {field.Label}" : field.Label;
+        => field.Label;
 
     private string DefaultFieldLabel(QuickFillFieldKind kind)
         => kind switch
@@ -809,6 +997,17 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         new("email", QuickFillFieldKind.Username, false, "QuickFill.Field.Email"),
         new("password", QuickFillFieldKind.Password, true, "QuickFill.Field.Password"),
         new("url", QuickFillFieldKind.Text, false, "QuickFill.Field.Url")
+    ];
+
+    private static QuickFillCreditCardFieldOption[] CreateCreditCardFieldOptions() =>
+    [
+        new("cardholder", QuickFillFieldKind.Text, false, "QuickFill.Field.Cardholder"),
+        new("number", QuickFillFieldKind.Secret, true, "QuickFill.Field.CardNumber"),
+        new("expiry_month", QuickFillFieldKind.Text, false, "QuickFill.Field.ExpiryMonth"),
+        new("expiry_year", QuickFillFieldKind.Text, false, "QuickFill.Field.ExpiryYear"),
+        new("expiry", QuickFillFieldKind.Text, false, "QuickFill.Field.Expiry"),
+        new("cvc", QuickFillFieldKind.Secret, true, "QuickFill.Field.Cvc"),
+        new("bank", QuickFillFieldKind.Text, false, "QuickFill.Field.Bank")
     ];
 
     private static QuickFillSequenceStepKindOption[] CreateSequenceStepKindOptions() =>
@@ -896,6 +1095,7 @@ public sealed partial class QuickFillFieldEditorVm : ObservableObject
     public string SourceDisplay => SourceKind switch
     {
         QuickFillFieldSourceKind.WebLogin => "Web Login",
+        QuickFillFieldSourceKind.CreditCard => "Credit Card",
         QuickFillFieldSourceKind.ApiKeyField => "API Key",
         QuickFillFieldSourceKind.Authenticator => "Authenticator",
         _ => "Manual"

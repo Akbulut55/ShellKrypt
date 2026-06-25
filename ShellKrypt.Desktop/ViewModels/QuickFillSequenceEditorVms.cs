@@ -6,6 +6,23 @@ using ShellKrypt.Core.Items;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
+public enum QuickFillAddStepMode
+{
+    Field,
+    Key,
+    Text,
+    Delay
+}
+
+public enum QuickFillAddFieldSource
+{
+    Manual,
+    WebLogin,
+    CreditCard,
+    ApiKey,
+    Authenticator
+}
+
 public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
 {
     [ObservableProperty] private string id = "";
@@ -24,6 +41,7 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     [ObservableProperty] private QuickFillSequenceSourceOption? selectedSourceOption;
     [ObservableProperty] private QuickFillSequenceFieldOption? selectedFieldOption;
     [ObservableProperty] private QuickFillKeystrokeOption? selectedKeystrokeOption;
+    [ObservableProperty] private bool hasNextStep;
 
     public ObservableCollection<QuickFillSequenceStepKindOption> KindOptions { get; } = new();
     public ObservableCollection<QuickFillSequenceSourceOption> SourceOptions { get; } = new();
@@ -37,11 +55,45 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     public bool IsKeystrokeStep => Kind == QuickFillSequenceStepKind.Keystroke;
     public bool IsTextStep => Kind == QuickFillSequenceStepKind.LiteralText;
     public bool IsDelayStep => Kind == QuickFillSequenceStepKind.Delay;
+    public bool IsSensitiveField => IsFieldStep && SelectedFieldOption?.IsSensitive == true;
+    public bool IsLinkedField => IsFieldStep && SelectedFieldOption is not null && SelectedFieldOption.SourceKey != "manual";
+    public bool IsKeyStep => IsKeystrokeStep;
     public bool ShowSourceSelector => IsFieldStep;
     public bool ShowFieldSelector => IsFieldStep;
     public bool ShowValueSelector => IsKeystrokeStep;
     public bool ShowTextInput => IsTextStep;
     public bool ShowDelayInput => IsDelayStep;
+    public string DisplayKind => Kind switch
+    {
+        QuickFillSequenceStepKind.Field => "Field",
+        QuickFillSequenceStepKind.Keystroke => "Key",
+        QuickFillSequenceStepKind.LiteralText => "Text",
+        QuickFillSequenceStepKind.Delay => "Delay",
+        _ => "Step"
+    };
+    public string DisplayLabel => Kind switch
+    {
+        QuickFillSequenceStepKind.Field => SelectedFieldOption?.Label ?? "Field",
+        QuickFillSequenceStepKind.Keystroke => KeyDisplay,
+        QuickFillSequenceStepKind.LiteralText => string.IsNullOrWhiteSpace(Text) ? "\"text\"" : $"\"{TrimText(Text)}\"",
+        QuickFillSequenceStepKind.Delay => $"Delay {DelayMilliseconds} ms",
+        _ => "Step"
+    };
+    public string DisplaySubLabel => Kind switch
+    {
+        QuickFillSequenceStepKind.Field => SelectedFieldOption?.SourceLabel ?? "Manual field",
+        QuickFillSequenceStepKind.Keystroke => "Key",
+        QuickFillSequenceStepKind.LiteralText => "Text",
+        QuickFillSequenceStepKind.Delay => "Delay",
+        _ => ""
+    };
+    private string KeyDisplay
+    {
+        get
+        {
+            return QuickFillKeyDisplayFormatter.Format(Keystroke, BuildModifiers(), RepeatCount, SelectedKeystrokeOption?.Label);
+        }
+    }
 
     public static QuickFillSequenceStepEditorVm FromStep(
         QuickFillSequenceStep step,
@@ -166,6 +218,7 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
         OnPropertyChanged(nameof(ShowValueSelector));
         OnPropertyChanged(nameof(ShowTextInput));
         OnPropertyChanged(nameof(ShowDelayInput));
+        NotifyDisplayChanged();
     }
 
     partial void OnSelectedSourceOptionChanged(QuickFillSequenceSourceOption? value)
@@ -176,6 +229,7 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
     partial void OnSelectedFieldOptionChanged(QuickFillSequenceFieldOption? value)
     {
         FieldId = value?.Id ?? "";
+        NotifyDisplayChanged();
     }
 
     partial void OnSelectedKeystrokeOptionChanged(QuickFillKeystrokeOption? value)
@@ -183,6 +237,28 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
         if (value is not null)
             Keystroke = value.Keystroke;
     }
+
+    partial void OnKeystrokeChanged(QuickFillKeystrokeKind value) => NotifyDisplayChanged();
+    partial void OnTextChanged(string value) => NotifyDisplayChanged();
+    partial void OnDelayMillisecondsChanged(int value) => NotifyDisplayChanged();
+    partial void OnCtrlModifierChanged(bool value) => NotifyDisplayChanged();
+    partial void OnAltModifierChanged(bool value) => NotifyDisplayChanged();
+    partial void OnShiftModifierChanged(bool value) => NotifyDisplayChanged();
+    partial void OnMetaModifierChanged(bool value) => NotifyDisplayChanged();
+    partial void OnRepeatCountChanged(int value) => NotifyDisplayChanged();
+
+    private void NotifyDisplayChanged()
+    {
+        OnPropertyChanged(nameof(IsSensitiveField));
+        OnPropertyChanged(nameof(IsLinkedField));
+        OnPropertyChanged(nameof(IsKeyStep));
+        OnPropertyChanged(nameof(DisplayKind));
+        OnPropertyChanged(nameof(DisplayLabel));
+        OnPropertyChanged(nameof(DisplaySubLabel));
+    }
+
+    private static string TrimText(string value)
+        => value.Length <= 24 ? value : value[..24] + "...";
 
     private QuickFillKeyModifiers BuildModifiers()
     {
@@ -197,6 +273,43 @@ public sealed partial class QuickFillSequenceStepEditorVm : ObservableObject
             modifiers |= QuickFillKeyModifiers.Meta;
         return modifiers;
     }
+}
+
+public static class QuickFillKeyDisplayFormatter
+{
+    public static string Format(
+        QuickFillKeystrokeKind key,
+        QuickFillKeyModifiers modifiers,
+        int repeatCount = 1,
+        string? keyLabel = null)
+    {
+        var parts = new List<string>();
+        if (modifiers.HasFlag(QuickFillKeyModifiers.Ctrl))
+            parts.Add("Ctrl");
+        if (modifiers.HasFlag(QuickFillKeyModifiers.Alt))
+            parts.Add("Alt");
+        if (modifiers.HasFlag(QuickFillKeyModifiers.Shift))
+            parts.Add("Shift");
+        if (modifiers.HasFlag(QuickFillKeyModifiers.Meta))
+            parts.Add("Meta");
+
+        parts.Add(string.IsNullOrWhiteSpace(keyLabel) ? DisplayKeyName(key) : keyLabel);
+        var value = string.Join("+", parts);
+        return repeatCount > 1 ? $"{value} x{repeatCount}" : value;
+    }
+
+    private static string DisplayKeyName(QuickFillKeystrokeKind key)
+        => key switch
+        {
+            QuickFillKeystrokeKind.ArrowLeft => "Left",
+            QuickFillKeystrokeKind.ArrowRight => "Right",
+            QuickFillKeystrokeKind.ArrowUp => "Up",
+            QuickFillKeystrokeKind.ArrowDown => "Down",
+            QuickFillKeystrokeKind.PageUp => "Page Up",
+            QuickFillKeystrokeKind.PageDown => "Page Down",
+            >= QuickFillKeystrokeKind.D0 and <= QuickFillKeystrokeKind.D9 => ((int)(key - QuickFillKeystrokeKind.D0)).ToString(),
+            _ => key.ToString()
+        };
 }
 
 public sealed class QuickFillSequenceSourceOption
@@ -252,6 +365,28 @@ public sealed partial class QuickFillKeystrokeOption : ObservableObject
         var localized = root.Localization.Get(_labelKey);
         Label = string.Equals(localized, _labelKey, System.StringComparison.Ordinal) ? _fallbackLabel : localized;
     }
+    public override string ToString() => Label;
+}
+
+public sealed partial class QuickFillCreditCardFieldOption : ObservableObject
+{
+    private readonly string _labelKey;
+
+    public QuickFillCreditCardFieldOption(string fieldName, QuickFillFieldKind kind, bool isSensitive, string labelKey)
+    {
+        FieldName = fieldName;
+        Kind = kind;
+        IsSensitive = isSensitive;
+        _labelKey = labelKey;
+        Label = labelKey;
+    }
+
+    public string FieldName { get; }
+    public QuickFillFieldKind Kind { get; }
+    public bool IsSensitive { get; }
+    [ObservableProperty] private string label = "";
+
+    public void RefreshLocalization(MainWindowViewModel root) => Label = root.Localization.Get(_labelKey);
     public override string ToString() => Label;
 }
 
