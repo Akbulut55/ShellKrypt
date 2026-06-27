@@ -54,6 +54,7 @@ public sealed partial class AllItemsViewModel
                 OnPropertyChanged(nameof(IsNoteTypeActive));
                 OnPropertyChanged(nameof(IsAuthenticatorTypeActive));
                 OnPropertyChanged(nameof(IsApiKeyTypeActive));
+                OnPropertyChanged(nameof(IsProjectSecretTypeActive));
                 OnPropertyChanged(nameof(AddItemButtonText));
                 ApplyFilter();
             }
@@ -136,6 +137,16 @@ public sealed partial class AllItemsViewModel
         {
             if (SetProperty(ref _apiKeyCount, value))
                 OnPropertyChanged(nameof(ApiKeyFilterLabel));
+        }
+    }
+
+    public int ProjectSecretCount
+    {
+        get => _projectSecretCount;
+        private set
+        {
+            if (SetProperty(ref _projectSecretCount, value))
+                OnPropertyChanged(nameof(ProjectSecretFilterLabel));
         }
     }
 

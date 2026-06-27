@@ -14,6 +14,7 @@ public sealed partial class VaultItemSummaryService
             Notes: items.Count(item => item.Type == ItemType.Note),
             Authenticators: items.Count(item => item.Type == ItemType.Authenticator),
             ApiKeys: items.Count(item => item.Type == ItemType.ApiKey),
+            ProjectSecrets: items.Count(item => item.Type == ItemType.ProjectSecret),
             WeakPasswords: webPasswords.Count(IsWeakPassword),
             ReusedPasswords: CountReusedPasswords(webPasswords),
             ExpiringSoonCards: items.Count(item => item.IsCardExpiryUrgent(now.LocalDateTime.Date)),

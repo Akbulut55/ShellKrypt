@@ -35,6 +35,7 @@ public partial class ShellViewModel : ViewModelBase
         INoteService noteService,
         IAuthenticatorService authenticatorService,
         IApiKeyService apiKeyService,
+        IProjectSecretService projectSecretService,
         IQuickFillEntryService quickFillEntryService,
         AuthenticatorQrImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
@@ -67,6 +68,7 @@ public partial class ShellViewModel : ViewModelBase
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
+        ProjectSecrets = new ProjectSecretsViewModel(_root, projectSecretService, apiKeyService, AllItems.RefreshAfterMutationAsync);
         Tools = new ToolsViewModel(_root, cryptoToolsService);
         QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorService);
         Health = new HealthViewModel(_root, this, healthAuditService);
@@ -82,6 +84,7 @@ public partial class ShellViewModel : ViewModelBase
     public CardsViewModel Cards { get; }
     public AuthenticatorViewModel Authenticator { get; }
     public ApiKeysViewModel ApiKeys { get; }
+    public ProjectSecretsViewModel ProjectSecrets { get; }
     public ToolsViewModel Tools { get; }
     public QuickFillViewModel QuickFill { get; }
     public HealthViewModel Health { get; }
@@ -111,6 +114,7 @@ public partial class ShellViewModel : ViewModelBase
         Cards.RefreshLocalization();
         Authenticator.RefreshLocalization();
         ApiKeys.RefreshLocalization();
+        ProjectSecrets.RefreshLocalization();
         Tools.RefreshLocalization();
         QuickFill.RefreshLocalization();
         Health.RefreshLocalization();

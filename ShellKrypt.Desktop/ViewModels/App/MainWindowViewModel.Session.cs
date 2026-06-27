@@ -89,6 +89,7 @@ public partial class MainWindowViewModel
             _noteService,
             _authenticatorService,
             _apiKeyService,
+            _projectSecretService,
             _quickFillEntryService,
             _authenticatorQrImportService,
             _healthAuditService,

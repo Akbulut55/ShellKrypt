@@ -16,6 +16,7 @@ public sealed partial class AllItemsViewModel
             "note" => ItemType.Note,
             "authenticator" => ItemType.Authenticator,
             "api" => ItemType.ApiKey,
+            "project" => ItemType.ProjectSecret,
             _ => SelectedRow?.Type ?? ItemType.Web
         };
 
@@ -45,6 +46,10 @@ public sealed partial class AllItemsViewModel
                 _shell.ShowApiKeys();
                 ExecuteCommand(_shell.ApiKeys.AddNewCommand);
                 break;
+            case ItemType.ProjectSecret:
+                _shell.ShowProjectSecrets();
+                ExecuteCommand(_shell.ProjectSecrets.AddProjectCommand);
+                break;
         }
     }
 
@@ -73,6 +78,10 @@ public sealed partial class AllItemsViewModel
             case ItemType.ApiKey:
                 _shell.ShowApiKeys();
                 _ = _shell.ShowApiKeyByIdAsync(row.Id);
+                break;
+            case ItemType.ProjectSecret:
+                _shell.ShowProjectSecrets();
+                _ = _shell.ShowProjectSecretByIdAsync(row.Id);
                 break;
         }
     }

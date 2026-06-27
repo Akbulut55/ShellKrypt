@@ -32,6 +32,7 @@ public sealed partial class SqliteVaultTransferService
             ItemType.Authenticator => BuildAuthenticatorDuplicateKey(payloadJson),
             ItemType.ApiKey => BuildApiKeyDuplicateKey(payloadJson),
             ItemType.QuickFillEntry => BuildQuickFillDuplicateKey(payloadJson),
+            ItemType.ProjectSecret => BuildProjectSecretDuplicateKey(payloadJson),
             _ => $"{(int)type}|{payloadJson.Trim()}"
         };
     }
@@ -96,6 +97,17 @@ public sealed partial class SqliteVaultTransferService
             "quick-fill",
             NormalizeDuplicatePart(payload.Name),
             NormalizeDuplicatePart(payload.Target.ProcessName));
+    }
+
+    private static string BuildProjectSecretDuplicateKey(string payloadJson)
+    {
+        var payload = JsonSerializer.Deserialize<ProjectSecretPayload>(payloadJson, JsonOptions)
+            ?? new ProjectSecretPayload("", "", "", null, Array.Empty<ProjectSecretEnvironmentPayload>(), Array.Empty<ProjectSecretLinkedApiKeyPayload>());
+
+        return string.Join("|",
+            "project-secret",
+            NormalizeDuplicatePart(payload.Name),
+            NormalizeDuplicatePart(payload.ProjectRootPath));
     }
 
     private static string NormalizeDuplicatePart(string? value)

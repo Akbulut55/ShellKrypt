@@ -41,6 +41,7 @@ public partial class ShellViewModel
         ShellKryptSectionKeys.QuickFill => T(_root, "Sidebar.quick_fill.Subtitle"),
         ShellKryptSectionKeys.Authenticator => T(_root, "Sidebar.auth.Subtitle"),
         ShellKryptSectionKeys.ApiKeys => T(_root, "Sidebar.api.Subtitle"),
+        ShellKryptSectionKeys.ProjectSecrets => T(_root, "Sidebar.project_secrets.Subtitle"),
         ShellKryptSectionKeys.Settings => T(_root, "Sidebar.settings.Subtitle"),
         ShellKryptSectionKeys.Activity => T(_root, "Sidebar.activity.Subtitle"),
         _ => T(_root, "Shell.LocalWorkspace")
@@ -50,6 +51,7 @@ public partial class ShellViewModel
         ShellKryptSectionKeys.WebLogins or
         ShellKryptSectionKeys.Cards or
         ShellKryptSectionKeys.ApiKeys or
+        ShellKryptSectionKeys.ProjectSecrets or
         ShellKryptSectionKeys.Authenticator or
         ShellKryptSectionKeys.Notes;
     public string SearchPlaceholder => SelectedNav?.Key switch
@@ -65,6 +67,7 @@ public partial class ShellViewModel
         ShellKryptSectionKeys.QuickFill => T(_root, "Shell.Search.QuickFill"),
         ShellKryptSectionKeys.Authenticator => T(_root, "Shell.Search.Authenticator"),
         ShellKryptSectionKeys.ApiKeys => T(_root, "Shell.Search.ApiKeys"),
+        ShellKryptSectionKeys.ProjectSecrets => T(_root, "Shell.Search.ProjectSecrets"),
         ShellKryptSectionKeys.Activity => T(_root, "Shell.Search.Activity"),
         _ => T(_root, "Shell.Search.AllItems")
     };

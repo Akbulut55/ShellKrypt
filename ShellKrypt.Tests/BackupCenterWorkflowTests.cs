@@ -439,7 +439,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         public int ExportEncryptedCallCount { get; private set; }
 
         public Task<VaultSnapshotSummary> GetExportSummaryAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
-            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0));
+            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0, 0));
 
         public Task ExportPlaintextJsonAsync(string vaultPath, byte[] vaultKey, string outputPath, CancellationToken ct = default)
             => Task.CompletedTask;
@@ -451,7 +451,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         }
 
         public Task<VaultSnapshotSummary> GetEncryptedImportSummaryAsync(string packagePath, string exportPassphrase, CancellationToken ct = default)
-            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0));
+            => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0, 0));
 
         public Task ImportEncryptedAsync(string packagePath, string exportPassphrase, string vaultPath, byte[] vaultKey, CancellationToken ct = default)
             => Task.CompletedTask;

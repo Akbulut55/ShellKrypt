@@ -6,6 +6,7 @@ public static class ShellKryptSectionKeys
     public const string WebLogins = "web";
     public const string Cards = "cards";
     public const string ApiKeys = "api";
+    public const string ProjectSecrets = "project_secrets";
     public const string Authenticator = "auth";
     public const string Notes = "notes";
     public const string Generator = "generator";
@@ -43,6 +44,7 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.WebLogins, ShellKryptSectionGroups.Items, "Web Logins", "Logins", "WB", "Credentials, account URLs, and saved login details.", true),
         new(ShellKryptSectionKeys.Cards, ShellKryptSectionGroups.Items, "Credit Cards", "Cards", "CC", "Sensitive payment details protected in the vault.", true),
         new(ShellKryptSectionKeys.ApiKeys, ShellKryptSectionGroups.Items, "API Keys", "API", "AP", "API tokens, client secrets, project IDs, and provider metadata.", true),
+        new(ShellKryptSectionKeys.ProjectSecrets, ShellKryptSectionGroups.Items, "Project Secrets", "Projects", "PS", ".env variables and local project secret workflows.", true),
         new(ShellKryptSectionKeys.Authenticator, ShellKryptSectionGroups.Items, "Authenticator", "Auth", "AU", "Desktop authenticator codes from QR screenshots or pasted secret keys.", true),
         new(ShellKryptSectionKeys.Notes, ShellKryptSectionGroups.Items, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes and vault reference material.", true),
         new(ShellKryptSectionKeys.Generator, ShellKryptSectionGroups.Tools, "Password Generator", "Passwords", "GE", "Generate and transform local secrets without leaving the vault.", false),
@@ -59,6 +61,7 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.WebLogins, ShellKryptSectionGroups.Items, "Web Logins", "Logins", "WB", "Credentials and account URLs.", true),
         new(ShellKryptSectionKeys.Cards, ShellKryptSectionGroups.Items, "Credit Cards", "Cards", "CC", "Payment cards and expiry details.", true),
         new(ShellKryptSectionKeys.ApiKeys, ShellKryptSectionGroups.Items, "API Keys", "API", "AP", "Tokens, client secrets, and provider fields.", true),
+        new(ShellKryptSectionKeys.ProjectSecrets, ShellKryptSectionGroups.Items, "Project Secrets", "Projects", "PS", ".env variables and project secrets.", true),
         new(ShellKryptSectionKeys.Authenticator, ShellKryptSectionGroups.Items, "Authenticator", "Auth", "AU", "TOTP and HOTP codes.", true),
         new(ShellKryptSectionKeys.Notes, ShellKryptSectionGroups.Items, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes.", true),
         new(ShellKryptSectionKeys.Audit, ShellKryptSectionGroups.Security, "Security Audit", "Audit", "SE", "Password risk and remediation.", false),

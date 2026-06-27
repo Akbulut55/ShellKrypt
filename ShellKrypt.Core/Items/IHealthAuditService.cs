@@ -20,6 +20,16 @@ public enum HealthAuditCategory
     ReusedApiSecret,
     OldApiKey,
     ApiKeyMissingSecret,
+    ProjectSecretMissingVariable,
+    ProjectSecretEmptyValue,
+    ProjectSecretDuplicateKey,
+    ProjectSecretInvalidKey,
+    ProjectSecretEnvironmentDrift,
+    ProjectSecretBrokenApiKeyLink,
+    ProjectSecretUnusedVariable,
+    ProjectSecretMissingStoredVariableReferencedByProject,
+    ProjectSecretPossiblePlaintextLeak,
+    ProjectSecretPlaintextExportRisk,
     AutoLockDisabled,
     FocusLockDisabled,
     ClipboardTimeoutLong,
@@ -33,6 +43,7 @@ public enum HealthAuditRecommendedAction
     GenerateReplacementPassword,
     OpenCard,
     OpenApiKey,
+    OpenProjectSecret,
     OpenSettings
 }
 
@@ -62,6 +73,7 @@ public sealed record HealthAuditResult(
     int PasswordIssueCount,
     int CardIssueCount,
     int ApiKeyIssueCount,
+    int ProjectSecretIssueCount,
     int SettingsIssueCount,
     IReadOnlyList<HealthAuditIssue> Issues,
     DateTimeOffset CheckedAtUtc);

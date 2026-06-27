@@ -40,6 +40,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly INoteService _noteService;
     private readonly IAuthenticatorService _authenticatorService;
     private readonly IApiKeyService _apiKeyService;
+    private readonly IProjectSecretService _projectSecretService;
     private readonly IQuickFillEntryService _quickFillEntryService;
     private readonly IHealthAuditService _healthAuditService;
     private readonly ICryptoToolsService _cryptoToolsService = new CryptoToolsService();
@@ -81,6 +82,7 @@ public partial class MainWindowViewModel : ViewModelBase
         _noteService = new NoteService(_itemRepo);
         _authenticatorService = new AuthenticatorService(_itemRepo);
         _apiKeyService = new ApiKeyService(_itemRepo);
+        _projectSecretService = new ProjectSecretService(_itemRepo);
         _quickFillEntryService = new QuickFillEntryService(_itemRepo);
         _healthAuditService = new HealthAuditService(_itemRepo);
 

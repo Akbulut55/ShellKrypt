@@ -21,6 +21,9 @@ public partial class HealthViewModel
     private void ShowApiKeyFindings() => ActiveFilter = FilterApiKeys;
 
     [RelayCommand]
+    private void ShowProjectSecretFindings() => ActiveFilter = FilterProjectSecrets;
+
+    [RelayCommand]
     private void ShowSettingsFindings() => ActiveFilter = FilterSettings;
 
     private void RefreshVisibleIssues()
@@ -33,6 +36,7 @@ public partial class HealthViewModel
             FilterPasswords => _allIssues.Where(issue => issue.ScopeKey == FilterPasswords),
             FilterCards => _allIssues.Where(issue => issue.ScopeKey == FilterCards),
             FilterApiKeys => _allIssues.Where(issue => issue.ScopeKey == FilterApiKeys),
+            FilterProjectSecrets => _allIssues.Where(issue => issue.ScopeKey == FilterProjectSecrets),
             FilterSettings => _allIssues.Where(issue => issue.ScopeKey == FilterSettings),
             _ => _allIssues
         };

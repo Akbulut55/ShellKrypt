@@ -7,6 +7,7 @@ public sealed record VaultItemSummaryCounts(
     int Notes,
     int Authenticators,
     int ApiKeys,
+    int ProjectSecrets,
     int WeakPasswords,
     int ReusedPasswords,
     int ExpiringSoonCards,

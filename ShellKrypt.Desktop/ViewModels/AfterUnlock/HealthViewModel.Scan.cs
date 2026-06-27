@@ -44,6 +44,7 @@ public partial class HealthViewModel
             PasswordFindingCount = result.PasswordIssueCount;
             CardFindingCount = result.CardIssueCount;
             ApiKeyFindingCount = result.ApiKeyIssueCount;
+            ProjectSecretFindingCount = result.ProjectSecretIssueCount;
             SettingsFindingCount = result.SettingsIssueCount;
             TotalIssueCount = result.Issues.Count;
             LastCheckedText = result.CheckedAtUtc.ToString("u");

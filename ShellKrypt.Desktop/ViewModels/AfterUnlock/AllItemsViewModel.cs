@@ -26,6 +26,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     private int _noteCount;
     private int _authenticatorCount;
     private int _apiKeyCount;
+    private int _projectSecretCount;
     private int _filteredCount;
     private int _weakPasswordCount;
     private int _reusedPasswordCount;
@@ -48,6 +49,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
         ShowNoteTypesCommand = new RelayCommand(ShowNoteTypes);
         ShowAuthenticatorTypesCommand = new RelayCommand(ShowAuthenticatorTypes);
         ShowApiKeyTypesCommand = new RelayCommand(ShowApiKeyTypes);
+        ShowProjectSecretTypesCommand = new RelayCommand(ShowProjectSecretTypes);
         RefreshCommand = new AsyncRelayCommand(RefreshAsync);
         ResetFiltersCommand = new RelayCommand(ResetFilters);
         CycleSortCommand = new RelayCommand(CycleSort);
@@ -67,6 +69,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     public ICommand ShowNoteTypesCommand { get; }
     public ICommand ShowAuthenticatorTypesCommand { get; }
     public ICommand ShowApiKeyTypesCommand { get; }
+    public ICommand ShowProjectSecretTypesCommand { get; }
     public ICommand RefreshCommand { get; }
     public ICommand ResetFiltersCommand { get; }
     public ICommand CycleSortCommand { get; }
@@ -89,6 +92,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
             nameof(CardFilterLabel),
             nameof(AuthenticatorFilterLabel),
             nameof(ApiKeyFilterLabel),
+            nameof(ProjectSecretFilterLabel),
             nameof(NoteFilterLabel),
             nameof(AddItemButtonText),
             nameof(EmptyStateTitle),

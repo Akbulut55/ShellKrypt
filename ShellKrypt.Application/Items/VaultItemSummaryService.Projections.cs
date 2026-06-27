@@ -15,6 +15,7 @@ public sealed partial class VaultItemSummaryService
             ItemType.Note => BuildNoteSummary(row, vaultKey, labels),
             ItemType.Authenticator => BuildAuthenticatorSummary(row, vaultKey, labels),
             ItemType.ApiKey => BuildApiKeySummary(row, vaultKey, labels),
+            ItemType.ProjectSecret => BuildProjectSecretSummary(row, vaultKey, labels),
             _ => new VaultItemSummary(
                 row.Header.Id,
                 row.Header.Type,

@@ -33,6 +33,7 @@ public sealed record VaultSnapshotSummary(
     int NoteCount,
     int AuthenticatorCount,
     int ApiKeyCount,
+    int ProjectSecretCount,
     int LabelCount,
     int FavoriteCount);
 

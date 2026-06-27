@@ -30,6 +30,8 @@ public partial class HealthViewModel
                 return await _shell.ShowCardByIdAsync(issue.ItemId);
             case HealthAuditRecommendedAction.OpenApiKey:
                 return await _shell.ShowApiKeyByIdAsync(issue.ItemId);
+            case HealthAuditRecommendedAction.OpenProjectSecret:
+                return await _shell.ShowProjectSecretByIdAsync(issue.ItemId);
             case HealthAuditRecommendedAction.OpenSettings:
                 _shell.ShowSettings();
                 return true;

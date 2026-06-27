@@ -63,6 +63,7 @@ public sealed partial class AllItemsViewModel
                 NoteCount = result.Counts.Notes;
                 AuthenticatorCount = result.Counts.Authenticators;
                 ApiKeyCount = result.Counts.ApiKeys;
+                ProjectSecretCount = result.Counts.ProjectSecrets;
                 WeakPasswordCount = result.Counts.WeakPasswords;
                 ReusedPasswordCount = result.Counts.ReusedPasswords;
                 ExpiringSoonCardCount = result.Counts.ExpiringSoonCards;

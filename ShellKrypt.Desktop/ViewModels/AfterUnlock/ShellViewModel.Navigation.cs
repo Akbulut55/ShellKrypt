@@ -26,6 +26,7 @@ public partial class ShellViewModel
             ShellKryptSectionKeys.Backup => BackupCenter,
             ShellKryptSectionKeys.Authenticator => Authenticator,
             ShellKryptSectionKeys.ApiKeys => ApiKeys,
+            ShellKryptSectionKeys.ProjectSecrets => ProjectSecrets,
             ShellKryptSectionKeys.Settings => Settings,
             ShellKryptSectionKeys.Activity => Activity,
             _ => AllItems
@@ -81,6 +82,12 @@ public partial class ShellViewModel
     {
         SelectNav(ShellKryptSectionKeys.ApiKeys);
         return await ApiKeys.OpenEntryByIdAsync(itemId);
+    }
+    public void ShowProjectSecrets() => SelectNav(ShellKryptSectionKeys.ProjectSecrets);
+    public async Task<bool> ShowProjectSecretByIdAsync(string itemId)
+    {
+        SelectNav(ShellKryptSectionKeys.ProjectSecrets);
+        return await ProjectSecrets.OpenEntryByIdAsync(itemId);
     }
     public void ShowSettings() => SelectNav(ShellKryptSectionKeys.Settings);
     public void ShowActivity() => SelectNav(ShellKryptSectionKeys.Activity);

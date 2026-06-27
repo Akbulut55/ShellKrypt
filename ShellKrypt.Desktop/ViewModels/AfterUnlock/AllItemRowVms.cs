@@ -66,6 +66,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => T("AllItems.Row.Type.Note"),
         ItemType.Authenticator => T("AllItems.Row.Type.Authenticator"),
         ItemType.ApiKey => T("AllItems.Row.Type.ApiKey"),
+        ItemType.ProjectSecret => T("AllItems.Row.Type.ProjectSecret"),
         _ => TypeLabel.ToUpperInvariant()
     };
 
@@ -76,6 +77,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => "MD",
         ItemType.Authenticator => "AU",
         ItemType.ApiKey => "AK",
+        ItemType.ProjectSecret => "PS",
         _ => "IT"
     };
 
@@ -86,6 +88,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => "TypeNoteBackgroundBrush",
         ItemType.Authenticator => "TypeAuthenticatorBackgroundBrush",
         ItemType.ApiKey => "TypeApiKeyBackgroundBrush",
+        ItemType.ProjectSecret => "TypeApiKeyBackgroundBrush",
         _ => "InfoMutedBrush"
     };
 
@@ -96,6 +99,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => "TypeNoteForegroundBrush",
         ItemType.Authenticator => "TypeAuthenticatorForegroundBrush",
         ItemType.ApiKey => "TypeApiKeyForegroundBrush",
+        ItemType.ProjectSecret => "TypeApiKeyForegroundBrush",
         _ => "TextPrimaryBrush"
     };
 
@@ -106,6 +110,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => "TypeNoteBackgroundBrush",
         ItemType.Authenticator => "TypeAuthenticatorBackgroundBrush",
         ItemType.ApiKey => "TypeApiKeyBackgroundBrush",
+        ItemType.ProjectSecret => "TypeApiKeyBackgroundBrush",
         _ => "InfoMutedBrush"
     };
 
@@ -116,6 +121,7 @@ public sealed class AllItemEntry : ObservableObject
         ItemType.Note => "TypeNoteForegroundBrush",
         ItemType.Authenticator => "TypeAuthenticatorForegroundBrush",
         ItemType.ApiKey => "TypeApiKeyForegroundBrush",
+        ItemType.ProjectSecret => "TypeApiKeyForegroundBrush",
         _ => "TextPrimaryBrush"
     };
 

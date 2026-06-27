@@ -54,6 +54,7 @@ public sealed class HealthIssueVm
         ShellKrypt.Core.Items.ItemType.Web => HealthViewModel.FilterPasswords,
         ShellKrypt.Core.Items.ItemType.Card => HealthViewModel.FilterCards,
         ShellKrypt.Core.Items.ItemType.ApiKey => HealthViewModel.FilterApiKeys,
+        ShellKrypt.Core.Items.ItemType.ProjectSecret => HealthViewModel.FilterProjectSecrets,
         null => HealthViewModel.FilterSettings,
         _ => HealthViewModel.FilterAll
     };

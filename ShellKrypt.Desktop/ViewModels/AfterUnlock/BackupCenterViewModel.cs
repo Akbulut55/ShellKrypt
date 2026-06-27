@@ -738,6 +738,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             summary.NoteCount,
             summary.AuthenticatorCount,
             summary.ApiKeyCount,
+            summary.ProjectSecretCount,
             summary.LabelCount,
             summary.FavoriteCount);
 
@@ -747,6 +748,7 @@ public sealed partial class BackupCenterViewModel : ViewModelBase
             summary.ItemCount,
             summary.AuthenticatorCount,
             summary.ApiKeyCount,
+            summary.ProjectSecretCount,
             summary.LabelCount,
             summary.FavoriteCount);
 

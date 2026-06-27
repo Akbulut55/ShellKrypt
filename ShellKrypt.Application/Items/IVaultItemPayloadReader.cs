@@ -9,4 +9,5 @@ public interface IVaultItemPayloadReader
     NotePayload ReadNote(VaultItemRow row, byte[] vaultKey);
     AuthenticatorPayload ReadAuthenticator(VaultItemRow row, byte[] vaultKey);
     ApiKeyPayload ReadApiKey(VaultItemRow row, byte[] vaultKey);
+    ProjectSecretPayload ReadProjectSecret(VaultItemRow row, byte[] vaultKey);
 }

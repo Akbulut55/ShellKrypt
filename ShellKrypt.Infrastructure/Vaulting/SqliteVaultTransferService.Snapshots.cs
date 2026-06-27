@@ -46,6 +46,7 @@ public sealed partial class SqliteVaultTransferService
             snapshot.Items.Count(x => x.Type == ItemType.Note),
             snapshot.Items.Count(x => x.Type == ItemType.Authenticator),
             snapshot.Items.Count(x => x.Type == ItemType.ApiKey),
+            snapshot.Items.Count(x => x.Type == ItemType.ProjectSecret),
             snapshot.Labels.Count,
             snapshot.Items.Count(x => x.Favorite));
     }

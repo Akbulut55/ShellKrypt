@@ -34,6 +34,7 @@ public sealed partial class HealthAuditService : IHealthAuditService
         var issues = new List<HealthAuditIssue>();
         var webLogins = new List<WebLoginHealthItem>();
         var apiSecrets = new List<ApiSecretHealthItem>();
+        var apiKeyFieldIds = BuildApiKeyFieldIdSet(rows, vaultKey);
         var analyzedCount = 0;
 
         foreach (var row in rows)
@@ -51,6 +52,10 @@ public sealed partial class HealthAuditService : IHealthAuditService
                 case ItemType.ApiKey:
                     analyzedCount++;
                     AddApiKeyFindings(row, vaultKey, issues, apiSecrets);
+                    break;
+                case ItemType.ProjectSecret:
+                    analyzedCount++;
+                    AddProjectSecretFindings(row, vaultKey, issues, apiKeyFieldIds);
                     break;
             }
         }
@@ -74,6 +79,7 @@ public sealed partial class HealthAuditService : IHealthAuditService
             PasswordIssueCount: ordered.Count(IsPasswordIssue),
             CardIssueCount: ordered.Count(issue => issue.ItemType == ItemType.Card),
             ApiKeyIssueCount: ordered.Count(issue => issue.ItemType == ItemType.ApiKey),
+            ProjectSecretIssueCount: ordered.Count(issue => issue.ItemType == ItemType.ProjectSecret),
             SettingsIssueCount: ordered.Count(issue => issue.ItemType is null),
             Issues: ordered,
             CheckedAtUtc: DateTimeOffset.UtcNow);

@@ -10,6 +10,7 @@ public static class ItemListFilters
     public const string Note = "note";
     public const string Authenticator = "authenticator";
     public const string Api = "api";
+    public const string Project = "project";
 }
 
 public static class ItemListSortModes

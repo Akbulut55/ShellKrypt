@@ -15,6 +15,7 @@ public sealed partial class AllItemsViewModel
     private void ShowNoteTypes() => ActiveType = "note";
     private void ShowAuthenticatorTypes() => ActiveType = "authenticator";
     private void ShowApiKeyTypes() => ActiveType = "api";
+    private void ShowProjectSecretTypes() => ActiveType = "project";
 
     private void ResetFilters()
     {

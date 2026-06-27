@@ -14,6 +14,7 @@ public sealed partial class AllItemsViewModel
     public bool IsNoteTypeActive => string.Equals(ActiveType, "note", StringComparison.Ordinal);
     public bool IsAuthenticatorTypeActive => string.Equals(ActiveType, "authenticator", StringComparison.Ordinal);
     public bool IsApiKeyTypeActive => string.Equals(ActiveType, "api", StringComparison.Ordinal);
+    public bool IsProjectSecretTypeActive => string.Equals(ActiveType, "project", StringComparison.Ordinal);
 
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
@@ -37,6 +38,7 @@ public sealed partial class AllItemsViewModel
     public string CardFilterLabel => T(_root, "AllItems.Filter.Cards", CardCount);
     public string AuthenticatorFilterLabel => T(_root, "AllItems.Filter.Authenticator", AuthenticatorCount);
     public string ApiKeyFilterLabel => T(_root, "AllItems.Filter.ApiKeys", ApiKeyCount);
+    public string ProjectSecretFilterLabel => T(_root, "AllItems.Filter.ProjectSecrets", ProjectSecretCount);
     public string NoteFilterLabel => T(_root, "AllItems.Filter.Notes", NoteCount);
 
     public string AddItemButtonText => ActiveType switch
@@ -46,6 +48,7 @@ public sealed partial class AllItemsViewModel
         "note" => T(_root, "AllItems.Add.Note"),
         "authenticator" => T(_root, "AllItems.Add.Authenticator"),
         "api" => T(_root, "AllItems.Add.ApiKey"),
+        "project" => T(_root, "AllItems.Add.ProjectSecret"),
         _ => T(_root, "AllItems.Add.Item")
     };
 

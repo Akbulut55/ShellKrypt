@@ -129,6 +129,11 @@
                       VerticalAlignment="Center"
                       Classes.active="{Binding IsApiKeyTypeActive}"
                       Command="{Binding ShowApiKeyTypesCommand}"/>
+              <Button Content="{Binding ProjectSecretFilterLabel}"
+                      Classes="allitems-chip"
+                      VerticalAlignment="Center"
+                      Classes.active="{Binding IsProjectSecretTypeActive}"
+                      Command="{Binding ShowProjectSecretTypesCommand}"/>
               <Button Content="{Binding NoteFilterLabel}"
                       Classes="allitems-chip"
                       VerticalAlignment="Center"

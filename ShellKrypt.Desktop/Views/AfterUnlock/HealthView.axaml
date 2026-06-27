@@ -176,6 +176,10 @@
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsApiKeyFilterActive}"
                             Command="{Binding ShowApiKeyFindingsCommand}"/>
+                    <Button Content="{Binding ProjectSecretsFilterLabel}"
+                            Classes="audit-filter-chip"
+                            Classes.active="{Binding IsProjectSecretFilterActive}"
+                            Command="{Binding ShowProjectSecretFindingsCommand}"/>
                     <Button Content="{Binding SettingsFilterLabel}"
                             Classes="audit-filter-chip"
                             Classes.active="{Binding IsSettingsFilterActive}"

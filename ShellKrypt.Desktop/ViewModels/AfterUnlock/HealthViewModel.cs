@@ -16,6 +16,7 @@ public partial class HealthViewModel : ViewModelBase
     internal const string FilterPasswords = "passwords";
     internal const string FilterCards = "cards";
     internal const string FilterApiKeys = "api";
+    internal const string FilterProjectSecrets = "project";
     internal const string FilterSettings = "settings";
 
     private readonly MainWindowViewModel _root;
@@ -36,6 +37,7 @@ public partial class HealthViewModel : ViewModelBase
     [ObservableProperty] private int passwordFindingCount;
     [ObservableProperty] private int cardFindingCount;
     [ObservableProperty] private int apiKeyFindingCount;
+    [ObservableProperty] private int projectSecretFindingCount;
     [ObservableProperty] private int settingsFindingCount;
     [ObservableProperty] private int totalIssueCount;
     [ObservableProperty] private string lastCheckedText = "Never";
@@ -61,7 +63,7 @@ public partial class HealthViewModel : ViewModelBase
     public bool HasIssues => Issues.Count > 0;
     public bool HasVisibleIssues => VisibleIssues.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public int OtherFindingCount => CardFindingCount + ApiKeyFindingCount + SettingsFindingCount;
+    public int OtherFindingCount => CardFindingCount + ApiKeyFindingCount + ProjectSecretFindingCount + SettingsFindingCount;
     public string HealthScoreDisplay => $"{HealthScore}%";
     public string HealthScoreTitle => HealthScore switch
     {
@@ -88,6 +90,7 @@ public partial class HealthViewModel : ViewModelBase
     public bool IsPasswordFilterActive => ActiveFilter == FilterPasswords;
     public bool IsCardFilterActive => ActiveFilter == FilterCards;
     public bool IsApiKeyFilterActive => ActiveFilter == FilterApiKeys;
+    public bool IsProjectSecretFilterActive => ActiveFilter == FilterProjectSecrets;
     public bool IsSettingsFilterActive => ActiveFilter == FilterSettings;
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
@@ -100,6 +103,7 @@ public partial class HealthViewModel : ViewModelBase
     partial void OnPasswordFindingCountChanged(int value) => NotifyAuditStateChanged();
     partial void OnCardFindingCountChanged(int value) => NotifyAuditStateChanged();
     partial void OnApiKeyFindingCountChanged(int value) => NotifyAuditStateChanged();
+    partial void OnProjectSecretFindingCountChanged(int value) => NotifyAuditStateChanged();
     partial void OnSettingsFindingCountChanged(int value) => NotifyAuditStateChanged();
     partial void OnTotalIssueCountChanged(int value) => NotifyAuditStateChanged();
 
@@ -130,6 +134,7 @@ public partial class HealthViewModel : ViewModelBase
         OnPropertyChanged(nameof(PasswordsFilterLabel));
         OnPropertyChanged(nameof(CardsFilterLabel));
         OnPropertyChanged(nameof(ApiKeysFilterLabel));
+        OnPropertyChanged(nameof(ProjectSecretsFilterLabel));
         OnPropertyChanged(nameof(SettingsFilterLabel));
         NotifyScoreChanged();
     }
@@ -150,6 +155,7 @@ public partial class HealthViewModel : ViewModelBase
         OnPropertyChanged(nameof(IsPasswordFilterActive));
         OnPropertyChanged(nameof(IsCardFilterActive));
         OnPropertyChanged(nameof(IsApiKeyFilterActive));
+        OnPropertyChanged(nameof(IsProjectSecretFilterActive));
         OnPropertyChanged(nameof(IsSettingsFilterActive));
         OnPropertyChanged(nameof(EmptyIssuesTitle));
         OnPropertyChanged(nameof(EmptyIssuesText));
@@ -160,6 +166,7 @@ public partial class HealthViewModel : ViewModelBase
     public string PasswordsFilterLabel => T(_root, "SecurityAudit.Filter.Passwords", PasswordFindingCount);
     public string CardsFilterLabel => T(_root, "SecurityAudit.Filter.Cards", CardFindingCount);
     public string ApiKeysFilterLabel => T(_root, "SecurityAudit.Filter.ApiKeys", ApiKeyFindingCount);
+    public string ProjectSecretsFilterLabel => T(_root, "SecurityAudit.Filter.ProjectSecrets", ProjectSecretFindingCount);
     public string SettingsFilterLabel => T(_root, "SecurityAudit.Filter.Settings", SettingsFindingCount);
 
     public override void RefreshLocalization()
@@ -177,6 +184,7 @@ public partial class HealthViewModel : ViewModelBase
             nameof(PasswordsFilterLabel),
             nameof(CardsFilterLabel),
             nameof(ApiKeysFilterLabel),
+            nameof(ProjectSecretsFilterLabel),
             nameof(SettingsFilterLabel));
     }
 }

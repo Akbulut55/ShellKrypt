@@ -6,6 +6,10 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+### Added
+
+- Added Project Secrets as an encrypted `.env` workspace with project environments, variables, API Key links, `.env` import/export/template flows, environment comparison, filesystem scanning, All Items integration, backup counts, and Security Audit findings.
+
 ### Changed
 
 - Marked Quick Fill as unfinished/experimental in public and handbook planning docs.

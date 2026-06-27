@@ -25,6 +25,7 @@ public sealed partial class VaultItemSummaryService
             ItemListFilters.Note => filtered.Where(item => item.Type == ItemType.Note),
             ItemListFilters.Authenticator => filtered.Where(item => item.Type == ItemType.Authenticator),
             ItemListFilters.Api => filtered.Where(item => item.Type == ItemType.ApiKey),
+            ItemListFilters.Project => filtered.Where(item => item.Type == ItemType.ProjectSecret),
             _ => filtered
         };
 
@@ -42,6 +43,7 @@ public sealed partial class VaultItemSummaryService
                     ItemType.Note => 2,
                     ItemType.Authenticator => 3,
                     ItemType.ApiKey => 4,
+                    ItemType.ProjectSecret => 5,
                     _ => 99
                 })
                 .ThenBy(item => item.Title, StringComparer.OrdinalIgnoreCase),
