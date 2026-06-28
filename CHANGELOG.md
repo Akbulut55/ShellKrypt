@@ -6,13 +6,23 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.5] - 2026-06-28
+
 ### Added
 
 - Added Project Secrets as an encrypted `.env` workspace with project environments, variables, API Key links, `.env` import/export/template flows, environment comparison, filesystem scanning, All Items integration, backup counts, and Security Audit findings.
 
 ### Changed
 
+- Redesigned the Project Secrets desktop workspace around a project-header selector, read-only/edit modes, environment tabs, import/export actions, compare, scanner, and settings views.
+- Changed Project Secrets variables to use inline row editing, masked value fields with eye-icon reveal controls, explicit API Key references, and drag/drop variable ordering.
+- Narrowed API Keys back to a simple standalone API key/token workspace while keeping Project Secrets responsible for project-level environment variables.
 - Marked Quick Fill as unfinished/experimental in public and handbook planning docs.
+
+### Fixed
+
+- Fixed Project Secrets empty-project display so a new vault starts with a visible New Project draft instead of a blank project title.
+- Fixed Project Secrets variable rows so referenced API Keys are selected through a picker and stored as references without copying the original value.
 
 ## [ShellKrypt 0.17.4] - 2026-06-26
 

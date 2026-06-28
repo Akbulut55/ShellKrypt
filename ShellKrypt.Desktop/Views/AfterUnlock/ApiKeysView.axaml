@@ -69,10 +69,6 @@
                      PlaceholderText="{DynamicResource Loc.ApiKeys.Search.Placeholder}"
                      VerticalAlignment="Center"/>
             <ComboBox Classes="api-select"
-                      ItemsSource="{Binding EnvironmentFilters}"
-                      SelectedItem="{Binding SelectedEnvironmentFilter, Mode=TwoWay}"
-                      VerticalAlignment="Center"/>
-            <ComboBox Classes="api-select"
                       ItemsSource="{Binding ProviderFilters}"
                       SelectedItem="{Binding SelectedProviderFilter, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
@@ -104,7 +100,7 @@
                 ClipToBounds="True">
           <Grid RowDefinitions="Auto,390,Auto">
             <Border Classes="table-header-row">
-              <Grid ColumnDefinitions="1.0*,0.62*,0.52*,0.78*,0.44*,152"
+              <Grid ColumnDefinitions="1.15*,0.72*,1.0*,0.48*,152"
                     ColumnSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.ApiKeys.Table.Identity}"
                            Classes="table-header-text"/>
@@ -112,15 +108,12 @@
                            Text="{DynamicResource Loc.ApiKeys.Table.Provider}"
                            Classes="table-header-text"/>
                 <TextBlock Grid.Column="2"
-                           Text="{DynamicResource Loc.ApiKeys.Table.Environment}"
-                           Classes="table-header-text"/>
-                <TextBlock Grid.Column="3"
                            Text="{DynamicResource Loc.ApiKeys.Table.PrimaryField}"
                            Classes="table-header-text"/>
-                <TextBlock Grid.Column="4"
+                <TextBlock Grid.Column="3"
                            Text="{DynamicResource Loc.ApiKeys.Table.Updated}"
                            Classes="table-header-text"/>
-                <TextBlock Grid.Column="5"
+                <TextBlock Grid.Column="4"
                            Text="{DynamicResource Loc.Common.Actions.Header}"
                            Classes="table-header-text"
                            HorizontalAlignment="Right"/>
@@ -135,7 +128,7 @@
                   <ItemsControl.ItemTemplate>
                   <DataTemplate x:DataType="vm:ApiKeyRowVm">
                     <Border Classes="table-row">
-                      <Grid ColumnDefinitions="1.0*,0.62*,0.52*,0.78*,0.44*,152"
+                      <Grid ColumnDefinitions="1.15*,0.72*,1.0*,0.48*,152"
                             ColumnSpacing="8"
                             Margin="12,0"
                             MinHeight="78">
@@ -183,19 +176,7 @@
                                    TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center"/>
 
-                        <Border Grid.Column="2"
-                                Classes="api-env-chip"
-                                Padding="9,3"
-                                HorizontalAlignment="Left"
-                                VerticalAlignment="Center">
-                          <TextBlock Text="{Binding EnvironmentDisplay}"
-                                     FontSize="11"
-                                     FontWeight="Black"
-                                     Foreground="{StaticResource TextMutedBrush}"
-                                     TextTrimming="CharacterEllipsis"/>
-                        </Border>
-
-                        <StackPanel Grid.Column="3"
+                        <StackPanel Grid.Column="2"
                                     Spacing="4"
                                     VerticalAlignment="Center">
                           <TextBlock Text="{Binding PrimaryFieldLabel}"
@@ -207,13 +188,13 @@
                                      TextTrimming="CharacterEllipsis"/>
                         </StackPanel>
 
-                        <TextBlock Grid.Column="4"
+                        <TextBlock Grid.Column="3"
                                    Text="{Binding UpdatedDisplay}"
                                    FontSize="12"
                                    Foreground="{StaticResource TextMutedBrush}"
                                    VerticalAlignment="Center"/>
 
-                        <StackPanel Grid.Column="5"
+                        <StackPanel Grid.Column="4"
                                     Orientation="Horizontal"
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center"
@@ -264,7 +245,7 @@
                        CloseCommand="{Binding CancelApiKeyModalCommand}">
       <shared:ModalShell.Body>
         <Grid RowDefinitions="Auto,Auto,Auto"
-              ColumnDefinitions="1.2*,1.05*,0.85*"
+              ColumnDefinitions="1.2*,1.05*"
               RowSpacing="14"
               ColumnSpacing="16">
               <StackPanel Spacing="7">
@@ -286,139 +267,35 @@
                          PlaceholderText="{DynamicResource Loc.ApiKeys.Form.Provider.Placeholder}"/>
               </StackPanel>
 
-              <StackPanel Grid.Column="2"
-                          Spacing="7">
-                <TextBlock Text="{DynamicResource Loc.ApiKeys.Form.Environment}"
-                           Classes="modal-shell-label"/>
-                <ComboBox ItemsSource="{Binding EnvironmentOptions}"
-                          SelectedItem="{Binding AddEnvironment, Mode=TwoWay}"
-                          IsEnabled="{Binding IsApiKeyFormEditable}"
-                          Classes="modal-shell-input"/>
-              </StackPanel>
-
               <StackPanel Grid.Row="1"
-                          Grid.ColumnSpan="3"
+                          Grid.ColumnSpan="2"
                           Spacing="7">
-                <Grid ColumnDefinitions="*,Auto"
-                      ColumnSpacing="12">
-                  <TextBlock Text="{DynamicResource Loc.ApiKeys.Form.Fields}"
-                             Classes="modal-shell-label"
-                             VerticalAlignment="Center"/>
-                  <Button Grid.Column="1"
-                          Classes="modal-shell-small-button"
-                          Command="{Binding AddFieldCommand}"
-                          IsVisible="{Binding IsApiKeyFormEditable}">
-                    <StackPanel Orientation="Horizontal"
-                                Spacing="6"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                      <TextBlock Text="{DynamicResource Loc.ApiKeys.Button.AddField}"
-                                 Foreground="{StaticResource AccentBrush}"
-                                 FontWeight="Black"/>
-                      <Path Classes="material-icon accent"
-                            Width="14"
-                            Height="14"
-                            Data="{StaticResource IconAdd}"/>
-                    </StackPanel>
-                  </Button>
-                </Grid>
-
-                <Border Classes="api-fields-shell">
-                  <ScrollViewer MaxHeight="220"
-                                HorizontalScrollBarVisibility="Disabled"
-                                VerticalScrollBarVisibility="Auto">
-                    <ItemsControl ItemsSource="{Binding FormFields}"
-                                  HorizontalAlignment="Stretch">
-                      <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                          <StackPanel Spacing="5"/>
-                        </ItemsPanelTemplate>
-                      </ItemsControl.ItemsPanel>
-                      <ItemsControl.ItemTemplate>
-                        <DataTemplate x:DataType="vm:ApiKeyFieldRowVm">
-                          <Border Classes="api-field-row"
-                                  ClipToBounds="True"
-                                  HorizontalAlignment="Stretch">
-                            <Grid ColumnDefinitions="1*,0.82*,1.12*,Auto,Auto"
-                                  ColumnSpacing="6"
-                                  ClipToBounds="True"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Center">
-                              <TextBox Text="{Binding Label, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                       Classes="modal-shell-input compact"
-                                       IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                       PlaceholderText="{DynamicResource Loc.ApiKeys.Form.FieldLabel.Placeholder}"
-                                       HorizontalAlignment="Stretch"
-                                       VerticalAlignment="Center"/>
-
-                              <ComboBox Grid.Column="1"
-                                        Classes="modal-shell-input compact"
-                                        ItemsSource="{Binding DataContext.FieldTypeOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        SelectedItem="{Binding FieldType, Mode=TwoWay}"
-                                        IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        PointerWheelChanged="OnFieldTypeComboBoxPointerWheelChanged"
-                                        HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Center"/>
-
-                              <Border Grid.Column="2"
-                                      Classes="modal-shell-input-shell compact"
-                                      ClipToBounds="True"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Center">
-                                <Grid ColumnDefinitions="*,Auto"
-                                      ColumnSpacing="8"
-                                      ClipToBounds="True"
-                                      HorizontalAlignment="Stretch"
-                                      VerticalAlignment="Center">
-                                  <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                           Classes="modal-shell-input borderless compact"
-                                           IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           PasswordChar="*"
-                                           IsVisible="{Binding UseMaskedValueInput}"
-                                           PlaceholderText="{DynamicResource Loc.ApiKeys.Form.SecretValue.Placeholder}"
-                                           HorizontalAlignment="Stretch"
-                                           VerticalAlignment="Center"/>
-                                  <TextBox Text="{Binding Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                           Classes="modal-shell-input borderless compact"
-                                           IsReadOnly="{Binding DataContext.IsApiKeyFormReadOnly, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                           IsVisible="{Binding UsePlainValueInput}"
-                                           PlaceholderText="{DynamicResource Loc.ApiKeys.Form.SecretValue.Placeholder}"
-                                           HorizontalAlignment="Stretch"
-                                           VerticalAlignment="Center"/>
-                                  <Button Grid.Column="1"
-                                          Content="{Binding VisibilityLabel}"
-                                          Classes="modal-shell-field-action compact"
-                                          Command="{Binding DataContext.ToggleFieldVisibilityCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                          CommandParameter="{Binding}"
-                                          IsVisible="{Binding CanReveal}"/>
-                                </Grid>
-                              </Border>
-
-                              <CheckBox Grid.Column="3"
-                                        Content="{DynamicResource Loc.ApiKeys.Form.Secret}"
-                                        Classes="api-check"
-                                        IsChecked="{Binding IsSensitive, Mode=TwoWay}"
-                                        IsEnabled="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                        VerticalAlignment="Center"/>
-
-                              <Button Grid.Column="4"
-                                      Content="X"
-                                      Classes="modal-shell-field-remove compact"
-                                      Command="{Binding DataContext.RemoveFieldCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      CommandParameter="{Binding}"
-                                      IsVisible="{Binding DataContext.IsApiKeyFormEditable, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                      VerticalAlignment="Center"/>
-                            </Grid>
-                          </Border>
-                        </DataTemplate>
-                      </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-                  </ScrollViewer>
+                <TextBlock Text="{DynamicResource Loc.ApiKeys.Form.ApiKeyValue}"
+                           Classes="modal-shell-label"/>
+                <Border Classes="modal-shell-input-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="8">
+                    <TextBox Text="{Binding ApiKeyValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="modal-shell-input borderless"
+                             IsReadOnly="{Binding IsApiKeyFormReadOnly}"
+                             PasswordChar="*"
+                             IsVisible="{Binding UseMaskedApiKeyInput}"
+                             PlaceholderText="{DynamicResource Loc.ApiKeys.Form.SecretValue.Placeholder}"/>
+                    <TextBox Text="{Binding ApiKeyValue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="modal-shell-input borderless"
+                             IsReadOnly="{Binding IsApiKeyFormReadOnly}"
+                             IsVisible="{Binding UsePlainApiKeyInput}"
+                             PlaceholderText="{DynamicResource Loc.ApiKeys.Form.SecretValue.Placeholder}"/>
+                    <Button Grid.Column="1"
+                            Content="{Binding ApiKeyValueVisibilityLabel}"
+                            Classes="modal-shell-field-action"
+                            Command="{Binding ToggleApiKeyValueVisibilityCommand}"/>
+                  </Grid>
                 </Border>
               </StackPanel>
 
               <StackPanel Grid.Row="2"
-                          Grid.ColumnSpan="3"
+                          Grid.ColumnSpan="2"
                           Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.Common.Notes.Label}"
                            Classes="modal-shell-label"/>
@@ -577,11 +454,6 @@
       <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="LetterSpacing" Value="1.8"/>
-    </Style>
-
-    <Style Selector="Border.api-env-chip">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="CornerRadius" Value="4"/>
     </Style>
 
 

@@ -93,7 +93,6 @@ public partial class ApiKeysViewModel
             ClearForm();
             IsApiKeyModalOpen = false;
             SearchText = "";
-            SelectedEnvironmentFilter = AllEnvironmentFilter;
             SelectedProviderFilter = AllProviderFilter;
             SelectedSortOption = SortNewest;
             ApplyFilter();
@@ -152,8 +151,10 @@ public partial class ApiKeysViewModel
         AddProvider = "";
         AddEnvironment = "Production";
         AddNotes = "";
+        IsApiKeyValueVisible = false;
         FormFields.Clear();
         AddDefaultFields();
+        OnPropertyChanged(nameof(ApiKeyValue));
         NotifyFormFieldsChanged();
     }
 
@@ -161,13 +162,19 @@ public partial class ApiKeysViewModel
     {
         AddName = row.Name;
         AddProvider = row.Provider;
-        AddEnvironment = row.EnvironmentDisplay;
+        AddEnvironment = "Production";
         AddNotes = row.Notes;
+        IsApiKeyValueVisible = false;
         FormFields.Clear();
 
-        foreach (var field in row.Fields.OrderBy(field => field.SortOrder))
+        if (row.PrimaryField is { } primaryField)
         {
-            var clone = field.Clone();
+            var clone = primaryField.Clone();
+            clone.Label = "API Key";
+            clone.FieldType = DefaultFieldType;
+            clone.IsSensitive = true;
+            clone.IsCopyable = true;
+            clone.SortOrder = 0;
             clone.IsValueVisible = false;
             FormFields.Add(clone);
         }
@@ -175,24 +182,34 @@ public partial class ApiKeysViewModel
         if (FormFields.Count == 0)
             AddDefaultFields();
 
+        OnPropertyChanged(nameof(ApiKeyValue));
         NotifyFormFieldsChanged();
     }
 
     private ApiKeyInput BuildInput()
     {
-        ResequenceFormFields();
+        var field = EnsurePrimaryFormField();
+        field.Label = "API Key";
+        field.FieldType = DefaultFieldType;
+        field.IsSensitive = true;
+        field.IsCopyable = true;
+        field.SortOrder = 0;
+
         return new ApiKeyInput(
             AddName,
             AddProvider,
             AddEnvironment,
             AddNotes,
-            FormFields.Select(field => new ApiKeyFieldInput(
+            new[]
+            {
+                new ApiKeyFieldInput(
                 field.Id,
                 field.Label,
                 field.FieldType,
                 field.Value,
                 field.IsSensitive,
                 field.IsCopyable,
-                field.SortOrder)).ToArray());
+                field.SortOrder)
+            });
     }
 }

@@ -20,7 +20,6 @@ public partial class ApiKeysViewModel
             return false;
 
         SearchText = "";
-        SelectedEnvironmentFilter = AllEnvironmentFilter;
         SelectedProviderFilter = AllProviderFilter;
         SelectedSortOption = SortNewest;
         ApplyFilter();
@@ -64,12 +63,6 @@ public partial class ApiKeysViewModel
         IEnumerable<ApiKeyRowVm> filtered = _all;
         var query = SearchText?.Trim();
 
-        if (!string.IsNullOrWhiteSpace(SelectedEnvironmentFilter) &&
-            !string.Equals(SelectedEnvironmentFilter, AllEnvironmentFilter, StringComparison.OrdinalIgnoreCase))
-        {
-            filtered = filtered.Where(row => string.Equals(row.EnvironmentDisplay, SelectedEnvironmentFilter, StringComparison.OrdinalIgnoreCase));
-        }
-
         if (!string.IsNullOrWhiteSpace(SelectedProviderFilter) &&
             !string.Equals(SelectedProviderFilter, AllProviderFilter, StringComparison.OrdinalIgnoreCase))
         {
@@ -108,12 +101,9 @@ public partial class ApiKeysViewModel
 
     private void RefreshProviderFilters()
     {
-        var previousEnvironment = SelectedEnvironmentFilter;
         var previous = SelectedProviderFilter;
-        DesktopFilterOptions.RebuildStringOptions(EnvironmentFilters, AllEnvironmentFilter, _all.Select(row => row.EnvironmentDisplay));
         DesktopFilterOptions.RebuildStringOptions(ProviderFilters, AllProviderFilter, _all.Select(row => row.ProviderDisplay));
 
-        SelectedEnvironmentFilter = DesktopFilterOptions.KeepSelectedOrDefault(EnvironmentFilters, previousEnvironment, AllEnvironmentFilter);
         SelectedProviderFilter = DesktopFilterOptions.KeepSelectedOrDefault(ProviderFilters, previous, AllProviderFilter);
     }
 

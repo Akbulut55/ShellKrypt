@@ -12,7 +12,6 @@ public partial class ApiKeysViewModel : ViewModelBase
 {
     internal const string DefaultFieldType = "API Key";
 
-    private const string AllEnvironmentFilter = "Env: All";
     private const string AllProviderFilter = "Provider: All";
     private const string SortNewest = "Sort: Newest";
     private const string SortProvider = "Provider";
@@ -26,7 +25,6 @@ public partial class ApiKeysViewModel : ViewModelBase
     private ApiKeyRowVm? _selectedDetailsRow;
 
     public ObservableCollection<ApiKeyRowVm> Rows { get; } = new();
-    public ObservableCollection<string> EnvironmentFilters { get; } = new() { AllEnvironmentFilter };
     public ObservableCollection<string> ProviderFilters { get; } = new() { AllProviderFilter };
     public ObservableCollection<string> SortOptions { get; } = new()
     {
@@ -48,19 +46,9 @@ public partial class ApiKeysViewModel : ViewModelBase
         "Scope",
         "Custom"
     };
-    public ObservableCollection<string> EnvironmentOptions { get; } = new()
-    {
-        "Production",
-        "Staging",
-        "Development",
-        "Local",
-        "Shared",
-        "Custom"
-    };
     public ObservableCollection<ApiKeyFieldRowVm> FormFields { get; } = new();
 
     [ObservableProperty] private string searchText = "";
-    [ObservableProperty] private string selectedEnvironmentFilter = AllEnvironmentFilter;
     [ObservableProperty] private string selectedProviderFilter = AllProviderFilter;
     [ObservableProperty] private string selectedSortOption = SortNewest;
     [ObservableProperty] private bool isApiKeyModalOpen;
@@ -71,6 +59,7 @@ public partial class ApiKeysViewModel : ViewModelBase
     [ObservableProperty] private string addProvider = "";
     [ObservableProperty] private string addEnvironment = "Production";
     [ObservableProperty] private string addNotes = "";
+    [ObservableProperty] private bool isApiKeyValueVisible;
     [ObservableProperty] private string error = "";
 
     public ApiKeysViewModel(MainWindowViewModel root, IApiKeyService apiKeyService, Func<string?, Task> refreshAllItemsAsync)
@@ -119,9 +108,21 @@ public partial class ApiKeysViewModel : ViewModelBase
     public string EmptySubtitle => string.IsNullOrWhiteSpace(SearchText)
         ? T(_root, "ApiKeys.Empty.NoneSubtitle")
         : T(_root, "ApiKeys.Empty.NoMatchSubtitle");
+    public string ApiKeyValue
+    {
+        get => PrimaryFormField?.Value ?? "";
+        set
+        {
+            EnsurePrimaryFormField().Value = value ?? "";
+            OnPropertyChanged();
+        }
+    }
+    public bool UseMaskedApiKeyInput => !IsApiKeyValueVisible;
+    public bool UsePlainApiKeyInput => IsApiKeyValueVisible;
+    public string ApiKeyValueVisibilityLabel => IsApiKeyValueVisible ? T(_root, "ApiKeys.Field.Hide") : T(_root, "ApiKeys.Field.Show");
+    private ApiKeyFieldRowVm? PrimaryFormField => FormFields.FirstOrDefault();
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
-    partial void OnSelectedEnvironmentFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedProviderFilterChanged(string value) => ApplyFilter();
     partial void OnSelectedSortOptionChanged(string value) => ApplyFilter();
 
@@ -130,6 +131,12 @@ public partial class ApiKeysViewModel : ViewModelBase
     partial void OnIsApiKeyDetailsEditingChanged(bool value) => NotifyModalStateChanged();
     partial void OnIsApiKeyDeleteConfirmingChanged(bool value) => NotifyModalStateChanged();
     partial void OnAddNameChanged(string value) => OnPropertyChanged(nameof(ModalFooterText));
+    partial void OnIsApiKeyValueVisibleChanged(bool value)
+    {
+        OnPropertyChanged(nameof(UseMaskedApiKeyInput));
+        OnPropertyChanged(nameof(UsePlainApiKeyInput));
+        OnPropertyChanged(nameof(ApiKeyValueVisibilityLabel));
+    }
 
     private void NotifyModalStateChanged()
     {
@@ -156,7 +163,18 @@ public partial class ApiKeysViewModel : ViewModelBase
             nameof(ApiKeyModalTitle),
             nameof(ApiKeyModalSubtitle),
             nameof(ModalFooterText),
+            nameof(ApiKeyValueVisibilityLabel),
             nameof(EmptyTitle),
             nameof(EmptySubtitle));
+    }
+
+    private ApiKeyFieldRowVm EnsurePrimaryFormField()
+    {
+        if (FormFields.FirstOrDefault() is { } existing)
+            return existing;
+
+        AddDefaultFields();
+        NotifyFormFieldsChanged();
+        return FormFields[0];
     }
 }

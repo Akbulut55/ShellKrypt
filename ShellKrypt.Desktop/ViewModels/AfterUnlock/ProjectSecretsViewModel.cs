@@ -21,6 +21,8 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     private readonly Func<string?, Task> _refreshAllItemsAsync;
     private readonly List<ProjectSecretRowVm> _all = new();
     private readonly List<ApiKeyEntry> _apiKeys = new();
+    private readonly Dictionary<string, List<ProjectSecretVariableEntry>> _environmentVariableDrafts = new(StringComparer.Ordinal);
+    private string? _loadedEnvironmentId;
 
     public ObservableCollection<ProjectSecretRowVm> Rows { get; } = new();
     public ObservableCollection<ProjectSecretEnvironmentOption> EnvironmentOptions { get; } = new();
@@ -29,8 +31,13 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public ObservableCollection<ProjectSecretScanFindingVm> ScanFindings { get; } = new();
     public ObservableCollection<ProjectSecretApiKeyOption> ApiKeyOptions { get; } = new();
     public ObservableCollection<ProjectSecretApiKeyFieldOption> ApiKeyFieldOptions { get; } = new();
+    public ObservableCollection<ProjectSecretApiKeyLinkOption> ApiKeyLinkOptions { get; } = new();
     public IReadOnlyList<ProjectSecretEnvironmentKind> EnvironmentKindOptions { get; } = Enum.GetValues<ProjectSecretEnvironmentKind>();
-    public IReadOnlyList<ProjectSecretVariableSourceKind> VariableSourceKindOptions { get; } = Enum.GetValues<ProjectSecretVariableSourceKind>();
+    public IReadOnlyList<ProjectSecretVariableSourceKind> VariableSourceKindOptions { get; } =
+    [
+        ProjectSecretVariableSourceKind.Manual,
+        ProjectSecretVariableSourceKind.LinkedApiKey
+    ];
 
     [ObservableProperty] private string searchText = "";
     [ObservableProperty] private ProjectSecretRowVm? selectedProject;
@@ -49,11 +56,16 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [ObservableProperty] private ProjectSecretVariableSourceKind variableSourceKind = ProjectSecretVariableSourceKind.Manual;
     [ObservableProperty] private ProjectSecretApiKeyOption? selectedApiKey;
     [ObservableProperty] private ProjectSecretApiKeyFieldOption? selectedApiKeyField;
+    [ObservableProperty] private string apiKeyLinkSearchText = "";
     [ObservableProperty] private string importPath = "";
     [ObservableProperty] private string importPreview = "";
+    [ObservableProperty] private int importNewCount;
+    [ObservableProperty] private int importConflictCount;
+    [ObservableProperty] private int importInvalidCount;
     [ObservableProperty] private string exportPath = "";
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isBusy;
+    [ObservableProperty] private bool isProjectEditing;
 
     private ProjectSecretEnvParseResult? _lastImportParse;
 
@@ -75,9 +87,34 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public bool HasSelectedEnvironment => SelectedEnvironment is not null;
     public bool HasVariables => Variables.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
+    public bool HasProjectDescription => !string.IsNullOrWhiteSpace(ProjectDescription);
+    public bool HasSelectedVariable => SelectedVariable is not null;
+    public bool IsProjectReadOnly => !IsProjectEditing;
+    public bool IsLinkedApiKeySource => VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey;
+    public bool IsManualVariableSource => !IsLinkedApiKeySource;
+    public bool IsVariableValueReadOnly => IsProjectReadOnly || IsLinkedApiKeySource;
+    public string VariableSubmitLabel => SelectedVariable is null ? "Add" : "Update";
+    public IReadOnlyList<ProjectSecretApiKeyLinkOption> FilteredApiKeyLinkOptions
+    {
+        get
+        {
+            var query = ApiKeyLinkSearchText.Trim();
+            return ApiKeyLinkOptions
+                .Where(option => string.IsNullOrWhiteSpace(query)
+                                 || option.ApiKeyName.Contains(query, StringComparison.OrdinalIgnoreCase)
+                                 || option.FieldLabel.Contains(query, StringComparison.OrdinalIgnoreCase))
+                .ToArray();
+        }
+    }
     public int TotalCount => _all.Count;
     public int TotalVariableCount => _all.Sum(row => row.VariableCount);
     public int TotalWarningCount => _all.Sum(row => row.WarningCount);
+    public bool HasImportPreview => ImportNewCount > 0 || ImportConflictCount > 0 || ImportInvalidCount > 0 || !string.IsNullOrWhiteSpace(ImportPreview);
+    public string ProjectRootDisplay => string.IsNullOrWhiteSpace(ProjectRootPath) ? "No project root selected" : ProjectRootPath;
+    public IReadOnlyList<ProjectSecretScanFindingVm> PlaintextLeakFindings => ScanFindings.Where(finding => finding.Finding.Kind == ProjectSecretScanFindingKind.PossiblePlaintextLeak).ToArray();
+    public IReadOnlyList<ProjectSecretScanFindingVm> MissingReferenceFindings => ScanFindings.Where(finding => finding.Finding.Kind == ProjectSecretScanFindingKind.ReferencedButMissingVariable).ToArray();
+    public IReadOnlyList<ProjectSecretScanFindingVm> UnusedVariableFindings => ScanFindings.Where(finding => finding.Finding.Kind == ProjectSecretScanFindingKind.UnusedVariable).ToArray();
+    public IReadOnlyList<ProjectSecretScanFindingVm> ScannerWarningFindings => ScanFindings.Where(finding => finding.Finding.Kind is ProjectSecretScanFindingKind.EnvFileWithValuesDetected or ProjectSecretScanFindingKind.SkippedLargeFile or ProjectSecretScanFindingKind.ScanLimitReached or ProjectSecretScanFindingKind.BrokenProjectRoot).ToArray();
     public string LastScanSummary => SelectedProject?.Entry.LastScanResult is { } scan
         ? $"{scan.FilesScanned} files scanned, {scan.Findings.Count} finding(s)"
         : "No scan has been run for this project.";
@@ -86,32 +123,31 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     partial void OnSelectedProjectChanged(ProjectSecretRowVm? value)
     {
         PopulateProject(value?.Entry);
+        if (value is not null)
+            IsProjectEditing = false;
         OnPropertyChanged(nameof(HasSelectedProject));
         OnPropertyChanged(nameof(LastScanSummary));
     }
 
     partial void OnSelectedEnvironmentChanged(ProjectSecretEnvironmentOption? value)
     {
-        LoadVariables();
+        SaveCurrentVariablesToDraft();
+        _loadedEnvironmentId = value?.Id;
+        LoadVariablesFromDraft(value);
         BuildCompare();
         OnPropertyChanged(nameof(HasSelectedEnvironment));
     }
 
     partial void OnSelectedVariableChanged(ProjectSecretVariableRowVm? value)
     {
-        if (value is null)
-            return;
-
-        VariableKey = value.Entry.Key;
-        VariableValue = value.Entry.Value;
-        VariableIsSecret = value.Entry.IsSecret;
-        VariableNotes = value.Entry.Notes;
-        VariableSourceKind = value.Entry.SourceKind;
+        OnPropertyChanged(nameof(HasSelectedVariable));
+        OnPropertyChanged(nameof(VariableSubmitLabel));
     }
 
     partial void OnSelectedApiKeyChanged(ProjectSecretApiKeyOption? value)
     {
         ApiKeyFieldOptions.Clear();
+        SelectedApiKeyField = null;
         var apiKey = _apiKeys.FirstOrDefault(item => item.Id == value?.ItemId);
         if (apiKey is null)
             return;
@@ -123,11 +159,62 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     }
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
+    partial void OnProjectDescriptionChanged(string value) => OnPropertyChanged(nameof(HasProjectDescription));
+    partial void OnIsProjectEditingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(IsProjectReadOnly));
+        OnPropertyChanged(nameof(IsVariableValueReadOnly));
+    }
+
+    partial void OnVariableSourceKindChanged(ProjectSecretVariableSourceKind value)
+    {
+        if (value != ProjectSecretVariableSourceKind.LinkedApiKey)
+            ClearLinkedApiKeySelection();
+
+        OnPropertyChanged(nameof(IsLinkedApiKeySource));
+        OnPropertyChanged(nameof(IsManualVariableSource));
+        OnPropertyChanged(nameof(IsVariableValueReadOnly));
+    }
+    partial void OnImportPreviewChanged(string value) => OnPropertyChanged(nameof(HasImportPreview));
+    partial void OnImportNewCountChanged(int value) => OnPropertyChanged(nameof(HasImportPreview));
+    partial void OnImportConflictCountChanged(int value) => OnPropertyChanged(nameof(HasImportPreview));
+    partial void OnImportInvalidCountChanged(int value) => OnPropertyChanged(nameof(HasImportPreview));
+    partial void OnProjectRootPathChanged(string value) => OnPropertyChanged(nameof(ProjectRootDisplay));
+    partial void OnApiKeyLinkSearchTextChanged(string value) => OnPropertyChanged(nameof(FilteredApiKeyLinkOptions));
 
     public override void RefreshLocalization()
     {
         NotifyLocalized(
             nameof(LastScanSummary));
+    }
+
+    [RelayCommand]
+    private void SelectProject(ProjectSecretRowVm? project)
+    {
+        if (project is not null)
+            SelectedProject = project;
+    }
+
+    [RelayCommand]
+    private void EditProject()
+    {
+        IsProjectEditing = true;
+    }
+
+    [RelayCommand]
+    private void CancelProjectEdit()
+    {
+        if (SelectedProject is null)
+        {
+            InitializeNewProjectEditor();
+            return;
+        }
+
+        PopulateProject(SelectedProject.Entry);
+        IsProjectEditing = false;
+        ClearVariableForm();
+        foreach (var variable in Variables)
+            variable.CancelEdit();
     }
 
     [RelayCommand]
@@ -144,6 +231,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             Rows.Clear();
             _apiKeys.Clear();
             ApiKeyOptions.Clear();
+            ApiKeyLinkOptions.Clear();
 
             var projects = await _projectSecretService.ListAsync(_root.VaultPath, _root.VaultKey);
             foreach (var project in projects.OrderBy(project => project.Name, StringComparer.OrdinalIgnoreCase))
@@ -151,10 +239,23 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
             _apiKeys.AddRange(await _apiKeyService.ListAsync(_root.VaultPath, _root.VaultKey));
             foreach (var apiKey in _apiKeys.OrderBy(item => item.Name, StringComparer.OrdinalIgnoreCase))
+            {
                 ApiKeyOptions.Add(new ProjectSecretApiKeyOption(apiKey.Id, apiKey.Name));
+                foreach (var field in apiKey.Fields.OrderBy(field => field.SortOrder))
+                    ApiKeyLinkOptions.Add(new ProjectSecretApiKeyLinkOption(apiKey.Id, apiKey.Name, field.Id, field.Label, field.IsSensitive));
+            }
+            OnPropertyChanged(nameof(FilteredApiKeyLinkOptions));
 
             ApplyFilter();
-            SelectedProject ??= Rows.FirstOrDefault();
+            if (Rows.Count == 0)
+            {
+                InitializeNewProjectEditor();
+            }
+            else if (SelectedProject is null || Rows.All(row => row.Id != SelectedProject.Id))
+            {
+                SelectedProject = Rows.First();
+                IsProjectEditing = false;
+            }
         }
         catch (Exception ex)
         {
@@ -168,6 +269,9 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
     [RelayCommand]
     private void AddProject()
+        => InitializeNewProjectEditor();
+
+    private void InitializeNewProjectEditor()
     {
         SelectedProject = null;
         ProjectName = "New Project";
@@ -175,11 +279,16 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectNotes = "";
         ProjectRootPath = "";
         EnvironmentOptions.Clear();
-        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), "Development"));
+        _environmentVariableDrafts.Clear();
+        _loadedEnvironmentId = null;
+        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), "Development", ProjectSecretEnvironmentKind.Development));
         SelectedEnvironment = EnvironmentOptions.First();
         Variables.Clear();
+        _loadedEnvironmentId = SelectedEnvironment.Id;
+        _environmentVariableDrafts[SelectedEnvironment.Id] = [];
         SelectedVariable = null;
         ClearVariableForm();
+        IsProjectEditing = true;
     }
 
     [RelayCommand]
@@ -191,6 +300,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         Error = "";
         try
         {
+            SaveCurrentVariablesToDraft();
             var existing = SelectedProject?.Entry;
             var input = BuildProjectInput(existing);
             var saved = existing is null
@@ -200,6 +310,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             _root.LogActivity("project_secrets", existing is null ? "Project Secrets project created" : "Project Secrets project updated", $"{(existing is null ? "Created" : "Updated")} Project Secrets project {saved.Name}.", "success", affectedItem: saved.Name);
             await LoadAsync();
             SelectedProject = Rows.FirstOrDefault(row => row.Id == saved.Id);
+            IsProjectEditing = false;
             await _refreshAllItemsAsync(saved.Id);
         }
         catch (Exception ex)
@@ -227,6 +338,13 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void SelectEnvironment(ProjectSecretEnvironmentOption? environment)
+    {
+        if (environment is not null)
+            SelectedEnvironment = environment;
+    }
+
+    [RelayCommand]
     private void AddEnvironment()
     {
         var name = string.IsNullOrWhiteSpace(NewEnvironmentName) ? NewEnvironmentKind.ToString() : NewEnvironmentName.Trim();
@@ -236,7 +354,8 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             return;
         }
 
-        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), name));
+        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), name, NewEnvironmentKind));
+        _environmentVariableDrafts[EnvironmentOptions.Last().Id] = [];
         SelectedEnvironment = EnvironmentOptions.Last();
     }
 
@@ -248,6 +367,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
         var remove = SelectedEnvironment;
         EnvironmentOptions.Remove(remove);
+        _environmentVariableDrafts.Remove(remove.Id);
         SelectedEnvironment = EnvironmentOptions.FirstOrDefault();
     }
 
@@ -264,12 +384,13 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             if (Variables.Any(row => row != SelectedVariable && string.Equals(row.Key, key, StringComparison.Ordinal)))
                 throw new InvalidOperationException("Variable key already exists in this environment.");
 
-            var value = VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? "" : VariableValue;
-            var linkedItemId = VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedApiKey?.ItemId ?? "" : "";
-            var linkedFieldId = VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedApiKeyField?.FieldId ?? "" : "";
-            var linkedFieldName = VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedApiKeyField?.Label ?? "" : "";
-            if (VariableSourceKind == ProjectSecretVariableSourceKind.LinkedApiKey && (string.IsNullOrWhiteSpace(linkedItemId) || string.IsNullOrWhiteSpace(linkedFieldId)))
-                throw new InvalidOperationException("Choose an API Key field to link.");
+            var sourceKind = SelectedVariable?.Entry.SourceKind == ProjectSecretVariableSourceKind.LinkedApiKey
+                ? ProjectSecretVariableSourceKind.LinkedApiKey
+                : ProjectSecretVariableSourceKind.Manual;
+            var value = sourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? "" : VariableValue;
+            var linkedItemId = sourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedVariable?.Entry.LinkedItemId ?? "" : "";
+            var linkedFieldId = sourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedVariable?.Entry.LinkedFieldId ?? "" : "";
+            var linkedFieldName = sourceKind == ProjectSecretVariableSourceKind.LinkedApiKey ? SelectedVariable?.Entry.LinkedFieldName ?? "" : "";
 
             var entry = new ProjectSecretVariableEntry(
                 SelectedVariable?.Id ?? Guid.NewGuid().ToString("N"),
@@ -278,7 +399,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                 VariableIsSecret,
                 VariableNotes.Trim(),
                 SelectedVariable?.Entry.SortOrder ?? Variables.Count,
-                VariableSourceKind,
+                sourceKind,
                 linkedItemId,
                 linkedFieldId,
                 linkedFieldName,
@@ -289,6 +410,8 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             else
                 SelectedVariable.Update(entry);
 
+            SaveCurrentVariablesToDraft();
+            OnPropertyChanged(nameof(HasVariables));
             ClearVariableForm();
             BuildCompare();
         }
@@ -299,21 +422,166 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void DeleteVariable()
+    private void DeleteVariable(ProjectSecretVariableRowVm? variable)
     {
-        if (SelectedVariable is null)
+        var remove = variable ?? SelectedVariable;
+        if (remove is null)
             return;
 
-        Variables.Remove(SelectedVariable);
-        SelectedVariable = null;
+        Variables.Remove(remove);
+        if (SelectedVariable == remove)
+            SelectedVariable = null;
+        SaveCurrentVariablesToDraft();
+        OnPropertyChanged(nameof(HasVariables));
         ClearVariableForm();
         BuildCompare();
     }
 
     [RelayCommand]
+    private void MoveVariableUp(ProjectSecretVariableRowVm? variable)
+    {
+        if (variable is null)
+            return;
+
+        var index = Variables.IndexOf(variable);
+        if (index <= 0)
+            return;
+
+        Variables.Move(index, index - 1);
+        ResequenceVariables();
+    }
+
+    [RelayCommand]
+    private void MoveVariableDown(ProjectSecretVariableRowVm? variable)
+    {
+        if (variable is null)
+            return;
+
+        var index = Variables.IndexOf(variable);
+        if (index < 0 || index >= Variables.Count - 1)
+            return;
+
+        Variables.Move(index, index + 1);
+        ResequenceVariables();
+    }
+
+    public void MoveVariable(ProjectSecretVariableRowVm? source, ProjectSecretVariableRowVm? target)
+    {
+        if (!IsProjectEditing || source is null || target is null || source == target)
+            return;
+
+        var oldIndex = Variables.IndexOf(source);
+        var newIndex = Variables.IndexOf(target);
+        if (oldIndex < 0 || newIndex < 0 || oldIndex == newIndex)
+            return;
+
+        Variables.Move(oldIndex, newIndex);
+        ResequenceVariables();
+    }
+
+    [RelayCommand]
     private void SelectVariable(ProjectSecretVariableRowVm? variable)
     {
+        if (variable is null)
+            return;
+
+        foreach (var row in Variables.Where(row => row != variable))
+            row.CancelEdit();
+
         SelectedVariable = variable;
+        variable.BeginEdit();
+    }
+
+    [RelayCommand]
+    private void CancelVariableEdit(ProjectSecretVariableRowVm? variable)
+    {
+        if (variable is null)
+            return;
+
+        variable.CancelEdit();
+        if (SelectedVariable == variable)
+            SelectedVariable = null;
+    }
+
+    [RelayCommand]
+    private void SaveVariableEdit(ProjectSecretVariableRowVm? variable)
+    {
+        if (variable is null)
+            return;
+
+        Error = "";
+        try
+        {
+            var key = string.IsNullOrWhiteSpace(variable.EditKey)
+                ? throw new InvalidOperationException("Variable key is required.")
+                : variable.EditKey.Trim();
+
+            if (Variables.Any(row => row != variable && string.Equals(row.Key, key, StringComparison.Ordinal)))
+                throw new InvalidOperationException("Variable key already exists in this environment.");
+
+            variable.Update(variable.BuildEditedEntry() with { Key = key });
+            variable.IsEditing = false;
+            SelectedVariable = null;
+            SaveCurrentVariablesToDraft();
+            BuildCompare();
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
+    }
+
+    [RelayCommand]
+    private void UseLinkedApiKeyVariableSource()
+    {
+        VariableSourceKind = ProjectSecretVariableSourceKind.LinkedApiKey;
+    }
+
+    [RelayCommand]
+    private void UseManualVariableSource()
+    {
+        VariableSourceKind = ProjectSecretVariableSourceKind.Manual;
+    }
+
+    [RelayCommand]
+    private void AddLinkedApiKeyVariable(ProjectSecretApiKeyLinkOption? option)
+    {
+        if (option is null || SelectedEnvironment is null)
+            return;
+
+        Error = "";
+        try
+        {
+            var key = string.IsNullOrWhiteSpace(option.VariableKey)
+                ? throw new InvalidOperationException("API Key field label is required.")
+                : option.VariableKey.Trim();
+
+            if (Variables.Any(row => string.Equals(row.Key, key, StringComparison.Ordinal)))
+                throw new InvalidOperationException("Variable key already exists in this environment.");
+
+            var entry = new ProjectSecretVariableEntry(
+                Guid.NewGuid().ToString("N"),
+                key,
+                "",
+                option.IsSensitive,
+                "",
+                Variables.Count,
+                ProjectSecretVariableSourceKind.LinkedApiKey,
+                option.ApiKeyItemId,
+                option.FieldId,
+                option.FieldLabel,
+                DateTimeOffset.UtcNow.ToString("O"));
+
+            Variables.Add(new ProjectSecretVariableRowVm(entry));
+            SaveCurrentVariablesToDraft();
+            OnPropertyChanged(nameof(HasVariables));
+            ClearVariableForm();
+            BuildCompare();
+        }
+        catch (Exception ex)
+        {
+            Error = ex.Message;
+        }
     }
 
     [RelayCommand]
@@ -350,6 +618,9 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
         _lastImportParse = EnvFileParser.Parse(await File.ReadAllTextAsync(ImportPath));
         var preview = EnvFileParser.BuildPreview(_lastImportParse, Variables.Select(variable => variable.Key).ToArray());
+        ImportNewCount = preview.NewRows;
+        ImportConflictCount = preview.ConflictRows;
+        ImportInvalidCount = preview.InvalidRows;
         ImportPreview = $"{preview.TotalRows} row(s), {preview.ConflictRows} conflict(s), {_lastImportParse.Issues.Count} issue(s)";
     }
 
@@ -388,6 +659,9 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         }
 
         ImportPreview = $"Imported {_lastImportParse.Variables.Count} variable(s).";
+        ImportNewCount = 0;
+        ImportConflictCount = 0;
+        ImportInvalidCount = 0;
         _root.LogActivity("project_secrets", "Project Secrets .env imported", $"Imported {_lastImportParse.Variables.Count} variables into {ProjectName} / {SelectedEnvironment?.Name}.", "success", affectedItem: ProjectName);
         await SaveProjectAsync();
     }
@@ -447,9 +721,12 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         if (SelectedProject is null)
             return;
 
+        SaveCurrentVariablesToDraft();
         var root = string.IsNullOrWhiteSpace(ProjectRootPath) ? SelectedProject.ProjectRootPath : ProjectRootPath;
         var variables = EnvironmentOptions
-            .SelectMany(option => option.Id == SelectedEnvironment?.Id ? Variables.Select(row => row.Entry) : SelectedProject.Entry.Environments.FirstOrDefault(environment => environment.Id == option.Id)?.Variables ?? Array.Empty<ProjectSecretVariableEntry>())
+            .SelectMany<ProjectSecretEnvironmentOption, ProjectSecretVariableEntry>(option => _environmentVariableDrafts.TryGetValue(option.Id, out var draftVariables)
+                ? draftVariables
+                : Array.Empty<ProjectSecretVariableEntry>())
             .ToArray();
         var secrets = variables
             .Where(variable => variable.IsSecret && variable.SourceKind != ProjectSecretVariableSourceKind.LinkedApiKey && !string.IsNullOrWhiteSpace(variable.Value))
@@ -460,6 +737,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ScanFindings.Clear();
         foreach (var finding in result.Findings)
             ScanFindings.Add(new ProjectSecretScanFindingVm(finding));
+        NotifyScanGroups();
 
         var input = BuildProjectInput(SelectedProject.Entry) with { LastScanResult = result };
         var saved = await _projectSecretService.UpdateAsync(_root.VaultPath!, _root.VaultKey, SelectedProject.Id, SelectedProject.Entry.CreatedAtUtc, input);
@@ -500,15 +778,26 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectNotes = project?.Notes ?? "";
         ProjectRootPath = project?.ProjectRootPath ?? "";
         EnvironmentOptions.Clear();
+        _environmentVariableDrafts.Clear();
+        _loadedEnvironmentId = null;
         ScanFindings.Clear();
 
         foreach (var environment in project is null
                      ? Array.Empty<ProjectSecretEnvironmentEntry>()
                      : project.Environments.OrderBy(environment => environment.SortOrder).ToArray())
-            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environment.Id, environment.Name));
+        {
+            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environment.Id, environment.Name, environment.Kind));
+            _environmentVariableDrafts[environment.Id] = environment.Variables
+                .OrderBy(variable => variable.SortOrder)
+                .ToList();
+        }
 
         if (EnvironmentOptions.Count == 0)
-            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), "Development"));
+        {
+            var environmentId = Guid.NewGuid().ToString("N");
+            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environmentId, "Development", ProjectSecretEnvironmentKind.Development));
+            _environmentVariableDrafts[environmentId] = [];
+        }
 
         SelectedEnvironment = EnvironmentOptions.FirstOrDefault();
         if (project?.LastScanResult is { } scan)
@@ -516,15 +805,37 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             foreach (var finding in scan.Findings)
                 ScanFindings.Add(new ProjectSecretScanFindingVm(finding));
         }
+        NotifyScanGroups();
     }
 
-    private void LoadVariables()
+    private void SaveCurrentVariablesToDraft()
+    {
+        if (string.IsNullOrWhiteSpace(_loadedEnvironmentId))
+            return;
+
+        _environmentVariableDrafts[_loadedEnvironmentId] = Variables
+            .Select(row => row.Entry)
+            .ToList();
+    }
+
+    private void ResequenceVariables()
+    {
+        for (var index = 0; index < Variables.Count; index++)
+        {
+            var row = Variables[index];
+            row.Update(row.Entry with { SortOrder = index });
+        }
+
+        SaveCurrentVariablesToDraft();
+        BuildCompare();
+    }
+
+    private void LoadVariablesFromDraft(ProjectSecretEnvironmentOption? environment)
     {
         Variables.Clear();
-        var environment = SelectedProject?.Entry.Environments.FirstOrDefault(environment => environment.Id == SelectedEnvironment?.Id);
-        if (environment is not null)
+        if (environment is not null && _environmentVariableDrafts.TryGetValue(environment.Id, out var variables))
         {
-            foreach (var variable in environment.Variables.OrderBy(variable => variable.SortOrder))
+            foreach (var variable in variables.OrderBy(variable => variable.SortOrder))
                 Variables.Add(new ProjectSecretVariableRowVm(variable));
         }
 
@@ -532,8 +843,18 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         OnPropertyChanged(nameof(HasVariables));
     }
 
+    private void NotifyScanGroups()
+    {
+        OnPropertyChanged(nameof(PlaintextLeakFindings));
+        OnPropertyChanged(nameof(MissingReferenceFindings));
+        OnPropertyChanged(nameof(UnusedVariableFindings));
+        OnPropertyChanged(nameof(ScannerWarningFindings));
+        OnPropertyChanged(nameof(LastScanSummary));
+    }
+
     private void BuildCompare()
     {
+        SaveCurrentVariablesToDraft();
         CompareRows.Clear();
         if (SelectedProject is null)
             return;
@@ -557,14 +878,14 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         => EnvironmentOptions.Select((option, index) =>
         {
             var existingEnvironment = existing?.Environments.FirstOrDefault(environment => environment.Id == option.Id);
-            var variables = option.Id == SelectedEnvironment?.Id
-                ? Variables.Select((row, variableIndex) => ToInput(row.Entry, variableIndex)).ToArray()
+            var variables = _environmentVariableDrafts.TryGetValue(option.Id, out var draftVariables)
+                ? draftVariables.Select((variable, variableIndex) => ToInput(variable, variableIndex)).ToArray()
                 : existingEnvironment?.Variables.Select((variable, variableIndex) => ToInput(variable, variableIndex)).ToArray() ?? Array.Empty<ProjectSecretVariableInput>();
 
             return new ProjectSecretEnvironmentInput(
                 option.Id,
                 option.Name,
-                existingEnvironment?.Kind ?? InferEnvironmentKind(option.Name),
+                option.Kind,
                 variables,
                 existingEnvironment?.Notes ?? "",
                 index);
@@ -611,6 +932,26 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         VariableIsSecret = true;
         VariableNotes = "";
         VariableSourceKind = ProjectSecretVariableSourceKind.Manual;
+        ClearLinkedApiKeySelection();
+    }
+
+    private void RestoreLinkedApiKeySelection(ProjectSecretVariableEntry variable)
+    {
+        if (variable.SourceKind != ProjectSecretVariableSourceKind.LinkedApiKey)
+        {
+            ClearLinkedApiKeySelection();
+            return;
+        }
+
+        SelectedApiKey = ApiKeyOptions.FirstOrDefault(option => option.ItemId == variable.LinkedItemId);
+        SelectedApiKeyField = ApiKeyFieldOptions.FirstOrDefault(option => option.FieldId == variable.LinkedFieldId);
+    }
+
+    private void ClearLinkedApiKeySelection()
+    {
+        SelectedApiKey = null;
+        SelectedApiKeyField = null;
+        ApiKeyFieldOptions.Clear();
     }
 
     private static ProjectSecretEnvironmentKind InferEnvironmentKind(string name)

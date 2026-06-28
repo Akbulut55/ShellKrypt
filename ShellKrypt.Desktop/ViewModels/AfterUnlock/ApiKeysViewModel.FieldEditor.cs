@@ -38,6 +38,12 @@ public partial class ApiKeysViewModel
             field.IsValueVisible = !field.IsValueVisible;
     }
 
+    [RelayCommand]
+    private void ToggleApiKeyValueVisibility()
+    {
+        IsApiKeyValueVisible = !IsApiKeyValueVisible;
+    }
+
     private void AddDefaultFields()
     {
         FormFields.Add(new ApiKeyFieldRowVm(
@@ -60,5 +66,6 @@ public partial class ApiKeysViewModel
     private void NotifyFormFieldsChanged()
     {
         OnPropertyChanged(nameof(FormFields));
+        OnPropertyChanged(nameof(ApiKeyValue));
     }
 }
