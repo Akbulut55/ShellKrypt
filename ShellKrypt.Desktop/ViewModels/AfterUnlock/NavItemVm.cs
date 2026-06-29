@@ -61,6 +61,7 @@ public sealed partial class NavItemVm : ObservableObject
         ShellKryptSectionKeys.WebLogins => "IconWeb",
         ShellKryptSectionKeys.Cards => "IconCreditCard",
         ShellKryptSectionKeys.ApiKeys => "IconKey",
+        ShellKryptSectionKeys.ProjectSecrets => "IconProjectSecrets",
         ShellKryptSectionKeys.Authenticator => "IconChronic",
         ShellKryptSectionKeys.Notes => "IconMarkdown",
         ShellKryptSectionKeys.Generator => "IconPassword",

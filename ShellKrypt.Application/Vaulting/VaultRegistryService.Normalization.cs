@@ -21,20 +21,11 @@ public sealed partial class VaultRegistryService
                 Description = NormalizeDescription(vault.Description),
                 CreatedAtUtc = string.IsNullOrWhiteSpace(vault.CreatedAtUtc) ? DateTimeOffset.UtcNow.ToString("O") : vault.CreatedAtUtc,
                 LastOpenedAtUtc = string.IsNullOrWhiteSpace(vault.LastOpenedAtUtc) ? null : vault.LastOpenedAtUtc,
-                IsDefault = vault.IsDefault
+                IsFavorite = vault.IsFavorite
             });
         }
 
-        if (normalized.Vaults.Any() && !normalized.Vaults.Any(x => x.IsDefault))
-            normalized.Vaults[0].IsDefault = true;
-
         return normalized;
-    }
-
-    private static void SetDefaultInternal(VaultRegistry registry, string vaultPath)
-    {
-        foreach (var vault in registry.Vaults)
-            vault.IsDefault = string.Equals(NormalizePath(vault.VaultPath), vaultPath, StringComparison.OrdinalIgnoreCase);
     }
 
     private static string NormalizePath(string path)
@@ -61,6 +52,6 @@ public sealed partial class VaultRegistryService
             Description = entry.Description,
             CreatedAtUtc = entry.CreatedAtUtc,
             LastOpenedAtUtc = entry.LastOpenedAtUtc,
-            IsDefault = entry.IsDefault
+            IsFavorite = entry.IsFavorite
         };
 }

@@ -13,5 +13,5 @@ public sealed class VaultRegistryEntry
     public string Description { get; set; } = string.Empty;
     public string CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow.ToString("O");
     public string? LastOpenedAtUtc { get; set; }
-    public bool IsDefault { get; set; }
+    public bool IsFavorite { get; set; }
 }

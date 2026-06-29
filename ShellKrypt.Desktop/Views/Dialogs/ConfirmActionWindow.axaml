@@ -58,12 +58,12 @@
               Margin="32,0,32,28">
           <Button Grid.Column="1"
                   Content="{DynamicResource Loc.Common.Cancel}"
-                  Classes="dialog-cancel-button"
+                  Classes="sk-secondary"
                   Click="OnCancelClicked"/>
           <Button x:Name="ConfirmButton"
                   Grid.Column="2"
                   Content="{DynamicResource Loc.Common.Confirm}"
-                  Classes="dialog-danger-button"
+                  Classes="sk-danger"
                   IsDefault="True"
                   Click="OnConfirmClicked"/>
         </Grid>
@@ -71,32 +71,5 @@
   </Border>
 
   <Window.Styles>
-    <Style Selector="Button.dialog-cancel-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="MinWidth" Value="120"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.dialog-danger-button">
-      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="MinWidth" Value="200"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
   </Window.Styles>
 </Window>

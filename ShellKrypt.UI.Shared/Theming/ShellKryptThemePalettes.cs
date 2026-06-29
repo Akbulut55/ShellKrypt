@@ -27,6 +27,8 @@ public static class ShellKryptThemePalettes
             ["TextPrimaryBrush"] = "#e5e2e1",
             ["TextMutedBrush"] = "#bacac5",
             ["TextInverseBrush"] = "#050505",
+            ["TextSelectionBackgroundBrush"] = "#57f1db",
+            ["TextSelectionForegroundBrush"] = "#061413",
             ["AccentBrush"] = "#57f1db",
             ["AccentHoverBrush"] = "#63f5e1",
             ["AccentPressedBrush"] = "#2dd4bf",
@@ -81,10 +83,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#174544",
             ["TypeApiKeyForegroundBrush"] = "#57f1db",
             ["StrengthNoneBrush"] = "#7b8a87",
-            ["StrengthWeakBrush"] = "#ff7a7a",
+            ["StrengthWeakBrush"] = "#ff4d5d",
             ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#74f0dd",
-            ["StrengthSecureBrush"] = "#4ff0df"
+            ["StrengthStrongBrush"] = "#ffb35a",
+            ["StrengthSecureBrush"] = "#22c55e"
         });
 
     public static IReadOnlyDictionary<string, string> Light { get; } =
@@ -103,6 +105,8 @@ public static class ShellKryptThemePalettes
             ["TextPrimaryBrush"] = "#172326",
             ["TextMutedBrush"] = "#54676e",
             ["TextInverseBrush"] = "#ffffff",
+            ["TextSelectionBackgroundBrush"] = "#0f9fbd",
+            ["TextSelectionForegroundBrush"] = "#ffffff",
             ["AccentBrush"] = "#0f9fbd",
             ["AccentHoverBrush"] = "#12b3d4",
             ["AccentPressedBrush"] = "#0a7f99",
@@ -157,10 +161,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#e6e8ff",
             ["TypeApiKeyForegroundBrush"] = "#4c58a8",
             ["StrengthNoneBrush"] = "#54676e",
-            ["StrengthWeakBrush"] = "#b94d5a",
-            ["StrengthFairBrush"] = "#ad681c",
-            ["StrengthStrongBrush"] = "#0a7f99",
-            ["StrengthSecureBrush"] = "#16836d"
+            ["StrengthWeakBrush"] = "#ff4d5d",
+            ["StrengthFairBrush"] = "#ffb35a",
+            ["StrengthStrongBrush"] = "#ffb35a",
+            ["StrengthSecureBrush"] = "#22c55e"
         });
 
     public static IReadOnlyDictionary<string, string> Crimson { get; } =
@@ -179,6 +183,8 @@ public static class ShellKryptThemePalettes
             ["TextPrimaryBrush"] = "#f4e7e7",
             ["TextMutedBrush"] = "#d6b9b9",
             ["TextInverseBrush"] = "#080405",
+            ["TextSelectionBackgroundBrush"] = "#b31322",
+            ["TextSelectionForegroundBrush"] = "#fff7f7",
             ["AccentBrush"] = "#b31322",
             ["AccentHoverBrush"] = "#c82131",
             ["AccentPressedBrush"] = "#880a15",
@@ -233,10 +239,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#3f1015",
             ["TypeApiKeyForegroundBrush"] = "#b31322",
             ["StrengthNoneBrush"] = "#8b7b80",
-            ["StrengthWeakBrush"] = "#ff7a7a",
+            ["StrengthWeakBrush"] = "#ff4d5d",
             ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#b31322",
-            ["StrengthSecureBrush"] = "#9ad6c4"
+            ["StrengthStrongBrush"] = "#ffb35a",
+            ["StrengthSecureBrush"] = "#22c55e"
         });
 
     public static IReadOnlyDictionary<string, string> Ocean { get; } =
@@ -255,6 +261,8 @@ public static class ShellKryptThemePalettes
             ["TextPrimaryBrush"] = "#e5edef",
             ["TextMutedBrush"] = "#b9cbd0",
             ["TextInverseBrush"] = "#041013",
+            ["TextSelectionBackgroundBrush"] = "#5ed7f2",
+            ["TextSelectionForegroundBrush"] = "#041318",
             ["AccentBrush"] = "#5ed7f2",
             ["AccentHoverBrush"] = "#76e4fb",
             ["AccentPressedBrush"] = "#38b7d8",
@@ -309,10 +317,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#1b4958",
             ["TypeApiKeyForegroundBrush"] = "#5ed7f2",
             ["StrengthNoneBrush"] = "#7e8d91",
-            ["StrengthWeakBrush"] = "#ff7a7a",
+            ["StrengthWeakBrush"] = "#ff4d5d",
             ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#5ed7f2",
-            ["StrengthSecureBrush"] = "#9ad6c4"
+            ["StrengthStrongBrush"] = "#ffb35a",
+            ["StrengthSecureBrush"] = "#22c55e"
         });
 
     public static IReadOnlyDictionary<string, string> Forest { get; } =
@@ -331,6 +339,8 @@ public static class ShellKryptThemePalettes
             ["TextPrimaryBrush"] = "#e6ede4",
             ["TextMutedBrush"] = "#bdcdb8",
             ["TextInverseBrush"] = "#061006",
+            ["TextSelectionBackgroundBrush"] = "#84d78f",
+            ["TextSelectionForegroundBrush"] = "#071407",
             ["AccentBrush"] = "#84d78f",
             ["AccentHoverBrush"] = "#97e9a2",
             ["AccentPressedBrush"] = "#5ebf6d",
@@ -385,10 +395,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#214a29",
             ["TypeApiKeyForegroundBrush"] = "#84d78f",
             ["StrengthNoneBrush"] = "#808f7c",
-            ["StrengthWeakBrush"] = "#ff7a7a",
+            ["StrengthWeakBrush"] = "#ff4d5d",
             ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#84d78f",
-            ["StrengthSecureBrush"] = "#a7d8b0"
+            ["StrengthStrongBrush"] = "#ffb35a",
+            ["StrengthSecureBrush"] = "#22c55e"
         });
 
     public static IReadOnlyList<ShellKryptThemeDefinition> All { get; } =

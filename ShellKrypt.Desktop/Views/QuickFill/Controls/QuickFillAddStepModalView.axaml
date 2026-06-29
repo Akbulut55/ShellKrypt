@@ -15,19 +15,19 @@
         <WrapPanel Grid.Row="0">
           <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddFieldChoice}"
                   Command="{Binding SelectAddFieldModeCommand}"
-                  Classes="qfe-secondary"
+                  Classes="sk-secondary"
                   Margin="0,0,8,8"/>
           <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddKeyChoice}"
                   Command="{Binding SelectAddKeyModeCommand}"
-                  Classes="qfe-secondary"
+                  Classes="sk-secondary"
                   Margin="0,0,8,8"/>
           <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddTextChoice}"
                   Command="{Binding SelectAddTextModeCommand}"
-                  Classes="qfe-secondary"
+                  Classes="sk-secondary"
                   Margin="0,0,8,8"/>
           <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelayChoice}"
                   Command="{Binding SelectAddDelayModeCommand}"
-                  Classes="qfe-secondary"
+                  Classes="sk-secondary"
                   Margin="0,0,8,8"/>
         </WrapPanel>
 
@@ -37,23 +37,23 @@
             <WrapPanel>
               <Button Content="{DynamicResource Loc.QuickFill.Source.Manual}"
                       Command="{Binding SelectManualFieldSourceCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       Margin="0,0,8,8"/>
               <Button Content="{DynamicResource Loc.QuickFill.Source.WebLogin}"
                       Command="{Binding SelectWebLoginFieldSourceCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       Margin="0,0,8,8"/>
               <Button Content="{DynamicResource Loc.QuickFill.Source.CreditCard}"
                       Command="{Binding SelectCreditCardFieldSourceCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       Margin="0,0,8,8"/>
               <Button Content="{DynamicResource Loc.QuickFill.Source.ApiKey}"
                       Command="{Binding SelectApiKeyFieldSourceCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       Margin="0,0,8,8"/>
               <Button Content="{DynamicResource Loc.QuickFill.Source.Authenticator}"
                       Command="{Binding SelectAuthenticatorFieldSourceCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       Margin="0,0,8,8"/>
             </WrapPanel>
 
@@ -67,7 +67,7 @@
                        Classes="qfe-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
                       Command="{Binding AddOwnedFieldCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       HorizontalAlignment="Right" />
             </StackPanel>
 
@@ -81,7 +81,7 @@
                         Classes="qfe-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
                       Command="{Binding AddWebLoginFieldCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       HorizontalAlignment="Right" />
             </StackPanel>
 
@@ -95,7 +95,7 @@
                         Classes="qfe-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddCreditCardField}"
                       Command="{Binding AddCreditCardFieldCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       HorizontalAlignment="Right" />
             </StackPanel>
 
@@ -109,7 +109,7 @@
                         Classes="qfe-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
                       Command="{Binding AddApiKeyFieldCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       HorizontalAlignment="Right" />
             </StackPanel>
 
@@ -120,7 +120,7 @@
                         Classes="qfe-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
                       Command="{Binding AddAuthenticatorFieldCommand}"
-                      Classes="qfe-secondary"
+                      Classes="sk-secondary"
                       HorizontalAlignment="Right" />
             </StackPanel>
           </StackPanel>
@@ -137,7 +137,7 @@
                      Classes="qfe-input"/>
             <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddText}"
                     Command="{Binding AddTextSequenceStepCommand}"
-                    Classes="qfe-secondary"
+                    Classes="sk-secondary"
                     HorizontalAlignment="Right"/>
           </StackPanel>
 
@@ -148,7 +148,7 @@
                      Classes="qfe-input"/>
             <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelay}"
                     Command="{Binding AddDelaySequenceStepCommand}"
-                    Classes="qfe-secondary"
+                    Classes="sk-secondary"
                     HorizontalAlignment="Right"/>
           </StackPanel>
         </Grid>

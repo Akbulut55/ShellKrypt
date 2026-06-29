@@ -6,7 +6,6 @@ public sealed partial class VaultRegistryService
         string vaultPath,
         string displayName,
         string description,
-        bool isDefault = false,
         bool markOpened = false)
     {
         var registry = Load();
@@ -30,9 +29,6 @@ public sealed partial class VaultRegistryService
 
         if (markOpened)
             entry.LastOpenedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-
-        if (isDefault)
-            SetDefaultInternal(registry, path);
 
         Save(registry);
         return Clone(entry);
@@ -61,7 +57,7 @@ public sealed partial class VaultRegistryService
         return Clone(entry);
     }
 
-    public VaultRegistryEntry? SetDefaultVault(string vaultPath)
+    public VaultRegistryEntry? SetVaultFavorite(string vaultPath, bool isFavorite)
     {
         var path = NormalizePath(vaultPath);
         var registry = Load();
@@ -71,7 +67,7 @@ public sealed partial class VaultRegistryService
         if (entry is null)
             return null;
 
-        SetDefaultInternal(registry, path);
+        entry.IsFavorite = isFavorite;
         Save(registry);
         return Clone(entry);
     }

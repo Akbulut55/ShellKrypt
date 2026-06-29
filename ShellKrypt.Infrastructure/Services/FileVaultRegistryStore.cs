@@ -20,14 +20,11 @@ public sealed class FileVaultRegistryStore : IVaultRegistryStore
                 ? JsonSerializer.Deserialize<VaultRegistry>(File.ReadAllText(DefaultPaths.VaultRegistryPath), JsonOptions) ?? new VaultRegistry()
                 : new VaultRegistry();
 
-            MigrateLegacyVaultIfNeeded(registry);
             return registry;
         }
         catch
         {
-            var fallback = new VaultRegistry();
-            MigrateLegacyVaultIfNeeded(fallback);
-            return fallback;
+            return new VaultRegistry();
         }
     }
 
@@ -40,27 +37,4 @@ public sealed class FileVaultRegistryStore : IVaultRegistryStore
         var json = JsonSerializer.Serialize(registry, JsonOptions);
         File.WriteAllText(DefaultPaths.VaultRegistryPath, json);
     }
-
-    private static void MigrateLegacyVaultIfNeeded(VaultRegistry registry)
-    {
-        var legacyPath = NormalizePath(DefaultPaths.DefaultVaultPath);
-        if (!File.Exists(legacyPath))
-            return;
-
-        if (registry.Vaults.Any(x => string.Equals(NormalizePath(x.VaultPath), legacyPath, StringComparison.OrdinalIgnoreCase)))
-            return;
-
-        registry.Vaults.Add(new VaultRegistryEntry
-        {
-            VaultPath = legacyPath,
-            DisplayName = Path.GetFileNameWithoutExtension(legacyPath),
-            Description = "",
-            CreatedAtUtc = DateTimeOffset.UtcNow.ToString("O"),
-            LastOpenedAtUtc = DateTimeOffset.UtcNow.ToString("O"),
-            IsDefault = true
-        });
-    }
-
-    private static string NormalizePath(string path)
-        => string.IsNullOrWhiteSpace(path) ? "" : Path.GetFullPath(path);
 }

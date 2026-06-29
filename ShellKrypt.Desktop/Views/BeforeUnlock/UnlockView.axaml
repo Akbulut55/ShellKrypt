@@ -91,15 +91,26 @@
                            PlaceholderText="{DynamicResource Loc.Unlock.Password.Placeholder}"
                            IsVisible="{Binding ShowPassword}"/>
                   <Button Grid.Column="1"
-                        Content="{Binding PasswordVisibilityLabel}"
-                        Classes="unlock-visibility-button"
-                        Command="{Binding TogglePasswordVisibilityCommand}"/>
+                          Classes="sk-icon-ghost"
+                          Command="{Binding TogglePasswordVisibilityCommand}"
+                          ToolTip.Tip="{Binding PasswordVisibilityLabel}">
+                    <Grid>
+                      <PathIcon Data="{StaticResource IconVisibility}"
+                                Width="17"
+                                Height="17"
+                                IsVisible="{Binding !ShowPassword}"/>
+                      <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                Width="17"
+                                Height="17"
+                                IsVisible="{Binding ShowPassword}"/>
+                    </Grid>
+                  </Button>
                 </Grid>
               </Border>
             </StackPanel>
 
             <Button Content="{DynamicResource Loc.Unlock.Button.Unlock}"
-                    Classes="unlock-primary-button"
+                    Classes="sk-primary"
                     Command="{Binding UnlockCommand}"
                     IsDefault="True"
                     HorizontalAlignment="Stretch"
@@ -155,7 +166,7 @@
               </StackPanel>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Unlock.Button.ForgotPassword}"
-                      Classes="unlock-link-button"
+                      Classes="sk-link"
                       Command="{Binding ShowRecoveryCommand}"/>
             </Grid>
           </Border>
@@ -163,7 +174,7 @@
       </Border>
 
       <Button Content="{DynamicResource Loc.Unlock.Button.BackToVaults}"
-              Classes="unlock-footer-link"
+              Classes="sk-link"
               Command="{Binding BackCommand}"
               HorizontalAlignment="Center"/>
 
@@ -224,7 +235,7 @@
             </Border>
 
             <Button Content="{DynamicResource Loc.Common.Close}"
-                    Classes="unlock-primary-button"
+                    Classes="sk-primary"
                     Command="{Binding CloseRecoveryCommand}"/>
           </StackPanel>
         </Border>
@@ -246,19 +257,6 @@
       <Setter Property="LetterSpacing" Value="1.2"/>
     </Style>
 
-    <Style Selector="Button.unlock-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="44"/>
-      <Setter Property="MinHeight" Value="44"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
     <Style Selector="Border.unlock-password-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -278,24 +276,6 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Button.unlock-visibility-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="MinWidth" Value="60"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Margin" Value="0,0,2,0"/>
-    </Style>
-
     <Style Selector="TextBox.unlock-password-box /template/ Border#PART_BorderElement">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
@@ -311,30 +291,6 @@
     <Style Selector="TextBox.unlock-password-box:focus /template/ Border#PART_BorderElement">
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
-    </Style>
-
-    <Style Selector="Button.unlock-link-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="11"/>
-    </Style>
-
-    <Style Selector="Button.unlock-footer-link">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

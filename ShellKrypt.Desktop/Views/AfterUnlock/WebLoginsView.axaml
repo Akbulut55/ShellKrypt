@@ -80,8 +80,9 @@
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Classes="web-add-login-button"
+            <Button Classes="sk-primary"
                     Command="{Binding AddNewCommand}"
+                    Margin="0,0,0,10"
                     VerticalAlignment="Center">
               <StackPanel Orientation="Horizontal"
                           Spacing="7"
@@ -180,7 +181,7 @@
                                    TextTrimming="CharacterEllipsis"
                                    VerticalAlignment="Center"/>
                         <Button Grid.Column="1"
-                                Classes="web-inline-icon"
+                                Classes="sk-icon-ghost"
                                 Content="E"
                                 Command="{Binding DataContext.TogglePasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
@@ -199,12 +200,12 @@
                                   HorizontalAlignment="Right"
                                   VerticalAlignment="Center"
                                    Spacing="6">
-                        <Button Classes="table-action-button"
+                        <Button Classes="sk-table-action"
                                 Content="{DynamicResource Loc.Common.Details}"
                                 Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.ViewDetails}"/>
-                        <Button Classes="table-action-button"
+                        <Button Classes="sk-table-action"
                                 Content="{DynamicResource Loc.WebLogins.Button.CopyPassword}"
                                 Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
@@ -311,9 +312,20 @@
                              IsVisible="{Binding IsAddPasswordVisible}"
                              PlaceholderText="{DynamicResource Loc.WebLogins.Form.Password.Placeholder}"/>
                     <Button Grid.Column="1"
-                            Content="{Binding AddPasswordVisibilityLabel}"
                             Classes="modal-shell-field-action"
-                            Command="{Binding ToggleAddPasswordVisibilityCommand}"/>
+                            Command="{Binding ToggleAddPasswordVisibilityCommand}"
+                            ToolTip.Tip="{Binding AddPasswordVisibilityLabel}">
+                      <Grid>
+                        <PathIcon Data="{StaticResource IconVisibility}"
+                                  Width="16"
+                                  Height="16"
+                                  IsVisible="{Binding !IsAddPasswordVisible}"/>
+                        <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                  Width="16"
+                                  Height="16"
+                                  IsVisible="{Binding IsAddPasswordVisible}"/>
+                      </Grid>
+                    </Button>
                     <Button Grid.Column="2"
                             Content="{DynamicResource Loc.Common.Copy}"
                             Classes="modal-shell-field-action"
@@ -439,28 +451,6 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Button.web-add-login-button">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="160"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,0,10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-add-login-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
-
 
 
 
@@ -510,24 +500,6 @@
     <Style Selector="TextBlock.web-footer-text">
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.web-inline-icon">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="Width" Value="24"/>
-      <Setter Property="Height" Value="24"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.web-inline-icon:pointerover">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

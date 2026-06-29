@@ -4,8 +4,8 @@ public sealed partial class VaultRegistryService
 {
     public IReadOnlyList<VaultRegistryEntry> ListVaults()
         => Load().Vaults
-            .OrderByDescending(x => x.LastOpenedAtUtc)
-            .ThenByDescending(x => x.IsDefault)
+            .OrderByDescending(x => x.IsFavorite)
+            .ThenByDescending(x => x.LastOpenedAtUtc)
             .ThenBy(x => x.DisplayName, StringComparer.OrdinalIgnoreCase)
             .Select(Clone)
             .ToArray();
@@ -15,9 +15,6 @@ public sealed partial class VaultRegistryService
             .Where(x => !string.IsNullOrWhiteSpace(x.LastOpenedAtUtc))
             .Take(maxCount)
             .ToArray();
-
-    public VaultRegistryEntry? GetDefaultVault()
-        => ListVaults().FirstOrDefault(x => x.IsDefault) ?? ListVaults().FirstOrDefault();
 
     public VaultRegistryEntry? FindByPath(string vaultPath)
     {

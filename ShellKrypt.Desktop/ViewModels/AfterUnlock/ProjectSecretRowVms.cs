@@ -67,9 +67,12 @@ public sealed partial class ProjectSecretVariableRowVm : ObservableObject
     public bool CanRevealEditValue => IsManual && EditIsSecret;
     public bool UseMaskedEditValueInput => IsEditing && CanRevealEditValue && !IsValueRevealed;
     public bool UsePlainEditValueInput => IsEditing && (!CanRevealEditValue || IsValueRevealed);
+    public bool ShowEditAction => OwnerIsProjectEditing && !IsEditing;
+    public bool ShowDeleteAction => OwnerIsProjectEditing;
 
     [ObservableProperty] private bool isValueRevealed;
     [ObservableProperty] private bool isEditing;
+    [ObservableProperty] private bool ownerIsProjectEditing;
     [ObservableProperty] private string editKey = "";
     [ObservableProperty] private string editValue = "";
     [ObservableProperty] private string editNotes = "";
@@ -89,6 +92,7 @@ public sealed partial class ProjectSecretVariableRowVm : ObservableObject
 
         OnPropertyChanged(nameof(UseMaskedEditValueInput));
         OnPropertyChanged(nameof(UsePlainEditValueInput));
+        OnPropertyChanged(nameof(ShowEditAction));
     }
 
     partial void OnEditIsSecretChanged(bool value)
@@ -96,6 +100,12 @@ public sealed partial class ProjectSecretVariableRowVm : ObservableObject
         OnPropertyChanged(nameof(CanRevealEditValue));
         OnPropertyChanged(nameof(UseMaskedEditValueInput));
         OnPropertyChanged(nameof(UsePlainEditValueInput));
+    }
+
+    partial void OnOwnerIsProjectEditingChanged(bool value)
+    {
+        OnPropertyChanged(nameof(ShowEditAction));
+        OnPropertyChanged(nameof(ShowDeleteAction));
     }
 
     public void Update(ProjectSecretVariableEntry entry)
@@ -152,6 +162,35 @@ public sealed partial class ProjectSecretProfileSelectionVm : ObservableObject
     }
 
     public string Name { get; }
+}
+
+public sealed record ProjectSecretEnvironmentNameOption(string Name)
+{
+    public string DisplayName => Name;
+}
+
+public sealed partial class ProjectSecretNameChipVm : ObservableObject
+{
+    public ProjectSecretNameChipVm(string name)
+    {
+        Name = name;
+    }
+
+    public string Name { get; }
+    public string BackgroundResourceKey => IsSelected ? "AccentBrush" : "SurfaceRaisedBrush";
+    public string ForegroundResourceKey => IsSelected ? "AccentForegroundBrush" : "TextPrimaryBrush";
+    public string SelectionBorderResourceKey => IsSelected ? "AccentBrush" : "BorderBrushSoft";
+    public int SelectionBorderThickness => IsSelected ? 2 : 1;
+
+    [ObservableProperty] private bool isSelected;
+
+    partial void OnIsSelectedChanged(bool value)
+    {
+        OnPropertyChanged(nameof(BackgroundResourceKey));
+        OnPropertyChanged(nameof(ForegroundResourceKey));
+        OnPropertyChanged(nameof(SelectionBorderResourceKey));
+        OnPropertyChanged(nameof(SelectionBorderThickness));
+    }
 }
 
 public sealed record ProjectSecretCompareRowVm(string Key, IReadOnlyList<ProjectSecretCompareCell> Cells);

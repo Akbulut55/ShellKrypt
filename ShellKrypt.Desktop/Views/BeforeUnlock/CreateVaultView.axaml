@@ -67,7 +67,7 @@
                              PlaceholderText="{DynamicResource Loc.CreateVault.Location.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.Browse}"
-                            Classes="create-secondary-button"
+                            Classes="sk-secondary"
                             Command="{Binding BrowseVaultPathCommand}"/>
                   </Grid>
                 </StackPanel>
@@ -147,12 +147,12 @@
                     ColumnSpacing="10">
                 <Button Grid.Column="1"
                         Content="{DynamicResource Loc.Common.Back}"
-                        Classes="create-secondary-button"
+                        Classes="sk-secondary"
                         Command="{Binding BackCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
                         Content="{DynamicResource Loc.CreateVault.Button.Create}"
-                        Classes="create-primary-button"
+                        Classes="sk-primary"
                         Command="{Binding CreateCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
               </Grid>
@@ -216,38 +216,6 @@
       <Setter Property="FontSize" Value="10"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
       <Setter Property="LetterSpacing" Value="1.2"/>
-    </Style>
-
-    <Style Selector="Button.create-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="MinWidth" Value="136"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.create-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="MinWidth" Value="96"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.create-guidance-card">

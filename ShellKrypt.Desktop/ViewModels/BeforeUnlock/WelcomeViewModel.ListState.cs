@@ -43,7 +43,7 @@ public sealed partial class WelcomeViewModel
             ApplyFilters();
 
             SelectedVault = Vaults.FirstOrDefault(x => string.Equals(NormalizePath(x.VaultPath), selectedPath, StringComparison.OrdinalIgnoreCase))
-                ?? Vaults.FirstOrDefault(x => x.IsDefault)
+                ?? Vaults.FirstOrDefault(x => x.IsFavorite)
                 ?? Vaults.FirstOrDefault();
 
             OnPropertyChanged(nameof(VaultCount));
@@ -88,9 +88,12 @@ public sealed partial class WelcomeViewModel
 
         items = ActiveSort switch
         {
-            "name" => items.OrderBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase),
+            "name" => items
+                .OrderByDescending(vault => vault.IsFavorite)
+                .ThenBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase),
             _ => items
-                .OrderByDescending(vault => DateTimeOffset.TryParse(vault.LastOpenedAtUtc, out var opened) ? opened : DateTimeOffset.MinValue)
+                .OrderByDescending(vault => vault.IsFavorite)
+                .ThenByDescending(vault => DateTimeOffset.TryParse(vault.LastOpenedAtUtc, out var opened) ? opened : DateTimeOffset.MinValue)
                 .ThenBy(vault => vault.DisplayLabel, StringComparer.OrdinalIgnoreCase)
         };
 

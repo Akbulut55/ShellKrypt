@@ -98,7 +98,7 @@
             </StackPanel>
             <Button Grid.Column="2"
                     Content="{Binding MatchScopeLabel}"
-                    Classes="qf-popup-secondary qf-popup-small-button"
+                    Classes="sk-secondary qf-popup-small-button"
                     Command="{Binding ToggleMatchScopeCommand}"
                     Margin="0,0,10,0"
                     VerticalAlignment="Center"
@@ -176,7 +176,7 @@
                       </TextBox.KeyBindings>
                     </TextBox>
                     <Button Grid.Column="1"
-                            Classes="qf-unlock-eye-button"
+                            Classes="sk-icon-ghost"
                             Command="{Binding TogglePasswordVisibilityCommand}"
                             ToolTip.Tip="{Binding PasswordVisibilityLabel}">
                       <Grid>
@@ -201,7 +201,7 @@
                            TextAlignment="Center"/>
               </Border>
 
-              <Button Classes="qf-unlock-primary"
+              <Button Classes="sk-primary"
                       Command="{Binding UnlockCommand}"
                       HorizontalAlignment="Stretch"
                       IsDefault="True">
@@ -232,7 +232,7 @@
                              VerticalAlignment="Center"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
-                          Classes="qf-popup-secondary qf-popup-small-button"
+                          Classes="sk-secondary qf-popup-small-button"
                           Command="{Binding StartAddEntryCommand}"/>
                 </Grid>
 
@@ -259,7 +259,7 @@
                                       VerticalAlignment="Center"/>
                             <Button Grid.Column="3"
                                     Content="X"
-                                    Classes="qf-popup-secondary qf-popup-small-button"
+                                    Classes="sk-secondary qf-popup-small-button"
                                     Command="{Binding DataContext.DeleteEntryRowCommand, ElementName=Root}"
                                     CommandParameter="{Binding}"/>
                           </Grid>
@@ -309,15 +309,15 @@
                       ColumnSpacing="10">
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.Common.Edit}"
-                          Classes="qf-popup-secondary"
+                          Classes="sk-secondary"
                           Command="{Binding StartEditEntryCommand}"/>
                   <Button Grid.Column="2"
                           Content="{DynamicResource Loc.Common.Copy}"
-                          Classes="qf-popup-secondary"
+                          Classes="sk-secondary"
                           Command="{Binding CopySelectedCommand}"/>
                   <Button Grid.Column="3"
                           Content="{DynamicResource Loc.QuickFill.Button.Fill}"
-                          Classes="qf-popup-primary"
+                          Classes="sk-primary"
                           IsEnabled="{Binding CanFillSelected}"
                           Command="{Binding FillSelectedCommand}"/>
                 </Grid>
@@ -340,7 +340,7 @@
                          TextAlignment="Center"
                          MaxWidth="420"/>
               <Button Content="{DynamicResource Loc.QuickFill.Popup.AddEntry}"
-                      Classes="qf-popup-primary"
+                      Classes="sk-primary"
                       Command="{Binding StartAddEntryCommand}"
                       HorizontalAlignment="Center"/>
             </StackPanel>
@@ -475,39 +475,12 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
 
-    <Style Selector="Button.qf-unlock-eye-button">
-      <Setter Property="Width" Value="36"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.qf-unlock-eye-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
     <Style Selector="Border.qf-unlock-status">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
       <Setter Property="Padding" Value="12,9"/>
-    </Style>
-
-    <Style Selector="Button.qf-unlock-primary">
-      <Setter Property="MinHeight" Value="46"/>
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.qf-panel, Border.qf-inner-panel, Border.qf-popup-row, Border.qf-popup-field-row">
@@ -548,29 +521,10 @@
       <Setter Property="FontWeight" Value="Black"/>
     </Style>
 
-    <Style Selector="Button.qf-popup-primary">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="Button.qf-popup-secondary">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-    </Style>
-
     <Style Selector="Button.qf-popup-small-button">
       <Setter Property="MinHeight" Value="32"/>
       <Setter Property="Padding" Value="12,6"/>
       <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.qf-popup-danger">
-      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
     </Style>
   </Window.Styles>
 </Window>

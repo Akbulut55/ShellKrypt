@@ -39,7 +39,6 @@ public sealed partial class WelcomeViewModel
                 path,
                 displayName,
                 "",
-                isDefault: !_vaultRegistry.ListVaults().Any(),
                 markOpened: false);
 
             ReloadVaults(entry.VaultPath);
@@ -82,7 +81,6 @@ public sealed partial class WelcomeViewModel
                 targetPath,
                 $"{SelectedVault.DisplayLabel} Copy",
                 SelectedVault.Description,
-                isDefault: false,
                 markOpened: false);
 
             ReloadVaults(targetPath);

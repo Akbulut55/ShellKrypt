@@ -33,16 +33,6 @@
               <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource AccentMutedBrush}">
-                    <TextBlock Text="S"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource SuccessBrush}"
-                               FontWeight="Black"/>
-                  </Border>
                   <TextBlock Text="{DynamicResource Loc.Settings.Security}"
                              FontSize="18"
                              FontWeight="Bold"
@@ -63,22 +53,29 @@
                                  TextWrapping="Wrap"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="150">
+                          HorizontalAlignment="Right">
                       <Button x:Name="AutoLockPickerButton"
-                              Classes="settings-picker-button"
+                              Classes="sk-button settings-picker-button"
                               Command="{Binding ToggleAutoLockPickerCommand}">
-                        <Grid ColumnDefinitions="*,Auto"
-                              HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="Auto,Auto"
+                              HorizontalAlignment="Center">
                           <TextBlock Text="{Binding SelectedAutoLockDurationLabel}"
                                      VerticalAlignment="Center"
                                      TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="&#xE70D;"
-                                     FontFamily="Segoe MDL2 Assets"
-                                     FontSize="10"
-                                     Margin="10,0,0,0"
-                                     VerticalAlignment="Center"
-                                     Foreground="{StaticResource TextMutedBrush}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropDown}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding !IsAutoLockPickerOpen}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropUp}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding IsAutoLockPickerOpen}"/>
                         </Grid>
                       </Button>
 
@@ -89,13 +86,13 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="170">
+                                MinWidth="150">
                           <ItemsControl ItemsSource="{Binding AutoLockDurations}"
                                         HorizontalAlignment="Stretch">
                             <ItemsControl.ItemTemplate>
                               <DataTemplate>
                                 <Button Content="{Binding Label}"
-                                        Classes="settings-picker-option"
+                                        Classes="sk-picker-option"
                                         Classes.active="{Binding IsSelected}"
                                         Command="{Binding #Root.DataContext.SelectAutoLockDurationCommand}"
                                         CommandParameter="{Binding}"/>
@@ -122,22 +119,29 @@
                                  TextWrapping="Wrap"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="150">
+                          HorizontalAlignment="Right">
                       <Button x:Name="FocusLockPickerButton"
-                              Classes="settings-picker-button"
+                              Classes="sk-button settings-picker-button"
                               Command="{Binding ToggleFocusLockPickerCommand}">
-                        <Grid ColumnDefinitions="*,Auto"
-                              HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="Auto,Auto"
+                              HorizontalAlignment="Center">
                           <TextBlock Text="{Binding SelectedFocusLossLockDelayLabel}"
                                      VerticalAlignment="Center"
                                      TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="&#xE70D;"
-                                     FontFamily="Segoe MDL2 Assets"
-                                     FontSize="10"
-                                     Margin="10,0,0,0"
-                                     VerticalAlignment="Center"
-                                     Foreground="{StaticResource TextMutedBrush}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropDown}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding !IsFocusLockPickerOpen}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropUp}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding IsFocusLockPickerOpen}"/>
                         </Grid>
                       </Button>
 
@@ -148,13 +152,13 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="150">
+                                MinWidth="128">
                           <ItemsControl ItemsSource="{Binding FocusLossLockDelayOptions}"
                                         HorizontalAlignment="Stretch">
                             <ItemsControl.ItemTemplate>
                               <DataTemplate>
                                 <Button Content="{Binding Label}"
-                                        Classes="settings-picker-option"
+                                        Classes="sk-picker-option"
                                         Classes.active="{Binding IsSelected}"
                                         Command="{Binding #Root.DataContext.SelectFocusLossLockDelayCommand}"
                                         CommandParameter="{Binding}"/>
@@ -187,25 +191,32 @@
                     </StackPanel>
                     <StackPanel Grid.Column="1"
                                 Spacing="8"
-                                Width="170">
+                                HorizontalAlignment="Right">
                       <CheckBox Content="{DynamicResource Loc.Settings.AllowCopy}"
                                 IsChecked="{Binding ClipboardCopyEnabled}"/>
                       <Grid>
                         <Button x:Name="ClipboardClearPickerButton"
-                                Classes="settings-picker-button"
+                                Classes="sk-button settings-picker-button"
                                 Command="{Binding ToggleClipboardClearPickerCommand}">
-                          <Grid ColumnDefinitions="*,Auto"
-                                HorizontalAlignment="Stretch">
+                          <Grid ColumnDefinitions="Auto,Auto"
+                                HorizontalAlignment="Center">
                             <TextBlock Text="{Binding SelectedClipboardClearDurationLabel}"
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Grid.Column="1"
-                                       Text="&#xE70D;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="10"
-                                       Margin="10,0,0,0"
-                                       VerticalAlignment="Center"
-                                       Foreground="{StaticResource TextMutedBrush}"/>
+                            <PathIcon Grid.Column="1"
+                                      Data="{StaticResource IconDropDown}"
+                                      Width="16"
+                                      Height="16"
+                                      Margin="10,0,0,0"
+                                      Foreground="{StaticResource TextMutedBrush}"
+                                      IsVisible="{Binding !IsClipboardClearPickerOpen}"/>
+                            <PathIcon Grid.Column="1"
+                                      Data="{StaticResource IconDropUp}"
+                                      Width="16"
+                                      Height="16"
+                                      Margin="10,0,0,0"
+                                      Foreground="{StaticResource TextMutedBrush}"
+                                      IsVisible="{Binding IsClipboardClearPickerOpen}"/>
                           </Grid>
                         </Button>
 
@@ -216,13 +227,13 @@
                                VerticalOffset="4"
                                IsLightDismissEnabled="True">
                           <Border Classes="settings-picker-popup"
-                                  Width="150">
+                                  MinWidth="128">
                             <ItemsControl ItemsSource="{Binding ClipboardClearTimeoutOptions}"
                                           HorizontalAlignment="Stretch">
                               <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                   <Button Content="{Binding Label}"
-                                          Classes="settings-picker-option"
+                                          Classes="sk-picker-option"
                                           Classes.active="{Binding IsSelected}"
                                           Command="{Binding #Root.DataContext.SelectClipboardClearDurationCommand}"
                                           CommandParameter="{Binding}"/>
@@ -317,14 +328,14 @@
                                IsVisible="{Binding HasMasterPasswordStatus}"/>
 
                     <Button Content="{DynamicResource Loc.Settings.Button.ChangeMasterPassword}"
-                            Classes="settings-primary-button"
+                            Classes="sk-primary"
                             Command="{Binding ChangeMasterPasswordCommand}"
                             HorizontalAlignment="Stretch"/>
                   </StackPanel>
                 </Border>
 
                 <Button Content="{DynamicResource Loc.Settings.Button.DestroyVault}"
-                        Classes="settings-danger-link"
+                        Classes="sk-danger"
                         Command="{Binding DestroyVaultCommand}"/>
               </StackPanel>
             </Border>
@@ -337,16 +348,6 @@
               <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource SurfaceElevatedBrush}">
-                    <TextBlock Text="G"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontWeight="Black"/>
-                  </Border>
                   <TextBlock Text="{DynamicResource Loc.Settings.General}"
                              FontSize="18"
                              FontWeight="Bold"
@@ -361,22 +362,29 @@
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
                     <Grid Grid.Column="1"
-                          Width="128">
+                          HorizontalAlignment="Right">
                       <Button x:Name="ThemePickerButton"
-                              Classes="settings-picker-button"
+                              Classes="sk-button settings-picker-button"
                               Command="{Binding ToggleThemePickerCommand}">
-                        <Grid ColumnDefinitions="*,Auto"
-                              HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="Auto,Auto"
+                              HorizontalAlignment="Center">
                           <TextBlock Text="{Binding ThemeModeLabel}"
                                      VerticalAlignment="Center"
                                      TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="&#xE70D;"
-                                     FontFamily="Segoe MDL2 Assets"
-                                     FontSize="10"
-                                     Margin="10,0,0,0"
-                                     VerticalAlignment="Center"
-                                     Foreground="{StaticResource TextMutedBrush}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropDown}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding !IsThemePickerOpen}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropUp}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding IsThemePickerOpen}"/>
                         </Grid>
                       </Button>
 
@@ -387,7 +395,7 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="128">
+                                MinWidth="104">
                           <ItemsControl ItemsSource="{Binding ThemeOptions}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
@@ -397,7 +405,7 @@
                             <ItemsControl.ItemTemplate>
                               <DataTemplate>
                                 <Button Content="{Binding Label}"
-                                        Classes="settings-picker-option"
+                                        Classes="sk-picker-option"
                                         Classes.active="{Binding IsSelected}"
                                         Command="{Binding #Root.DataContext.SelectThemeCommand}"
                                         CommandParameter="{Binding}"/>
@@ -423,22 +431,29 @@
                                  FontSize="12"/>
                     </StackPanel>
                     <Grid Grid.Column="1"
-                          Width="128">
+                          HorizontalAlignment="Right">
                       <Button x:Name="LanguagePickerButton"
-                              Classes="settings-picker-button"
+                              Classes="sk-button settings-picker-button"
                               Command="{Binding ToggleLanguagePickerCommand}">
-                        <Grid ColumnDefinitions="*,Auto"
-                              HorizontalAlignment="Stretch">
+                        <Grid ColumnDefinitions="Auto,Auto"
+                              HorizontalAlignment="Center">
                           <TextBlock Text="{Binding SelectedLanguageLabel}"
                                      VerticalAlignment="Center"
                                      TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="&#xE70D;"
-                                     FontFamily="Segoe MDL2 Assets"
-                                     FontSize="10"
-                                     Margin="10,0,0,0"
-                                     VerticalAlignment="Center"
-                                     Foreground="{StaticResource TextMutedBrush}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropDown}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding !IsLanguagePickerOpen}"/>
+                          <PathIcon Grid.Column="1"
+                                    Data="{StaticResource IconDropUp}"
+                                    Width="16"
+                                    Height="16"
+                                    Margin="10,0,0,0"
+                                    Foreground="{StaticResource TextMutedBrush}"
+                                    IsVisible="{Binding IsLanguagePickerOpen}"/>
                         </Grid>
                       </Button>
 
@@ -449,7 +464,7 @@
                              VerticalOffset="4"
                              IsLightDismissEnabled="True">
                         <Border Classes="settings-picker-popup"
-                                Width="128">
+                                MinWidth="104">
                           <ItemsControl ItemsSource="{Binding LanguageOptions}">
                             <ItemsControl.ItemsPanel>
                               <ItemsPanelTemplate>
@@ -459,7 +474,7 @@
                             <ItemsControl.ItemTemplate>
                               <DataTemplate>
                                 <Button Content="{Binding Label}"
-                                        Classes="settings-picker-option"
+                                        Classes="sk-picker-option"
                                         Classes.active="{Binding IsSelected}"
                                         Command="{Binding #Root.DataContext.SelectLanguageCommand}"
                                         CommandParameter="{Binding}"/>
@@ -488,6 +503,7 @@
                     <CheckBox Grid.Column="1"
                               Content="{DynamicResource Loc.Settings.CloseToTray.Toggle}"
                               IsChecked="{Binding CloseToTrayEnabled}"
+                              HorizontalAlignment="Right"
                               VerticalAlignment="Center"/>
                   </Grid>
                 </Border>
@@ -501,16 +517,6 @@
               <StackPanel Spacing="14">
                 <StackPanel Orientation="Horizontal"
                             Spacing="12">
-                  <Border Width="36"
-                          Height="36"
-                          CornerRadius="10"
-                          Background="{StaticResource SurfaceElevatedBrush}">
-                    <TextBlock Text="V"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{StaticResource TextMutedBrush}"
-                               FontWeight="Black"/>
-                  </Border>
                   <TextBlock Text="{DynamicResource Loc.Settings.VaultManagement}"
                              FontSize="18"
                              FontWeight="Bold"
@@ -519,20 +525,8 @@
 
                 <Border Classes="settings-vault-card">
                   <StackPanel Spacing="14">
-                    <Grid ColumnDefinitions="Auto,*"
-                          ColumnSpacing="12">
-                      <Border Width="48"
-                              Height="48"
-                              CornerRadius="12"
-                              Background="{StaticResource AppBackgroundSoftBrush}">
-                        <TextBlock Text="DB"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="{StaticResource AccentBrush}"
-                                   FontWeight="Black"/>
-                      </Border>
-                      <StackPanel Grid.Column="1"
-                                  Spacing="4">
+                    <Grid>
+                      <StackPanel Spacing="4">
                         <TextBlock Text="{DynamicResource Loc.Settings.PrimaryDatabase}"
                                    Classes="settings-mini-label"/>
                         <TextBlock Text="{Binding ActiveVaultDisplay}"
@@ -589,7 +583,7 @@
                     </StackPanel>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Settings.Button.OpenBackupCenter}"
-                            Classes="settings-primary-button"
+                            Classes="sk-primary"
                             Command="{Binding OpenBackupCenterCommand}"/>
                   </Grid>
                 </Border>
@@ -682,60 +676,6 @@
       <Setter Property="LetterSpacing" Value="2.2"/>
     </Style>
 
-    <Style Selector="Button.settings-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.settings-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-button">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="FocusAdorner" Value="{x:Null}"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-button:pressed">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-    </Style>
-
     <Style Selector="Border.settings-picker-popup">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -744,67 +684,17 @@
       <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
-    <Style Selector="Button.settings-picker-option">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Style Selector="Button.settings-picker-button">
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="FocusAdorner" Value="{x:Null}"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-option:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-option.active">
-      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-option.active:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="Padding" Value="12,8"/>
     </Style>
 
     <Style Selector="Border.settings-vault-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
       <Setter Property="Padding" Value="12"/>
-    </Style>
-
-    <Style Selector="Button.settings-transfer-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,12"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.settings-danger-link">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="12,10"/>
-      <Setter Property="HorizontalAlignment" Value="Stretch"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
   </UserControl.Styles>

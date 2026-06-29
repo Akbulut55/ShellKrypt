@@ -91,7 +91,6 @@ public partial class CreateVaultViewModel : ViewModelBase
                 VaultPath,
                 DisplayName,
                 Description,
-                isDefault: !_vaultRegistry.ListVaults().Any(),
                 markOpened: true);
 
             _root.LogActivity("vault", "Vault created", $"Created {DisplayName.Trim()} as {Path.GetFileName(VaultPath)}.", "success", VaultPath, DisplayName.Trim());

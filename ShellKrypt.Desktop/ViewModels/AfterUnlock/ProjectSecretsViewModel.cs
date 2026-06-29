@@ -22,12 +22,15 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     private readonly List<ProjectSecretRowVm> _all = new();
     private readonly List<ApiKeyEntry> _apiKeys = new();
     private readonly Dictionary<string, List<ProjectSecretVariableEntry>> _environmentVariableDrafts = new(StringComparer.Ordinal);
+    private readonly Dictionary<string, string> _sessionSelectedProfilesByEnvironment = new(StringComparer.OrdinalIgnoreCase);
     private string? _loadedEnvironmentId;
     private bool _syncingEnvironmentSelection;
 
     public ObservableCollection<ProjectSecretRowVm> Rows { get; } = new();
     public ObservableCollection<string> EnvironmentNameOptions { get; } = new();
     public ObservableCollection<string> ProfileNameOptions { get; } = new();
+    public ObservableCollection<ProjectSecretNameChipVm> EnvironmentNameChips { get; } = new();
+    public ObservableCollection<ProjectSecretNameChipVm> ProfileNameChips { get; } = new();
     public ObservableCollection<ProjectSecretEnvironmentOption> EnvironmentOptions { get; } = new();
     public ObservableCollection<ProjectSecretVariableRowVm> Variables { get; } = new();
     public ObservableCollection<ProjectSecretCompareRowVm> CompareRows { get; } = new();
@@ -36,6 +39,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public ObservableCollection<ProjectSecretApiKeyFieldOption> ApiKeyFieldOptions { get; } = new();
     public ObservableCollection<ProjectSecretApiKeyLinkOption> ApiKeyLinkOptions { get; } = new();
     public ObservableCollection<ProjectSecretProfileSelectionVm> AddEnvironmentProfiles { get; } = new();
+    public ObservableCollection<string> EnvironmentDetailProfileOptions { get; } = new();
     public IReadOnlyList<ProjectSecretVariableSourceKind> VariableSourceKindOptions { get; } =
     [
         ProjectSecretVariableSourceKind.Manual,
@@ -50,11 +54,17 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [ObservableProperty] private string projectDescription = "";
     [ObservableProperty] private string projectNotes = "";
     [ObservableProperty] private string projectRootPath = "";
-    [ObservableProperty] private string selectedEnvironmentName = "Development";
-    [ObservableProperty] private string selectedProfileName = "Development";
-    [ObservableProperty] private string newEnvironmentName = "Backend";
+    [ObservableProperty] private string selectedEnvironmentName = "";
+    [ObservableProperty] private string selectedProfileName = "";
+    [ObservableProperty] private string newEnvironmentName = "";
     [ObservableProperty] private string newProfileName = "";
     [ObservableProperty] private bool isAddEnvironmentModalOpen;
+    [ObservableProperty] private bool isEnvironmentManagerOpen;
+    [ObservableProperty] private string selectedEnvironmentDetailName = "";
+    [ObservableProperty] private bool isEditingEnvironmentDetailName;
+    [ObservableProperty] private string environmentDetailEditName = "";
+    [ObservableProperty] private string editingProfileName = "";
+    [ObservableProperty] private string profileEditName = "";
     [ObservableProperty] private string variableKey = "";
     [ObservableProperty] private string variableValue = "";
     [ObservableProperty] private bool variableIsSecret = true;
@@ -92,6 +102,9 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public bool HasSelectedProject => SelectedProject is not null;
     public bool HasSelectedEnvironment => SelectedEnvironment is not null;
     public bool HasVariables => Variables.Count > 0;
+    public bool CanEditVariables => IsProjectEditing && HasSelectedEnvironment;
+    public bool HasSelectedEnvironmentDetail => !string.IsNullOrWhiteSpace(SelectedEnvironmentDetailName);
+    public bool IsEditingProfileName => !string.IsNullOrWhiteSpace(EditingProfileName);
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public bool HasProjectDescription => !string.IsNullOrWhiteSpace(ProjectDescription);
     public bool HasSelectedVariable => SelectedVariable is not null;
@@ -153,16 +166,19 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         LoadVariablesFromDraft(value);
         BuildCompare();
         OnPropertyChanged(nameof(HasSelectedEnvironment));
+        OnPropertyChanged(nameof(CanEditVariables));
     }
 
     partial void OnSelectedEnvironmentNameChanged(string value)
     {
+        RefreshSelectedChips();
         if (!_syncingEnvironmentSelection)
             SelectEnvironmentScope(createIfMissing: false);
     }
 
     partial void OnSelectedProfileNameChanged(string value)
     {
+        RefreshSelectedChips();
         if (!_syncingEnvironmentSelection)
             SelectEnvironmentScope(createIfMissing: false);
     }
@@ -191,8 +207,12 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     partial void OnProjectDescriptionChanged(string value) => OnPropertyChanged(nameof(HasProjectDescription));
     partial void OnIsProjectEditingChanged(bool value)
     {
+        foreach (var variable in Variables)
+            variable.OwnerIsProjectEditing = value;
+
         OnPropertyChanged(nameof(IsProjectReadOnly));
         OnPropertyChanged(nameof(IsVariableValueReadOnly));
+        OnPropertyChanged(nameof(CanEditVariables));
     }
 
     partial void OnVariableSourceKindChanged(ProjectSecretVariableSourceKind value)
@@ -210,6 +230,17 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     partial void OnImportInvalidCountChanged(int value) => OnPropertyChanged(nameof(HasImportPreview));
     partial void OnProjectRootPathChanged(string value) => OnPropertyChanged(nameof(ProjectRootDisplay));
     partial void OnApiKeyLinkSearchTextChanged(string value) => OnPropertyChanged(nameof(FilteredApiKeyLinkOptions));
+    partial void OnSelectedEnvironmentDetailNameChanged(string value)
+    {
+        IsEditingEnvironmentDetailName = false;
+        EnvironmentDetailEditName = value;
+        EditingProfileName = "";
+        ProfileEditName = "";
+        RefreshEnvironmentDetailProfiles();
+        OnPropertyChanged(nameof(HasSelectedEnvironmentDetail));
+    }
+
+    partial void OnEditingProfileNameChanged(string value) => OnPropertyChanged(nameof(IsEditingProfileName));
 
     public override void RefreshLocalization()
     {
@@ -308,14 +339,14 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectNotes = "";
         ProjectRootPath = "";
         EnvironmentNameOptions.Clear();
+        EnvironmentNameChips.Clear();
+        ProfileNameChips.Clear();
         ProfileNameOptions.Clear();
         EnvironmentOptions.Clear();
         _environmentVariableDrafts.Clear();
         _loadedEnvironmentId = null;
-        EnvironmentNameOptions.Add("Development");
-        ProfileNameOptions.Add("Development");
-        SelectedEnvironmentName = "Development";
-        SelectedProfileName = "Development";
+        SelectedEnvironmentName = "";
+        SelectedProfileName = "";
         Variables.Clear();
         SelectedEnvironment = null;
         SelectedVariable = null;
@@ -386,22 +417,78 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [RelayCommand]
     private void SelectEnvironmentName(string? name)
     {
-        if (!string.IsNullOrWhiteSpace(name))
-            SelectedEnvironmentName = name;
+        if (string.IsNullOrWhiteSpace(name))
+            return;
+
+        var normalized = name.Trim();
+        var profile = ResolvePreferredProfileName(normalized);
+        if (string.IsNullOrWhiteSpace(profile))
+            return;
+
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = normalized;
+        SelectedProfileName = profile;
+        _syncingEnvironmentSelection = false;
+        RefreshSelectedChips();
+        SelectEnvironmentScope(createIfMissing: false);
     }
 
     [RelayCommand]
     private void SelectProfile(string? profile)
     {
-        if (!string.IsNullOrWhiteSpace(profile))
-            SelectedProfileName = profile.Trim();
+        if (string.IsNullOrWhiteSpace(profile))
+            return;
+
+        var normalized = profile.Trim();
+        var environmentName = SelectedEnvironmentName;
+        var environment = FindEnvironmentProfile(environmentName, normalized)
+                          ?? ResolveFirstProfileForEnvironment(environmentName);
+        if (environment is null)
+            return;
+
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = environment.Name;
+        SelectedProfileName = environment.StageLabel;
+        SelectedEnvironment = environment;
+        _syncingEnvironmentSelection = false;
+        RememberSelectedProfile(environment.Name, environment.StageLabel);
+        _loadedEnvironmentId = environment.Id;
+        LoadVariablesFromDraft(environment);
+        RefreshSelectedChips();
+        BuildCompare();
+        OnPropertyChanged(nameof(HasSelectedEnvironment));
+        OnPropertyChanged(nameof(CanEditVariables));
+    }
+
+    [RelayCommand]
+    private void OpenEnvironmentManager()
+    {
+        Error = "";
+        SelectedEnvironmentDetailName = EnvironmentNameOptions.FirstOrDefault(name => string.Equals(name, SelectedEnvironmentName, StringComparison.OrdinalIgnoreCase))
+                                        ?? EnvironmentNameOptions.FirstOrDefault()
+                                        ?? "";
+        RefreshEnvironmentDetailProfiles();
+        NewProfileName = "";
+        IsEnvironmentManagerOpen = true;
+    }
+
+    [RelayCommand]
+    private void CloseEnvironmentManager()
+    {
+        IsEnvironmentManagerOpen = false;
+        SelectedEnvironmentDetailName = "";
+        EnvironmentDetailProfileOptions.Clear();
+        NewProfileName = "";
+        IsEditingEnvironmentDetailName = false;
+        EditingProfileName = "";
+        ProfileEditName = "";
     }
 
     [RelayCommand]
     private void OpenAddEnvironmentModal()
     {
         Error = "";
-        NewEnvironmentName = CreateUniqueEnvironmentName("Backend");
+        NewEnvironmentName = "";
         NewProfileName = "";
         AddEnvironmentProfiles.Clear();
 
@@ -466,12 +553,17 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         }
 
         EnvironmentNameOptions.Add(name);
+        _syncingEnvironmentSelection = true;
         SelectedEnvironmentName = name;
+        SelectedEnvironmentDetailName = name;
+        _syncingEnvironmentSelection = false;
         foreach (var profile in selectedProfiles)
             CreateEnvironmentProfile(name, profile);
 
         SelectedProfileName = selectedProfiles[0];
+        RefreshEnvironmentNameChips();
         SelectEnvironmentScope(createIfMissing: false);
+        RefreshEnvironmentDetailProfiles();
         IsAddEnvironmentModalOpen = false;
         AddEnvironmentProfiles.Clear();
         NewProfileName = "";
@@ -479,11 +571,205 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
     [RelayCommand]
     private void DeleteEnvironment()
+        => DeleteEnvironmentByName(SelectedEnvironmentName);
+
+    [RelayCommand]
+    private void SelectEnvironmentDetail(string? name)
     {
-        if (EnvironmentNameOptions.Count <= 1)
+        if (!string.IsNullOrWhiteSpace(name))
+            SelectedEnvironmentDetailName = name.Trim();
+    }
+
+    [RelayCommand]
+    private void BeginRenameEnvironment()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedEnvironmentDetailName))
             return;
 
-        var remove = SelectedEnvironmentName;
+        EnvironmentDetailEditName = SelectedEnvironmentDetailName;
+        IsEditingEnvironmentDetailName = true;
+    }
+
+    [RelayCommand]
+    private void CancelRenameEnvironment()
+    {
+        EnvironmentDetailEditName = SelectedEnvironmentDetailName;
+        IsEditingEnvironmentDetailName = false;
+    }
+
+    [RelayCommand]
+    private void SaveRenameEnvironment()
+    {
+        var oldName = SelectedEnvironmentDetailName.Trim();
+        var newName = EnvironmentDetailEditName.Trim();
+        if (string.IsNullOrWhiteSpace(oldName) || string.IsNullOrWhiteSpace(newName))
+            return;
+
+        if (!string.Equals(oldName, newName, StringComparison.OrdinalIgnoreCase) &&
+            EnvironmentNameOptions.Any(option => string.Equals(option, newName, StringComparison.OrdinalIgnoreCase)))
+        {
+            Error = "Environment name already exists.";
+            return;
+        }
+
+        for (var index = 0; index < EnvironmentOptions.Count; index++)
+        {
+            var option = EnvironmentOptions[index];
+            if (string.Equals(option.Name, oldName, StringComparison.OrdinalIgnoreCase))
+                EnvironmentOptions[index] = option with { Name = newName };
+        }
+
+        var nameIndex = EnvironmentNameOptions.IndexOf(oldName);
+        if (nameIndex >= 0)
+            EnvironmentNameOptions[nameIndex] = newName;
+
+        _syncingEnvironmentSelection = true;
+        if (string.Equals(SelectedEnvironmentName, oldName, StringComparison.OrdinalIgnoreCase))
+            SelectedEnvironmentName = newName;
+        SelectedEnvironmentDetailName = newName;
+        _syncingEnvironmentSelection = false;
+
+        IsEditingEnvironmentDetailName = false;
+        Error = "";
+        RefreshProfileNameOptions();
+        RefreshEnvironmentDetailProfiles();
+        SelectEnvironmentScope(createIfMissing: false);
+    }
+
+    [RelayCommand]
+    private void BeginRenameProfile(string? profileName)
+    {
+        if (string.IsNullOrWhiteSpace(profileName))
+            return;
+
+        EditingProfileName = profileName.Trim();
+        ProfileEditName = EditingProfileName;
+    }
+
+    [RelayCommand]
+    private void CancelRenameProfile()
+    {
+        EditingProfileName = "";
+        ProfileEditName = "";
+    }
+
+    [RelayCommand]
+    private void SaveRenameProfile()
+    {
+        var environmentName = SelectedEnvironmentDetailName.Trim();
+        var oldProfile = EditingProfileName.Trim();
+        var newProfile = ProfileEditName.Trim();
+        if (string.IsNullOrWhiteSpace(environmentName) || string.IsNullOrWhiteSpace(oldProfile) || string.IsNullOrWhiteSpace(newProfile))
+            return;
+
+        if (!string.Equals(oldProfile, newProfile, StringComparison.OrdinalIgnoreCase) &&
+            EnvironmentOptions.Any(option =>
+                string.Equals(option.Name, environmentName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(option.StageLabel, newProfile, StringComparison.OrdinalIgnoreCase)))
+        {
+            Error = "Profile name already exists in this environment.";
+            return;
+        }
+
+        for (var index = 0; index < EnvironmentOptions.Count; index++)
+        {
+            var option = EnvironmentOptions[index];
+            if (string.Equals(option.Name, environmentName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(option.StageLabel, oldProfile, StringComparison.OrdinalIgnoreCase))
+                EnvironmentOptions[index] = option with { ProfileName = newProfile, Kind = InferEnvironmentKind(newProfile) };
+        }
+
+        _syncingEnvironmentSelection = true;
+        if (string.Equals(SelectedEnvironmentName, environmentName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(SelectedProfileName, oldProfile, StringComparison.OrdinalIgnoreCase))
+            SelectedProfileName = newProfile;
+        _syncingEnvironmentSelection = false;
+
+        EditingProfileName = "";
+        ProfileEditName = "";
+        Error = "";
+        RefreshProfileNameOptions();
+        RefreshEnvironmentDetailProfiles();
+        SelectEnvironmentScope(createIfMissing: false);
+    }
+
+    [RelayCommand]
+    private void AddProfileToEnvironmentDetail()
+    {
+        var environmentName = SelectedEnvironmentDetailName.Trim();
+        var profileName = NewProfileName.Trim();
+        if (string.IsNullOrWhiteSpace(environmentName))
+        {
+            Error = "Select an environment first.";
+            return;
+        }
+
+        if (string.IsNullOrWhiteSpace(profileName))
+            return;
+
+        if (EnvironmentOptions.Any(option =>
+                string.Equals(option.Name, environmentName, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(option.StageLabel, profileName, StringComparison.OrdinalIgnoreCase)))
+        {
+            Error = "Profile name already exists in this environment.";
+            return;
+        }
+
+        CreateEnvironmentProfile(environmentName, profileName);
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = environmentName;
+        SelectedProfileName = profileName;
+        _syncingEnvironmentSelection = false;
+        SelectEnvironmentScope(createIfMissing: false);
+        RefreshEnvironmentDetailProfiles();
+        NewProfileName = "";
+        Error = "";
+    }
+
+    [RelayCommand]
+    private void DeleteEnvironmentProfile(string? profileName)
+    {
+        var environmentName = SelectedEnvironmentDetailName.Trim();
+        if (string.IsNullOrWhiteSpace(environmentName) || string.IsNullOrWhiteSpace(profileName))
+            return;
+
+        var remove = EnvironmentOptions.FirstOrDefault(option =>
+            string.Equals(option.Name, environmentName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(option.StageLabel, profileName.Trim(), StringComparison.OrdinalIgnoreCase));
+        if (remove is null)
+            return;
+
+        EnvironmentOptions.Remove(remove);
+        _environmentVariableDrafts.Remove(remove.Id);
+        if (SelectedEnvironment == remove)
+        {
+            SelectedEnvironment = null;
+            _loadedEnvironmentId = null;
+            Variables.Clear();
+            OnPropertyChanged(nameof(HasVariables));
+        }
+
+        RefreshProfileNameOptions();
+        RefreshEnvironmentDetailProfiles();
+        if (string.Equals(SelectedEnvironmentName, environmentName, StringComparison.OrdinalIgnoreCase))
+        {
+            _syncingEnvironmentSelection = true;
+            SelectedProfileName = ProfileNameOptions.FirstOrDefault() ?? "";
+            _syncingEnvironmentSelection = false;
+            SelectEnvironmentScope(createIfMissing: false);
+        }
+    }
+
+    [RelayCommand]
+    private void DeleteEnvironmentFromManager()
+        => DeleteEnvironmentByName(SelectedEnvironmentDetailName);
+
+    private void DeleteEnvironmentByName(string? environmentName)
+    {
+        var remove = environmentName?.Trim();
+        if (string.IsNullOrWhiteSpace(remove))
+            return;
+
         foreach (var option in EnvironmentOptions.Where(option => string.Equals(option.Name, remove, StringComparison.OrdinalIgnoreCase)).ToArray())
         {
             EnvironmentOptions.Remove(option);
@@ -491,15 +777,20 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         }
 
         EnvironmentNameOptions.Remove(remove);
-        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "Development";
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "";
+        SelectedProfileName = "";
+        SelectedEnvironmentDetailName = EnvironmentNameOptions.FirstOrDefault() ?? "";
+        _syncingEnvironmentSelection = false;
+        RefreshEnvironmentDetailProfiles();
+        RefreshEnvironmentNameChips();
         SelectEnvironmentScope(createIfMissing: false);
     }
 
     [RelayCommand]
     private void AddOrUpdateVariable()
     {
-        EnsureSelectedEnvironmentProfile();
-        if (SelectedEnvironment is null)
+        if (!EnsureSelectedEnvironmentProfile())
             return;
 
         Error = "";
@@ -531,7 +822,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                 DateTimeOffset.UtcNow.ToString("O"));
 
             if (SelectedVariable is null)
-                Variables.Add(new ProjectSecretVariableRowVm(entry));
+                Variables.Add(CreateVariableRow(entry));
             else
                 SelectedVariable.Update(entry);
 
@@ -671,8 +962,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [RelayCommand]
     private void AddLinkedApiKeyVariable(ProjectSecretApiKeyLinkOption? option)
     {
-        EnsureSelectedEnvironmentProfile();
-        if (option is null || SelectedEnvironment is null)
+        if (option is null || !EnsureSelectedEnvironmentProfile())
             return;
 
         Error = "";
@@ -698,7 +988,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                 option.FieldLabel,
                 DateTimeOffset.UtcNow.ToString("O"));
 
-            Variables.Add(new ProjectSecretVariableRowVm(entry));
+            Variables.Add(CreateVariableRow(entry));
             SaveCurrentVariablesToDraft();
             OnPropertyChanged(nameof(HasVariables));
             ClearVariableForm();
@@ -753,8 +1043,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [RelayCommand]
     private async Task ApplyImportAsync()
     {
-        EnsureSelectedEnvironmentProfile();
-        if (SelectedEnvironment is null)
+        if (!EnsureSelectedEnvironmentProfile())
             return;
 
         if (_lastImportParse is null)
@@ -785,7 +1074,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             if (existing.TryGetValue(variable.Key, out current))
                 current.Update(entry);
             else
-                Variables.Add(new ProjectSecretVariableRowVm(entry));
+                Variables.Add(CreateVariableRow(entry));
         }
 
         ImportPreview = $"Imported {_lastImportParse.Variables.Count} variable(s).";
@@ -908,6 +1197,8 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectNotes = project?.Notes ?? "";
         ProjectRootPath = project?.ProjectRootPath ?? "";
         EnvironmentNameOptions.Clear();
+        EnvironmentNameChips.Clear();
+        ProfileNameChips.Clear();
         EnvironmentOptions.Clear();
         _environmentVariableDrafts.Clear();
         _loadedEnvironmentId = null;
@@ -925,15 +1216,15 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                 .ToList();
         }
 
-        if (EnvironmentNameOptions.Count == 0)
-            EnvironmentNameOptions.Add("Development");
-
         _syncingEnvironmentSelection = true;
-        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "Development";
+        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "";
         RefreshProfileNameOptions();
-        SelectedProfileName = ProfileNameOptions.FirstOrDefault() ?? "Development";
+        SelectedProfileName = ProfileNameOptions.FirstOrDefault() ?? "";
         _syncingEnvironmentSelection = false;
+        RefreshEnvironmentNameChips();
+        RefreshSelectedChips();
         SelectEnvironmentScope(createIfMissing: false);
+        SelectFirstEnvironmentProfileIfNeeded();
         if (project?.LastScanResult is { } scan)
         {
             foreach (var finding in scan.Findings)
@@ -970,12 +1261,18 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         if (environment is not null && _environmentVariableDrafts.TryGetValue(environment.Id, out var variables))
         {
             foreach (var variable in variables.OrderBy(variable => variable.SortOrder))
-                Variables.Add(new ProjectSecretVariableRowVm(variable));
+                Variables.Add(CreateVariableRow(variable));
         }
 
         ClearVariableForm();
         OnPropertyChanged(nameof(HasVariables));
     }
+
+    private ProjectSecretVariableRowVm CreateVariableRow(ProjectSecretVariableEntry entry)
+        => new(entry)
+        {
+            OwnerIsProjectEditing = IsProjectEditing
+        };
 
     private void SelectEnvironmentScope(bool createIfMissing)
     {
@@ -986,46 +1283,158 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         _syncingEnvironmentSelection = true;
         RefreshProfileNameOptions();
         _syncingEnvironmentSelection = false;
-        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName)
+                          ?? ResolveFirstProfileForEnvironment(SelectedEnvironmentName);
         if (environment is null && createIfMissing)
             environment = CreateEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
 
         _syncingEnvironmentSelection = true;
+        if (environment is not null)
+        {
+            SelectedEnvironmentName = environment.Name;
+            SelectedProfileName = environment.StageLabel;
+            RememberSelectedProfile(environment.Name, environment.StageLabel);
+        }
+
         SelectedEnvironment = environment;
         _syncingEnvironmentSelection = false;
         _loadedEnvironmentId = environment?.Id;
         LoadVariablesFromDraft(environment);
+        RefreshSelectedChips();
         BuildCompare();
         OnPropertyChanged(nameof(HasSelectedEnvironment));
+        OnPropertyChanged(nameof(CanEditVariables));
     }
 
-    private void EnsureSelectedEnvironmentProfile()
+    private void SelectFirstEnvironmentProfileIfNeeded()
     {
-        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
-        if (environment is null)
-            environment = CreateEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+        if (SelectedEnvironment is not null || EnvironmentOptions.Count == 0)
+            return;
+
+        var preferredProfile = ResolvePreferredProfileName(SelectedEnvironmentName);
+        var environment = EnvironmentOptions
+            .Where(option => string.IsNullOrWhiteSpace(SelectedEnvironmentName) ||
+                             string.Equals(option.Name, SelectedEnvironmentName, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(option => !string.IsNullOrWhiteSpace(preferredProfile) &&
+                                         string.Equals(option.StageLabel, preferredProfile, StringComparison.OrdinalIgnoreCase))
+            .ThenBy(option => option.Name, StringComparer.OrdinalIgnoreCase)
+            .ThenBy(option => option.StageLabel, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault()
+            ?? EnvironmentOptions
+                .OrderBy(option => option.Name, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(option => option.StageLabel, StringComparer.OrdinalIgnoreCase)
+                .First();
 
         _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = environment.Name;
+        SelectedProfileName = environment.StageLabel;
+        RememberSelectedProfile(environment.Name, environment.StageLabel);
         SelectedEnvironment = environment;
         _syncingEnvironmentSelection = false;
         _loadedEnvironmentId = environment.Id;
+        LoadVariablesFromDraft(environment);
+        BuildCompare();
         OnPropertyChanged(nameof(HasSelectedEnvironment));
+        OnPropertyChanged(nameof(CanEditVariables));
     }
 
-    private ProjectSecretEnvironmentOption? FindEnvironmentProfile(string name, string profile)
-        => EnvironmentOptions.FirstOrDefault(option =>
-            string.Equals(option.Name, name.Trim(), StringComparison.OrdinalIgnoreCase) &&
-            string.Equals(option.StageLabel, profile.Trim(), StringComparison.OrdinalIgnoreCase));
+    private bool EnsureSelectedEnvironmentProfile()
+    {
+        if (string.IsNullOrWhiteSpace(SelectedEnvironmentName) || string.IsNullOrWhiteSpace(SelectedProfileName))
+        {
+            Error = "Add an environment and profile first.";
+            return false;
+        }
+
+        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName)
+                          ?? ResolveFirstProfileForEnvironment(SelectedEnvironmentName);
+        if (environment is null)
+        {
+            Error = "Select an existing environment and profile first.";
+            return false;
+        }
+
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = environment.Name;
+        SelectedProfileName = environment.StageLabel;
+        SelectedEnvironment = environment;
+        _syncingEnvironmentSelection = false;
+        RememberSelectedProfile(environment.Name, environment.StageLabel);
+        _loadedEnvironmentId = environment.Id;
+        RefreshSelectedChips();
+        OnPropertyChanged(nameof(HasSelectedEnvironment));
+        OnPropertyChanged(nameof(CanEditVariables));
+        return true;
+    }
+
+    private ProjectSecretEnvironmentOption? FindEnvironmentProfile(string? name, string? profile)
+    {
+        var normalizedName = name?.Trim();
+        var normalizedProfile = profile?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName) || string.IsNullOrWhiteSpace(normalizedProfile))
+            return null;
+
+        return EnvironmentOptions.FirstOrDefault(option =>
+            string.Equals(option.Name, normalizedName, StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(option.StageLabel, normalizedProfile, StringComparison.OrdinalIgnoreCase));
+    }
+
+    private ProjectSecretEnvironmentOption? ResolveFirstProfileForEnvironment(string? name)
+    {
+        var normalizedName = name?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedName))
+            return null;
+
+        return EnvironmentOptions
+            .Where(option => string.Equals(option.Name, normalizedName, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(option => option.StageLabel, StringComparer.OrdinalIgnoreCase)
+            .FirstOrDefault();
+    }
+
+    private string ResolvePreferredProfileName(string? environmentName)
+    {
+        var normalizedEnvironment = environmentName?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedEnvironment))
+            return "";
+
+        if (_sessionSelectedProfilesByEnvironment.TryGetValue(normalizedEnvironment, out var remembered) &&
+            EnvironmentOptions.Any(option =>
+                string.Equals(option.Name, normalizedEnvironment, StringComparison.OrdinalIgnoreCase) &&
+                string.Equals(option.StageLabel, remembered, StringComparison.OrdinalIgnoreCase)))
+        {
+            return remembered;
+        }
+
+        return EnvironmentOptions
+            .Where(option => string.Equals(option.Name, normalizedEnvironment, StringComparison.OrdinalIgnoreCase))
+            .OrderBy(option => option.StageLabel, StringComparer.OrdinalIgnoreCase)
+            .Select(option => option.StageLabel)
+            .FirstOrDefault() ?? "";
+    }
+
+    private void RememberSelectedProfile(string? environmentName, string? profileName)
+    {
+        var normalizedEnvironment = environmentName?.Trim();
+        var normalizedProfile = profileName?.Trim();
+        if (string.IsNullOrWhiteSpace(normalizedEnvironment) || string.IsNullOrWhiteSpace(normalizedProfile))
+            return;
+
+        _sessionSelectedProfilesByEnvironment[normalizedEnvironment] = normalizedProfile;
+    }
 
     private ProjectSecretEnvironmentOption CreateEnvironmentProfile(string name, string profile)
     {
         var normalizedName = string.IsNullOrWhiteSpace(name) ? "Environment" : name.Trim();
         var normalizedProfile = string.IsNullOrWhiteSpace(profile) ? "Default" : profile.Trim();
         if (!EnvironmentNameOptions.Any(option => string.Equals(option, normalizedName, StringComparison.OrdinalIgnoreCase)))
+        {
             EnvironmentNameOptions.Add(normalizedName);
+            RefreshEnvironmentNameChips();
+        }
 
         if (!ProfileNameOptions.Any(option => string.Equals(option, normalizedProfile, StringComparison.OrdinalIgnoreCase)))
             ProfileNameOptions.Add(normalizedProfile);
+        RefreshProfileNameChips();
 
         var option = new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), normalizedName, InferEnvironmentKind(normalizedProfile), normalizedProfile);
         EnvironmentOptions.Add(option);
@@ -1047,10 +1456,59 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         }
 
         if (ProfileNameOptions.Count == 0)
+        {
+            SelectedProfileName = "";
+            RefreshProfileNameChips();
             return;
+        }
 
         if (string.IsNullOrWhiteSpace(previous) || !ProfileNameOptions.Any(option => string.Equals(option, previous, StringComparison.OrdinalIgnoreCase)))
             SelectedProfileName = ProfileNameOptions[0];
+
+        RefreshProfileNameChips();
+    }
+
+    private void RefreshEnvironmentNameChips()
+    {
+        EnvironmentNameChips.Clear();
+        foreach (var name in EnvironmentNameOptions)
+            EnvironmentNameChips.Add(new ProjectSecretNameChipVm(name));
+
+        RefreshSelectedChips();
+    }
+
+    private void RefreshProfileNameChips()
+    {
+        ProfileNameChips.Clear();
+        foreach (var name in ProfileNameOptions)
+            ProfileNameChips.Add(new ProjectSecretNameChipVm(name));
+
+        RefreshSelectedChips();
+    }
+
+    private void RefreshSelectedChips()
+    {
+        foreach (var chip in EnvironmentNameChips)
+            chip.IsSelected = string.Equals(chip.Name, SelectedEnvironmentName, StringComparison.OrdinalIgnoreCase);
+
+        foreach (var chip in ProfileNameChips)
+            chip.IsSelected = string.Equals(chip.Name, SelectedProfileName, StringComparison.OrdinalIgnoreCase);
+    }
+
+    private void RefreshEnvironmentDetailProfiles()
+    {
+        EnvironmentDetailProfileOptions.Clear();
+        if (string.IsNullOrWhiteSpace(SelectedEnvironmentDetailName))
+            return;
+
+        foreach (var profileName in EnvironmentOptions
+                     .Where(option => string.Equals(option.Name, SelectedEnvironmentDetailName, StringComparison.OrdinalIgnoreCase))
+                     .Select(option => option.StageLabel)
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(profile => profile, StringComparer.OrdinalIgnoreCase))
+        {
+            EnvironmentDetailProfileOptions.Add(profileName);
+        }
     }
 
     private string CreateUniqueEnvironmentName(string baseName)

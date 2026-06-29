@@ -6,12 +6,13 @@
              x:DataType="vm:AuthenticatorViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="20"
-                  HorizontalAlignment="Stretch"
-                  Spacing="22">
-        <Grid ColumnDefinitions="*,300"
+    <Grid Margin="20"
+          RowDefinitions="Auto,*"
+          RowSpacing="22"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Stretch">
+        <Grid Grid.Row="0"
+              ColumnDefinitions="*,300"
               ColumnSpacing="16">
           <StackPanel Spacing="8">
             <TextBlock Text="{DynamicResource Loc.Authenticator.Title}"
@@ -33,16 +34,17 @@
                      PlaceholderText="{DynamicResource Loc.Authenticator.Search.Placeholder}"/>
             <Button Grid.Column="1"
                     Content="{DynamicResource Loc.Authenticator.Button.AddCode}"
-                    Classes="auth-primary-button"
+                    Classes="sk-primary"
                     Command="{Binding AddNewCommand}"/>
           </Grid>
         </Grid>
 
-        <Grid ColumnDefinitions="1.08*,0.78*"
-              ColumnSpacing="12">
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,0.82*"
+              ColumnSpacing="12"
+              VerticalAlignment="Stretch">
           <Border Classes="auth-list-shell"
-                  Height="{Binding Bounds.Height, ElementName=AuthenticatorDetailStack}"
-                  VerticalAlignment="Top">
+                  VerticalAlignment="Stretch">
             <Grid RowDefinitions="Auto,*">
               <Border Background="{StaticResource TableHeaderBrush}"
                       BorderBrush="{StaticResource BorderBrushSoft}"
@@ -169,9 +171,11 @@
           <Grid x:Name="AuthenticatorDetailStack"
                 Grid.Column="1"
                 RowDefinitions="*,Auto"
-                RowSpacing="18">
+                RowSpacing="18"
+                VerticalAlignment="Stretch">
             <Border Grid.Row="0"
                     Classes="auth-detail-card"
+                    MinHeight="300"
                     IsVisible="{Binding HasSelection}">
               <Grid>
                 <Border Background="{StaticResource AccentMutedBrush}"
@@ -185,18 +189,18 @@
                              FontWeight="Black"/>
                 </Border>
 
-                <StackPanel Spacing="12"
+                <StackPanel Spacing="8"
                             HorizontalAlignment="Center"
                             VerticalAlignment="Center"
-                            Margin="0,14,0,0">
-                  <Border Width="56"
-                          Height="56"
-                          CornerRadius="28"
+                            Margin="0">
+                  <Border Width="48"
+                          Height="48"
+                          CornerRadius="24"
                           Background="{StaticResource AppBackgroundSoftBrush}">
                     <TextBlock Text="{Binding SelectedEntry.Monogram}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"
-                               FontSize="16"
+                               FontSize="14"
                                FontWeight="Black"/>
                   </Border>
 
@@ -215,8 +219,10 @@
                                TextAlignment="Center"/>
                   </StackPanel>
 
-                  <Border Classes="auth-code-card">
-                    <StackPanel Spacing="12"
+                  <Border Classes="auth-code-card"
+                          MaxWidth="270"
+                          HorizontalAlignment="Stretch">
+                    <StackPanel Spacing="8"
                                 HorizontalAlignment="Center">
                       <TextBlock Text="{Binding SelectedEntry.CurrentCodeDisplay}"
                                  Classes="auth-detail-code"
@@ -247,11 +253,11 @@
                               Spacing="10"
                               HorizontalAlignment="Center">
                     <Button Content="{Binding SelectedEntry.CopyButtonText}"
-                            Classes="auth-secondary-button auth-secondary-button-accent"
+                            Classes="sk-secondary sk-secondary-accent"
                             Command="{Binding CopyCodeCommand}"
                             IsEnabled="{Binding CanCopyCode}"/>
                     <Button Content="{DynamicResource Loc.Common.Details}"
-                            Classes="auth-secondary-button"
+                            Classes="sk-secondary"
                             Command="{Binding OpenDetailsCommand}"
                             IsEnabled="{Binding CanEditSelection}"/>
                   </StackPanel>
@@ -262,6 +268,7 @@
             <Border Grid.Row="0"
                     Classes="auth-detail-card"
                     Padding="24"
+                    MinHeight="300"
                     IsVisible="{Binding !HasSelection}">
               <StackPanel Spacing="10"
                           HorizontalAlignment="Center"
@@ -280,6 +287,7 @@
 
             <Border Grid.Row="1"
                     Classes="auth-info-card"
+                    MinWidth="0"
                     IsVisible="{Binding HasSelection}">
               <Grid ColumnDefinitions="*,*"
                     RowDefinitions="Auto,Auto"
@@ -288,14 +296,16 @@
                 <StackPanel Spacing="6">
                   <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                              Classes="auth-kicker"/>
-                  <Grid ColumnDefinitions="*,Auto"
-                        ColumnSpacing="10">
+                  <Grid ColumnDefinitions="Auto,Auto"
+                        ColumnSpacing="8"
+                        HorizontalAlignment="Left">
                     <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
                                Classes="auth-secret-text"
                                TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="128"/>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost auth-secret-eye-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding !SelectedEntry.IsSecretVisible}">
@@ -304,7 +314,7 @@
                                 Height="17"/>
                     </Button>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost auth-secret-eye-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding SelectedEntry.IsSecretVisible}">
@@ -344,16 +354,18 @@
             </Border>
           </Grid>
         </Grid>
-      </StackPanel>
-    </ScrollViewer>
+    </Grid>
 
     <Border Background="{StaticResource OverlayScrimBrush}"
             IsVisible="{Binding IsDetailsModalOpen}">
       <Grid>
         <Border Classes="auth-modal-card"
                 Width="640"
+                MaxHeight="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Grid}}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
           <StackPanel Spacing="22">
             <Grid ColumnDefinitions="*,Auto"
                   ColumnSpacing="12">
@@ -369,7 +381,7 @@
 
               <Button Grid.Column="1"
                       Content="X"
-                      Classes="auth-close-button"
+                      Classes="sk-icon-ghost"
                       Command="{Binding CloseDetailsCommand}"/>
             </Grid>
 
@@ -400,7 +412,7 @@
             </Grid>
 
             <Border Classes="auth-code-card"
-                    Width="560"
+                    MaxWidth="560"
                     HorizontalAlignment="Stretch">
               <StackPanel Spacing="12"
                           HorizontalAlignment="Center">
@@ -437,14 +449,16 @@
                 <StackPanel Spacing="6">
                   <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                              Classes="auth-kicker"/>
-                  <Grid ColumnDefinitions="*,Auto"
-                        ColumnSpacing="10">
+                  <Grid ColumnDefinitions="Auto,Auto"
+                        ColumnSpacing="8"
+                        HorizontalAlignment="Left">
                     <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
                                Classes="auth-secret-text"
                                TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis"/>
+                               TextTrimming="CharacterEllipsis"
+                               MaxWidth="360"/>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost auth-secret-eye-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding !SelectedEntry.IsSecretVisible}">
@@ -453,7 +467,7 @@
                                 Height="17"/>
                     </Button>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost auth-secret-eye-button"
                             Command="{Binding ToggleSecretVisibilityCommand}"
                             CommandParameter="{Binding SelectedEntry}"
                             IsVisible="{Binding SelectedEntry.IsSecretVisible}">
@@ -501,14 +515,15 @@
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Common.Delete}"
-                      Classes="auth-danger-button"
+                      Classes="sk-danger"
                       Command="{Binding BeginDetailsDeleteCommand}"/>
               <Button Grid.Column="2"
                       Content="{DynamicResource Loc.Common.Edit}"
-                      Classes="auth-primary-button"
+                      Classes="sk-primary"
                       Command="{Binding BeginDetailsEditCommand}"/>
             </Grid>
           </StackPanel>
+          </ScrollViewer>
         </Border>
       </Grid>
     </Border>
@@ -518,8 +533,11 @@
       <Grid>
         <Border Classes="auth-modal-card"
                 Width="640"
+                MaxHeight="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Grid}}"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center">
+          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                        VerticalScrollBarVisibility="Auto">
           <StackPanel Spacing="22">
             <Grid ColumnDefinitions="*,Auto,Auto,Auto"
                   ColumnSpacing="12">
@@ -535,17 +553,17 @@
 
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Authenticator.Button.ImportQr}"
-                      Classes="auth-secondary-button auth-secondary-button-accent"
+                      Classes="sk-secondary sk-secondary-accent"
                       Command="{Binding ImportQrScreenshotCommand}"/>
 
               <Button Grid.Column="2"
                       Content="{DynamicResource Loc.Authenticator.Button.PasteQr}"
-                      Classes="auth-secondary-button auth-secondary-button-accent"
+                      Classes="sk-secondary sk-secondary-accent"
                       Command="{Binding PasteQrImageCommand}"/>
 
               <Button Grid.Column="3"
                       Content="X"
-                      Classes="auth-close-button"
+                      Classes="sk-icon-ghost"
                       Command="{Binding CancelEditorCommand}"/>
             </Grid>
 
@@ -594,7 +612,7 @@
                              IsVisible="{Binding IsFormSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost"
                             Command="{Binding ToggleFormSecretVisibilityCommand}"
                             VerticalAlignment="Center"
                             Margin="0,0,4,0"
@@ -604,7 +622,7 @@
                                 Height="17"/>
                     </Button>
                     <Button Grid.Column="1"
-                            Classes="auth-inline-button"
+                            Classes="sk-icon-ghost"
                             Command="{Binding ToggleFormSecretVisibilityCommand}"
                             VerticalAlignment="Center"
                             Margin="0,0,4,0"
@@ -707,14 +725,15 @@
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="auth-secondary-button"
+                      Classes="sk-secondary"
                       Command="{Binding CancelEditorCommand}"/>
               <Button Grid.Column="2"
                       Content="{Binding SaveButtonText}"
-                      Classes="auth-primary-button"
+                      Classes="sk-primary"
                       Command="{Binding SaveEditorCommand}"/>
             </Grid>
           </StackPanel>
+          </ScrollViewer>
         </Border>
       </Grid>
     </Border>
@@ -773,11 +792,11 @@
                          VerticalAlignment="Center"/>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="auth-secondary-button"
+                      Classes="sk-secondary"
                       Command="{Binding CancelDeleteCommand}"/>
               <Button Grid.Column="2"
                       Content="{DynamicResource Loc.Authenticator.Button.DeleteCode}"
-                      Classes="auth-danger-button"
+                      Classes="sk-danger"
                       Command="{Binding ConfirmDeleteCommand}"/>
             </Grid>
           </StackPanel>
@@ -836,72 +855,6 @@
       <Setter Property="Padding" Value="14,8"/>
     </Style>
 
-    <Style Selector="Button.auth-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="20,0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.auth-primary-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
-
-    <Style Selector="Button.auth-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.auth-secondary-button-accent">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.auth-danger-button">
-      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="22,0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.auth-close-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Width" Value="36"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
     <Style Selector="TextBlock.auth-list-code">
       <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
       <Setter Property="FontSize" Value="16"/>
@@ -914,8 +867,8 @@
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="14"/>
-      <Setter Property="Padding" Value="20"/>
-      <Setter Property="MinHeight" Value="300"/>
+      <Setter Property="Padding" Value="18"/>
+      <Setter Property="MinHeight" Value="0"/>
     </Style>
 
     <Style Selector="Border.auth-code-card">
@@ -923,13 +876,12 @@
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="16,18"/>
-      <Setter Property="Width" Value="270"/>
+      <Setter Property="Padding" Value="14,12"/>
     </Style>
 
     <Style Selector="TextBlock.auth-detail-code">
       <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
-      <Setter Property="FontSize" Value="32"/>
+      <Setter Property="FontSize" Value="30"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="LetterSpacing" Value="2"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
@@ -957,6 +909,14 @@
       <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
     </Style>
 
+    <Style Selector="Button.auth-secret-eye-button">
+      <Setter Property="Width" Value="24"/>
+      <Setter Property="Height" Value="24"/>
+      <Setter Property="MinWidth" Value="24"/>
+      <Setter Property="MinHeight" Value="24"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
     <Style Selector="TextBlock.auth-shield-glyph">
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
       <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
@@ -967,23 +927,6 @@
       <Setter Property="Padding" Value="0"/>
       <Setter Property="TextAlignment" Value="Center"/>
       <Setter Property="VerticalAlignment" Value="Top"/>
-    </Style>
-
-    <Style Selector="Button.auth-inline-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="Width" Value="34"/>
-      <Setter Property="MinWidth" Value="34"/>
-      <Setter Property="Height" Value="30"/>
-      <Setter Property="MinHeight" Value="30"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="TextBlock.auth-footer-meta">

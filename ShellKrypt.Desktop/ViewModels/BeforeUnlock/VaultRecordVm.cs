@@ -17,7 +17,7 @@ public sealed partial class VaultRecordVm : ObservableObject
     [ObservableProperty] private string displayName;
     [ObservableProperty] private string description;
     [ObservableProperty] private string? lastOpenedAtUtc;
-    [ObservableProperty] private bool isDefault;
+    [ObservableProperty] private bool isFavorite;
 
     public VaultRecordVm(VaultRegistryEntry entry, LocalizationService localization)
     {
@@ -28,7 +28,7 @@ public sealed partial class VaultRecordVm : ObservableObject
         DisplayName = entry.DisplayName;
         Description = entry.Description;
         LastOpenedAtUtc = entry.LastOpenedAtUtc;
-        IsDefault = entry.IsDefault;
+        IsFavorite = entry.IsFavorite;
     }
 
     public string FileName => Path.GetFileName(VaultPath);
@@ -41,8 +41,9 @@ public sealed partial class VaultRecordVm : ObservableObject
     public string StatusDisplay => Exists ? T("Welcome.Vault.Available") : T("Welcome.Vault.Missing");
     public string AvailabilityBadge => Exists ? T("Welcome.Vault.Available") : T("Welcome.Vault.Missing");
     public bool Exists => File.Exists(VaultPath);
-    public string DefaultBadge => IsDefault ? T("Common.Default") : T("Welcome.Vault.Label");
-    public bool CanBeDefault => Exists && !IsDefault;
+    public string FavoriteLabel => IsFavorite ? T("Welcome.Vault.FavoriteRemove") : T("Welcome.Vault.FavoriteAdd");
+    public string FavoriteIconKey => IsFavorite ? "IconStarFilled" : "IconStar";
+    public string FavoriteForegroundKey => IsFavorite ? "AccentBrush" : "TextMutedBrush";
 
     partial void OnDisplayNameChanged(string value) => OnPropertyChanged(nameof(DisplayLabel));
     partial void OnDescriptionChanged(string value) => OnPropertyChanged(nameof(DescriptionDisplay));
@@ -51,10 +52,11 @@ public sealed partial class VaultRecordVm : ObservableObject
         OnPropertyChanged(nameof(LastOpenedDisplay));
         OnPropertyChanged(nameof(LastOpenedDisplayLabel));
     }
-    partial void OnIsDefaultChanged(bool value)
+    partial void OnIsFavoriteChanged(bool value)
     {
-        OnPropertyChanged(nameof(DefaultBadge));
-        OnPropertyChanged(nameof(CanBeDefault));
+        OnPropertyChanged(nameof(FavoriteLabel));
+        OnPropertyChanged(nameof(FavoriteIconKey));
+        OnPropertyChanged(nameof(FavoriteForegroundKey));
     }
 
     public VaultRegistryEntry ToEntry()
@@ -66,7 +68,7 @@ public sealed partial class VaultRecordVm : ObservableObject
             Description = Description,
             CreatedAtUtc = CreatedAtUtc,
             LastOpenedAtUtc = LastOpenedAtUtc,
-            IsDefault = IsDefault
+            IsFavorite = IsFavorite
         };
 
     public void Apply(VaultRegistryEntry entry)
@@ -74,7 +76,7 @@ public sealed partial class VaultRecordVm : ObservableObject
         DisplayName = entry.DisplayName;
         Description = entry.Description;
         LastOpenedAtUtc = entry.LastOpenedAtUtc;
-        IsDefault = entry.IsDefault;
+        IsFavorite = entry.IsFavorite;
     }
 
     public void RefreshLocalization()
@@ -85,7 +87,7 @@ public sealed partial class VaultRecordVm : ObservableObject
         OnPropertyChanged(nameof(LastOpenedDisplayLabel));
         OnPropertyChanged(nameof(StatusDisplay));
         OnPropertyChanged(nameof(AvailabilityBadge));
-        OnPropertyChanged(nameof(DefaultBadge));
+        OnPropertyChanged(nameof(FavoriteLabel));
     }
 
     private string FormatDate(string? value)

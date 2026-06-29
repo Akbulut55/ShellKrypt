@@ -27,6 +27,8 @@
         <SolidColorBrush x:Key="TextPrimaryBrush" Color="#e5e2e1"/>
         <SolidColorBrush x:Key="TextMutedBrush" Color="#bacac5"/>
         <SolidColorBrush x:Key="TextInverseBrush" Color="#050505"/>
+        <SolidColorBrush x:Key="TextSelectionBackgroundBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="TextSelectionForegroundBrush" Color="#061413"/>
         <SolidColorBrush x:Key="AccentBrush" Color="#57f1db"/>
         <SolidColorBrush x:Key="AccentHoverBrush" Color="#63f5e1"/>
         <SolidColorBrush x:Key="AccentPressedBrush" Color="#2dd4bf"/>
@@ -81,10 +83,10 @@
         <SolidColorBrush x:Key="TypeApiKeyBackgroundBrush" Color="#174544"/>
         <SolidColorBrush x:Key="TypeApiKeyForegroundBrush" Color="#57f1db"/>
         <SolidColorBrush x:Key="StrengthNoneBrush" Color="#7b8a87"/>
-        <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ff7a7a"/>
+        <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ff4d5d"/>
         <SolidColorBrush x:Key="StrengthFairBrush" Color="#ffb35a"/>
-        <SolidColorBrush x:Key="StrengthStrongBrush" Color="#74f0dd"/>
-        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#4ff0df"/>
+        <SolidColorBrush x:Key="StrengthStrongBrush" Color="#ffb35a"/>
+        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#22c55e"/>
         <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Offset="0" Color="#57f1db"/>
             <GradientStop Offset="1" Color="#2dd4bf"/>
@@ -121,6 +123,7 @@
 
         <Style Selector="SelectableTextBlock">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource TextSelectionBackgroundBrush}"/>
         </Style>
 
         <Style Selector="Path.material-icon">
@@ -222,6 +225,18 @@
 
         <Style Selector="Button">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.sk-button,
+                         Button.primary,
+                         Button.subtle,
+                         Button.danger,
+                         Button.inline,
+                         Button.table-action-button,
+                         Button.table-page-button">
             <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
@@ -229,42 +244,106 @@
             <Setter Property="CornerRadius" Value="6"/>
             <Setter Property="Padding" Value="12,9"/>
             <Setter Property="MinHeight" Value="36"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <Style Selector="Button:pointerover">
+        <Style Selector="Button.sk-button:pointerover,
+                         Button.inline:pointerover">
             <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
         </Style>
 
-        <Style Selector="Button:pressed">
+        <Style Selector="Button.sk-button:pressed,
+                         Button.inline:pressed">
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
         </Style>
 
-        <Style Selector="Button.primary">
+        <Style Selector="Button.sk-button:disabled,
+                         Button.sk-primary:disabled,
+                         Button.sk-secondary:disabled,
+                         Button.sk-danger:disabled,
+                         Button.sk-ghost:disabled,
+                         Button.sk-icon:disabled,
+                         Button.sk-icon-ghost:disabled,
+                         Button.sk-chip:disabled,
+                         Button.sk-table-action:disabled,
+                         Button.sk-picker-option:disabled">
+            <Setter Property="Opacity" Value="0.62"/>
+        </Style>
+
+        <Style Selector="Button.sk-primary,
+                         Button.primary">
             <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="MinHeight" Value="36"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
         </Style>
 
-        <Style Selector="Button.primary:pointerover">
+        <Style Selector="Button.sk-primary:pointerover,
+                         Button.primary:pointerover">
             <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
         </Style>
 
-        <Style Selector="Button.subtle">
+        <Style Selector="Button.sk-primary:pressed,
+                         Button.primary:pressed">
+            <Setter Property="Background" Value="{StaticResource AccentPressedBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-secondary,
+                         Button.subtle">
             <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
+
+        <Style Selector="Button.sk-secondary:pointerover,
+                         Button.subtle:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
         </Style>
 
-        <Style Selector="Button.danger">
+        <Style Selector="Button.sk-secondary-accent">
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-danger,
+                         Button.danger">
             <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
+
+        <Style Selector="Button.sk-danger:pointerover,
+                         Button.danger:pointerover">
+            <Setter Property="Background" Value="{StaticResource DangerPanelBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource DangerHoverBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-ghost">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="MinHeight" Value="36"/>
+        </Style>
+
+        <Style Selector="Button.sk-ghost:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
         </Style>
 
         <Style Selector="Button.inline">
@@ -273,7 +352,12 @@
             <Setter Property="FontSize" Value="12"/>
         </Style>
 
-        <Style Selector="Button.icon">
+        <Style Selector="Button.sk-icon,
+                         Button.icon">
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Width" Value="32"/>
             <Setter Property="Height" Value="32"/>
             <Setter Property="MinWidth" Value="32"/>
@@ -282,7 +366,33 @@
             <Setter Property="CornerRadius" Value="8"/>
         </Style>
 
-        <Style Selector="Button.link">
+        <Style Selector="Button.sk-icon:pointerover,
+                         Button.icon:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-icon-ghost">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Width" Value="32"/>
+            <Setter Property="Height" Value="32"/>
+            <Setter Property="MinWidth" Value="32"/>
+            <Setter Property="MinHeight" Value="32"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="CornerRadius" Value="8"/>
+        </Style>
+
+        <Style Selector="Button.sk-icon-ghost:pointerover">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="Button.sk-link,
+                         Button.link">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -291,10 +401,45 @@
             <Setter Property="MinHeight" Value="0"/>
         </Style>
 
+        <Style Selector="Button.sk-link:pointerover,
+                         Button.link:pointerover">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentHoverBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-chip">
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
+
+        <Style Selector="Button.sk-chip:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="Button.sk-chip-selected,
+                         Button.sk-chip.active">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-chip-selected:pointerover,
+                         Button.sk-chip.active:pointerover">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
         <Style Selector="TextBox">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="SelectionBrush" Value="{StaticResource TextSelectionBackgroundBrush}"/>
+            <Setter Property="SelectionForegroundBrush" Value="{StaticResource TextSelectionForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="6"/>
@@ -395,7 +540,8 @@
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <Style Selector="Button.table-action-button">
+        <Style Selector="Button.sk-table-action,
+                         Button.table-action-button">
             <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -411,7 +557,8 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <Style Selector="Button.table-action-button:pointerover">
+        <Style Selector="Button.sk-table-action:pointerover,
+                         Button.table-action-button:pointerover">
             <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
         </Style>
@@ -447,6 +594,27 @@
             <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
         </Style>
 
+        <Style Selector="Button.sk-picker-option">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="MinHeight" Value="34"/>
+            <Setter Property="Padding" Value="10,7"/>
+        </Style>
+
+        <Style Selector="Button.sk-picker-option:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="Button.sk-picker-option.active">
+            <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
         <Style Selector="ComboBox">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
@@ -465,6 +633,19 @@
             <Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
             <Setter Property="PlacementConstraintAdjustment" Value="SlideX,ResizeY"/>
             <Setter Property="VerticalOffset" Value="4"/>
+        </Style>
+
+        <Style Selector="ComboBox /template/ PathIcon#DropDownGlyph,
+                         ComboBox /template/ PathIcon#PART_DropDownGlyph">
+            <Setter Property="Data" Value="{StaticResource IconDropDown}"/>
+            <Setter Property="Width" Value="16"/>
+            <Setter Property="Height" Value="16"/>
+            <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+        </Style>
+
+        <Style Selector="ComboBox:pressed /template/ PathIcon#DropDownGlyph,
+                         ComboBox:pressed /template/ PathIcon#PART_DropDownGlyph">
+            <Setter Property="Data" Value="{StaticResource IconDropUp}"/>
         </Style>
 
         <Style Selector="ComboBoxItem">
@@ -489,6 +670,73 @@
         <Style Selector="CheckBox">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+        </Style>
+
+        <Style Selector="ToggleButton.sk-switch">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="MinWidth" Value="42"/>
+            <Setter Property="MinHeight" Value="24"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <PathIcon Name="SwitchIcon"
+                              Data="{StaticResource IconToggleOff}"
+                              Width="42"
+                              Height="24"
+                              Foreground="{StaticResource TextMutedBrush}"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"/>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="ToggleButton.sk-switch:pointerover">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+        </Style>
+
+        <Style Selector="ToggleButton.sk-switch:checked /template/ PathIcon#SwitchIcon">
+            <Setter Property="Data" Value="{StaticResource IconToggleOn}"/>
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="ToggleButton.sk-switch:disabled /template/ PathIcon#SwitchIcon">
+            <Setter Property="Opacity" Value="0.55"/>
+        </Style>
+
+        <Style Selector="Slider.sk-slider">
+            <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="Background" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="MinHeight" Value="28"/>
+        </Style>
+
+        <Style Selector="Slider.sk-slider /template/ Border#PART_TrackBackground,
+                         Slider.sk-slider /template/ Border#PART_TrackBackgroundHorizontal,
+                         Slider.sk-slider /template/ Border#PART_TrackBackgroundVertical,
+                         Slider.sk-slider /template/ Border#HorizontalTrackRect,
+                         Slider.sk-slider /template/ Border#VerticalTrackRect">
+            <Setter Property="Background" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="CornerRadius" Value="999"/>
+        </Style>
+
+        <Style Selector="Slider.sk-slider /template/ Border#PART_TrackFill,
+                         Slider.sk-slider /template/ Border#PART_TrackFillHorizontal,
+                         Slider.sk-slider /template/ Border#PART_TrackFillVertical,
+                         Slider.sk-slider /template/ Border#HorizontalDecreaseRect,
+                         Slider.sk-slider /template/ Border#VerticalDecreaseRect">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="CornerRadius" Value="999"/>
+        </Style>
+
+        <Style Selector="Slider.sk-slider /template/ Thumb,
+                         Slider.sk-slider /template/ Thumb#PART_Thumb">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
         </Style>
 
         <Style Selector="ListBox">

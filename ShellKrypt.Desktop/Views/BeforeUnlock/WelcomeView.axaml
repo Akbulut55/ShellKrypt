@@ -41,10 +41,10 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Center">
           <Button Content="{DynamicResource Loc.Welcome.Button.ImportVault}"
-                  Classes="welcome-secondary-button"
+                  Classes="sk-secondary"
                   Command="{Binding ImportVaultCommand}"/>
           <Button Content="{DynamicResource Loc.Welcome.Button.CreateVault}"
-                  Classes="welcome-primary-button"
+                  Classes="sk-primary"
                   Command="{Binding CreateVaultCommand}"/>
         </StackPanel>
       </Grid>
@@ -89,12 +89,12 @@
                      VerticalAlignment="Center"
                      Margin="0,0,4,0"/>
           <Button Content="{DynamicResource Loc.Welcome.Sort.Recent}"
-                  Classes="welcome-sort-chip"
+                  Classes="sk-chip"
                   Classes.active="{Binding IsRecentSortActive}"
                   Command="{Binding SortByRecentCommand}"
                   IsEnabled="{Binding HasVaults}"/>
           <Button Content="{DynamicResource Loc.Welcome.Sort.Name}"
-                  Classes="welcome-sort-chip"
+                  Classes="sk-chip"
                   Classes.active="{Binding IsNameSortActive}"
                   Command="{Binding SortByNameCommand}"
                   IsEnabled="{Binding HasVaults}"/>
@@ -137,21 +137,6 @@
                                    FontSize="18"
                                    FontWeight="Bold"
                                    TextTrimming="CharacterEllipsis"/>
-                        <Border Background="{StaticResource AccentMutedBrush}"
-                                CornerRadius="999"
-                                MinHeight="24"
-                                Padding="10,0"
-                                VerticalAlignment="Center"
-                                IsVisible="{Binding IsDefault}">
-                          <TextBlock Text="{DynamicResource Loc.Common.Default}"
-                                     Foreground="{StaticResource AccentBrush}"
-                                     HorizontalAlignment="Center"
-                                     VerticalAlignment="Center"
-                                     TextAlignment="Center"
-                                     FontSize="10"
-                                     LineHeight="12"
-                                     FontWeight="Black"/>
-                        </Border>
                         <Border Classes="welcome-missing-badge"
                                 IsVisible="{Binding !Exists}">
                           <TextBlock Text="{Binding AvailabilityBadge}"
@@ -178,28 +163,33 @@
                               Orientation="Horizontal"
                               Spacing="8"
                               VerticalAlignment="Center">
+                    <Button Classes="sk-icon-ghost welcome-favorite-button"
+                            Command="{Binding DataContext.ToggleFavoriteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding Exists}"
+                            ToolTip.Tip="{Binding FavoriteLabel}">
+                      <PathIcon Data="{Binding FavoriteIconKey, Converter={StaticResource ThemeResourceGeometryConverter}}"
+                                Width="18"
+                                Height="18"
+                                Foreground="{Binding FavoriteForegroundKey, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+                    </Button>
                     <Button Content="{DynamicResource Loc.Common.Open}"
-                            Classes="welcome-row-primary"
+                            Classes="sk-primary"
                             Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
                     <Button Content="{DynamicResource Loc.Common.Edit}"
-                            Classes="welcome-row-button"
+                            Classes="sk-button"
                             Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
-                    <Button Content="{DynamicResource Loc.Common.Default}"
-                            Classes="welcome-row-button"
-                            Command="{Binding DataContext.MakeDefaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                            CommandParameter="{Binding}"
-                            IsEnabled="{Binding CanBeDefault}"/>
                     <Button Content="{DynamicResource Loc.Common.Delete}"
-                            Classes="welcome-row-danger"
+                            Classes="sk-danger"
                             Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsEnabled="{Binding Exists}"/>
                     <Button Content="{DynamicResource Loc.Common.RemoveFromList}"
-                            Classes="welcome-row-button"
+                            Classes="sk-button"
                             Command="{Binding DataContext.RemoveVaultFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                             CommandParameter="{Binding}"
                             IsVisible="{Binding !Exists}"/>
@@ -239,7 +229,7 @@
                     Spacing="10"
                     VerticalAlignment="Center">
           <Button Content="{DynamicResource Loc.Common.Previous}"
-                  Classes="welcome-row-button"
+                  Classes="sk-button"
                   Command="{Binding PreviousPageCommand}"
                   IsEnabled="{Binding CanGoPreviousPage}"/>
           <TextBlock Text="{Binding PageIndicator}"
@@ -247,7 +237,7 @@
                      FontSize="12"
                      FontWeight="SemiBold"/>
           <Button Content="{DynamicResource Loc.Common.Next}"
-                  Classes="welcome-row-button"
+                  Classes="sk-button"
                   Command="{Binding NextPageCommand}"
                   IsEnabled="{Binding CanGoNextPage}"/>
         </StackPanel>
@@ -332,12 +322,12 @@
                 <Border Background="Transparent"/>
                 <Button Grid.Column="1"
                         Content="{DynamicResource Loc.Common.Cancel}"
-                        Classes="welcome-modal-secondary-button"
+                        Classes="sk-secondary"
                         Command="{Binding CancelDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
                         Content="{DynamicResource Loc.Welcome.Delete.PermanentlyDelete}"
-                        Classes="welcome-modal-danger-button"
+                        Classes="sk-danger"
                         Command="{Binding ContinueDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
               </Grid>
@@ -372,10 +362,21 @@
                              IsVisible="{Binding IsDeletePasswordVisible}"
                              PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"/>
                     <Button Grid.Column="1"
-                            Content="{Binding DeletePasswordVisibilityLabel}"
-                            Classes="welcome-modal-field-action"
+                            Classes="sk-icon-ghost"
                             Command="{Binding ToggleDeletePasswordVisibilityCommand}"
-                            IsEnabled="{Binding !IsBusy}"/>
+                            IsEnabled="{Binding !IsBusy}"
+                            ToolTip.Tip="{Binding DeletePasswordVisibilityLabel}">
+                      <Grid>
+                        <PathIcon Data="{StaticResource IconVisibility}"
+                                  Width="17"
+                                  Height="17"
+                                  IsVisible="{Binding !IsDeletePasswordVisible}"/>
+                        <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                  Width="17"
+                                  Height="17"
+                                  IsVisible="{Binding IsDeletePasswordVisible}"/>
+                      </Grid>
+                    </Button>
                   </Grid>
                 </Border>
               </StackPanel>
@@ -396,12 +397,12 @@
                            TextWrapping="Wrap"/>
                 <Button Grid.Column="1"
                         Content="{DynamicResource Loc.Common.Cancel}"
-                        Classes="welcome-modal-secondary-button"
+                        Classes="sk-secondary"
                         Command="{Binding CancelDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
                 <Button Grid.Column="2"
                         Content="{DynamicResource Loc.Welcome.Delete.DeleteVault}"
-                        Classes="welcome-modal-primary-button"
+                        Classes="sk-primary"
                         Command="{Binding ConfirmDeleteOverlayCommand}"
                         IsEnabled="{Binding !IsBusy}"/>
               </Grid>
@@ -460,12 +461,12 @@
               <Border Background="Transparent"/>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="welcome-modal-secondary-button"
+                      Classes="sk-secondary"
                       Command="{Binding CancelRemoveOverlayCommand}"
                       IsEnabled="{Binding !IsBusy}"/>
               <Button Grid.Column="2"
                       Content="{DynamicResource Loc.Common.RemoveFromList}"
-                      Classes="welcome-modal-primary-button"
+                      Classes="sk-primary"
                       Command="{Binding ConfirmRemoveOverlayCommand}"
                       IsEnabled="{Binding !IsBusy}"/>
             </Grid>
@@ -557,11 +558,11 @@
               <Border Background="Transparent"/>
               <Button Grid.Column="1"
                       Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="welcome-modal-secondary-button"
+                      Classes="sk-secondary"
                       Command="{Binding CancelSecurityAcknowledgementCommand}"/>
               <Button Grid.Column="2"
                       Content="{DynamicResource Loc.Welcome.Acknowledgement.Accept}"
-                      Classes="welcome-modal-primary-button"
+                      Classes="sk-primary"
                       Command="{Binding AcceptSecurityAcknowledgementCommand}"/>
             </Grid>
           </StackPanel>
@@ -594,56 +595,6 @@
       <Setter Property="LetterSpacing" Value="1.2"/>
     </Style>
 
-    <Style Selector="Button.welcome-sort-chip">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-sort-chip.active">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-    </Style>
-
-    <Style Selector="Button.welcome-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
     <Style Selector="Border.welcome-vault-card">
       <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
@@ -666,47 +617,12 @@
       <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <Style Selector="Button.welcome-row-primary">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-row-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-row-danger">
-      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
+    <Style Selector="Button.welcome-favorite-button">
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinWidth" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
       <Setter Property="HorizontalContentAlignment" Value="Center"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
@@ -766,71 +682,6 @@
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="10"/>
-    </Style>
-
-    <Style Selector="Button.welcome-modal-field-action">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-      <Setter Property="Margin" Value="0,0,10,0"/>
-    </Style>
-
-    <Style Selector="Button.welcome-modal-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="MinWidth" Value="136"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="22,0"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-modal-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="MinWidth" Value="184"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.welcome-modal-danger-button">
-      <Setter Property="Background" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="MinWidth" Value="250"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="CheckBox.welcome-acknowledgement-check">

@@ -66,40 +66,6 @@
       <Setter Property="Padding" Value="14,0" />
       <Setter Property="VerticalContentAlignment" Value="Center" />
     </Style>
-    <Style Selector="Button.qfe-secondary">
-      <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="4" />
-      <Setter Property="MinHeight" Value="40" />
-      <Setter Property="Padding" Value="14,0" />
-    </Style>
-    <Style Selector="Button.qfe-primary">
-      <Setter Property="Background" Value="{DynamicResource AccentBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource AccentForegroundBrush}" />
-      <Setter Property="CornerRadius" Value="4" />
-      <Setter Property="MinHeight" Value="44" />
-      <Setter Property="Padding" Value="18,0" />
-    </Style>
-    <Style Selector="Button.qfe-danger">
-      <Setter Property="Background" Value="{DynamicResource DangerMutedBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource DangerBrush}" />
-      <Setter Property="BorderBrush" Value="{DynamicResource DangerBorderBrush}" />
-      <Setter Property="BorderThickness" Value="1" />
-      <Setter Property="CornerRadius" Value="4" />
-      <Setter Property="MinHeight" Value="40" />
-      <Setter Property="Padding" Value="14,0" />
-    </Style>
-    <Style Selector="Button.qfe-row-button">
-      <Setter Property="Background" Value="{DynamicResource SurfaceElevatedBrush}" />
-      <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
-      <Setter Property="CornerRadius" Value="3" />
-      <Setter Property="MinWidth" Value="46" />
-      <Setter Property="MinHeight" Value="34" />
-      <Setter Property="Padding" Value="8,0" />
-      <Setter Property="FontSize" Value="12" />
-    </Style>
   </UserControl.Styles>
 
   <Grid>
@@ -147,16 +113,16 @@
           <Button Grid.Column="1"
                   Content="{DynamicResource Loc.Common.Cancel}"
                   Command="{Binding CancelEditCommand}"
-                  Classes="qfe-secondary" />
+                  Classes="sk-secondary" />
           <Button Grid.Column="2"
                   Content="{DynamicResource Loc.Common.Delete}"
                   Command="{Binding DeleteEntryCommand}"
                   IsVisible="{Binding CanDeleteEntry}"
-                  Classes="qfe-danger" />
+                  Classes="sk-danger" />
           <Button Grid.Column="3"
                   Content="{DynamicResource Loc.QuickFill.Button.SaveEntry}"
                   Command="{Binding SaveEntryCommand}"
-                  Classes="qfe-primary" />
+                  Classes="sk-primary" />
         </Grid>
       </Grid>
     </Grid>

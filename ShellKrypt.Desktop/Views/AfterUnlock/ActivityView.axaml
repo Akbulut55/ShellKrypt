@@ -23,7 +23,8 @@
           </StackPanel>
         </Grid>
 
-        <WrapPanel Orientation="Horizontal">
+        <WrapPanel Orientation="Horizontal"
+                   VerticalAlignment="Center">
           <Border Classes="activity-search-shell">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="activity-search-box"
@@ -33,27 +34,27 @@
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
             <Button Content="{DynamicResource Loc.Common.All}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsAllFilterActive}"
                     Command="{Binding ShowAllCommand}"/>
             <Button Content="{DynamicResource Loc.Activity.Filter.Vault}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsVaultFilterActive}"
                     Command="{Binding ShowVaultCommand}"/>
             <Button Content="{DynamicResource Loc.Activity.Filter.Items}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsItemsFilterActive}"
                     Command="{Binding ShowItemsCommand}"/>
             <Button Content="{DynamicResource Loc.Activity.Filter.Audit}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsAuditFilterActive}"
                     Command="{Binding ShowAuditCommand}"/>
             <Button Content="{DynamicResource Loc.Activity.Filter.Export}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsTransferFilterActive}"
                     Command="{Binding ShowTransferCommand}"/>
             <Button Content="{DynamicResource Loc.Activity.Filter.Settings}"
-                    Classes="activity-chip"
+                    Classes="sk-chip activity-filter-chip"
                     Classes.active="{Binding IsSettingsFilterActive}"
                     Command="{Binding ShowSettingsCommand}"/>
           </WrapPanel>
@@ -261,11 +262,11 @@
                 <Grid ColumnDefinitions="*,*"
                       ColumnSpacing="10">
                   <Button Content="{DynamicResource Loc.Activity.Button.ExportReport}"
-                          Classes="activity-report-button"
+                          Classes="sk-secondary"
                           Command="{Binding ExportReportCommand}"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.Activity.Button.ClearLogs}"
-                          Classes="activity-report-button"
+                          Classes="sk-secondary"
                           Command="{Binding ClearCommand}"/>
                 </Grid>
               </StackPanel>
@@ -305,25 +306,9 @@
       <Setter Property="Padding" Value="14,8"/>
     </Style>
 
-    <Style Selector="Button.activity-chip">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="999"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Margin" Value="0,0,8,12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.activity-chip.active">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    <Style Selector="Button.activity-filter-chip">
+      <Setter Property="Margin" Value="0,0,4,12"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="TextBlock.activity-row-meta">
@@ -360,20 +345,6 @@
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="CornerRadius" Value="12"/>
       <Setter Property="Padding" Value="14,12"/>
-    </Style>
-
-    <Style Selector="Button.activity-report-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
   </UserControl.Styles>

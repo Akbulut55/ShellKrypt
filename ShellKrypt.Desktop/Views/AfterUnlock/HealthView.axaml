@@ -23,7 +23,7 @@
 
           <Button Grid.Column="1"
                   Content="{DynamicResource Loc.SecurityAudit.Button.RunScan}"
-                  Classes="audit-run-button"
+                  Classes="sk-primary"
                   Command="{Binding RefreshCommand}"/>
         </Grid>
 
@@ -157,31 +157,31 @@
                              Orientation="Horizontal"
                              VerticalAlignment="Center">
                     <Button Content="{Binding AllFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsAllFilterActive}"
                             Command="{Binding ShowAllFindingsCommand}"/>
                     <Button Content="{Binding HighRiskFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsHighRiskFilterActive}"
                             Command="{Binding ShowHighRiskFindingsCommand}"/>
                     <Button Content="{Binding PasswordsFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsPasswordFilterActive}"
                             Command="{Binding ShowPasswordFindingsCommand}"/>
                     <Button Content="{Binding CardsFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsCardFilterActive}"
                             Command="{Binding ShowCardFindingsCommand}"/>
                     <Button Content="{Binding ApiKeysFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsApiKeyFilterActive}"
                             Command="{Binding ShowApiKeyFindingsCommand}"/>
                     <Button Content="{Binding ProjectSecretsFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsProjectSecretFilterActive}"
                             Command="{Binding ShowProjectSecretFindingsCommand}"/>
                     <Button Content="{Binding SettingsFilterLabel}"
-                            Classes="audit-filter-chip"
+                            Classes="sk-chip"
                             Classes.active="{Binding IsSettingsFilterActive}"
                             Command="{Binding ShowSettingsFindingsCommand}"/>
                   </WrapPanel>
@@ -254,7 +254,7 @@
 
                           <Button Grid.Column="2"
                                   Content="{Binding ActionText}"
-                                  Classes="audit-remediate-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.RemediateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"
                                   IsVisible="{Binding CanRunPrimaryAction}"
@@ -293,20 +293,6 @@
   </Grid>
 
   <UserControl.Styles>
-    <Style Selector="Button.audit-run-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="Height" Value="40"/>
-      <Setter Property="MinHeight" Value="40"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
 
     <Style Selector="Border.audit-score-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
@@ -335,27 +321,6 @@
       <Setter Property="CornerRadius" Value="16"/>
     </Style>
 
-    <Style Selector="Button.audit-filter-chip">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="Height" Value="30"/>
-      <Setter Property="MinHeight" Value="30"/>
-      <Setter Property="Margin" Value="0,0,8,8"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.audit-filter-chip.active">
-      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
     <Style Selector="Border.audit-issue-row">
       <Setter Property="Background" Value="Transparent"/>
       <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
@@ -363,54 +328,10 @@
       <Setter Property="Padding" Value="16,12"/>
     </Style>
 
-    <Style Selector="Button.audit-remediate-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="Height" Value="34"/>
-      <Setter Property="MinHeight" Value="34"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
     <Style Selector="Border.audit-side-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="16"/>
       <Setter Property="Padding" Value="16"/>
-    </Style>
-
-    <Style Selector="Button.audit-side-button">
-      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.audit-ghost-button">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="HorizontalAlignment" Value="Left"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

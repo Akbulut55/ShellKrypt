@@ -16,10 +16,6 @@
               ColumnSpacing="8">
           <Border Classes="allitems-stat-card">
             <Grid>
-              <TextBlock Text="↻"
-                         Classes="allitems-stat-watermark"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.AllItems.TotalItems}"
@@ -39,10 +35,6 @@
           <Border Grid.Column="1"
                   Classes="allitems-stat-card">
             <Grid>
-              <TextBlock Text="!"
-                         Classes="allitems-stat-watermark"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.AllItems.WeakPasswords.Title}"
@@ -63,10 +55,6 @@
           <Border Grid.Column="2"
                   Classes="allitems-stat-card">
             <Grid>
-              <TextBlock Text="⇄"
-                         Classes="allitems-stat-watermark"
-                         HorizontalAlignment="Right"
-                         VerticalAlignment="Bottom"/>
               <Grid RowDefinitions="Auto,Auto,*"
                     RowSpacing="8">
                 <TextBlock Text="{DynamicResource Loc.AllItems.ExpiringSoon.Title}"
@@ -86,15 +74,18 @@
         </Grid>
 
         <Border Classes="allitems-filter-shell">
-          <WrapPanel Orientation="Horizontal"
-                     VerticalAlignment="Center">
+          <Grid ColumnDefinitions="Auto,*"
+                ColumnSpacing="10"
+                VerticalAlignment="Center">
             <Border Classes="allitems-search-shell"
                     VerticalAlignment="Center">
               <Grid ColumnDefinitions="Auto,*"
                     ColumnSpacing="10">
-                <TextBlock Text="⌕"
-                           Foreground="{StaticResource TextMutedBrush}"
-                           VerticalAlignment="Center"/>
+                <PathIcon Data="{StaticResource IconSearch}"
+                          Width="16"
+                          Height="16"
+                          Foreground="{StaticResource TextMutedBrush}"
+                          VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1"
                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="allitems-top-search"
@@ -102,45 +93,44 @@
               </Grid>
             </Border>
 
-            <WrapPanel Orientation="Horizontal"
-                       VerticalAlignment="Center">
-              <Button Content="{Binding AllFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsAllTypeActive}"
-                      Command="{Binding ShowAllCommand}"/>
-              <Button Content="{Binding WebFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsWebTypeActive}"
-                      Command="{Binding ShowWebTypesCommand}"/>
-              <Button Content="{Binding CardFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsCardTypeActive}"
-                      Command="{Binding ShowCardTypesCommand}"/>
-              <Button Content="{Binding AuthenticatorFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsAuthenticatorTypeActive}"
-                      Command="{Binding ShowAuthenticatorTypesCommand}"/>
-              <Button Content="{Binding ApiKeyFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsApiKeyTypeActive}"
-                      Command="{Binding ShowApiKeyTypesCommand}"/>
-              <Button Content="{Binding ProjectSecretFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsProjectSecretTypeActive}"
-                      Command="{Binding ShowProjectSecretTypesCommand}"/>
-              <Button Content="{Binding NoteFilterLabel}"
-                      Classes="allitems-chip"
-                      VerticalAlignment="Center"
-                      Classes.active="{Binding IsNoteTypeActive}"
-                      Command="{Binding ShowNoteTypesCommand}"/>
-            </WrapPanel>
-          </WrapPanel>
+            <ScrollViewer Grid.Column="1"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="4"
+                          VerticalAlignment="Center">
+                <Button Content="{Binding AllFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsAllTypeActive}"
+                        Command="{Binding ShowAllCommand}"/>
+                <Button Content="{Binding WebFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsWebTypeActive}"
+                        Command="{Binding ShowWebTypesCommand}"/>
+                <Button Content="{Binding CardFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsCardTypeActive}"
+                        Command="{Binding ShowCardTypesCommand}"/>
+                <Button Content="{Binding AuthenticatorFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsAuthenticatorTypeActive}"
+                        Command="{Binding ShowAuthenticatorTypesCommand}"/>
+                <Button Content="{Binding ApiKeyFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsApiKeyTypeActive}"
+                        Command="{Binding ShowApiKeyTypesCommand}"/>
+                <Button Content="{Binding ProjectSecretFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsProjectSecretTypeActive}"
+                        Command="{Binding ShowProjectSecretTypesCommand}"/>
+                <Button Content="{Binding NoteFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsNoteTypeActive}"
+                        Command="{Binding ShowNoteTypesCommand}"/>
+              </StackPanel>
+            </ScrollViewer>
+          </Grid>
         </Border>
 
         <Border Classes="table-shell"
@@ -238,7 +228,7 @@
                                     HorizontalAlignment="Right"
                                     VerticalAlignment="Center">
                           <Button Content="{DynamicResource Loc.Common.View}"
-                                  Classes="table-action-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -260,7 +250,7 @@
                   <Grid ColumnDefinitions="Auto,Auto"
                         ColumnSpacing="10"
                         HorizontalAlignment="Center">
-                    <Button Classes="allitems-add-button"
+                    <Button Classes="sk-primary"
                             Command="{Binding AddItemCommand}">
                       <StackPanel Orientation="Horizontal"
                                   Spacing="7"
@@ -277,7 +267,7 @@
                     </Button>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.ResetFilters}"
-                            Classes="allitems-filter-button"
+                            Classes="sk-button"
                             Command="{Binding ResetFiltersCommand}"/>
                   </Grid>
                 </StackPanel>
@@ -311,7 +301,8 @@
       <Setter Property="Padding" Value="12,0"/>
       <Setter Property="MinWidth" Value="220"/>
       <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Margin" Value="0,0,10,10"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="Margin" Value="0"/>
     </Style>
 
     <Style Selector="TextBox.allitems-top-search">
@@ -322,62 +313,11 @@
       <Setter Property="MinHeight" Value="42"/>
     </Style>
 
-    <Style Selector="Button.allitems-top-link">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0,0,0,8"/>
-      <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="Button.allitems-top-link.active">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderThickness" Value="0,0,0,2"/>
-    </Style>
-
-    <Style Selector="Button.allitems-icon-button">
-      <Setter Property="Width" Value="36"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-    </Style>
-
-    <Style Selector="Button.allitems-add-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="MinWidth" Value="128"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
     <Style Selector="Border.allitems-stat-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
       <Setter Property="CornerRadius" Value="14"/>
       <Setter Property="Padding" Value="16,14"/>
       <Setter Property="ClipToBounds" Value="True"/>
-    </Style>
-
-    <Style Selector="TextBlock.allitems-stat-watermark">
-      <Setter Property="Foreground" Value="{StaticResource WatermarkBrush}"/>
-      <Setter Property="FontSize" Value="96"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Margin" Value="0,0,-12,-20"/>
     </Style>
 
     <Style Selector="TextBlock.allitems-kicker">
@@ -405,41 +345,10 @@
       <Setter Property="Padding" Value="10"/>
     </Style>
 
-    <Style Selector="Button.allitems-filter-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="MinWidth" Value="118"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.allitems-chip">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="10,6"/>
-      <Setter Property="MinHeight" Value="0"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="Margin" Value="0,0,6,10"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Style Selector="Button.allitems-filter-chip">
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
       <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.allitems-chip.active">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
     </Style>
 
     <Style Selector="ItemsControl.allitems-list">

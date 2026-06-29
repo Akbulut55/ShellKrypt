@@ -51,19 +51,6 @@ public sealed partial class WelcomeViewModel
     }
 
     [RelayCommand]
-    private void OpenDefaultVault()
-    {
-        var defaultVault = _vaultRegistry.GetDefaultVault();
-        if (defaultVault is null)
-        {
-            Error = T(_root, "Welcome.Status.NoDefaultVault");
-            return;
-        }
-
-        OpenVault(new VaultRecordVm(defaultVault, _root.Localization));
-    }
-
-    [RelayCommand]
     private void OpenVault(VaultRecordVm? vault)
     {
         if (vault is null)

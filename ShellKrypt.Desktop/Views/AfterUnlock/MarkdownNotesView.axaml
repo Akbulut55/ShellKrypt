@@ -21,11 +21,11 @@
                        Margin="0,6,0,0"/>
               <StackPanel Orientation="Horizontal" Spacing="8" Margin="0,4,0,0">
                 <Button Content="{DynamicResource Loc.Common.All}"
-                        Classes="notesSectionButton"
+                        Classes="sk-chip"
                         Classes.active="{Binding IsAllFilterActive}"
                         Command="{Binding ShowAllCommand}"/>
                 <Button Content="{DynamicResource Loc.Notes.Filter.Starred}"
-                        Classes="notesSectionButton"
+                        Classes="sk-chip"
                         Classes.active="{Binding IsFavoritesFilterActive}"
                         Command="{Binding ShowFavoritesCommand}"/>
               </StackPanel>
@@ -88,7 +88,7 @@
                   Background="Transparent"
                   Padding="20,12,20,20">
             <Button Content="{DynamicResource Loc.Notes.Button.CreateNew}"
-                    Classes="notesAddButton"
+                    Classes="sk-primary"
                     Command="{Binding NewNoteCommand}"
                     HorizontalAlignment="Right"/>
           </Border>
@@ -111,10 +111,10 @@
             </Grid>
 
             <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
-              <Button Content="{Binding FavoriteToggleLabel}" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding CanToggleFavorite}"/>
-              <Button Content="{DynamicResource Loc.Common.Edit}" Classes="notesHeaderButton notesHeaderButtonAccent" Command="{Binding BeginEditingCommand}" IsVisible="{Binding ShowEditButton}" IsEnabled="{Binding CanStartEditing}"/>
-              <Button Content="{Binding SaveButtonText}" Classes="notesSaveButton" Command="{Binding SaveCommand}" IsVisible="{Binding ShowSaveButton}" IsEnabled="{Binding CanSave}"/>
-              <Button Content="{DynamicResource Loc.Common.Delete}" Classes="notesHeaderButton" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanDeleteSelection}"/>
+              <Button Content="{Binding FavoriteToggleLabel}" Classes="sk-primary" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding CanToggleFavorite}"/>
+              <Button Content="{DynamicResource Loc.Common.Edit}" Classes="sk-primary" Command="{Binding BeginEditingCommand}" IsVisible="{Binding ShowEditButton}" IsEnabled="{Binding CanStartEditing}"/>
+              <Button Content="{Binding SaveButtonText}" Classes="sk-primary" Command="{Binding SaveCommand}" IsVisible="{Binding ShowSaveButton}" IsEnabled="{Binding CanSave}"/>
+              <Button Content="{DynamicResource Loc.Common.Delete}" Classes="sk-secondary" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanDeleteSelection}"/>
             </StackPanel>
           </Grid>
         </Border>
@@ -128,7 +128,7 @@
               <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
                 <Button Grid.Column="2"
                         Content="{Binding DocumentViewToggleText}"
-                        Classes="notesModeToggle active"
+                        Classes="sk-chip active"
                         Command="{Binding ToggleDocumentViewCommand}"
                         IsEnabled="{Binding CanToggleDocumentView}"/>
               </Grid>
@@ -208,7 +208,7 @@
           <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
             <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
             <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Subtitle}" Classes="page-subtitle" MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
-            <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="notesAddButton" Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
+            <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="sk-primary" Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
           </StackPanel>
         </Border>
 
@@ -241,26 +241,6 @@
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="Padding" Value="14,8"/>
-    </Style>
-
-    <Style Selector="Button.notesSectionButton">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="999"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="11"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Height" Value="32"/>
-      <Setter Property="MinHeight" Value="32"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.notesSectionButton.active">
-      <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Border.notesMasterItem">
@@ -334,67 +314,6 @@
     <Style Selector="TextBlock.notesPreviewTitle">
       <Setter Property="FontSize" Value="24"/>
       <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-
-    <Style Selector="Button.notesHeaderButton">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.notesHeaderButtonAccent">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-    </Style>
-
-    <Style Selector="Button.notesSaveButton">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.notesAddButton">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Height" Value="46"/>
-      <Setter Property="Padding" Value="24,0"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.notesModeToggle">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.notesModeToggle.active">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
     </Style>
 
     <Style Selector="Border.notesErrorBanner">

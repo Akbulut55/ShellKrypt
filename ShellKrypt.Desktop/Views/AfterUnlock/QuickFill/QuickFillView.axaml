@@ -24,12 +24,12 @@
         </StackPanel>
         <Button Grid.Column="1"
                 Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
-                Classes="qf-primary-button"
+                Classes="sk-primary"
                 Command="{Binding NewEntryCommand}"
                 VerticalAlignment="Top"/>
         <Button Grid.Column="2"
                 Content="{DynamicResource Loc.QuickFill.Button.Refresh}"
-                Classes="qf-secondary-button"
+                Classes="sk-secondary"
                 Command="{Binding RefreshCommand}"
                 VerticalAlignment="Top"/>
       </Grid>
@@ -79,7 +79,7 @@
                        Classes="qf-muted"
                        TextTrimming="CharacterEllipsis"/>
             <Button Content="{DynamicResource Loc.QuickFill.Button.ConfigureSystemShortcut}"
-                    Classes="qf-secondary-button"
+                    Classes="sk-secondary"
                     Command="{Binding ConfigureSystemShortcutCommand}"
                     IsVisible="{Binding CanConfigureSystemShortcut}"
                     HorizontalAlignment="Left"/>
@@ -104,7 +104,7 @@
                     VerticalAlignment="Center"/>
           <Button Grid.Column="4"
                   Content="{DynamicResource Loc.QuickFill.Button.AcknowledgeAutoType}"
-                  Classes="qf-secondary-button"
+                  Classes="sk-secondary"
                   Command="{Binding AcknowledgeAutoTypeCommand}"/>
         </Grid>
       </Border>
@@ -148,7 +148,7 @@
                                     VerticalAlignment="Center"/>
                           <Button Grid.Column="3"
                                   Content="X"
-                                  Classes="qf-secondary-button"
+                                  Classes="sk-secondary"
                                   Command="{Binding DataContext.DeleteEntryRowCommand, ElementName=Root}"
                                   CommandParameter="{Binding}"
                                   Height="28"
@@ -188,7 +188,7 @@
                              TextAlignment="Center"
                              MaxWidth="260"/>
                   <Button Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
-                          Classes="qf-primary-button"
+                          Classes="sk-primary"
                           Command="{Binding NewEntryCommand}"
                           HorizontalAlignment="Center"/>
                 </StackPanel>
@@ -268,31 +268,6 @@
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Padding" Value="0"/>
       <Setter Property="MinHeight" Value="620"/>
-    </Style>
-
-    <Style Selector="Button.qf-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.qf-secondary-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="FontWeight" Value="SemiBold"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

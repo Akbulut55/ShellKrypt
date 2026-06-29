@@ -74,7 +74,7 @@
                      PlaceholderText="{DynamicResource Loc.Dialog.ImportVault.FilePlaceholder}"/>
             <Button Grid.Column="1"
                     Content="{DynamicResource Loc.Common.Browse}"
-                    Classes="dialog-cancel-button"
+                    Classes="sk-secondary"
                     Click="OnBrowseClicked"/>
           </Grid>
         </StackPanel>
@@ -106,11 +106,11 @@
                    TextWrapping="Wrap"/>
         <Button Grid.Column="1"
                 Content="{DynamicResource Loc.Common.Cancel}"
-                Classes="dialog-cancel-button"
+                Classes="sk-secondary"
                 Click="OnCancelClicked"/>
         <Button Grid.Column="2"
                 Content="{DynamicResource Loc.Dialog.ImportVault.ImportButton}"
-                Classes="dialog-primary-button"
+                Classes="sk-primary"
                 IsDefault="True"
                 Click="OnImportClicked"/>
       </Grid>
@@ -142,34 +142,6 @@
     <Style Selector="Button.import-caption-button-close:pointerover">
       <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
-    </Style>
-
-    <Style Selector="Button.dialog-cancel-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="16,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-    </Style>
-
-    <Style Selector="Button.dialog-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Height" Value="42"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="18,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="FontWeight" Value="Black"/>
     </Style>
   </Window.Styles>
 </Window>

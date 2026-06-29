@@ -102,8 +102,9 @@
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Classes="cards-add-button"
+            <Button Classes="sk-primary"
                     Command="{Binding AddNewCommand}"
+                    Margin="0,0,0,10"
                     VerticalAlignment="Center">
               <StackPanel Orientation="Horizontal"
                           Spacing="7"
@@ -208,7 +209,7 @@
 
                         <Button Grid.Column="3"
                                 Content="E"
-                                Classes="cards-reveal-button"
+                                Classes="sk-icon-ghost"
                                 Command="{Binding DataContext.ToggleSecretsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="{Binding SecretsActionLabel}"
@@ -250,11 +251,11 @@
                                     VerticalAlignment="Center"
                                     Spacing="6">
                           <Button Content="{DynamicResource Loc.Common.Details}"
-                                  Classes="table-action-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                           <Button Content="{DynamicResource Loc.Cards.Button.CopyCardNumber}"
-                                  Classes="table-action-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -576,28 +577,6 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Button.cards-add-button">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="128"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,0,10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.cards-add-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
-    </Style>
-
 
 
 
@@ -629,28 +608,6 @@
     <Style Selector="Border.cards-issuer-chip">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="CornerRadius" Value="4"/>
-    </Style>
-
-    <Style Selector="Button.cards-reveal-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="4"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="30"/>
-      <Setter Property="Height" Value="30"/>
-      <Setter Property="MinWidth" Value="30"/>
-      <Setter Property="MinHeight" Value="30"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.cards-reveal-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
   </UserControl.Styles>
 </UserControl>

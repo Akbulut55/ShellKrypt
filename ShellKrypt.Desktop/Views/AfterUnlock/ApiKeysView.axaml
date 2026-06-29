@@ -76,8 +76,9 @@
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <Button Classes="api-add-button"
+            <Button Classes="sk-primary"
                     Command="{Binding AddNewCommand}"
+                    Margin="0,0,0,10"
                     VerticalAlignment="Center">
               <StackPanel Orientation="Horizontal"
                           Spacing="7"
@@ -200,11 +201,11 @@
                                     VerticalAlignment="Center"
                                     Spacing="6">
                           <Button Content="{DynamicResource Loc.Common.Details}"
-                                  Classes="table-action-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                           <Button Content="{DynamicResource Loc.ApiKeys.Button.CopySecret}"
-                                  Classes="table-action-button"
+                                  Classes="sk-table-action"
                                   Command="{Binding DataContext.CopyPrimarySecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
                         </StackPanel>
@@ -420,28 +421,6 @@
       <Setter Property="Padding" Value="12,0"/>
       <Setter Property="HorizontalContentAlignment" Value="Left"/>
       <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.api-add-button">
-      <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="Width" Value="124"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,0,10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.api-add-button:pointerover">
-      <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource AccentHoverBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.api-row-subtitle">

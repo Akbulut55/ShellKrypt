@@ -31,7 +31,7 @@ public sealed partial class WelcomeViewModel
                 vault.VaultPath,
                 displayName,
                 description,
-                vault.IsDefault);
+                markOpened: false);
 
             ReloadVaults(vault.VaultPath);
         Status = T(_root, "Welcome.Status.MetadataSaved");
@@ -44,7 +44,7 @@ public sealed partial class WelcomeViewModel
     }
 
     [RelayCommand]
-    private void MakeDefault(VaultRecordVm? vault)
+    private void ToggleFavorite(VaultRecordVm? vault)
     {
         Error = "";
 
@@ -56,10 +56,11 @@ public sealed partial class WelcomeViewModel
 
         try
         {
-            _vaultRegistry.SetDefaultVault(vault.VaultPath);
+            var isFavorite = !vault.IsFavorite;
+            _vaultRegistry.SetVaultFavorite(vault.VaultPath, isFavorite);
             ReloadVaults(vault.VaultPath);
-        Status = T(_root, "Welcome.Status.DefaultVaultUpdated");
-            _root.LogActivity("vault", "Default vault changed", $"Marked {vault.DisplayLabel} as the default vault.", "info", vault.VaultPath, vault.DisplayLabel);
+            Status = T(_root, isFavorite ? "Welcome.Status.FavoriteVaultAdded" : "Welcome.Status.FavoriteVaultRemoved");
+            _root.LogActivity("vault", "Vault favorite changed", $"{vault.DisplayLabel} favorite status changed.", "info", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)
         {

@@ -57,7 +57,7 @@
                         Content="x"
                         Command="{Binding DataContext.RemoveSequenceStepCommand, ElementName=SequenceRoot}"
                         CommandParameter="{Binding}"
-                        Classes="qfe-row-button"
+                        Classes="sk-icon-ghost"
                         MinWidth="24"
                         MinHeight="24"
                         Padding="4,0"/>
@@ -79,7 +79,7 @@
 
     <Button Grid.Row="2"
             Content="{DynamicResource Loc.QuickFill.Sequence.AddStep}"
-            Classes="qfe-secondary"
+            Classes="sk-secondary"
             Command="{Binding OpenAddStepModalCommand}"
             HorizontalAlignment="Left"/>
   </Grid>

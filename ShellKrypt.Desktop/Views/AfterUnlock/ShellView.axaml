@@ -171,7 +171,7 @@
         </Grid>
 
         <StackPanel Grid.Row="2" Spacing="14" IsVisible="{Binding IsSidebarExpanded}">
-          <Button Classes="primary"
+          <Button Classes="sk-primary"
                   HorizontalAlignment="Stretch"
                   HorizontalContentAlignment="Center"
                   VerticalContentAlignment="Center"
@@ -244,7 +244,7 @@
                     Spacing="12"
                     HorizontalAlignment="Center"
                     IsVisible="{Binding IsSidebarCollapsed}">
-          <Button Classes="primary shell-lock-collapsed"
+          <Button Classes="sk-primary shell-lock-collapsed"
                   Command="{Binding LockCommand}"
                   ToolTip.Tip="{DynamicResource Loc.Shell.LockVault}">
             <Viewbox Width="20"

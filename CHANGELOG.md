@@ -6,11 +6,33 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.7] - 2026-06-30
+
+### Added
+
+- Added reusable desktop `sk-*` button classes, themed dropdown glyphs, themed toggle icons, and theme-aware text selection brushes.
+- Added favorite vault support on the welcome screen so multiple favorite vaults can be promoted ahead of the rest of the vault list.
+
+### Changed
+
+- Standardized desktop action, icon, table, picker, chip, modal, and dialog buttons around shared global styling instead of per-view button variants.
+- Reworked Project Secrets environment/profile management around centered popups, user-defined profile names, selected environment/profile indicators, and icon-only row actions.
+- Updated Settings controls to use shared section layout, compact dropdowns, and real icons instead of placeholder badges.
+- Updated Password Generator controls to use themed slider, toggle, copy, regenerate, strength, and selection colors.
+- Improved Authenticator layout responsiveness, secret reveal icon placement, and add-code modal sizing.
+
+### Fixed
+
+- Fixed Project Secrets profile selection so selecting an already active profile keeps its variables visible instead of clearing the list.
+- Fixed extra hover borders on chip buttons and inconsistent vertical alignment in filters, search bars, activity filters, and row actions.
+- Fixed several icon-button alignment issues across Password Generator, Authenticator, item tables, dialogs, and shared modal controls.
+
 ## [ShellKrypt 0.17.6] - 2026-06-29
 
 ### Changed
 
 - Changed Project Secrets environment creation to use a centered modal flow with user-defined profile names instead of fixed profile presets.
+- Changed Project Secrets environment management to use a single centered Environments popup with per-environment detail controls for profiles and deletion.
 - Normalized the encrypted Project Secrets payload into separate environment, profile, and variable sections while keeping storage in the existing encrypted item payload model.
 
 ### Fixed

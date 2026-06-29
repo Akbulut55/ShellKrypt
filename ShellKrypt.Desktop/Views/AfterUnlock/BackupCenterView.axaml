@@ -66,7 +66,7 @@
                              Classes="backup-muted"
                              TextTrimming="CharacterEllipsis"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.CreateBackup}"
-                          Classes="backup-mini-button"
+                          Classes="sk-secondary"
                           HorizontalAlignment="Left"
                           Command="{Binding ShowCreateBackupCommand}"/>
                 </StackPanel>
@@ -85,7 +85,7 @@
                              Classes="backup-muted"
                              TextTrimming="CharacterEllipsis"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.VerifyBackup}"
-                          Classes="backup-mini-button"
+                          Classes="sk-secondary"
                           HorizontalAlignment="Left"
                           Command="{Binding ShowVerifyBackupCommand}"/>
                 </StackPanel>
@@ -104,7 +104,7 @@
                              Classes="backup-muted"
                              TextTrimming="CharacterEllipsis"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.Configure}"
-                          Classes="backup-mini-button"
+                          Classes="sk-secondary"
                           HorizontalAlignment="Left"
                           Command="{Binding ConfigureAutomaticBackupsCommand}"/>
                 </StackPanel>
@@ -133,19 +133,19 @@
 
                 <WrapPanel Orientation="Horizontal">
                   <Button Content="{DynamicResource Loc.BackupCenter.Mode.Create}"
-                          Classes="backup-mode-button"
+                          Classes="sk-chip"
                           Background="{Binding CreateBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Foreground="{Binding CreateBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Margin="0,0,8,8"
                           Command="{Binding ShowCreateBackupCommand}"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Mode.Verify}"
-                          Classes="backup-mode-button"
+                          Classes="sk-chip"
                           Background="{Binding VerifyBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Foreground="{Binding VerifyBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Margin="0,0,8,8"
                           Command="{Binding ShowVerifyBackupCommand}"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Mode.Restore}"
-                          Classes="backup-mode-button"
+                          Classes="sk-chip"
                           Background="{Binding RestoreBackupModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Foreground="{Binding RestoreBackupModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
                           Margin="0,0,8,8"
@@ -167,7 +167,7 @@
                                PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Path.Placeholder}"/>
                       <Button Grid.Column="1"
                               Content="{DynamicResource Loc.Common.Browse}"
-                              Classes="backup-secondary-button"
+                              Classes="sk-secondary"
                               Command="{Binding BrowseEncryptedExportPathCommand}"/>
                     </Grid>
                   </StackPanel>
@@ -182,11 +182,11 @@
 
                   <WrapPanel Orientation="Horizontal">
                     <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewBackup}"
-                            Classes="backup-secondary-button"
+                            Classes="sk-secondary"
                             Margin="0,0,10,0"
                             Command="{Binding PreviewExportCommand}"/>
                     <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportBackup}"
-                            Classes="backup-primary-button"
+                            Classes="sk-primary"
                             Command="{Binding ExportEncryptedCommand}"/>
                   </WrapPanel>
 
@@ -208,7 +208,7 @@
                              PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Path.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.Browse}"
-                            Classes="backup-secondary-button"
+                            Classes="sk-secondary"
                             Command="{Binding BrowseVerifyBackupPathCommand}"/>
                   </Grid>
 
@@ -217,7 +217,7 @@
                            PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Passphrase.Placeholder}"/>
 
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.VerifyBackup}"
-                          Classes="backup-primary-button"
+                          Classes="sk-primary"
                           HorizontalAlignment="Left"
                           Command="{Binding VerifyBackupCommand}"/>
 
@@ -239,7 +239,7 @@
                              PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Path.Placeholder}"/>
                     <Button Grid.Column="1"
                             Content="{DynamicResource Loc.Common.Browse}"
-                            Classes="backup-secondary-button"
+                            Classes="sk-secondary"
                             Command="{Binding BrowseRestoreBackupPathCommand}"/>
                   </Grid>
 
@@ -250,7 +250,7 @@
                             IsChecked="{Binding ConfirmRestore}"/>
 
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.RestoreBackup}"
-                          Classes="backup-danger-button"
+                          Classes="sk-danger"
                           HorizontalAlignment="Left"
                           Command="{Binding RestoreEncryptedCommand}"/>
 
@@ -278,7 +278,7 @@
                            PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Path.Placeholder}"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.Common.BrowseJson}"
-                          Classes="backup-secondary-button"
+                          Classes="sk-secondary"
                           Command="{Binding BrowsePlaintextExportPathCommand}"/>
                 </Grid>
 
@@ -288,7 +288,7 @@
                          PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Confirmation.Placeholder}"/>
 
                 <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportPlaintext}"
-                        Classes="backup-danger-button"
+                        Classes="sk-danger"
                         HorizontalAlignment="Left"
                         Command="{Binding ExportPlaintextCommand}"/>
               </StackPanel>
@@ -319,7 +319,7 @@
                            PlaceholderText="{DynamicResource Loc.BackupCenter.Csv.Path.Placeholder}"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.Common.BrowseCsv}"
-                          Classes="backup-secondary-button"
+                          Classes="sk-secondary"
                           Command="{Binding BrowseCsvImportPathCommand}"/>
                 </Grid>
 
@@ -334,11 +334,11 @@
 
                 <WrapPanel Orientation="Horizontal">
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewCsv}"
-                          Classes="backup-secondary-button"
+                          Classes="sk-secondary"
                           Margin="0,0,10,0"
                           Command="{Binding PreviewCsvImportCommand}"/>
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.ImportCsv}"
-                          Classes="backup-primary-button"
+                          Classes="sk-primary"
                           Command="{Binding ImportCsvCommand}"/>
                 </WrapPanel>
 
@@ -369,7 +369,7 @@
                            PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Directory.Placeholder}"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.Common.Browse}"
-                          Classes="backup-secondary-button"
+                          Classes="sk-secondary"
                           Command="{Binding BrowseAutomaticBackupDirectoryCommand}"/>
                 </Grid>
 
@@ -397,12 +397,12 @@
                 <Grid RowDefinitions="Auto,Auto"
                       RowSpacing="10">
                   <Button Content="{DynamicResource Loc.BackupCenter.Button.SaveAutomaticBackup}"
-                          Classes="backup-secondary-button"
+                          Classes="sk-secondary"
                           HorizontalAlignment="Stretch"
                           Command="{Binding SaveAutomaticBackupSettingsCommand}"/>
                   <Button Grid.Row="1"
                           Content="{DynamicResource Loc.BackupCenter.Button.RunAutomaticBackupNow}"
-                          Classes="backup-primary-button"
+                          Classes="sk-primary"
                           HorizontalAlignment="Stretch"
                           Command="{Binding RunAutomaticBackupNowCommand}"/>
                 </Grid>
@@ -427,7 +427,7 @@
                              VerticalAlignment="Center"/>
                   <Button Grid.Column="1"
                           Content="{DynamicResource Loc.BackupCenter.History.Clear}"
-                          Classes="backup-mini-button"
+                          Classes="sk-secondary"
                           Command="{Binding ClearRecentHistoryCommand}"
                           IsVisible="{Binding HasRecentHistory}"/>
                 </Grid>
@@ -561,58 +561,6 @@
       <Setter Property="TextWrapping" Value="Wrap"/>
       <Setter Property="HorizontalAlignment" Value="Center"/>
       <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.backup-primary-button">
-      <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.backup-secondary-button, Button.backup-mode-button, Button.backup-mini-button">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="FontWeight" Value="Bold"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="Button.backup-mini-button">
-      <Setter Property="Height" Value="30"/>
-      <Setter Property="MinHeight" Value="30"/>
-      <Setter Property="Padding" Value="10,0"/>
-      <Setter Property="FontSize" Value="11"/>
-    </Style>
-
-    <Style Selector="Button.backup-danger-button">
-      <Setter Property="Background" Value="{StaticResource DangerPanelBrush}"/>
-      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource DangerMutedBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="14,0"/>
-      <Setter Property="Height" Value="36"/>
-      <Setter Property="MinHeight" Value="36"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
     <Style Selector="Border.backup-history-row">

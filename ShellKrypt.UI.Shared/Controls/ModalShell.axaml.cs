@@ -37,6 +37,9 @@ public partial class ModalShell : UserControl
     public static readonly StyledProperty<object?> FooterActionsProperty =
         AvaloniaProperty.Register<ModalShell, object?>(nameof(FooterActions));
 
+    public static readonly StyledProperty<bool> HasFooterProperty =
+        AvaloniaProperty.Register<ModalShell, bool>(nameof(HasFooter));
+
     public static readonly StyledProperty<double> DialogWidthProperty =
         AvaloniaProperty.Register<ModalShell, double>(nameof(DialogWidth), 640);
 
@@ -105,6 +108,12 @@ public partial class ModalShell : UserControl
         set => SetValue(FooterActionsProperty, value);
     }
 
+    public bool HasFooter
+    {
+        get => GetValue(HasFooterProperty);
+        private set => SetValue(HasFooterProperty, value);
+    }
+
     public double DialogWidth
     {
         get => GetValue(DialogWidthProperty);
@@ -122,5 +131,8 @@ public partial class ModalShell : UserControl
 
         if (change.Property == ErrorProperty)
             HasError = !string.IsNullOrWhiteSpace(Error);
+
+        if (change.Property == FooterTextProperty || change.Property == FooterActionsProperty)
+            HasFooter = !string.IsNullOrWhiteSpace(FooterText) || FooterActions is not null;
     }
 }
