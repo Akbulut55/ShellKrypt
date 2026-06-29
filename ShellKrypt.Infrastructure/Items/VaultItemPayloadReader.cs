@@ -28,7 +28,9 @@ public sealed class VaultItemPayloadReader : IVaultItemPayloadReader
         => ReadPayload(row, vaultKey, () => new ApiKeyPayload("", "", "", "", Array.Empty<ApiKeyFieldPayload>()));
 
     public ProjectSecretPayload ReadProjectSecret(VaultItemRow row, byte[] vaultKey)
-        => ReadPayload(row, vaultKey, () => new ProjectSecretPayload("", "", "", null, Array.Empty<ProjectSecretEnvironmentPayload>(), Array.Empty<ProjectSecretLinkedApiKeyPayload>()));
+        => ProjectSecretPayloadCompatibility.Deserialize(
+            VaultPayloadProtector.DecryptItemPayload(vaultKey, row.Header, row.EncryptedPayload),
+            JsonOpts);
 
     private static TPayload ReadPayload<TPayload>(VaultItemRow row, byte[] vaultKey, Func<TPayload> fallback)
     {

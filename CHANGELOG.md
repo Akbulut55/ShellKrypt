@@ -6,6 +6,18 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.6] - 2026-06-29
+
+### Changed
+
+- Changed Project Secrets environment creation to use a centered modal flow with user-defined profile names instead of fixed profile presets.
+- Normalized the encrypted Project Secrets payload into separate environment, profile, and variable sections while keeping storage in the existing encrypted item payload model.
+
+### Fixed
+
+- Fixed Project Secrets import destination controls so `.env` imports show the selected environment and profile target.
+- Fixed the Project Secrets project root label punctuation and tightened the environment/profile selector layout.
+
 ## [ShellKrypt 0.17.5] - 2026-06-28
 
 ### Added

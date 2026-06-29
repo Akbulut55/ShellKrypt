@@ -390,8 +390,15 @@ local/
 ############################################
 # ShellKrypt private/internal docs
 ############################################
-handbook/
-AGENTS.md
+/AGENTS.md
+/DATABASE.md
+/DECISIONS.md
+/DEVELOPMENT.md
+/IDEA.md
+/OPERATIONS.md
+/PLAN.md
+/ROADMAP.md
+/TECH_STACK.md
 
 ############################################
 # ShellKrypt raw icon source downloads

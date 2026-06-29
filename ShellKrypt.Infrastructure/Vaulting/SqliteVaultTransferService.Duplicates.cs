@@ -1,6 +1,8 @@
-﻿using System.Text.Json;
+﻿using System.Text;
+using System.Text.Json;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Infrastructure.Items;
 
 namespace ShellKrypt.Infrastructure.Vaulting;
 
@@ -101,8 +103,7 @@ public sealed partial class SqliteVaultTransferService
 
     private static string BuildProjectSecretDuplicateKey(string payloadJson)
     {
-        var payload = JsonSerializer.Deserialize<ProjectSecretPayload>(payloadJson, JsonOptions)
-            ?? new ProjectSecretPayload("", "", "", null, Array.Empty<ProjectSecretEnvironmentPayload>(), Array.Empty<ProjectSecretLinkedApiKeyPayload>());
+        var payload = ProjectSecretPayloadCompatibility.Deserialize(Encoding.UTF8.GetBytes(payloadJson), JsonOptions);
 
         return string.Join("|",
             "project-secret",

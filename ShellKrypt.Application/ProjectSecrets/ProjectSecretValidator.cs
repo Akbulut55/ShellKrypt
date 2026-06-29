@@ -19,12 +19,12 @@ public static class ProjectSecretValidator
             errors.Add("At least one environment is required.");
 
         foreach (var duplicate in environments
-                     .Select(environment => environment.Name.Trim())
-                     .Where(name => name.Length > 0)
-                     .GroupBy(name => name, StringComparer.OrdinalIgnoreCase)
+                     .Select(environment => new { Name = environment.Name.Trim(), ProfileName = ProfileName(environment) })
+                     .Where(environment => environment.Name.Length > 0)
+                     .GroupBy(environment => (environment.Name.ToUpperInvariant(), environment.ProfileName.ToUpperInvariant()))
                      .Where(group => group.Count() > 1))
         {
-            errors.Add($"Duplicate environment name: {duplicate.Key}.");
+            errors.Add($"Duplicate environment profile: {duplicate.First().Name} / {duplicate.First().ProfileName}.");
         }
 
         foreach (var environment in environments)
@@ -52,6 +52,9 @@ public static class ProjectSecretValidator
 
     public static bool IsValidVariableKey(string key)
         => VariableKeyRegex.IsMatch((key ?? "").Trim());
+
+    public static string ProfileName(ProjectSecretEnvironmentInput environment)
+        => string.IsNullOrWhiteSpace(environment.ProfileName) ? environment.Kind.ToString() : environment.ProfileName.Trim();
 
     public static IReadOnlyList<ProjectSecretAuditFinding> BuildValidationFindings(ProjectSecretEntry project)
     {

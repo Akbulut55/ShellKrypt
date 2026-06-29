@@ -13,11 +13,9 @@ public sealed partial class HealthAuditService
         List<HealthAuditIssue> issues,
         HashSet<string> apiKeyFieldIds)
     {
-        var payload = JsonSerializer.Deserialize<ProjectSecretPayload>(
+        var payload = ProjectSecretPayloadCompatibility.Deserialize(
             VaultPayloadProtector.DecryptItemPayload(vaultKey, row.Header, row.EncryptedPayload),
             JsonOpts);
-        if (payload is null)
-            return;
 
         var entry = ToProjectSecretEntry(row.Header, payload);
         foreach (var finding in ProjectSecretAuditBuilder.BuildFindings(entry))
@@ -81,24 +79,35 @@ public sealed partial class HealthAuditService
             payload.Description,
             payload.Notes,
             payload.ProjectRootPath,
-            payload.Environments.Select(environment => new ProjectSecretEnvironmentEntry(
-                environment.Id,
-                environment.Name,
-                environment.Kind,
-                environment.Variables.Select(variable => new ProjectSecretVariableEntry(
-                    variable.Id,
-                    variable.Key,
-                    variable.Value,
-                    variable.IsSecret,
-                    variable.Notes,
-                    variable.SortOrder,
-                    variable.SourceKind,
-                    variable.LinkedItemId,
-                    variable.LinkedFieldId,
-                    variable.LinkedFieldName,
-                    variable.LastUpdatedAtUtc)).ToArray(),
-                environment.Notes,
-                environment.SortOrder)).ToArray(),
+            payload.Environments
+                .OrderBy(environment => environment.SortOrder)
+                .SelectMany(environment => payload.Profiles
+                    .Where(profile => string.Equals(profile.EnvironmentId, environment.Id, StringComparison.Ordinal))
+                    .OrderBy(profile => profile.SortOrder)
+                    .Select(profile => new ProjectSecretEnvironmentEntry(
+                        profile.Id,
+                        environment.Name,
+                        ProfileKind(profile.Name),
+                        payload.Variables
+                            .Where(variable => string.Equals(variable.ProfileId, profile.Id, StringComparison.Ordinal))
+                            .OrderBy(variable => variable.SortOrder)
+                            .Select(variable => new ProjectSecretVariableEntry(
+                                variable.Id,
+                                variable.Key,
+                                variable.Value,
+                                variable.IsSecret,
+                                variable.Notes,
+                                variable.SortOrder,
+                                variable.SourceKind,
+                                variable.LinkedItemId,
+                                variable.LinkedFieldId,
+                                variable.LinkedFieldName,
+                                variable.LastUpdatedAtUtc))
+                            .ToArray(),
+                        environment.Notes,
+                        profile.SortOrder,
+                        profile.Name)))
+                .ToArray(),
             payload.LinkedApiKeys.Select(link => new ProjectSecretLinkedApiKeyEntry(
                 link.Id,
                 link.ApiKeyItemId,
@@ -109,6 +118,11 @@ public sealed partial class HealthAuditService
             header.CreatedAtUtc,
             header.UpdatedAtUtc,
             payload.LastScanResult);
+
+    private static ProjectSecretEnvironmentKind ProfileKind(string profileName)
+        => Enum.TryParse<ProjectSecretEnvironmentKind>(profileName, true, out var kind)
+            ? kind
+            : ProjectSecretEnvironmentKind.Development;
 
     private static string BuildApiFieldLookupKey(string itemId, string fieldId)
         => $"{itemId.Trim()}|{fieldId.Trim()}";

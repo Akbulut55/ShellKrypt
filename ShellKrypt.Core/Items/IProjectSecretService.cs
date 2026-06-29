@@ -7,7 +7,10 @@ public enum ProjectSecretEnvironmentKind
     Production = 3,
     Local = 4,
     Test = 5,
-    Custom = 6
+    Preview = 6,
+    QA = 7,
+    Sandbox = 8,
+    CI = 9
 }
 
 public enum ProjectSecretVariableSourceKind
@@ -57,7 +60,8 @@ public sealed record ProjectSecretEnvironmentInput(
     ProjectSecretEnvironmentKind Kind,
     IReadOnlyList<ProjectSecretVariableInput> Variables,
     string Notes,
-    int SortOrder);
+    int SortOrder,
+    string ProfileName = "");
 
 public sealed record ProjectSecretEnvironmentEntry(
     string Id,
@@ -65,7 +69,8 @@ public sealed record ProjectSecretEnvironmentEntry(
     ProjectSecretEnvironmentKind Kind,
     IReadOnlyList<ProjectSecretVariableEntry> Variables,
     string Notes,
-    int SortOrder);
+    int SortOrder,
+    string ProfileName = "");
 
 public sealed record ProjectSecretVariableInput(
     string Id,
@@ -152,19 +157,26 @@ public sealed record ProjectSecretPayload(
     string Notes,
     string? ProjectRootPath,
     IReadOnlyList<ProjectSecretEnvironmentPayload> Environments,
+    IReadOnlyList<ProjectSecretProfilePayload> Profiles,
+    IReadOnlyList<ProjectSecretVariablePayload> Variables,
     IReadOnlyList<ProjectSecretLinkedApiKeyPayload> LinkedApiKeys,
     ProjectSecretScanResult? LastScanResult = null);
 
 public sealed record ProjectSecretEnvironmentPayload(
     string Id,
     string Name,
-    ProjectSecretEnvironmentKind Kind,
-    IReadOnlyList<ProjectSecretVariablePayload> Variables,
     string Notes,
+    int SortOrder);
+
+public sealed record ProjectSecretProfilePayload(
+    string Id,
+    string EnvironmentId,
+    string Name,
     int SortOrder);
 
 public sealed record ProjectSecretVariablePayload(
     string Id,
+    string ProfileId,
     string Key,
     string Value,
     bool IsSecret,

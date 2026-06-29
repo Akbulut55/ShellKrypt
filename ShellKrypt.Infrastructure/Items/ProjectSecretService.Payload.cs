@@ -10,5 +10,5 @@ public sealed partial class ProjectSecretService
         => VaultPayloadProtector.EncryptItemPayload(vaultKey, header, JsonSerializer.SerializeToUtf8Bytes(payload, JsonOpts));
 
     private static ProjectSecretPayload? DecryptPayload(byte[] vaultKey, VaultItemHeader header, byte[] encryptedPayload)
-        => JsonSerializer.Deserialize<ProjectSecretPayload>(VaultPayloadProtector.DecryptItemPayload(vaultKey, header, encryptedPayload), JsonOpts);
+        => ProjectSecretPayloadCompatibility.Deserialize(VaultPayloadProtector.DecryptItemPayload(vaultKey, header, encryptedPayload), JsonOpts);
 }

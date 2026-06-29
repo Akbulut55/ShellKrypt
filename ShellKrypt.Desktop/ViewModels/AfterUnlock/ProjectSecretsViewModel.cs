@@ -23,8 +23,11 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     private readonly List<ApiKeyEntry> _apiKeys = new();
     private readonly Dictionary<string, List<ProjectSecretVariableEntry>> _environmentVariableDrafts = new(StringComparer.Ordinal);
     private string? _loadedEnvironmentId;
+    private bool _syncingEnvironmentSelection;
 
     public ObservableCollection<ProjectSecretRowVm> Rows { get; } = new();
+    public ObservableCollection<string> EnvironmentNameOptions { get; } = new();
+    public ObservableCollection<string> ProfileNameOptions { get; } = new();
     public ObservableCollection<ProjectSecretEnvironmentOption> EnvironmentOptions { get; } = new();
     public ObservableCollection<ProjectSecretVariableRowVm> Variables { get; } = new();
     public ObservableCollection<ProjectSecretCompareRowVm> CompareRows { get; } = new();
@@ -32,7 +35,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public ObservableCollection<ProjectSecretApiKeyOption> ApiKeyOptions { get; } = new();
     public ObservableCollection<ProjectSecretApiKeyFieldOption> ApiKeyFieldOptions { get; } = new();
     public ObservableCollection<ProjectSecretApiKeyLinkOption> ApiKeyLinkOptions { get; } = new();
-    public IReadOnlyList<ProjectSecretEnvironmentKind> EnvironmentKindOptions { get; } = Enum.GetValues<ProjectSecretEnvironmentKind>();
+    public ObservableCollection<ProjectSecretProfileSelectionVm> AddEnvironmentProfiles { get; } = new();
     public IReadOnlyList<ProjectSecretVariableSourceKind> VariableSourceKindOptions { get; } =
     [
         ProjectSecretVariableSourceKind.Manual,
@@ -47,8 +50,11 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [ObservableProperty] private string projectDescription = "";
     [ObservableProperty] private string projectNotes = "";
     [ObservableProperty] private string projectRootPath = "";
-    [ObservableProperty] private string newEnvironmentName = "Development";
-    [ObservableProperty] private ProjectSecretEnvironmentKind newEnvironmentKind = ProjectSecretEnvironmentKind.Development;
+    [ObservableProperty] private string selectedEnvironmentName = "Development";
+    [ObservableProperty] private string selectedProfileName = "Development";
+    [ObservableProperty] private string newEnvironmentName = "Backend";
+    [ObservableProperty] private string newProfileName = "";
+    [ObservableProperty] private bool isAddEnvironmentModalOpen;
     [ObservableProperty] private string variableKey = "";
     [ObservableProperty] private string variableValue = "";
     [ObservableProperty] private bool variableIsSecret = true;
@@ -131,11 +137,34 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
     partial void OnSelectedEnvironmentChanged(ProjectSecretEnvironmentOption? value)
     {
+        if (_syncingEnvironmentSelection)
+            return;
+
         SaveCurrentVariablesToDraft();
+        if (value is not null)
+        {
+            _syncingEnvironmentSelection = true;
+            SelectedEnvironmentName = value.Name;
+            SelectedProfileName = value.StageLabel;
+            _syncingEnvironmentSelection = false;
+        }
+
         _loadedEnvironmentId = value?.Id;
         LoadVariablesFromDraft(value);
         BuildCompare();
         OnPropertyChanged(nameof(HasSelectedEnvironment));
+    }
+
+    partial void OnSelectedEnvironmentNameChanged(string value)
+    {
+        if (!_syncingEnvironmentSelection)
+            SelectEnvironmentScope(createIfMissing: false);
+    }
+
+    partial void OnSelectedProfileNameChanged(string value)
+    {
+        if (!_syncingEnvironmentSelection)
+            SelectEnvironmentScope(createIfMissing: false);
     }
 
     partial void OnSelectedVariableChanged(ProjectSecretVariableRowVm? value)
@@ -278,14 +307,17 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectDescription = "";
         ProjectNotes = "";
         ProjectRootPath = "";
+        EnvironmentNameOptions.Clear();
+        ProfileNameOptions.Clear();
         EnvironmentOptions.Clear();
         _environmentVariableDrafts.Clear();
         _loadedEnvironmentId = null;
-        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), "Development", ProjectSecretEnvironmentKind.Development));
-        SelectedEnvironment = EnvironmentOptions.First();
+        EnvironmentNameOptions.Add("Development");
+        ProfileNameOptions.Add("Development");
+        SelectedEnvironmentName = "Development";
+        SelectedProfileName = "Development";
         Variables.Clear();
-        _loadedEnvironmentId = SelectedEnvironment.Id;
-        _environmentVariableDrafts[SelectedEnvironment.Id] = [];
+        SelectedEnvironment = null;
         SelectedVariable = null;
         ClearVariableForm();
         IsProjectEditing = true;
@@ -300,6 +332,13 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         Error = "";
         try
         {
+            var trimmedName = ProjectName.Trim();
+            if (_all.Any(project => project.Id != SelectedProject?.Id && string.Equals(project.Name, trimmedName, StringComparison.OrdinalIgnoreCase)))
+            {
+                Error = "Project name already exists.";
+                return;
+            }
+
             SaveCurrentVariablesToDraft();
             var existing = SelectedProject?.Entry;
             var input = BuildProjectInput(existing);
@@ -345,35 +384,121 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     }
 
     [RelayCommand]
+    private void SelectEnvironmentName(string? name)
+    {
+        if (!string.IsNullOrWhiteSpace(name))
+            SelectedEnvironmentName = name;
+    }
+
+    [RelayCommand]
+    private void SelectProfile(string? profile)
+    {
+        if (!string.IsNullOrWhiteSpace(profile))
+            SelectedProfileName = profile.Trim();
+    }
+
+    [RelayCommand]
+    private void OpenAddEnvironmentModal()
+    {
+        Error = "";
+        NewEnvironmentName = CreateUniqueEnvironmentName("Backend");
+        NewProfileName = "";
+        AddEnvironmentProfiles.Clear();
+
+        IsAddEnvironmentModalOpen = true;
+    }
+
+    [RelayCommand]
+    private void CancelAddEnvironment()
+    {
+        IsAddEnvironmentModalOpen = false;
+        AddEnvironmentProfiles.Clear();
+        NewProfileName = "";
+    }
+
+    [RelayCommand]
+    private void AddEnvironmentProfile()
+    {
+        var profileName = NewProfileName.Trim();
+        if (string.IsNullOrWhiteSpace(profileName))
+            return;
+
+        if (AddEnvironmentProfiles.Any(profile => string.Equals(profile.Name, profileName, StringComparison.OrdinalIgnoreCase)))
+        {
+            Error = "Profile name already exists in this environment.";
+            return;
+        }
+
+        AddEnvironmentProfiles.Add(new ProjectSecretProfileSelectionVm(profileName));
+        NewProfileName = "";
+        Error = "";
+    }
+
+    [RelayCommand]
+    private void RemoveAddEnvironmentProfile(ProjectSecretProfileSelectionVm? profile)
+    {
+        if (profile is not null)
+            AddEnvironmentProfiles.Remove(profile);
+    }
+
+    [RelayCommand]
     private void AddEnvironment()
     {
-        var name = string.IsNullOrWhiteSpace(NewEnvironmentName) ? NewEnvironmentKind.ToString() : NewEnvironmentName.Trim();
-        if (EnvironmentOptions.Any(option => string.Equals(option.Name, name, StringComparison.OrdinalIgnoreCase)))
+        var name = string.IsNullOrWhiteSpace(NewEnvironmentName) ? "Environment" : NewEnvironmentName.Trim();
+        if (EnvironmentNameOptions.Any(option => string.Equals(option, name, StringComparison.OrdinalIgnoreCase)))
         {
             Error = "Environment name already exists.";
             return;
         }
 
-        EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), name, NewEnvironmentKind));
-        _environmentVariableDrafts[EnvironmentOptions.Last().Id] = [];
-        SelectedEnvironment = EnvironmentOptions.Last();
+        if (!string.IsNullOrWhiteSpace(NewProfileName))
+            AddEnvironmentProfile();
+
+        var selectedProfiles = AddEnvironmentProfiles
+            .Select(profile => profile.Name)
+            .Where(profile => !string.IsNullOrWhiteSpace(profile))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        if (selectedProfiles.Length == 0)
+        {
+            Error = "Add at least one profile.";
+            return;
+        }
+
+        EnvironmentNameOptions.Add(name);
+        SelectedEnvironmentName = name;
+        foreach (var profile in selectedProfiles)
+            CreateEnvironmentProfile(name, profile);
+
+        SelectedProfileName = selectedProfiles[0];
+        SelectEnvironmentScope(createIfMissing: false);
+        IsAddEnvironmentModalOpen = false;
+        AddEnvironmentProfiles.Clear();
+        NewProfileName = "";
     }
 
     [RelayCommand]
     private void DeleteEnvironment()
     {
-        if (SelectedEnvironment is null || EnvironmentOptions.Count <= 1)
+        if (EnvironmentNameOptions.Count <= 1)
             return;
 
-        var remove = SelectedEnvironment;
-        EnvironmentOptions.Remove(remove);
-        _environmentVariableDrafts.Remove(remove.Id);
-        SelectedEnvironment = EnvironmentOptions.FirstOrDefault();
+        var remove = SelectedEnvironmentName;
+        foreach (var option in EnvironmentOptions.Where(option => string.Equals(option.Name, remove, StringComparison.OrdinalIgnoreCase)).ToArray())
+        {
+            EnvironmentOptions.Remove(option);
+            _environmentVariableDrafts.Remove(option.Id);
+        }
+
+        EnvironmentNameOptions.Remove(remove);
+        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "Development";
+        SelectEnvironmentScope(createIfMissing: false);
     }
 
     [RelayCommand]
     private void AddOrUpdateVariable()
     {
+        EnsureSelectedEnvironmentProfile();
         if (SelectedEnvironment is null)
             return;
 
@@ -546,6 +671,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [RelayCommand]
     private void AddLinkedApiKeyVariable(ProjectSecretApiKeyLinkOption? option)
     {
+        EnsureSelectedEnvironmentProfile();
         if (option is null || SelectedEnvironment is null)
             return;
 
@@ -627,6 +753,10 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     [RelayCommand]
     private async Task ApplyImportAsync()
     {
+        EnsureSelectedEnvironmentProfile();
+        if (SelectedEnvironment is null)
+            return;
+
         if (_lastImportParse is null)
             await PreviewImportAsync();
 
@@ -662,7 +792,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ImportNewCount = 0;
         ImportConflictCount = 0;
         ImportInvalidCount = 0;
-        _root.LogActivity("project_secrets", "Project Secrets .env imported", $"Imported {_lastImportParse.Variables.Count} variables into {ProjectName} / {SelectedEnvironment?.Name}.", "success", affectedItem: ProjectName);
+        _root.LogActivity("project_secrets", "Project Secrets .env imported", $"Imported {_lastImportParse.Variables.Count} variables into {ProjectName} / {SelectedEnvironment?.DisplayName}.", "success", affectedItem: ProjectName);
         await SaveProjectAsync();
     }
 
@@ -691,7 +821,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             return;
 
         await File.WriteAllTextAsync(ExportPath, EnvFileWriter.WriteEnvironment(Variables.Select(row => row.Entry), ResolveVariableValue));
-        _root.LogActivity("project_secrets", "Project Secrets .env exported", $"Exported {Variables.Count} variables for {ProjectName} / {SelectedEnvironment?.Name} to {Path.GetFileName(ExportPath)}.", "warning", affectedItem: ProjectName);
+        _root.LogActivity("project_secrets", "Project Secrets .env exported", $"Exported {Variables.Count} variables for {ProjectName} / {SelectedEnvironment?.DisplayName} to {Path.GetFileName(ExportPath)}.", "warning", affectedItem: ProjectName);
     }
 
     [RelayCommand]
@@ -704,7 +834,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
             return;
 
         await File.WriteAllTextAsync(ExportPath, EnvFileWriter.WriteTemplate(Variables.Select(row => row.Entry)));
-        _root.LogActivity("project_secrets", "Project Secrets .env template exported", $"Exported .env template for {ProjectName} / {SelectedEnvironment?.Name} to {Path.GetFileName(ExportPath)}.", "info", affectedItem: ProjectName);
+        _root.LogActivity("project_secrets", "Project Secrets .env template exported", $"Exported .env template for {ProjectName} / {SelectedEnvironment?.DisplayName} to {Path.GetFileName(ExportPath)}.", "info", affectedItem: ProjectName);
     }
 
     [RelayCommand]
@@ -777,6 +907,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
         ProjectDescription = project?.Description ?? "";
         ProjectNotes = project?.Notes ?? "";
         ProjectRootPath = project?.ProjectRootPath ?? "";
+        EnvironmentNameOptions.Clear();
         EnvironmentOptions.Clear();
         _environmentVariableDrafts.Clear();
         _loadedEnvironmentId = null;
@@ -786,20 +917,23 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                      ? Array.Empty<ProjectSecretEnvironmentEntry>()
                      : project.Environments.OrderBy(environment => environment.SortOrder).ToArray())
         {
-            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environment.Id, environment.Name, environment.Kind));
+            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environment.Id, environment.Name, environment.Kind, ProfileName(environment)));
+            if (!EnvironmentNameOptions.Any(name => string.Equals(name, environment.Name, StringComparison.OrdinalIgnoreCase)))
+                EnvironmentNameOptions.Add(environment.Name);
             _environmentVariableDrafts[environment.Id] = environment.Variables
                 .OrderBy(variable => variable.SortOrder)
                 .ToList();
         }
 
-        if (EnvironmentOptions.Count == 0)
-        {
-            var environmentId = Guid.NewGuid().ToString("N");
-            EnvironmentOptions.Add(new ProjectSecretEnvironmentOption(environmentId, "Development", ProjectSecretEnvironmentKind.Development));
-            _environmentVariableDrafts[environmentId] = [];
-        }
+        if (EnvironmentNameOptions.Count == 0)
+            EnvironmentNameOptions.Add("Development");
 
-        SelectedEnvironment = EnvironmentOptions.FirstOrDefault();
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironmentName = EnvironmentNameOptions.FirstOrDefault() ?? "Development";
+        RefreshProfileNameOptions();
+        SelectedProfileName = ProfileNameOptions.FirstOrDefault() ?? "Development";
+        _syncingEnvironmentSelection = false;
+        SelectEnvironmentScope(createIfMissing: false);
         if (project?.LastScanResult is { } scan)
         {
             foreach (var finding in scan.Findings)
@@ -841,6 +975,95 @@ public partial class ProjectSecretsViewModel : ViewModelBase
 
         ClearVariableForm();
         OnPropertyChanged(nameof(HasVariables));
+    }
+
+    private void SelectEnvironmentScope(bool createIfMissing)
+    {
+        if (_syncingEnvironmentSelection)
+            return;
+
+        SaveCurrentVariablesToDraft();
+        _syncingEnvironmentSelection = true;
+        RefreshProfileNameOptions();
+        _syncingEnvironmentSelection = false;
+        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+        if (environment is null && createIfMissing)
+            environment = CreateEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironment = environment;
+        _syncingEnvironmentSelection = false;
+        _loadedEnvironmentId = environment?.Id;
+        LoadVariablesFromDraft(environment);
+        BuildCompare();
+        OnPropertyChanged(nameof(HasSelectedEnvironment));
+    }
+
+    private void EnsureSelectedEnvironmentProfile()
+    {
+        var environment = FindEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+        if (environment is null)
+            environment = CreateEnvironmentProfile(SelectedEnvironmentName, SelectedProfileName);
+
+        _syncingEnvironmentSelection = true;
+        SelectedEnvironment = environment;
+        _syncingEnvironmentSelection = false;
+        _loadedEnvironmentId = environment.Id;
+        OnPropertyChanged(nameof(HasSelectedEnvironment));
+    }
+
+    private ProjectSecretEnvironmentOption? FindEnvironmentProfile(string name, string profile)
+        => EnvironmentOptions.FirstOrDefault(option =>
+            string.Equals(option.Name, name.Trim(), StringComparison.OrdinalIgnoreCase) &&
+            string.Equals(option.StageLabel, profile.Trim(), StringComparison.OrdinalIgnoreCase));
+
+    private ProjectSecretEnvironmentOption CreateEnvironmentProfile(string name, string profile)
+    {
+        var normalizedName = string.IsNullOrWhiteSpace(name) ? "Environment" : name.Trim();
+        var normalizedProfile = string.IsNullOrWhiteSpace(profile) ? "Default" : profile.Trim();
+        if (!EnvironmentNameOptions.Any(option => string.Equals(option, normalizedName, StringComparison.OrdinalIgnoreCase)))
+            EnvironmentNameOptions.Add(normalizedName);
+
+        if (!ProfileNameOptions.Any(option => string.Equals(option, normalizedProfile, StringComparison.OrdinalIgnoreCase)))
+            ProfileNameOptions.Add(normalizedProfile);
+
+        var option = new ProjectSecretEnvironmentOption(Guid.NewGuid().ToString("N"), normalizedName, InferEnvironmentKind(normalizedProfile), normalizedProfile);
+        EnvironmentOptions.Add(option);
+        _environmentVariableDrafts[option.Id] = [];
+        return option;
+    }
+
+    private void RefreshProfileNameOptions()
+    {
+        var previous = SelectedProfileName;
+        ProfileNameOptions.Clear();
+        foreach (var profileName in EnvironmentOptions
+                     .Where(option => string.Equals(option.Name, SelectedEnvironmentName, StringComparison.OrdinalIgnoreCase))
+                     .Select(option => option.StageLabel)
+                     .Distinct(StringComparer.OrdinalIgnoreCase)
+                     .OrderBy(profile => profile, StringComparer.OrdinalIgnoreCase))
+        {
+            ProfileNameOptions.Add(profileName);
+        }
+
+        if (ProfileNameOptions.Count == 0)
+            return;
+
+        if (string.IsNullOrWhiteSpace(previous) || !ProfileNameOptions.Any(option => string.Equals(option, previous, StringComparison.OrdinalIgnoreCase)))
+            SelectedProfileName = ProfileNameOptions[0];
+    }
+
+    private string CreateUniqueEnvironmentName(string baseName)
+    {
+        var normalized = string.IsNullOrWhiteSpace(baseName) ? "Environment" : baseName.Trim();
+        if (!EnvironmentNameOptions.Any(option => string.Equals(option, normalized, StringComparison.OrdinalIgnoreCase)))
+            return normalized;
+
+        var suffix = 2;
+        while (EnvironmentNameOptions.Any(option => string.Equals(option, $"{normalized} {suffix}", StringComparison.OrdinalIgnoreCase)))
+            suffix++;
+
+        return $"{normalized} {suffix}";
     }
 
     private void NotifyScanGroups()
@@ -888,7 +1111,8 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                 option.Kind,
                 variables,
                 existingEnvironment?.Notes ?? "",
-                index);
+                index,
+                option.StageLabel);
         }).ToArray();
 
     private ProjectSecretEntry BuildProjectEntrySnapshot(ProjectSecretEntry existing)
@@ -915,11 +1139,15 @@ public partial class ProjectSecretsViewModel : ViewModelBase
                     variable.LinkedFieldName,
                     variable.LastUpdatedAtUtc)).ToArray(),
                 environment.Notes,
-                environment.SortOrder)).ToArray()
+                environment.SortOrder,
+                environment.ProfileName)).ToArray()
         };
 
     private static ProjectSecretVariableInput ToInput(ProjectSecretVariableEntry variable, int sortOrder)
         => new(variable.Id, variable.Key, variable.Value, variable.IsSecret, variable.Notes, sortOrder, variable.SourceKind, variable.LinkedItemId, variable.LinkedFieldId, variable.LinkedFieldName, variable.LastUpdatedAtUtc);
+
+    private static string ProfileName(ProjectSecretEnvironmentEntry environment)
+        => string.IsNullOrWhiteSpace(environment.ProfileName) ? environment.Kind.ToString() : environment.ProfileName.Trim();
 
     private string ResolveVariableValue(ProjectSecretVariableEntry variable)
         => ProjectSecretService.ResolveLinkedApiKeyValue(_apiKeys, variable);
@@ -955,7 +1183,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     }
 
     private static ProjectSecretEnvironmentKind InferEnvironmentKind(string name)
-        => Enum.TryParse<ProjectSecretEnvironmentKind>(name, true, out var kind) ? kind : ProjectSecretEnvironmentKind.Custom;
+        => Enum.TryParse<ProjectSecretEnvironmentKind>(name, true, out var kind) ? kind : ProjectSecretEnvironmentKind.Development;
 
     private static string SafeFileName(string value)
         => string.Join("_", (string.IsNullOrWhiteSpace(value) ? "project" : value).Split(Path.GetInvalidFileNameChars(), StringSplitOptions.RemoveEmptyEntries));

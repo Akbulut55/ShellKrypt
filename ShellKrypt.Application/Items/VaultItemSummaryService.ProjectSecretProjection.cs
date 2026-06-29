@@ -9,8 +9,8 @@ public sealed partial class VaultItemSummaryService
         var payload = _payloadReader.ReadProjectSecret(row, vaultKey);
         var title = FirstNonEmpty(payload.Name, "Untitled project");
         var environmentCount = payload.Environments.Count;
-        var variableCount = payload.Environments.Sum(environment => environment.Variables.Count);
-        var warningCount = payload.Environments.Sum(environment => environment.Variables.Count(variable => string.IsNullOrWhiteSpace(variable.Value) && variable.SourceKind != ProjectSecretVariableSourceKind.LinkedApiKey));
+        var variableCount = payload.Variables.Count;
+        var warningCount = payload.Variables.Count(variable => string.IsNullOrWhiteSpace(variable.Value) && variable.SourceKind != ProjectSecretVariableSourceKind.LinkedApiKey);
         var subtitle = $"{environmentCount} environment{Plural(environmentCount)}, {variableCount} variable{Plural(variableCount)}";
         var identifier = warningCount > 0 ? $"{warningCount} warning{Plural(warningCount)}" : FirstNonEmpty(payload.ProjectRootPath, "Project Secrets");
         var searchText = BuildSearchText(
@@ -19,7 +19,8 @@ public sealed partial class VaultItemSummaryService
             payload.Notes,
             payload.ProjectRootPath,
             string.Join(" ", payload.Environments.Select(environment => environment.Name)),
-            string.Join(" ", payload.Environments.SelectMany(environment => environment.Variables).Select(variable => variable.Key)),
+            string.Join(" ", payload.Profiles.Select(profile => profile.Name)),
+            string.Join(" ", payload.Variables.Select(variable => variable.Key)),
             string.Join(" ", labels),
             row.Header.Favorite ? "favorite" : string.Empty);
 

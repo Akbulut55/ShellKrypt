@@ -1,5 +1,7 @@
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace ShellKrypt.Infrastructure.Items;
 
@@ -16,28 +18,58 @@ public sealed partial class ProjectSecretService
             Description: input.Description.Trim(),
             Notes: input.Notes.Trim(),
             ProjectRootPath: string.IsNullOrWhiteSpace(input.ProjectRootPath) ? null : input.ProjectRootPath.Trim(),
-            Environments: NormalizeEnvironments(input.Environments).ToArray(),
+            Environments: NormalizeEnvironmentGroups(input.Environments).ToArray(),
+            Profiles: NormalizeProfiles(input.Environments).ToArray(),
+            Variables: NormalizeVariables(input.Environments).ToArray(),
             LinkedApiKeys: NormalizeLinkedApiKeys(input.LinkedApiKeys).ToArray(),
             LastScanResult: input.LastScanResult);
     }
 
-    private static IEnumerable<ProjectSecretEnvironmentPayload> NormalizeEnvironments(IEnumerable<ProjectSecretEnvironmentInput>? environments)
+    private static IEnumerable<ProjectSecretEnvironmentPayload> NormalizeEnvironmentGroups(IEnumerable<ProjectSecretEnvironmentInput>? environments)
     {
         var order = 0;
-        foreach (var environment in environments ?? Array.Empty<ProjectSecretEnvironmentInput>())
+        foreach (var group in (environments ?? Array.Empty<ProjectSecretEnvironmentInput>())
+                     .Where(environment => !string.IsNullOrWhiteSpace(environment.Name))
+                     .GroupBy(environment => NormalizeRequired(environment.Name, "Environment name is required."), StringComparer.OrdinalIgnoreCase))
         {
+            var first = group.First();
             yield return new ProjectSecretEnvironmentPayload(
-                Id: string.IsNullOrWhiteSpace(environment.Id) ? Guid.NewGuid().ToString("N") : environment.Id.Trim(),
-                Name: NormalizeRequired(environment.Name, "Environment name is required."),
-                Kind: environment.Kind,
-                Variables: NormalizeVariables(environment.Variables).ToArray(),
-                Notes: environment.Notes.Trim(),
-                SortOrder: environment.SortOrder <= 0 ? order : environment.SortOrder);
+                Id: EnvironmentGroupId(group.Key),
+                Name: group.Key,
+                Notes: first.Notes.Trim(),
+                SortOrder: first.SortOrder <= 0 ? order : first.SortOrder);
             order++;
         }
     }
 
-    private static IEnumerable<ProjectSecretVariablePayload> NormalizeVariables(IEnumerable<ProjectSecretVariableInput>? variables)
+    private static IEnumerable<ProjectSecretProfilePayload> NormalizeProfiles(IEnumerable<ProjectSecretEnvironmentInput>? environments)
+    {
+        var orderByEnvironment = new Dictionary<string, int>(StringComparer.OrdinalIgnoreCase);
+        foreach (var environment in environments ?? Array.Empty<ProjectSecretEnvironmentInput>())
+        {
+            var name = NormalizeRequired(environment.Name, "Environment name is required.");
+            var profileName = ProjectSecretValidator.ProfileName(environment);
+            orderByEnvironment.TryGetValue(name, out var order);
+            yield return new ProjectSecretProfilePayload(
+                Id: ProfileId(environment),
+                EnvironmentId: EnvironmentGroupId(name),
+                Name: profileName,
+                SortOrder: environment.SortOrder <= 0 ? order : environment.SortOrder);
+            orderByEnvironment[name] = order + 1;
+        }
+    }
+
+    private static IEnumerable<ProjectSecretVariablePayload> NormalizeVariables(IEnumerable<ProjectSecretEnvironmentInput>? environments)
+    {
+        foreach (var environment in environments ?? Array.Empty<ProjectSecretEnvironmentInput>())
+        {
+            var profileId = ProfileId(environment);
+            foreach (var variable in NormalizeVariablesForProfile(profileId, environment.Variables))
+                yield return variable;
+        }
+    }
+
+    private static IEnumerable<ProjectSecretVariablePayload> NormalizeVariablesForProfile(string profileId, IEnumerable<ProjectSecretVariableInput>? variables)
     {
         var order = 0;
         foreach (var variable in variables ?? Array.Empty<ProjectSecretVariableInput>())
@@ -47,6 +79,7 @@ public sealed partial class ProjectSecretService
 
             yield return new ProjectSecretVariablePayload(
                 Id: string.IsNullOrWhiteSpace(variable.Id) ? Guid.NewGuid().ToString("N") : variable.Id.Trim(),
+                ProfileId: profileId,
                 Key: NormalizeRequired(variable.Key, "Variable key is required."),
                 Value: variable.Value,
                 IsSecret: variable.IsSecret,
@@ -89,11 +122,15 @@ public sealed partial class ProjectSecretService
             ProjectRootPath: payload.ProjectRootPath,
             Environments: payload.Environments
                 .OrderBy(environment => environment.SortOrder)
-                .Select(environment => new ProjectSecretEnvironmentEntry(
-                    environment.Id,
-                    environment.Name,
-                    environment.Kind,
-                    environment.Variables
+                .SelectMany(environment => payload.Profiles
+                    .Where(profile => string.Equals(profile.EnvironmentId, environment.Id, StringComparison.Ordinal))
+                    .OrderBy(profile => profile.SortOrder)
+                    .Select(profile => new ProjectSecretEnvironmentEntry(
+                        profile.Id,
+                        environment.Name,
+                        ProfileKind(profile.Name),
+                        payload.Variables
+                        .Where(variable => string.Equals(variable.ProfileId, profile.Id, StringComparison.Ordinal))
                         .OrderBy(variable => variable.SortOrder)
                         .Select(variable => new ProjectSecretVariableEntry(
                             variable.Id,
@@ -108,8 +145,9 @@ public sealed partial class ProjectSecretService
                             variable.LinkedFieldName,
                             variable.LastUpdatedAtUtc))
                         .ToArray(),
-                    environment.Notes,
-                    environment.SortOrder))
+                        environment.Notes,
+                        profile.SortOrder,
+                        profile.Name)))
                 .ToArray(),
             LinkedApiKeys: payload.LinkedApiKeys
                 .Select(link => new ProjectSecretLinkedApiKeyEntry(link.Id, link.ApiKeyItemId, link.ApiKeyFieldId, link.VariableKey, link.EnvironmentId, link.ImportCopy))
@@ -117,6 +155,19 @@ public sealed partial class ProjectSecretService
             CreatedAtUtc: header.CreatedAtUtc,
             UpdatedAtUtc: header.UpdatedAtUtc,
             LastScanResult: payload.LastScanResult);
+
+    private static ProjectSecretEnvironmentKind ProfileKind(string profileName)
+        => Enum.TryParse<ProjectSecretEnvironmentKind>(profileName, true, out var kind)
+            ? kind
+            : ProjectSecretEnvironmentKind.Development;
+
+    private static string EnvironmentGroupId(string name)
+        => $"env_{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(name.Trim().ToUpperInvariant())))[..24].ToLowerInvariant()}";
+
+    private static string ProfileId(ProjectSecretEnvironmentInput environment)
+        => string.IsNullOrWhiteSpace(environment.Id)
+            ? $"profile_{Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes($"{environment.Name.Trim().ToUpperInvariant()}|{ProjectSecretValidator.ProfileName(environment).ToUpperInvariant()}")))[..24].ToLowerInvariant()}"
+            : environment.Id.Trim();
 
     private static string NormalizeRequired(string? value, string errorMessage)
     {

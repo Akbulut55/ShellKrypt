@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -135,7 +136,23 @@ public sealed partial class ProjectSecretVariableRowVm : ObservableObject
     }
 }
 
-public sealed record ProjectSecretEnvironmentOption(string Id, string Name, ProjectSecretEnvironmentKind Kind);
+public sealed record ProjectSecretEnvironmentOption(string Id, string Name, ProjectSecretEnvironmentKind Kind, string ProfileName = "")
+{
+    public string StageLabel => string.IsNullOrWhiteSpace(ProfileName) ? Kind.ToString() : ProfileName.Trim();
+    public string DisplayName => string.IsNullOrWhiteSpace(Name) || string.Equals(Name, StageLabel, StringComparison.OrdinalIgnoreCase)
+        ? StageLabel
+        : $"{Name} / {StageLabel}";
+}
+
+public sealed partial class ProjectSecretProfileSelectionVm : ObservableObject
+{
+    public ProjectSecretProfileSelectionVm(string name)
+    {
+        Name = name.Trim();
+    }
+
+    public string Name { get; }
+}
 
 public sealed record ProjectSecretCompareRowVm(string Key, IReadOnlyList<ProjectSecretCompareCell> Cells);
 
