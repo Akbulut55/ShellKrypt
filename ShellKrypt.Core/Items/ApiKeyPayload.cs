@@ -5,7 +5,8 @@ public sealed record ApiKeyPayload(
     string Provider,
     string Environment,
     string Notes,
-    IReadOnlyList<ApiKeyFieldPayload> Fields);
+    IReadOnlyList<ApiKeyFieldPayload> Fields,
+    string User = "");
 
 public sealed record ApiKeyFieldPayload(
     string Id,

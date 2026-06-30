@@ -12,17 +12,42 @@ public partial class MarkdownNotesViewModel
         if (!HasEditor)
             return;
 
-        if (IsPreviewMode)
-        {
-            if (!IsEditing)
-                IsEditing = true;
+        ActiveDocumentView = IsEditorOnlyMode ? "preview" : "editor";
+    }
 
-            ActiveDocumentView = "source";
-        }
-        else
+    [RelayCommand]
+    private void CycleDocumentView()
+    {
+        if (!HasEditor)
+            return;
+
+        ActiveDocumentView = ActiveDocumentView switch
         {
-            ActiveDocumentView = "preview";
-        }
+            "editor" => "preview",
+            "preview" => "split",
+            _ => "editor"
+        };
+    }
+
+    [RelayCommand]
+    private void ShowSplitMode()
+    {
+        ActiveDocumentView = "split";
+    }
+
+    [RelayCommand]
+    private void ShowEditorMode()
+    {
+        if (!IsEditing && HasEditor)
+            IsEditing = true;
+
+        ActiveDocumentView = "editor";
+    }
+
+    [RelayCommand]
+    private void ShowPreviewMode()
+    {
+        ActiveDocumentView = "preview";
     }
 
     private void RefreshPreviewContent()

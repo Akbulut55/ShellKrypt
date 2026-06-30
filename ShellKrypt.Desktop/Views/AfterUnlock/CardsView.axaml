@@ -7,18 +7,24 @@
              x:DataType="vm:CardsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="16"
-                  HorizontalAlignment="Stretch"
-                  Spacing="14">
-        <TextBlock Text="{DynamicResource Loc.Cards.Title}"
-                   Margin="0,10,0,-4"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   LetterSpacing="-0.8"/>
+    <Grid Margin="16"
+          RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="14"
+          HorizontalAlignment="Stretch">
+        <StackPanel Margin="0,10,0,-4"
+                    Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.Cards.Title}"
+                     FontSize="28"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-0.8"/>
+          <TextBlock Text="{DynamicResource Loc.Cards.Subtitle}"
+                     Classes="page-subtitle"
+                     FontSize="13"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*"
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,*,*"
               ColumnSpacing="8">
           <Border Classes="cards-stat primary"
                   Padding="16,14">
@@ -82,7 +88,8 @@
           </Border>
         </Grid>
 
-        <Border Classes="cards-filter-shell"
+        <Border Grid.Row="2"
+                Classes="cards-filter-shell"
                 Padding="0">
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
@@ -122,10 +129,11 @@
           </WrapPanel>
         </Border>
 
-        <Border Classes="table-shell"
+        <Border Grid.Row="3"
+                Classes="table-shell"
                 MinWidth="540"
                 ClipToBounds="True">
-          <Grid RowDefinitions="Auto,390,Auto">
+          <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.12*,0.58*,0.82*,28,0.42*,0.42*,176"
                     ColumnSpacing="8">
@@ -254,10 +262,15 @@
                                   Classes="sk-table-action"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
-                          <Button Content="{DynamicResource Loc.Cards.Button.CopyCardNumber}"
-                                  Classes="sk-table-action"
+                          <Button Classes="sk-icon"
                                   Command="{Binding DataContext.CopyCardNumberCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="{DynamicResource Loc.Cards.Button.CopyCardNumber}">
+                            <PathIcon Data="{StaticResource IconContentCopy}"
+                                      Width="15"
+                                      Height="15"
+                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                          </Button>
                         </StackPanel>
                       </Grid>
                     </Border>
@@ -285,8 +298,7 @@
             </Border>
           </Grid>
         </Border>
-      </StackPanel>
-    </ScrollViewer>
+    </Grid>
 
     <shared:ModalShell IsOpen="{Binding IsAddCardModalOpen}"
                        Title="{Binding CardModalTitle}"

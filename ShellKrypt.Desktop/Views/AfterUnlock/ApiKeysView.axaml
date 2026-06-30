@@ -7,19 +7,25 @@
              x:DataType="vm:ApiKeysViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="16"
-                  HorizontalAlignment="Stretch"
-                  Spacing="14">
+    <Grid Margin="16"
+          RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="14"
+          HorizontalAlignment="Stretch">
 
-        <TextBlock Text="{DynamicResource Loc.ApiKeys.Title}"
-                   Margin="0,10,0,-4"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   LetterSpacing="-0.8"/>
+        <StackPanel Margin="0,10,0,-4"
+                    Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.ApiKeys.Title}"
+                     FontSize="28"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-0.8"/>
+          <TextBlock Text="{DynamicResource Loc.ApiKeys.Subtitle}"
+                     Classes="page-subtitle"
+                     FontSize="13"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*"
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,*,*"
               ColumnSpacing="8">
           <Border Classes="api-stat">
             <StackPanel Spacing="8">
@@ -61,7 +67,8 @@
           </Border>
         </Grid>
 
-        <Border Classes="api-filter-shell">
+        <Border Grid.Row="2"
+                Classes="api-filter-shell">
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -96,10 +103,11 @@
           </WrapPanel>
         </Border>
 
-        <Border Classes="table-shell"
+        <Border Grid.Row="3"
+                Classes="table-shell"
                 MinWidth="610"
                 ClipToBounds="True">
-          <Grid RowDefinitions="Auto,390,Auto">
+          <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.15*,0.72*,1.0*,0.48*,152"
                     ColumnSpacing="8">
@@ -204,10 +212,15 @@
                                   Classes="sk-table-action"
                                   Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                   CommandParameter="{Binding}"/>
-                          <Button Content="{DynamicResource Loc.ApiKeys.Button.CopySecret}"
-                                  Classes="sk-table-action"
+                          <Button Classes="sk-icon"
                                   Command="{Binding DataContext.CopyPrimarySecretCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                  CommandParameter="{Binding}"/>
+                                  CommandParameter="{Binding}"
+                                  ToolTip.Tip="{DynamicResource Loc.ApiKeys.Button.CopySecret}">
+                            <PathIcon Data="{StaticResource IconContentCopy}"
+                                      Width="15"
+                                      Height="15"
+                                      Foreground="{StaticResource TextPrimaryBrush}"/>
+                          </Button>
                         </StackPanel>
                       </Grid>
                     </Border>
@@ -235,8 +248,7 @@
             </Border>
           </Grid>
         </Border>
-      </StackPanel>
-    </ScrollViewer>
+    </Grid>
 
     <shared:ModalShell IsOpen="{Binding IsApiKeyModalOpen}"
                        Title="{Binding ApiKeyModalTitle}"
@@ -245,7 +257,7 @@
                        FooterText="{Binding ModalFooterText}"
                        CloseCommand="{Binding CancelApiKeyModalCommand}">
       <shared:ModalShell.Body>
-        <Grid RowDefinitions="Auto,Auto,Auto"
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto"
               ColumnDefinitions="1.2*,1.05*"
               RowSpacing="14"
               ColumnSpacing="16">
@@ -269,6 +281,17 @@
               </StackPanel>
 
               <StackPanel Grid.Row="1"
+                          Grid.ColumnSpan="2"
+                          Spacing="7">
+                <TextBlock Text="{DynamicResource Loc.ApiKeys.Form.User}"
+                           Classes="modal-shell-label"/>
+                <TextBox Text="{Binding AddUser, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="modal-shell-input"
+                         IsReadOnly="{Binding IsApiKeyFormReadOnly}"
+                         PlaceholderText="{DynamicResource Loc.ApiKeys.Form.User.Placeholder}"/>
+              </StackPanel>
+
+              <StackPanel Grid.Row="2"
                           Grid.ColumnSpan="2"
                           Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.ApiKeys.Form.ApiKeyValue}"
@@ -295,7 +318,7 @@
                 </Border>
               </StackPanel>
 
-              <StackPanel Grid.Row="2"
+              <StackPanel Grid.Row="3"
                           Grid.ColumnSpan="2"
                           Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.Common.Notes.Label}"

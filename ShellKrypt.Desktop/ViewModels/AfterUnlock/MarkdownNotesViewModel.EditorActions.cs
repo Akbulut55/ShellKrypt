@@ -17,12 +17,14 @@ public partial class MarkdownNotesViewModel
         var previous = SelectedNote.IsFavorite;
         SelectedNote.IsFavorite = !SelectedNote.IsFavorite;
         RefreshFilteredNotes();
+        RefreshNotePicker();
         await SaveAsync();
 
         if (!string.IsNullOrWhiteSpace(Error))
         {
             SelectedNote.IsFavorite = previous;
             RefreshFilteredNotes();
+            RefreshNotePicker();
             return;
         }
 

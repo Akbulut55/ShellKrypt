@@ -107,6 +107,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
 
     [ObservableProperty] private string name;
     [ObservableProperty] private string provider;
+    [ObservableProperty] private string user;
     [ObservableProperty] private string environment;
     [ObservableProperty] private string notes;
 
@@ -120,6 +121,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
         UpdatedAtUtc = entry.UpdatedAtUtc;
         Name = entry.Name;
         Provider = entry.Provider;
+        User = entry.User;
         Environment = entry.Environment;
         Notes = entry.Notes;
 
@@ -147,8 +149,10 @@ public sealed partial class ApiKeyRowVm : ObservableObject
     }
 
     public string ProviderDisplay => string.IsNullOrWhiteSpace(Provider) ? T("ApiKeys.Field.UnknownProvider") : Provider.Trim();
+    public string UserDisplay => string.IsNullOrWhiteSpace(User) ? T("ApiKeys.Field.NoUser") : User.Trim();
+    public bool HasUser => !string.IsNullOrWhiteSpace(User);
     public string EnvironmentDisplay => string.IsNullOrWhiteSpace(Environment) ? T("ApiKeys.Environment.Default") : Environment.Trim();
-    public string FieldCountDisplay => Fields.Count == 1 ? T("ApiKeys.Field.FieldCountOne") : T("ApiKeys.Field.FieldCountMany", Fields.Count);
+    public string FieldCountDisplay => HasUser ? UserDisplay : ProviderDisplay;
     public ApiKeyFieldRowVm? PrimaryField => Fields.FirstOrDefault(apiField => apiField.IsSensitive && apiField.IsCopyable)
                                              ?? Fields.FirstOrDefault(apiField => apiField.IsCopyable)
                                              ?? Fields.FirstOrDefault();
@@ -160,6 +164,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
     {
         Name,
         Provider,
+        User,
         Environment,
         Notes,
         string.Join(" ", Fields.Select(apiField => $"{apiField.Label} {apiField.FieldType} {apiField.Value}"))
@@ -174,6 +179,15 @@ public sealed partial class ApiKeyRowVm : ObservableObject
     partial void OnProviderChanged(string value)
     {
         OnPropertyChanged(nameof(ProviderDisplay));
+        OnPropertyChanged(nameof(FieldCountDisplay));
+        OnPropertyChanged(nameof(SearchText));
+    }
+
+    partial void OnUserChanged(string value)
+    {
+        OnPropertyChanged(nameof(UserDisplay));
+        OnPropertyChanged(nameof(HasUser));
+        OnPropertyChanged(nameof(FieldCountDisplay));
         OnPropertyChanged(nameof(SearchText));
     }
 
@@ -189,6 +203,7 @@ public sealed partial class ApiKeyRowVm : ObservableObject
     {
         Name = entry.Name;
         Provider = entry.Provider;
+        User = entry.User;
         Environment = entry.Environment;
         Notes = entry.Notes;
         UpdatedAtUtc = entry.UpdatedAtUtc;
@@ -227,6 +242,8 @@ public sealed partial class ApiKeyRowVm : ObservableObject
             field.RefreshLocalization();
 
         OnPropertyChanged(nameof(ProviderDisplay));
+        OnPropertyChanged(nameof(UserDisplay));
+        OnPropertyChanged(nameof(HasUser));
         OnPropertyChanged(nameof(FieldCountDisplay));
         OnPropertyChanged(nameof(PrimaryFieldLabel));
         OnPropertyChanged(nameof(PrimaryFieldDisplay));

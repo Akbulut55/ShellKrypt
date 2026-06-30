@@ -20,6 +20,9 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     public ObservableCollection<NoteItemVm> Notes { get; } = new();
     public ObservableCollection<NoteItemVm> FilteredNotes { get; } = new();
+    public ObservableCollection<NoteItemVm> NotePickerFavorites { get; } = new();
+    public ObservableCollection<NoteItemVm> NotePickerRecent { get; } = new();
+    public ObservableCollection<NoteItemVm> NotePickerAll { get; } = new();
     public ObservableCollection<MarkdownBlock> PreviewBlocks { get; } = new();
 
     [ObservableProperty] private NoteItemVm? selectedNote;
@@ -32,7 +35,9 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private string activeFilter = "all";
     [ObservableProperty] private bool isCreatingNote;
     [ObservableProperty] private bool isEditing;
-    [ObservableProperty] private string activeDocumentView = "preview";
+    [ObservableProperty] private string activeDocumentView = "split";
+    [ObservableProperty] private bool isNotePickerOpen;
+    [ObservableProperty] private string notePickerSearchText = "";
     [ObservableProperty] private string autoSaveStatus = "";
 
     public MarkdownNotesViewModel(MainWindowViewModel root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
@@ -45,6 +50,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             UpdateNoteCount();
             RefreshFilteredNotes();
+            RefreshNotePicker();
         };
 
         FilteredNotes.CollectionChanged += (_, __) =>
@@ -73,6 +79,9 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         NotifyLocalized(
             nameof(NotesHeader),
             nameof(EmptyStateTitle),
-            nameof(EmptyStateSubtitle));
+            nameof(EmptyStateSubtitle),
+            nameof(SelectedNoteTitleDisplay),
+            nameof(HeaderSaveStatus),
+            nameof(DocumentViewToggleText));
     }
 }

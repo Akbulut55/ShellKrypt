@@ -72,7 +72,7 @@ public sealed class DesktopSecurityServicesTests
             await notes.AddAsync(vaultPath, unlock.VaultKey!, new NoteInput("Note Test", noteContent, Favorite: false));
 
             new AppSettingsService(new FileAppSettingsStore()).Save(new AppSettings { ClipboardClearSeconds = 1, ClipboardCopyEnabled = false });
-            new VaultRegistryService(new FileVaultRegistryStore()).UpsertVault(vaultPath, "Metadata Test", "Local metadata only", isDefault: true);
+            new VaultRegistryService(new FileVaultRegistryStore()).UpsertVault(vaultPath, "Metadata Test", "Local metadata only");
             new AuditDismissalService(new FileDismissedAuditIssueStore()).Dismiss(vaultPath, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(secret))));
             new ActivityLogService(new SqliteActivityLogStore()).Append(
                 new ActivityLogEntry(

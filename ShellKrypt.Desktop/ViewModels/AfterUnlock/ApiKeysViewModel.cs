@@ -57,6 +57,7 @@ public partial class ApiKeysViewModel : ViewModelBase
     [ObservableProperty] private bool isApiKeyDeleteConfirming;
     [ObservableProperty] private string addName = "";
     [ObservableProperty] private string addProvider = "";
+    [ObservableProperty] private string addUser = "";
     [ObservableProperty] private string addEnvironment = "Production";
     [ObservableProperty] private string addNotes = "";
     [ObservableProperty] private bool isApiKeyValueVisible;

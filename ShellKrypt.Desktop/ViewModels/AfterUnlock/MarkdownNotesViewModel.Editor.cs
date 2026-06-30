@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.Input;
+using System.Linq;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -11,7 +12,7 @@ public partial class MarkdownNotesViewModel
             return;
 
         IsEditing = true;
-        ActiveDocumentView = "source";
+        ActiveDocumentView = "editor";
     }
 
     [RelayCommand]
@@ -21,7 +22,8 @@ public partial class MarkdownNotesViewModel
         Error = string.Empty;
         IsCreatingNote = true;
         IsEditing = true;
-        ActiveDocumentView = "source";
+        ActiveDocumentView = "editor";
+        IsNotePickerOpen = false;
         SelectedNote = null;
         _suppressAutoSave = true;
         try
@@ -37,5 +39,56 @@ public partial class MarkdownNotesViewModel
         NotifyEditorStateChanged();
         OnPropertyChanged(nameof(CanCopySelection));
         OnPropertyChanged(nameof(CanSave));
+    }
+
+    [RelayCommand]
+    private void CancelEditing()
+    {
+        CancelPendingAutoSave();
+        Error = string.Empty;
+
+        if (IsCreatingNote)
+        {
+            _suppressAutoSave = true;
+            try
+            {
+                EditorTitle = string.Empty;
+                EditorContent = string.Empty;
+            }
+            finally
+            {
+                _suppressAutoSave = false;
+            }
+
+            IsCreatingNote = false;
+            IsEditing = false;
+            ActiveDocumentView = "split";
+
+            if (SelectedNote is null && FilteredNotes.FirstOrDefault() is { } fallback)
+                SelectedNote = fallback;
+            else
+                NotifyEditorStateChanged();
+
+            return;
+        }
+
+        if (SelectedNote is null)
+            return;
+
+        _suppressAutoSave = true;
+        try
+        {
+            EditorTitle = SelectedNote.Title;
+            EditorContent = SelectedNote.Content;
+        }
+        finally
+        {
+            _suppressAutoSave = false;
+        }
+
+        IsEditing = false;
+        ActiveDocumentView = "split";
+        AutoSaveStatus = string.Empty;
+        NotifyEditorStateChanged();
     }
 }

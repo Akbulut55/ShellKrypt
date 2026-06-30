@@ -6,11 +6,10 @@
              x:DataType="vm:AllItemsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="16"
-                  HorizontalAlignment="Stretch"
-                  Spacing="14">
+    <Grid Margin="16"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="14"
+          HorizontalAlignment="Stretch">
 
         <Grid ColumnDefinitions="*,*,*"
               ColumnSpacing="8">
@@ -73,7 +72,8 @@
           </Border>
         </Grid>
 
-        <Border Classes="allitems-filter-shell">
+        <Border Grid.Row="1"
+                Classes="allitems-filter-shell">
           <Grid ColumnDefinitions="Auto,*"
                 ColumnSpacing="10"
                 VerticalAlignment="Center">
@@ -133,9 +133,10 @@
           </Grid>
         </Border>
 
-        <Border Classes="table-shell"
+        <Border Grid.Row="2"
+                Classes="table-shell"
                 MinWidth="580">
-          <Grid RowDefinitions="Auto,390,Auto">
+          <Grid RowDefinitions="Auto,*,Auto">
             <Border Classes="table-header-row">
               <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
                     ColumnSpacing="8">
@@ -290,8 +291,7 @@
             </Border>
           </Grid>
         </Border>
-      </StackPanel>
-    </ScrollViewer>
+    </Grid>
   </Grid>
 
   <UserControl.Styles>

@@ -9,6 +9,7 @@ public sealed partial class VaultItemSummaryService
         var payload = _payloadReader.ReadApiKey(row, vaultKey);
         var title = FirstNonEmpty(payload.Name, "Untitled API key");
         var provider = FirstNonEmpty(payload.Provider, "Unknown provider");
+        var user = FirstNonEmpty(payload.User, "");
         var environment = FirstNonEmpty(payload.Environment, "Production");
         var primaryField = payload.Fields
             .OrderBy(field => field.SortOrder)
@@ -23,6 +24,7 @@ public sealed partial class VaultItemSummaryService
         var searchText = BuildSearchText(
             title,
             provider,
+            user,
             environment,
             payload.Notes,
             string.Join(" ", payload.Fields.Select(field => $"{field.Label} {field.FieldType}")),

@@ -17,14 +17,15 @@ public partial class MarkdownNotesViewModel
                     EditorTitle = string.Empty;
                     EditorContent = string.Empty;
                     IsEditing = false;
-                    ActiveDocumentView = "preview";
+                    ActiveDocumentView = "split";
                 }
             }
             else
             {
                 IsCreatingNote = false;
                 IsEditing = false;
-                ActiveDocumentView = "preview";
+                if (ActiveDocumentView is not ("split" or "editor" or "preview"))
+                    ActiveDocumentView = "split";
                 EditorTitle = value.Title;
                 EditorContent = value.Content;
             }
@@ -40,17 +41,31 @@ public partial class MarkdownNotesViewModel
 
     partial void OnEditorTitleChanged(string value)
     {
+        if (!_suppressAutoSave && HasEditor && !IsEditing)
+            IsEditing = true;
+
         OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanCancelEditorChanges));
+        OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+        OnPropertyChanged(nameof(ShowHeaderCreateButton));
         OnPropertyChanged(nameof(PreviewDocumentTitle));
+        OnPropertyChanged(nameof(SelectedNoteTitleDisplay));
         ScheduleAutoSave();
     }
 
     partial void OnEditorContentChanged(string value)
     {
+        if (!_suppressAutoSave && HasEditor && !IsEditing)
+            IsEditing = true;
+
         OnPropertyChanged(nameof(EditorStats));
         OnPropertyChanged(nameof(EditorStatusLine));
         OnPropertyChanged(nameof(SelectedNoteMeta));
         OnPropertyChanged(nameof(CanCopySelection));
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanCancelEditorChanges));
+        OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+        OnPropertyChanged(nameof(ShowHeaderCreateButton));
         RefreshPreviewContent();
         ScheduleAutoSave();
     }
@@ -63,8 +78,14 @@ public partial class MarkdownNotesViewModel
     partial void OnSearchTextChanged(string value)
     {
         RefreshFilteredNotes(false);
+        RefreshNotePicker();
         OnPropertyChanged(nameof(EmptyStateTitle));
         OnPropertyChanged(nameof(EmptyStateSubtitle));
+    }
+
+    partial void OnNotePickerSearchTextChanged(string value)
+    {
+        RefreshNotePicker();
     }
 
     partial void OnActiveFilterChanged(string value)
@@ -85,6 +106,7 @@ public partial class MarkdownNotesViewModel
     partial void OnAutoSaveStatusChanged(string value)
     {
         OnPropertyChanged(nameof(EditorStatusLine));
+        OnPropertyChanged(nameof(HeaderSaveStatus));
     }
 
     partial void OnIsBusyChanged(bool value)
@@ -95,6 +117,9 @@ public partial class MarkdownNotesViewModel
         OnPropertyChanged(nameof(CanStartEditing));
         OnPropertyChanged(nameof(CanToggleDocumentView));
         OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanCancelEditorChanges));
+        OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+        OnPropertyChanged(nameof(ShowHeaderCreateButton));
     }
 
     partial void OnIsCreatingNoteChanged(bool value)
@@ -109,14 +134,22 @@ public partial class MarkdownNotesViewModel
 
         OnPropertyChanged(nameof(CanStartEditing));
         OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanCancelEditorChanges));
         OnPropertyChanged(nameof(ShowEditButton));
         OnPropertyChanged(nameof(ShowSaveButton));
+        OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+        OnPropertyChanged(nameof(ShowHeaderCreateButton));
     }
 
     partial void OnActiveDocumentViewChanged(string value)
     {
+        OnPropertyChanged(nameof(IsSplitMode));
+        OnPropertyChanged(nameof(IsEditorOnlyMode));
+        OnPropertyChanged(nameof(IsPreviewOnlyMode));
         OnPropertyChanged(nameof(IsPreviewMode));
         OnPropertyChanged(nameof(IsSourceMode));
+        OnPropertyChanged(nameof(IsEditorPaneVisible));
+        OnPropertyChanged(nameof(IsPreviewPaneVisible));
         OnPropertyChanged(nameof(DocumentViewToggleText));
     }
 }

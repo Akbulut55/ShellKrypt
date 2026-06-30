@@ -7,18 +7,24 @@
              x:DataType="vm:WebLoginsViewModel">
 
   <Grid>
-    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                  VerticalScrollBarVisibility="Auto">
-      <StackPanel Margin="16"
-                  HorizontalAlignment="Stretch"
-                  Spacing="14">
-        <TextBlock Text="{DynamicResource Loc.WebLogins.Title}"
-                   Margin="0,10,0,-4"
-                   FontSize="28"
-                   FontWeight="SemiBold"
-                   LetterSpacing="-0.8"/>
+    <Grid Margin="16"
+          RowDefinitions="Auto,Auto,Auto,*"
+          RowSpacing="14"
+          HorizontalAlignment="Stretch">
+        <StackPanel Margin="0,10,0,-4"
+                    Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.WebLogins.Title}"
+                     FontSize="28"
+                     FontWeight="SemiBold"
+                     LetterSpacing="-0.8"/>
+          <TextBlock Text="{DynamicResource Loc.WebLogins.Subtitle}"
+                     Classes="page-subtitle"
+                     FontSize="13"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
 
-        <Grid ColumnDefinitions="*,*,*"
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,*,*"
               ColumnSpacing="8">
           <Border Classes="web-stat">
             <StackPanel Spacing="8">
@@ -61,7 +67,8 @@
           </Border>
         </Grid>
 
-        <Border Classes="web-filter-shell">
+        <Border Grid.Row="2"
+                Classes="web-filter-shell">
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -100,10 +107,11 @@
           </WrapPanel>
         </Border>
 
-      <Border Classes="table-shell"
+      <Border Grid.Row="3"
+              Classes="table-shell"
               MinWidth="580"
               ClipToBounds="True">
-        <Grid RowDefinitions="Auto,390,Auto">
+        <Grid RowDefinitions="Auto,*,Auto">
           <Border Classes="table-header-row">
             <Grid ColumnDefinitions="1.16*,0.84*,0.74*,0.86*,156"
                   ColumnSpacing="8">
@@ -205,11 +213,15 @@
                                 Command="{Binding DataContext.ShowDetailsCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.ViewDetails}"/>
-                        <Button Classes="sk-table-action"
-                                Content="{DynamicResource Loc.WebLogins.Button.CopyPassword}"
+                        <Button Classes="sk-icon"
                                 Command="{Binding DataContext.CopyPasswordCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.CopyPassword}"/>
+                                ToolTip.Tip="{DynamicResource Loc.WebLogins.Tooltip.CopyPassword}">
+                          <PathIcon Data="{StaticResource IconContentCopy}"
+                                    Width="15"
+                                    Height="15"
+                                    Foreground="{StaticResource TextPrimaryBrush}"/>
+                        </Button>
                       </StackPanel>
                     </Grid>
                   </Border>
@@ -237,9 +249,7 @@
           </Border>
         </Grid>
       </Border>
-
-      </StackPanel>
-    </ScrollViewer>
+    </Grid>
 
     <shared:ModalShell IsOpen="{Binding IsAddWebLoginModalOpen}"
                        Title="{Binding AddModalTitle}"

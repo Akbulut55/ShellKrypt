@@ -6,6 +6,20 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.8] - 2026-06-30
+
+### Added
+
+- Added a user metadata field to standalone API Key entries and summaries.
+
+### Changed
+
+- Rebuilt Markdown Notes into a fixed-header markdown workspace with a note picker, split/editor/preview modes, dirty-state cancel/save actions, and a project-style note selection popup.
+- Updated Markdown Notes mode controls to use separate split and editor/preview icon buttons with the new markdown mode icons.
+- Updated Web Logins, Credit Cards, API Keys, and All Items table layouts so their tables stretch cleanly toward the bottom edge.
+- Replaced text copy actions with shared copy icons across Web Logins, Credit Cards, and API Keys.
+- Added short workspace descriptions to Web Logins, Credit Cards, and API Keys for consistency with Authenticator.
+
 ## [ShellKrypt 0.17.7] - 2026-06-30
 
 ### Added

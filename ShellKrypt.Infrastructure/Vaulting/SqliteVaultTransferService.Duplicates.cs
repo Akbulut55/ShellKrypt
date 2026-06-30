@@ -70,6 +70,7 @@ public sealed partial class SqliteVaultTransferService
             "api",
             NormalizeDuplicatePart(payload.Name),
             NormalizeDuplicatePart(payload.Provider),
+            NormalizeDuplicatePart(payload.User),
             NormalizeDuplicatePart(payload.Environment));
     }
 

@@ -191,7 +191,7 @@ public sealed class ApplicationInfrastructureServicesTests
     }
 
     [Fact]
-    public void VaultRegistryService_NormalizesDefaultsRecentOrderingAndDuplicates()
+    public void VaultRegistryService_NormalizesFavoritesRecentOrderingAndDuplicates()
     {
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
@@ -199,17 +199,19 @@ public sealed class ApplicationInfrastructureServicesTests
         var older = workspace.FilePath("older.skvault");
         var newer = workspace.FilePath("newer.skvault");
 
-        service.UpsertVault(older, "Older", "Legacy default vault", isDefault: true);
+        service.UpsertVault(older, "Older", "Favorite vault");
         service.UpsertVault(older, "Older duplicate", "duplicate");
+        service.SetVaultFavorite(older, true);
         service.UpsertVault(newer, "Newer", "", markOpened: true);
 
         var vaults = service.ListVaults();
 
         Assert.Equal(2, vaults.Count);
-        Assert.Equal("Newer", vaults[0].DisplayName);
+        Assert.Equal("Older duplicate", vaults[0].DisplayName);
+        Assert.True(vaults[0].IsFavorite);
         Assert.NotNull(vaults.Single(vault => vault.VaultPath == older).Id);
         Assert.Equal("duplicate", vaults.Single(vault => vault.VaultPath == older).Description);
-        Assert.NotNull(service.GetDefaultVault());
+        Assert.Equal("Newer", service.ListRecentVaults().Single().DisplayName);
     }
 
     [Fact]

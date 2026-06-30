@@ -67,4 +67,16 @@ public partial class MarkdownNotesViewModel
         return !string.Equals(EditorTitle.Trim(), SelectedNote.Title, StringComparison.Ordinal) ||
                !string.Equals(EditorContent, SelectedNote.Content, StringComparison.Ordinal);
     }
+
+    private bool HasEditorDraftChanges()
+    {
+        if (!IsCreatingNote && SelectedNote is null)
+            return false;
+
+        if (SelectedNote is null)
+            return IsCreatingNote;
+
+        return !string.Equals(EditorTitle.Trim(), SelectedNote.Title, StringComparison.Ordinal) ||
+               !string.Equals(EditorContent, SelectedNote.Content, StringComparison.Ordinal);
+    }
 }

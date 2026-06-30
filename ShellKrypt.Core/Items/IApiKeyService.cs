@@ -14,7 +14,8 @@ public sealed record ApiKeyInput(
     string Provider,
     string Environment,
     string Notes,
-    IReadOnlyList<ApiKeyFieldInput> Fields);
+    IReadOnlyList<ApiKeyFieldInput> Fields,
+    string User = "");
 
 public sealed record ApiKeyFieldEntry(
     string Id,
@@ -33,7 +34,8 @@ public sealed record ApiKeyEntry(
     string Notes,
     IReadOnlyList<ApiKeyFieldEntry> Fields,
     string CreatedAtUtc,
-    string UpdatedAtUtc);
+    string UpdatedAtUtc,
+    string User = "");
 
 public interface IApiKeyService
 {

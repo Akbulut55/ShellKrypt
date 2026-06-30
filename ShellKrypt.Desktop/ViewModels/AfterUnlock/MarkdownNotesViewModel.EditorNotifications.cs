@@ -15,12 +15,26 @@ public partial class MarkdownNotesViewModel
         OnPropertyChanged(nameof(CanToggleFavorite));
         OnPropertyChanged(nameof(CanStartEditing));
         OnPropertyChanged(nameof(CanToggleDocumentView));
+        OnPropertyChanged(nameof(CanSave));
+        OnPropertyChanged(nameof(CanCancelEditorChanges));
         OnPropertyChanged(nameof(FavoriteToggleLabel));
         OnPropertyChanged(nameof(SaveButtonText));
         OnPropertyChanged(nameof(ShowEditButton));
         OnPropertyChanged(nameof(ShowSaveButton));
+        OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+        OnPropertyChanged(nameof(ShowHeaderCreateButton));
         OnPropertyChanged(nameof(DocumentViewToggleText));
         OnPropertyChanged(nameof(PreviewDocumentTitle));
+        OnPropertyChanged(nameof(SelectedNoteTitleDisplay));
+        OnPropertyChanged(nameof(HeaderSaveStatus));
+        OnPropertyChanged(nameof(IsSplitMode));
+        OnPropertyChanged(nameof(IsEditorOnlyMode));
+        OnPropertyChanged(nameof(IsPreviewOnlyMode));
+        OnPropertyChanged(nameof(IsEditorPaneVisible));
+        OnPropertyChanged(nameof(IsPreviewPaneVisible));
+        OnPropertyChanged(nameof(HasNotePickerFavorites));
+        OnPropertyChanged(nameof(HasNotePickerRecent));
+        OnPropertyChanged(nameof(HasNotePickerAll));
         RefreshPreviewContent();
     }
 

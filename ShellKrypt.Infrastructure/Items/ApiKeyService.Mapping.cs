@@ -15,7 +15,8 @@ public sealed partial class ApiKeyService
             Provider: input.Provider.Trim(),
             Environment: string.IsNullOrWhiteSpace(input.Environment) ? DefaultEnvironment : input.Environment.Trim(),
             Notes: input.Notes.Trim(),
-            Fields: fields);
+            Fields: fields,
+            User: input.User.Trim());
     }
 
     private static IEnumerable<ApiKeyFieldPayload> NormalizeFields(IEnumerable<ApiKeyFieldInput>? fields)
@@ -63,7 +64,8 @@ public sealed partial class ApiKeyService
                     field.SortOrder))
                 .ToArray(),
             CreatedAtUtc: header.CreatedAtUtc,
-            UpdatedAtUtc: header.UpdatedAtUtc);
+            UpdatedAtUtc: header.UpdatedAtUtc,
+            User: payload.User ?? "");
 
     private static string NormalizeRequired(string? value, string errorMessage)
     {

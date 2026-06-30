@@ -1,6 +1,8 @@
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Markdown;
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -24,6 +26,30 @@ public partial class MarkdownNotesViewModel
     private void ShowRecent()
     {
         ActiveFilter = "recent";
+    }
+
+    [RelayCommand]
+    private void ToggleNotePicker()
+    {
+        IsNotePickerOpen = !IsNotePickerOpen;
+        if (IsNotePickerOpen)
+            RefreshNotePicker();
+    }
+
+    [RelayCommand]
+    private void CloseNotePicker()
+    {
+        IsNotePickerOpen = false;
+    }
+
+    [RelayCommand]
+    private void SelectNoteFromPicker(NoteItemVm? note)
+    {
+        if (note is null)
+            return;
+
+        SelectNote(note);
+        IsNotePickerOpen = false;
     }
 
     private void UpdateNoteCount()
@@ -89,6 +115,37 @@ public partial class MarkdownNotesViewModel
         UpdateSelectionState();
     }
 
+    private void RefreshNotePicker()
+    {
+        var items = Notes.AsEnumerable();
+        if (!string.IsNullOrWhiteSpace(NotePickerSearchText))
+        {
+            var query = NotePickerSearchText.Trim();
+            items = items.Where(note =>
+                note.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                SimpleMarkdown.ToPlainText(note.Content).Contains(query, StringComparison.OrdinalIgnoreCase));
+        }
+
+        var snapshot = items
+            .OrderByDescending(note => ParseTimestamp(note.UpdatedAtUtc))
+            .ToList();
+
+        RebuildPickerCollection(NotePickerFavorites, snapshot.Where(note => note.IsFavorite));
+        RebuildPickerCollection(NotePickerRecent, snapshot.Take(6));
+        RebuildPickerCollection(NotePickerAll, snapshot.OrderBy(note => note.Title, StringComparer.OrdinalIgnoreCase));
+
+        OnPropertyChanged(nameof(HasNotePickerFavorites));
+        OnPropertyChanged(nameof(HasNotePickerRecent));
+        OnPropertyChanged(nameof(HasNotePickerAll));
+    }
+
+    private static void RebuildPickerCollection(ObservableCollection<NoteItemVm> target, IEnumerable<NoteItemVm> items)
+    {
+        target.Clear();
+        foreach (var item in items)
+            target.Add(item);
+    }
+
     public void SelectNote(NoteItemVm? note)
     {
         if (note is null)
@@ -128,6 +185,7 @@ public partial class MarkdownNotesViewModel
                 Notes.Add(new NoteItemVm(note.Id, note.Title, note.Content, note.Favorite, note.CreatedAtUtc, note.UpdatedAtUtc));
 
             RefreshFilteredNotes();
+            RefreshNotePicker();
             NotifyEditorStateChanged();
         }
         catch (Exception ex)

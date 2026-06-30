@@ -26,8 +26,9 @@ public partial class MarkdownNotesViewModel
 
             Notes.Remove(SelectedNote);
             RefreshFilteredNotes(false);
+            RefreshNotePicker();
             IsEditing = false;
-            ActiveDocumentView = "preview";
+            ActiveDocumentView = "split";
 
             if (FilteredNotes.Count > 0)
             {

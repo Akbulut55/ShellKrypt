@@ -62,9 +62,14 @@ public partial class MarkdownNotesViewModel
                 if (keepEditing)
                 {
                     IsEditing = true;
-                    ActiveDocumentView = "source";
+                    ActiveDocumentView = "editor";
                     EditorTitle = titleSnapshot;
                     EditorContent = contentSnapshot;
+                }
+                else
+                {
+                    IsEditing = false;
+                    ActiveDocumentView = "split";
                 }
 
                 await _refreshAllItemsAsync(entry.Id);
@@ -85,7 +90,7 @@ public partial class MarkdownNotesViewModel
                 if (!keepEditing)
                 {
                     IsEditing = false;
-                    ActiveDocumentView = "preview";
+                    ActiveDocumentView = "split";
                 }
 
                 await _refreshAllItemsAsync(entry.Id);
@@ -97,8 +102,12 @@ public partial class MarkdownNotesViewModel
                 AutoSaveStatus = T(_root, "Notes.AutoSave.SavedAt", DateTime.Now.ToString("HH:mm:ss"));
 
             RefreshFilteredNotes();
+            RefreshNotePicker();
             OnPropertyChanged(nameof(SelectedNoteMeta));
             OnPropertyChanged(nameof(SaveButtonText));
+            OnPropertyChanged(nameof(SelectedNoteTitleDisplay));
+            OnPropertyChanged(nameof(ShowHeaderCommitButtons));
+            OnPropertyChanged(nameof(ShowHeaderCreateButton));
         }
         catch (OperationCanceledException) when (isAutoSave)
         {

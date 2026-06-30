@@ -149,6 +149,7 @@ public partial class ApiKeysViewModel
     {
         AddName = "";
         AddProvider = "";
+        AddUser = "";
         AddEnvironment = "Production";
         AddNotes = "";
         IsApiKeyValueVisible = false;
@@ -162,6 +163,7 @@ public partial class ApiKeysViewModel
     {
         AddName = row.Name;
         AddProvider = row.Provider;
+        AddUser = row.User;
         AddEnvironment = "Production";
         AddNotes = row.Notes;
         IsApiKeyValueVisible = false;
@@ -210,6 +212,7 @@ public partial class ApiKeysViewModel
                 field.IsSensitive,
                 field.IsCopyable,
                 field.SortOrder)
-            });
+            },
+            AddUser);
     }
 }
