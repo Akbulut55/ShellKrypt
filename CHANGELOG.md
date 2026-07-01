@@ -6,6 +6,19 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.9] - 2026-07-01
+
+### Changed
+
+- Refined Markdown Notes picker rows to show only note names with icon-only delete actions.
+- Changed Markdown Notes so new drafts open in editor mode, while saved and selected notes open in preview mode.
+- Thinned Markdown Notes editor and preview pane framing for a cleaner writing surface.
+
+### Fixed
+
+- Removed the default thick flyout chrome from Markdown Notes and Project Secrets picker popups.
+- Fixed the Markdown Notes editor/preview mode tooltip to describe the preview toggle instead of the editor.
+
 ## [ShellKrypt 0.17.8] - 2026-06-30
 
 ### Added
@@ -19,6 +32,10 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 - Updated Web Logins, Credit Cards, API Keys, and All Items table layouts so their tables stretch cleanly toward the bottom edge.
 - Replaced text copy actions with shared copy icons across Web Logins, Credit Cards, and API Keys.
 - Added short workspace descriptions to Web Logins, Credit Cards, and API Keys for consistency with Authenticator.
+
+### Fixed
+
+- Fixed Markdown Notes picker placement, note-row selection, and duplicate editor title input layout.
 
 ## [ShellKrypt 0.17.7] - 2026-06-30
 

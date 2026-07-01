@@ -35,7 +35,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private string activeFilter = "all";
     [ObservableProperty] private bool isCreatingNote;
     [ObservableProperty] private bool isEditing;
-    [ObservableProperty] private string activeDocumentView = "split";
+    [ObservableProperty] private string activeDocumentView = "preview";
     [ObservableProperty] private bool isNotePickerOpen;
     [ObservableProperty] private string notePickerSearchText = "";
     [ObservableProperty] private string autoSaveStatus = "";

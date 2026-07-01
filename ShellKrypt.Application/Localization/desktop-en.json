@@ -580,6 +580,7 @@
   "Notes.Meta.Select": "Select a note",
   "Notes.Mode.Editor": "Editor",
   "Notes.Mode.Preview": "Preview",
+  "Notes.Mode.PreviewToggle": "Preview on/off",
   "Notes.Mode.Split": "Split",
   "Notes.NoSelection.Subtitle": "Choose a note from the list or create a new one.",
   "Notes.NoSelection.Title": "No note selected",

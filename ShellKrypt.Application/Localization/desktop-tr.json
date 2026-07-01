@@ -580,6 +580,7 @@
   "Notes.Meta.Select": "Not seç",
   "Notes.Mode.Editor": "Düzenleyici",
   "Notes.Mode.Preview": "Önizleme",
+  "Notes.Mode.PreviewToggle": "Önizleme aç/kapat",
   "Notes.Mode.Split": "Bölünmüş",
   "Notes.NoSelection.Subtitle": "Listeden bir not seç veya yeni bir not oluştur.",
   "Notes.NoSelection.Title": "Not seçilmedi",

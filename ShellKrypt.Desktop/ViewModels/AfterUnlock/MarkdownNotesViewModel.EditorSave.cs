@@ -69,7 +69,7 @@ public partial class MarkdownNotesViewModel
                 else
                 {
                     IsEditing = false;
-                    ActiveDocumentView = "split";
+                    ActiveDocumentView = "preview";
                 }
 
                 await _refreshAllItemsAsync(entry.Id);
@@ -90,7 +90,7 @@ public partial class MarkdownNotesViewModel
                 if (!keepEditing)
                 {
                     IsEditing = false;
-                    ActiveDocumentView = "split";
+                    ActiveDocumentView = "preview";
                 }
 
                 await _refreshAllItemsAsync(entry.Id);

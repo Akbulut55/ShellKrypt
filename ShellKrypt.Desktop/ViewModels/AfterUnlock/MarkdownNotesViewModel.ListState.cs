@@ -31,9 +31,8 @@ public partial class MarkdownNotesViewModel
     [RelayCommand]
     private void ToggleNotePicker()
     {
-        IsNotePickerOpen = !IsNotePickerOpen;
-        if (IsNotePickerOpen)
-            RefreshNotePicker();
+        RefreshNotePicker();
+        IsNotePickerOpen = true;
     }
 
     [RelayCommand]

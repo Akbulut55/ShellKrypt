@@ -17,7 +17,7 @@ public partial class MarkdownNotesViewModel
                     EditorTitle = string.Empty;
                     EditorContent = string.Empty;
                     IsEditing = false;
-                    ActiveDocumentView = "split";
+                    ActiveDocumentView = "preview";
                 }
             }
             else
@@ -25,7 +25,7 @@ public partial class MarkdownNotesViewModel
                 IsCreatingNote = false;
                 IsEditing = false;
                 if (ActiveDocumentView is not ("split" or "editor" or "preview"))
-                    ActiveDocumentView = "split";
+                    ActiveDocumentView = "preview";
                 EditorTitle = value.Title;
                 EditorContent = value.Content;
             }

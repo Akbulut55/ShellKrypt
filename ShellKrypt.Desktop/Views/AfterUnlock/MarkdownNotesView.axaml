@@ -12,130 +12,121 @@
               ColumnSpacing="14"
               VerticalAlignment="Center">
           <Grid>
-            <Grid ColumnDefinitions="Auto,Auto"
-                  ColumnSpacing="8">
-              <StackPanel Spacing="3"
-                          MinWidth="220"
-                          MaxWidth="420"
-                          VerticalAlignment="Center">
+            <StackPanel Spacing="7">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="8">
                 <TextBlock Text="{Binding SelectedNoteTitleDisplay}"
                            FontSize="24"
                            FontWeight="Bold"
-                           TextTrimming="CharacterEllipsis"/>
-                <TextBlock Text="{Binding SelectedNoteMeta}"
-                           Classes="notesMutedText"
-                           TextTrimming="CharacterEllipsis"/>
-              </StackPanel>
-              <Button Grid.Column="1"
-                      Classes="sk-icon notesTitlePickerButton"
-                      Command="{Binding ToggleNotePickerCommand}"
-                      VerticalAlignment="Center">
-                <PathIcon Data="{StaticResource IconDropDown}"
-                          Width="16"
-                          Height="16"
-                          Foreground="{StaticResource TextMutedBrush}"/>
-              </Button>
-            </Grid>
+                           TextTrimming="CharacterEllipsis"
+                           MaxWidth="420"
+                           VerticalAlignment="Center"
+                           IsVisible="{Binding !IsEditing}"/>
+                <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="notesHeaderTitleInput"
+                         PlaceholderText="{DynamicResource Loc.Notes.Title.Placeholder}"
+                         IsVisible="{Binding IsEditing}"/>
+                <Button x:Name="NotePickerButton"
+                        Classes="sk-icon notesTitlePickerButton"
+                        Command="{Binding ToggleNotePickerCommand}"
+                        VerticalAlignment="Center">
+                  <PathIcon Data="{StaticResource IconDropDown}"
+                            Width="16"
+                            Height="16"
+                            Foreground="{StaticResource TextMutedBrush}"/>
+                  <Button.Flyout>
+                    <Flyout Placement="BottomEdgeAlignedLeft"
+                            FlyoutPresenterClasses="cleanPickerFlyout">
+                      <Border Classes="notesPickerPopup">
+                        <Grid RowDefinitions="Auto,Auto,Auto,*"
+                              RowSpacing="10">
+                          <Grid ColumnDefinitions="*,Auto"
+                                ColumnSpacing="8">
+                            <StackPanel>
+                              <TextBlock Text="{DynamicResource Loc.Notes.Picker.SelectNote}"
+                                         Foreground="{StaticResource TextPrimaryBrush}"
+                                         FontSize="17"
+                                         FontWeight="Bold"/>
+                              <TextBlock Text="{Binding NoteCount, StringFormat='{}{0} notes'}"
+                                         Foreground="{StaticResource TextMutedBrush}"
+                                         FontFamily="{StaticResource MonoFontFamily}"
+                                         FontSize="12"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Content="+ Add"
+                                    Classes="sk-primary"
+                                    Command="{Binding NewNoteCommand}"
+                                    Click="OnNotePickerAddClicked"/>
+                          </Grid>
 
-            <Popup IsOpen="{Binding IsNotePickerOpen}"
-                   PlacementTarget="{Binding #PickerAnchor}"
-                   Placement="Bottom"
-                   IsLightDismissEnabled="True">
-              <Border Classes="notesPickerPopup">
-                <Grid RowDefinitions="Auto,Auto,Auto,*"
-                      RowSpacing="10">
-                  <Grid ColumnDefinitions="*,Auto"
-                        ColumnSpacing="8">
-                    <StackPanel>
-                      <TextBlock Text="{DynamicResource Loc.Notes.Picker.SelectNote}"
-                                 Foreground="{StaticResource TextPrimaryBrush}"
-                                 FontSize="17"
-                                 FontWeight="Bold"/>
-                      <TextBlock Text="{Binding NoteCount, StringFormat='{}{0} notes'}"
-                                 Foreground="{StaticResource TextMutedBrush}"
-                                 FontFamily="{StaticResource MonoFontFamily}"
-                                 FontSize="12"/>
-                    </StackPanel>
-                    <Button Grid.Column="1"
-                            Content="+ Add"
-                            Classes="sk-primary"
-                            Command="{Binding NewNoteCommand}"/>
-                  </Grid>
+                          <TextBox Grid.Row="1"
+                                   Text="{Binding NotePickerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                   Classes="notesPickerSearch"
+                                   PlaceholderText="{DynamicResource Loc.Notes.Picker.SearchPlaceholder}"/>
 
-                  <TextBox Grid.Row="1"
-                           Text="{Binding NotePickerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                           Classes="notesPickerSearch"
-                           PlaceholderText="{DynamicResource Loc.Notes.Picker.SearchPlaceholder}"/>
+                          <Border Grid.Row="2"
+                                  Classes="notesPickerSectionHeader">
+                            <Grid ColumnDefinitions="*,Auto">
+                              <TextBlock Text="{DynamicResource Loc.Notes.Picker.AllNotes}"
+                                         Classes="notesKicker"
+                                         VerticalAlignment="Center"/>
+                              <TextBlock Grid.Column="1"
+                                         Text="{Binding NotePickerAll.Count, StringFormat='{}{0} shown'}"
+                                         Classes="notesPickerCount"/>
+                            </Grid>
+                          </Border>
 
-                  <Border Grid.Row="2"
-                          Classes="notesPickerSectionHeader">
-                    <Grid ColumnDefinitions="*,Auto">
-                      <TextBlock Text="{DynamicResource Loc.Notes.Picker.AllNotes}"
-                                 Classes="notesKicker"
-                                 VerticalAlignment="Center"/>
-                      <TextBlock Grid.Column="1"
-                                 Text="{Binding NotePickerAll.Count, StringFormat='{}{0} shown'}"
-                                 Classes="notesPickerCount"/>
-                    </Grid>
-                  </Border>
+                          <ScrollViewer Grid.Row="3"
+                                        HorizontalScrollBarVisibility="Disabled"
+                                        VerticalScrollBarVisibility="Auto">
+                            <StackPanel Spacing="8">
+                              <ItemsControl ItemsSource="{Binding NotePickerAll}"
+                                            IsVisible="{Binding HasNotePickerAll}">
+                                <ItemsControl.ItemTemplate>
+                                  <DataTemplate x:DataType="vm:NoteItemVm">
+                                    <Border Classes="notesPickerItem"
+                                            Classes.active="{Binding IsSelected}">
+                                      <Grid ColumnDefinitions="*,Auto"
+                                            ColumnSpacing="10">
+                                        <Button Classes="notesPickerItemButton"
+                                                Click="OnNotePickerItemClicked">
+                                          <TextBlock Text="{Binding Title}"
+                                                     Foreground="{StaticResource TextPrimaryBrush}"
+                                                     FontSize="14"
+                                                     FontWeight="Bold"
+                                                     TextTrimming="CharacterEllipsis"/>
+                                        </Button>
+                                        <Button Grid.Column="1"
+                                                Classes="sk-icon-ghost notesPickerDeleteButton"
+                                                Click="OnNotePickerDeleteClicked">
+                                          <PathIcon Data="{StaticResource IconDelete}"
+                                                    Width="15"
+                                                    Height="15"/>
+                                        </Button>
+                                      </Grid>
+                                    </Border>
+                                  </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                              </ItemsControl>
 
-                  <ScrollViewer Grid.Row="3"
-                                HorizontalScrollBarVisibility="Disabled"
-                                VerticalScrollBarVisibility="Auto">
-                    <StackPanel Spacing="8">
-                      <ItemsControl ItemsSource="{Binding NotePickerAll}"
-                                    IsVisible="{Binding HasNotePickerAll}">
-                        <ItemsControl.ItemTemplate>
-                          <DataTemplate x:DataType="vm:NoteItemVm">
-                            <Button Classes="notesPickerItem"
-                                    Classes.active="{Binding IsSelected}"
-                                    Command="{Binding DataContext.SelectNoteFromPickerCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                    CommandParameter="{Binding}">
-                              <Grid RowDefinitions="Auto,Auto,Auto"
-                                    ColumnDefinitions="*,Auto"
-                                    RowSpacing="5"
-                                    ColumnSpacing="10">
-                                <TextBlock Text="{Binding Title}"
-                                           Foreground="{StaticResource TextPrimaryBrush}"
-                                           FontSize="14"
-                                           FontWeight="Bold"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Grid.Column="1"
-                                           Text="{Binding UpdatedDisplay}"
-                                           Classes="notesMutedText"/>
-                                <TextBlock Grid.Row="1"
-                                           Grid.ColumnSpan="2"
-                                           Text="{Binding PreviewText}"
+                              <Border Classes="notesPickerEmpty"
+                                      IsVisible="{Binding !HasNotePickerAll}">
+                                <TextBlock Text="{DynamicResource Loc.Notes.Picker.NoResults}"
                                            Classes="notesMutedText"
-                                           MaxLines="1"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <Border Grid.Row="2"
-                                        Classes="notesPickerBadge"
-                                        HorizontalAlignment="Left">
-                                  <TextBlock Text="{Binding StatusLabel}"/>
-                                </Border>
-                              </Grid>
-                            </Button>
-                          </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                      </ItemsControl>
-
-                      <Border Classes="notesPickerEmpty"
-                              IsVisible="{Binding !HasNotePickerAll}">
-                        <TextBlock Text="{DynamicResource Loc.Notes.Picker.NoResults}"
-                                   Classes="notesMutedText"
-                                   TextWrapping="Wrap"/>
+                                           TextWrapping="Wrap"/>
+                              </Border>
+                            </StackPanel>
+                          </ScrollViewer>
+                        </Grid>
                       </Border>
-                    </StackPanel>
-                  </ScrollViewer>
-                </Grid>
-              </Border>
-            </Popup>
-            <Border x:Name="PickerAnchor"
-                    Width="1"
-                    Height="1"
-                    HorizontalAlignment="Left"
-                    VerticalAlignment="Bottom"/>
+                    </Flyout>
+                  </Button.Flyout>
+                </Button>
+              </StackPanel>
+              <TextBlock Text="{Binding SelectedNoteMeta}"
+                         Classes="notesMutedText"
+                         TextTrimming="CharacterEllipsis"/>
+            </StackPanel>
           </Grid>
 
           <StackPanel Grid.Column="2"
@@ -153,7 +144,7 @@
             <Button Classes="sk-icon-ghost notesModeButton"
                     Classes.active="{Binding !IsSplitMode}"
                     Command="{Binding ToggleDocumentViewCommand}"
-                    ToolTip.Tip="{DynamicResource Loc.Notes.Mode.Editor}">
+                    ToolTip.Tip="{DynamicResource Loc.Notes.Mode.PreviewToggle}">
               <Grid>
                 <PathIcon Data="{StaticResource IconMarkdownEditorMode}"
                           Width="20"
@@ -263,12 +254,8 @@
 
         <Border Classes="notesPane"
                 IsVisible="{Binding IsEditorOnlyMode}">
-          <Grid RowDefinitions="Auto,*">
-            <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Classes="notesTitleInput"
-                     PlaceholderText="{DynamicResource Loc.Notes.Title.Placeholder}"/>
-            <TextBox Grid.Row="1"
-                     Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+          <Grid RowDefinitions="*">
+            <TextBox Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                      Classes="notesMarkdownEditor"
                      AcceptsReturn="True"
                      TextWrapping="Wrap"
@@ -280,12 +267,8 @@
 
         <Border Classes="notesPane"
                 IsVisible="{Binding IsPreviewOnlyMode}">
-          <Grid RowDefinitions="Auto,*">
-            <TextBlock Text="{Binding PreviewDocumentTitle}"
-                       Classes="notesPreviewTitle"
-                       TextWrapping="Wrap"/>
-            <ScrollViewer Grid.Row="1"
-                          HorizontalScrollBarVisibility="Disabled"
+          <Grid RowDefinitions="*">
+            <ScrollViewer HorizontalScrollBarVisibility="Disabled"
                           VerticalScrollBarVisibility="Auto">
               <StackPanel Spacing="0">
                 <Border Classes="notesPreviewPlaceholder"
@@ -413,14 +396,35 @@
       <Setter Property="VerticalContentAlignment" Value="Center"/>
     </Style>
 
-    <Style Selector="Border.notesPickerPopup">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Style Selector="TextBox.notesHeaderTitleInput">
+      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="22"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+      <Setter Property="MinWidth" Value="220"/>
+      <Setter Property="MaxWidth" Value="420"/>
+      <Setter Property="Height" Value="40"/>
+      <Setter Property="Padding" Value="10,6"/>
+    </Style>
+
+    <Style Selector="Border.notesPickerPopup">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="CornerRadius" Value="6"/>
       <Setter Property="Padding" Value="14"/>
       <Setter Property="Width" Value="420"/>
       <Setter Property="MaxHeight" Value="520"/>
+    </Style>
+
+    <Style Selector="FlyoutPresenter.cleanPickerFlyout">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
     </Style>
 
     <Style Selector="TextBox.notesPickerSearch">
@@ -441,24 +445,49 @@
       <Setter Property="Margin" Value="0,0,0,2"/>
     </Style>
 
-    <Style Selector="Button.notesPickerItem">
+    <Style Selector="Border.notesPickerItem">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="5"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="Padding" Value="10"/>
+      <Setter Property="Padding" Value="8"/>
       <Setter Property="Margin" Value="0,0,0,8"/>
-      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     </Style>
 
-    <Style Selector="Button.notesPickerItem:pointerover">
+    <Style Selector="Border.notesPickerItem:pointerover">
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
     </Style>
 
-    <Style Selector="Button.notesPickerItem.active">
+    <Style Selector="Border.notesPickerItem.active">
       <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    </Style>
+
+    <Style Selector="Button.notesPickerItemButton">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalAlignment" Value="Stretch"/>
+      <Setter Property="HorizontalContentAlignment" Value="Left"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+      <Setter Property="MinHeight" Value="28"/>
+    </Style>
+
+    <Style Selector="Button.notesPickerItemButton:pointerover">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Button.notesPickerItemButton:pressed">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="Button.notesPickerDeleteButton">
+      <Setter Property="Width" Value="30"/>
+      <Setter Property="Height" Value="30"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
     </Style>
 
     <Style Selector="TextBlock.notesPickerCount">
@@ -504,7 +533,7 @@
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="10"/>
-      <Setter Property="Padding" Value="16"/>
+      <Setter Property="Padding" Value="4"/>
     </Style>
 
     <Style Selector="TextBlock.notesPaneTitle">
@@ -512,7 +541,7 @@
       <Setter Property="FontSize" Value="11"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="LetterSpacing" Value="2.2"/>
-      <Setter Property="Margin" Value="0,0,0,12"/>
+      <Setter Property="Margin" Value="10,8,0,8"/>
     </Style>
 
     <Style Selector="TextBox.notesTitleInput">

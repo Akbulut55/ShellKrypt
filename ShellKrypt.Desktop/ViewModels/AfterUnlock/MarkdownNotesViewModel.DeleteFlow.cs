@@ -28,7 +28,7 @@ public partial class MarkdownNotesViewModel
             RefreshFilteredNotes(false);
             RefreshNotePicker();
             IsEditing = false;
-            ActiveDocumentView = "split";
+            ActiveDocumentView = "preview";
 
             if (FilteredNotes.Count > 0)
             {

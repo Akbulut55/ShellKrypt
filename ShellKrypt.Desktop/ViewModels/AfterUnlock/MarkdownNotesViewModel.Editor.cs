@@ -62,7 +62,7 @@ public partial class MarkdownNotesViewModel
 
             IsCreatingNote = false;
             IsEditing = false;
-            ActiveDocumentView = "split";
+            ActiveDocumentView = "preview";
 
             if (SelectedNote is null && FilteredNotes.FirstOrDefault() is { } fallback)
                 SelectedNote = fallback;
@@ -87,7 +87,7 @@ public partial class MarkdownNotesViewModel
         }
 
         IsEditing = false;
-        ActiveDocumentView = "split";
+        ActiveDocumentView = "preview";
         AutoSaveStatus = string.Empty;
         NotifyEditorStateChanged();
     }
