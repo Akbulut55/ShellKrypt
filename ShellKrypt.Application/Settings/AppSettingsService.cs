@@ -20,6 +20,7 @@ public sealed class AppSettingsService
         settings.NormalizeEmergencyKit();
         settings.NormalizeBackupSchedule();
         settings.NormalizeQuickFill();
+        settings.NormalizeMarkdownSettings();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         return settings;
     }
@@ -32,6 +33,7 @@ public sealed class AppSettingsService
         settings.NormalizeEmergencyKit();
         settings.NormalizeBackupSchedule();
         settings.NormalizeQuickFill();
+        settings.NormalizeMarkdownSettings();
         settings.ApplySessionSecuritySettings(settings.ToSessionSecuritySettings());
         _store.Save(settings);
     }

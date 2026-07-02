@@ -13,8 +13,11 @@ public partial class CardsViewModel : ViewModelBase
     private const string AllBankFilter = "Bank: All";
     private const string AllCardTypeFilter = "Type: All";
     private const string SortNewest = "Sort: Newest";
-    private const string SortExpiry = "Exp. Date";
-    private const string SortAlphabetical = "Alphabetical";
+    private const string SortOldest = "Sort: Oldest";
+    private const string SortTitleAscending = "Sort: A to Z";
+    private const string SortTitleDescending = "Sort: Z to A";
+    private const string SortExpiryAscending = "Sort: Expiry Soonest";
+    private const string SortExpiryDescending = "Sort: Expiry Latest";
     private const string DefaultIssuer = "Card";
 
     private readonly MainWindowViewModel _root;
@@ -53,8 +56,11 @@ public partial class CardsViewModel : ViewModelBase
     public ObservableCollection<string> SortOptions { get; } = new()
     {
         SortNewest,
-        SortExpiry,
-        SortAlphabetical
+        SortOldest,
+        SortTitleAscending,
+        SortTitleDescending,
+        SortExpiryAscending,
+        SortExpiryDescending
     };
 
     [ObservableProperty] private string searchText = "";

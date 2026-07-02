@@ -45,7 +45,7 @@ public sealed class ThemeRegistryTests
 
         Assert.Equal(ShellKryptThemePalettes.All.Count, settings.ThemeOptions.Count);
 
-        settings.SelectThemeCommand.Execute(ocean);
+        settings.SelectedThemeOption = ocean;
 
         Assert.Equal(ShellKryptThemePalettes.OceanId, root.ThemeId);
         Assert.Equal("Ocean", settings.ThemeModeLabel);

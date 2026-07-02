@@ -21,15 +21,11 @@ public sealed partial class SettingsViewModel : ViewModelBase
     [ObservableProperty] private bool lockOnDeactivate;
     [ObservableProperty] private SecondsDurationOption? selectedFocusLossLockDelay;
     [ObservableProperty] private SecondsDurationOption? selectedClipboardClearDuration;
+    [ObservableProperty] private SecondsDurationOption? selectedMarkdownAutoSaveDuration;
     [ObservableProperty] private bool clipboardCopyEnabled;
     [ObservableProperty] private bool closeToTrayEnabled;
-    [ObservableProperty] private bool isAutoLockPickerOpen;
-    [ObservableProperty] private bool isFocusLockPickerOpen;
-    [ObservableProperty] private bool isClipboardClearPickerOpen;
     [ObservableProperty] private ThemeOption? selectedThemeOption;
     [ObservableProperty] private LanguageOption? selectedLanguageOption;
-    [ObservableProperty] private bool isThemePickerOpen;
-    [ObservableProperty] private bool isLanguagePickerOpen;
     [ObservableProperty] private string status = "";
     [ObservableProperty] private string currentMasterPassword = "";
     [ObservableProperty] private string newMasterPassword = "";
@@ -80,6 +76,15 @@ public sealed partial class SettingsViewModel : ViewModelBase
         new(300, "Settings.Duration.5Minutes", "5 Minutes"),
     ];
 
+    public ObservableCollection<SecondsDurationOption> MarkdownAutoSaveDurationOptions { get; } =
+    [
+        new(3, "Settings.Duration.3Seconds", "3 Seconds"),
+        new(5, "Settings.Duration.5Seconds", "5 Seconds"),
+        new(15, "Settings.Duration.15Seconds", "15 Seconds"),
+        new(30, "Settings.Duration.30Seconds", "30 Seconds"),
+        new(60, "Settings.Duration.1Minute", "1 Minute"),
+    ];
+
     public ObservableCollection<VaultSecurityProfile> SecurityProfiles { get; } =
     [
         .. VaultSecurityProfiles.All
@@ -109,6 +114,8 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string SelectedAutoLockDurationLabel => SelectedAutoLockDuration?.Label ?? T("Settings.Duration.5Minutes");
     public string SelectedFocusLossLockDelayLabel => SelectedFocusLossLockDelay?.Label ?? T("Settings.Duration.Off");
     public string SelectedClipboardClearDurationLabel => SelectedClipboardClearDuration?.Label ?? T("Settings.Duration.1Minute");
+    public string SelectedMarkdownAutoSaveDurationLabel => SelectedMarkdownAutoSaveDuration?.Label ?? T("Settings.Duration.3Seconds");
+    public string SelectedSecurityProfileLabel => SelectedSecurityProfile?.Label ?? VaultSecurityProfiles.Default.Label;
     public string ThemeModeLabel => SelectedThemeOption?.Label ?? ShellKryptThemePalettes.Default.DisplayName;
     public string SelectedLanguageLabel => SelectedLanguageOption?.Label ?? LanguageRegistry.Default.NativeName;
     public string FocusLockSummary => LockOnDeactivate
@@ -117,6 +124,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string ClipboardClearSummary => ClipboardCopyEnabled
         ? T("Settings.Clipboard.Enabled", LowerLabel(SelectedClipboardClearDuration?.Label) ?? T("Settings.Clipboard.SelectedTimeout"))
         : T("Settings.Clipboard.Disabled");
+    public string MarkdownAutoSaveSummary => T("Settings.MarkdownAutoSave.Enabled", LowerLabel(SelectedMarkdownAutoSaveDuration?.Label) ?? T("Settings.MarkdownAutoSave.SelectedDelay"));
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => T("Settings.RecoveryGuidance");
     public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;

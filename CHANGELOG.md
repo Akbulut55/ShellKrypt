@@ -6,6 +6,30 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.17.10] - 2026-07-03
+
+### Added
+
+- Added configurable Markdown Notes autosave timing in Settings.
+- Added API Key user metadata and expanded sorting options for Web Logins, Credit Cards, and API Keys.
+- Added shared desktop ComboBox and rich picker style variants for settings selectors, filter dropdowns, modal fields, compact selectors, and searchable item pickers.
+
+### Changed
+
+- Standardized Settings dropdowns on native ComboBox controls instead of one-off button popup selectors.
+- Updated Web Logins, Credit Cards, API Keys, Quick Fill, modal forms, and Project Secrets selectors to use shared picker and ComboBox style classes.
+- Refined table, filter, search, and action layouts across item workspaces, All Items, Activity Logs, Security Audit, Authenticator, and Password Generator.
+- Updated Markdown Notes picker and Project Secrets picker popups to share picker styling while keeping their searchable card picker behavior.
+- Updated Password Generator strength, slider, toggle, and selection colors to follow theme resources.
+
+### Fixed
+
+- Fixed Settings selector spacing and Security Profile dropdown styling so it matches other Settings selectors.
+- Fixed blank-view regressions from overly broad ComboBox styling by limiting global selector variants to safe property overrides.
+- Fixed Activity Logs layout so the table and side panels move together toward the bottom edge.
+- Removed vault path display from Activity Log event metadata.
+- Removed bottom-edge coloring from Security Audit summary cards.
+
 ## [ShellKrypt 0.17.9] - 2026-07-01
 
 ### Changed

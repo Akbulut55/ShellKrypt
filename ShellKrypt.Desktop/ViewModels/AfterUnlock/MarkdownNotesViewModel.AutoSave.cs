@@ -28,7 +28,7 @@ public partial class MarkdownNotesViewModel
     {
         try
         {
-            await Task.Delay(AutoSaveDelay, ct);
+            await Task.Delay(TimeSpan.FromSeconds(Math.Max(1, _root.MarkdownAutoSaveSeconds)), ct);
 
             while (IsBusy)
                 await Task.Delay(250, ct);

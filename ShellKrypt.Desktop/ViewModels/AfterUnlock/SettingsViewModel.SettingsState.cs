@@ -17,6 +17,7 @@ public sealed partial class SettingsViewModel
         LockOnDeactivate = _root.LockOnDeactivate;
         SelectedFocusLossLockDelay = ResolveFocusLossLockDelay(_root.LockOnDeactivate, _root.LockOnDeactivateSeconds);
         SelectedClipboardClearDuration = ResolveSecondsDuration(ClipboardClearTimeoutOptions, _root.ClipboardClearSeconds);
+        SelectedMarkdownAutoSaveDuration = ResolveSecondsDuration(MarkdownAutoSaveDurationOptions, _root.MarkdownAutoSaveSeconds);
         ClipboardCopyEnabled = _root.ClipboardCopyEnabled;
         CloseToTrayEnabled = _root.CloseToTrayEnabled;
         SelectedThemeOption = ResolveThemeOption(_root.ThemeId);
@@ -24,9 +25,11 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(SelectedAutoLockDurationLabel));
         OnPropertyChanged(nameof(SelectedFocusLossLockDelayLabel));
         OnPropertyChanged(nameof(SelectedClipboardClearDurationLabel));
+        OnPropertyChanged(nameof(SelectedMarkdownAutoSaveDurationLabel));
         OnPropertyChanged(nameof(ThemeModeLabel));
         OnPropertyChanged(nameof(FocusLockSummary));
         OnPropertyChanged(nameof(ClipboardClearSummary));
+        OnPropertyChanged(nameof(MarkdownAutoSaveSummary));
     }
 
     private AutoLockDurationOption ResolveAutoLockDuration(int minutes)

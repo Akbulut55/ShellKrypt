@@ -14,8 +14,11 @@ public partial class WebLoginsViewModel : ViewModelBase
     private const string AllUsernameFilter = "Username: All";
     private const string AllEmailFilter = "Email: All";
     private const string SortNewest = "Sort: Newest";
-    private const string SortWebsite = "Website";
-    private const string SortAlphabetical = "Alphabetical";
+    private const string SortOldest = "Sort: Oldest";
+    private const string SortTitleAscending = "Sort: A to Z";
+    private const string SortTitleDescending = "Sort: Z to A";
+    private const string SortWebsiteAscending = "Sort: Website A to Z";
+    private const string SortWebsiteDescending = "Sort: Website Z to A";
 
     private readonly MainWindowViewModel _root;
     private readonly IWebLoginService _webLoginService;
@@ -31,8 +34,11 @@ public partial class WebLoginsViewModel : ViewModelBase
     public ObservableCollection<string> SortOptions { get; } = new()
     {
         SortNewest,
-        SortWebsite,
-        SortAlphabetical
+        SortOldest,
+        SortTitleAscending,
+        SortTitleDescending,
+        SortWebsiteAscending,
+        SortWebsiteDescending
     };
 
     [ObservableProperty] private string searchText = "";

@@ -108,7 +108,8 @@
                 <StackPanel Spacing="8">
                   <TextBlock Text="{DynamicResource Loc.CreateVault.SecurityProfile.Label}"
                              Classes="create-kicker"/>
-                  <ComboBox ItemsSource="{Binding SecurityProfiles}"
+                  <ComboBox Classes="sk-combo-modal"
+                            ItemsSource="{Binding SecurityProfiles}"
                             SelectedItem="{Binding SelectedSecurityProfile}">
                     <ComboBox.ItemTemplate>
                       <DataTemplate>

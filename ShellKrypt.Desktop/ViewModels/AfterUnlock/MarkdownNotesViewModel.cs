@@ -10,8 +10,6 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class MarkdownNotesViewModel : ViewModelBase
 {
-    private static readonly TimeSpan AutoSaveDelay = TimeSpan.FromSeconds(3);
-
     private readonly MainWindowViewModel _root;
     private readonly INoteService _noteService;
     private readonly Func<string?, Task> _refreshAllItemsAsync;

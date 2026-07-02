@@ -80,9 +80,7 @@
                 ColumnDefinitions="*,*,*"
                 ColumnSpacing="10"
                 VerticalAlignment="Top">
-            <Border Classes="audit-metric-card"
-                    BorderThickness="0,0,0,4"
-                    BorderBrush="{StaticResource DangerBrush}">
+            <Border Classes="audit-metric-card">
               <StackPanel Spacing="6">
                 <TextBlock Text="{Binding HighRiskCount}"
                            FontSize="32"
@@ -99,9 +97,7 @@
             </Border>
 
             <Border Grid.Column="1"
-                    Classes="audit-metric-card"
-                    BorderThickness="0,0,0,4"
-                    BorderBrush="{StaticResource WarningBrush}">
+                    Classes="audit-metric-card">
               <StackPanel Spacing="6">
                 <TextBlock Text="{Binding PasswordFindingCount}"
                            FontSize="32"
@@ -118,9 +114,7 @@
             </Border>
 
             <Border Grid.Column="2"
-                    Classes="audit-metric-card"
-                    BorderThickness="0,0,0,4"
-                    BorderBrush="{StaticResource BorderBrushStrong}">
+                    Classes="audit-metric-card">
               <StackPanel Spacing="6">
                 <TextBlock Text="{Binding OtherFindingCount}"
                            FontSize="32"

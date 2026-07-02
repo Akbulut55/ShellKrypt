@@ -323,7 +323,8 @@
                           Command="{Binding BrowseCsvImportPathCommand}"/>
                 </Grid>
 
-                <ComboBox ItemsSource="{Binding CsvDuplicateStrategyOptions}"
+                <ComboBox Classes="sk-combo-modal"
+                          ItemsSource="{Binding CsvDuplicateStrategyOptions}"
                           SelectedItem="{Binding SelectedCsvDuplicateStrategyOption}">
                   <ComboBox.ItemTemplate>
                     <DataTemplate x:DataType="vm:CsvDuplicateStrategyOption">
@@ -375,7 +376,8 @@
 
                 <Grid ColumnDefinitions="*,Auto"
                       ColumnSpacing="10">
-                  <ComboBox ItemsSource="{Binding AutomaticBackupFrequencyOptions}"
+                  <ComboBox Classes="sk-combo-modal"
+                            ItemsSource="{Binding AutomaticBackupFrequencyOptions}"
                             SelectedItem="{Binding SelectedAutomaticBackupFrequencyOption}">
                     <ComboBox.ItemTemplate>
                       <DataTemplate x:DataType="vm:AutomaticBackupFrequencyOption">

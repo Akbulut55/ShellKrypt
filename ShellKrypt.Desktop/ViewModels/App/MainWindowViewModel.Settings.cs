@@ -42,6 +42,7 @@ public partial class MainWindowViewModel
     partial void OnClipboardClearSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnClipboardCopyEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
     partial void OnCloseToTrayEnabledChanged(bool value) => SaveSettingsAndSyncSessionSecurity();
+    partial void OnMarkdownAutoSaveSecondsChanged(int value) => SaveSettingsAndSyncSessionSecurity();
 
     partial void OnThemeIdChanged(string value)
     {
@@ -84,6 +85,7 @@ public partial class MainWindowViewModel
                 AutomaticBackupState = _automaticBackupState,
                 QuickFill = _quickFill,
                 CloseToTrayEnabled = CloseToTrayEnabled,
+                MarkdownAutoSaveSeconds = Math.Max(1, MarkdownAutoSaveSeconds),
                 SecurityAcknowledgementAcceptedAtUtc = _securityAcknowledgementAcceptedAtUtc,
                 SecurityAcknowledgementVersionAccepted = _securityAcknowledgementVersionAccepted
             };

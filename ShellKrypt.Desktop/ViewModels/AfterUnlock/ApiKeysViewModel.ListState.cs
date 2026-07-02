@@ -74,10 +74,15 @@ public partial class ApiKeysViewModel
 
         filtered = SelectedSortOption switch
         {
-            SortProvider => filtered
+            SortOldest => filtered.OrderBy(row => ParseTimestamp(row.UpdatedAtUtc)),
+            SortNameAscending => filtered.OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase),
+            SortNameDescending => filtered.OrderByDescending(row => row.Name, StringComparer.OrdinalIgnoreCase),
+            SortProviderAscending => filtered
                 .OrderBy(row => row.ProviderDisplay, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase),
-            SortAlphabetical => filtered.OrderBy(row => row.Name, StringComparer.OrdinalIgnoreCase),
+            SortProviderDescending => filtered
+                .OrderByDescending(row => row.ProviderDisplay, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(row => row.Name, StringComparer.OrdinalIgnoreCase),
             _ => filtered.OrderByDescending(row => ParseTimestamp(row.UpdatedAtUtc))
         };
 

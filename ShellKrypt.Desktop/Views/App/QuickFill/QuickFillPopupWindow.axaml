@@ -146,7 +146,7 @@
                            Classes="qf-unlock-label"/>
                 <ComboBox ItemsSource="{Binding VaultChoices}"
                           SelectedItem="{Binding SelectedVault, Mode=TwoWay}"
-                          Classes="qf-unlock-combo"
+                          Classes="sk-combo-modal"
                           HorizontalAlignment="Stretch"/>
               </StackPanel>
 
@@ -423,16 +423,6 @@
       <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
       <Setter Property="FontSize" Value="12"/>
       <Setter Property="FontWeight" Value="SemiBold"/>
-    </Style>
-
-    <Style Selector="ComboBox.qf-unlock-combo">
-      <Setter Property="MinHeight" Value="44"/>
-      <Setter Property="Padding" Value="14,8"/>
-      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
     </Style>
 
     <Style Selector="Border.qf-unlock-password-shell">

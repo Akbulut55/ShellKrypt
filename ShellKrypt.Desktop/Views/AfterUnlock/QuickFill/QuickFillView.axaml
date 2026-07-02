@@ -93,9 +93,11 @@
           <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    PlaceholderText="{DynamicResource Loc.QuickFill.Search.Placeholder}"/>
           <ComboBox Grid.Column="1"
+                    Classes="sk-combo-filter"
                     ItemsSource="{Binding CategoryFilters}"
                     SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"/>
           <ComboBox Grid.Column="2"
+                    Classes="sk-combo-filter"
                     ItemsSource="{Binding TargetFilters}"
                     SelectedItem="{Binding SelectedTargetFilter, Mode=TwoWay}"/>
           <CheckBox Grid.Column="3"

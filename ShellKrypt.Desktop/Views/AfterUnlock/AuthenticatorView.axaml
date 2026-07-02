@@ -583,7 +583,7 @@
                           Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.Authenticator.Form.KeyType}"
                            Classes="auth-kicker"/>
-                <ComboBox Classes="auth-modal-input"
+                <ComboBox Classes="sk-combo-modal"
                           ItemsSource="{Binding KeyTypeOptions}"
                           SelectedItem="{Binding SelectedFormKeyType, Mode=TwoWay}">
                   <ComboBox.ItemTemplate>
@@ -659,7 +659,7 @@
                   <StackPanel Spacing="7">
                     <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Algorithm}"
                                Classes="auth-kicker"/>
-                    <ComboBox Classes="auth-modal-input"
+                    <ComboBox Classes="sk-combo-modal"
                               ItemsSource="{Binding AlgorithmOptions}"
                               SelectedItem="{Binding SelectedFormAlgorithm, Mode=TwoWay}">
                       <ComboBox.ItemTemplate>
@@ -674,7 +674,7 @@
                               Spacing="7">
                     <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Digits}"
                                Classes="auth-kicker"/>
-                    <ComboBox Classes="auth-modal-input"
+                    <ComboBox Classes="sk-combo-modal"
                               ItemsSource="{Binding DigitsOptions}"
                               SelectedItem="{Binding SelectedFormDigits, Mode=TwoWay}">
                       <ComboBox.ItemTemplate>
@@ -976,17 +976,6 @@
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="Padding" Value="14,10"/>
       <Setter Property="MinHeight" Value="42"/>
-    </Style>
-
-    <Style Selector="ComboBox.auth-modal-input">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="MinHeight" Value="42"/>
-      <Setter Property="Padding" Value="12,0"/>
     </Style>
 
     <Style Selector="TextBox.auth-modal-input.borderless">

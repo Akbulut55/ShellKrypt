@@ -57,6 +57,18 @@ public sealed partial class SettingsViewModel
         OnPropertyChanged(nameof(ClipboardClearSummary));
     }
 
+    partial void OnSelectedMarkdownAutoSaveDurationChanged(SecondsDurationOption? value)
+    {
+        if (value is null)
+            return;
+
+        _root.MarkdownAutoSaveSeconds = value.Seconds;
+        Status = T("Settings.Status.SettingsSaved");
+        MarkSelected(MarkdownAutoSaveDurationOptions, value);
+        OnPropertyChanged(nameof(SelectedMarkdownAutoSaveDurationLabel));
+        OnPropertyChanged(nameof(MarkdownAutoSaveSummary));
+    }
+
     partial void OnClipboardCopyEnabledChanged(bool value)
     {
         _root.ClipboardCopyEnabled = value;
@@ -70,7 +82,11 @@ public sealed partial class SettingsViewModel
         Status = value ? T("Settings.Status.CloseToTrayEnabled") : T("Settings.Status.CloseToTrayDisabled");
     }
 
-    partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value) => OnPropertyChanged(nameof(SelectedSecurityProfileDescription));
+    partial void OnSelectedSecurityProfileChanged(VaultSecurityProfile? value)
+    {
+        OnPropertyChanged(nameof(SelectedSecurityProfileLabel));
+        OnPropertyChanged(nameof(SelectedSecurityProfileDescription));
+    }
 
     [RelayCommand]
     private void SaveChanges()

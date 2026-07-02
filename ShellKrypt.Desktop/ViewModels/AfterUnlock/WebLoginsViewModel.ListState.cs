@@ -65,10 +65,15 @@ public partial class WebLoginsViewModel
 
         filtered = SelectedSortOption switch
         {
-            SortWebsite => filtered
+            SortOldest => filtered.OrderBy(row => ParseTimestamp(row.UpdatedAtUtc)),
+            SortTitleAscending => filtered.OrderBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
+            SortTitleDescending => filtered.OrderByDescending(row => row.Title, StringComparer.OrdinalIgnoreCase),
+            SortWebsiteAscending => filtered
                 .OrderBy(row => row.UrlHost, StringComparer.OrdinalIgnoreCase)
                 .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
-            SortAlphabetical => filtered.OrderBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
+            SortWebsiteDescending => filtered
+                .OrderByDescending(row => row.UrlHost, StringComparer.OrdinalIgnoreCase)
+                .ThenBy(row => row.Title, StringComparer.OrdinalIgnoreCase),
             _ => filtered.OrderByDescending(row => ParseTimestamp(row.UpdatedAtUtc))
         };
 

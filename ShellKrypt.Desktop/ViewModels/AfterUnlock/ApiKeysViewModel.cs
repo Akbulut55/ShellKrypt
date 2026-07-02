@@ -14,8 +14,11 @@ public partial class ApiKeysViewModel : ViewModelBase
 
     private const string AllProviderFilter = "Provider: All";
     private const string SortNewest = "Sort: Newest";
-    private const string SortProvider = "Provider";
-    private const string SortAlphabetical = "Alphabetical";
+    private const string SortOldest = "Sort: Oldest";
+    private const string SortNameAscending = "Sort: A to Z";
+    private const string SortNameDescending = "Sort: Z to A";
+    private const string SortProviderAscending = "Sort: Provider A to Z";
+    private const string SortProviderDescending = "Sort: Provider Z to A";
 
     private readonly MainWindowViewModel _root;
     private readonly IApiKeyService _apiKeyService;
@@ -29,8 +32,11 @@ public partial class ApiKeysViewModel : ViewModelBase
     public ObservableCollection<string> SortOptions { get; } = new()
     {
         SortNewest,
-        SortProvider,
-        SortAlphabetical
+        SortOldest,
+        SortNameAscending,
+        SortNameDescending,
+        SortProviderAscending,
+        SortProviderDescending
     };
     public ObservableCollection<string> FieldTypeOptions { get; } = new()
     {

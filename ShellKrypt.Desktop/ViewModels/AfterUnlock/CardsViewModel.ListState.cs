@@ -93,8 +93,11 @@ public partial class CardsViewModel
 
         filtered = SelectedSortOption switch
         {
-            SortExpiry => filtered.OrderBy(GetExpirySortKey),
-            SortAlphabetical => filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase),
+            SortOldest => filtered.OrderBy(r => ParseTimestamp(r.UpdatedAtUtc)),
+            SortTitleAscending => filtered.OrderBy(r => r.Title, StringComparer.OrdinalIgnoreCase),
+            SortTitleDescending => filtered.OrderByDescending(r => r.Title, StringComparer.OrdinalIgnoreCase),
+            SortExpiryAscending => filtered.OrderBy(GetExpirySortKey),
+            SortExpiryDescending => filtered.OrderByDescending(GetExpirySortKey),
             _ => filtered.OrderByDescending(r => ParseTimestamp(r.UpdatedAtUtc))
         };
 

@@ -83,10 +83,10 @@
         <SolidColorBrush x:Key="TypeApiKeyBackgroundBrush" Color="#174544"/>
         <SolidColorBrush x:Key="TypeApiKeyForegroundBrush" Color="#57f1db"/>
         <SolidColorBrush x:Key="StrengthNoneBrush" Color="#7b8a87"/>
-        <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ff4d5d"/>
-        <SolidColorBrush x:Key="StrengthFairBrush" Color="#ffb35a"/>
-        <SolidColorBrush x:Key="StrengthStrongBrush" Color="#ffb35a"/>
-        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#22c55e"/>
+        <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ffb4ab"/>
+        <SolidColorBrush x:Key="StrengthFairBrush" Color="#ffd1aa"/>
+        <SolidColorBrush x:Key="StrengthStrongBrush" Color="#2dd4bf"/>
+        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#57f1db"/>
         <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Offset="0" Color="#57f1db"/>
             <GradientStop Offset="1" Color="#2dd4bf"/>
@@ -615,6 +615,41 @@
             <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
         </Style>
 
+        <Style Selector="Border.sk-picker-popup">
+            <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="14"/>
+        </Style>
+
+        <Style Selector="TextBox.sk-picker-search">
+            <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="0"/>
+        </Style>
+
+        <Style Selector="Border.sk-picker-card">
+            <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="5"/>
+            <Setter Property="Padding" Value="8"/>
+        </Style>
+
+        <Style Selector="Border.sk-picker-card:pointerover">
+            <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+        </Style>
+
+        <Style Selector="Border.sk-picker-card.active">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
         <Style Selector="ComboBox">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
@@ -625,6 +660,56 @@
             <Setter Property="MinHeight" Value="40"/>
             <Setter Property="MaxDropDownHeight" Value="220"/>
             <Setter Property="AutoScrollToSelectedItem" Value="False"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo-settings">
+            <Setter Property="Width" Value="126"/>
+            <Setter Property="MinWidth" Value="126"/>
+            <Setter Property="MinHeight" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo-settings TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo-filter">
+            <Setter Property="MinHeight" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo-modal">
+            <Setter Property="MinHeight" Value="42"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="ComboBox.sk-combo-compact">
+            <Setter Property="MinHeight" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Padding" Value="10,0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
@@ -670,6 +755,59 @@
         <Style Selector="CheckBox">
             <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
             <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <ControlTemplate>
+                    <Grid ColumnDefinitions="Auto,*"
+                          ColumnSpacing="8"
+                          VerticalAlignment="Center">
+                        <Border Name="CheckBoxSquare"
+                                Width="20"
+                                Height="20"
+                                Background="{StaticResource AppBackgroundSoftBrush}"
+                                BorderBrush="{StaticResource BorderBrushStrong}"
+                                BorderThickness="1"
+                                CornerRadius="4"
+                                VerticalAlignment="Center">
+                            <Path Name="CheckGlyph"
+                                  Data="M7.33 14.67 3.5 10.83 4.91 9.42 7.33 11.84 15.09 4.08 16.5 5.5Z"
+                                  Fill="{StaticResource AccentForegroundBrush}"
+                                  Stretch="Uniform"
+                                  Width="13"
+                                  Height="13"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center"
+                                  IsVisible="False"/>
+                        </Border>
+                        <ContentPresenter Grid.Column="1"
+                                          Content="{TemplateBinding Content}"
+                                          ContentTemplate="{TemplateBinding ContentTemplate}"
+                                          Foreground="{TemplateBinding Foreground}"
+                                          FontFamily="{TemplateBinding FontFamily}"
+                                          FontSize="{TemplateBinding FontSize}"
+                                          FontWeight="{TemplateBinding FontWeight}"
+                                          VerticalAlignment="Center"/>
+                    </Grid>
+                </ControlTemplate>
+            </Setter>
+        </Style>
+
+        <Style Selector="CheckBox:pointerover /template/ Border#CheckBoxSquare">
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="CheckBox:checked /template/ Border#CheckBoxSquare">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+        </Style>
+
+        <Style Selector="CheckBox:checked /template/ Path#CheckGlyph">
+            <Setter Property="IsVisible" Value="True"/>
+        </Style>
+
+        <Style Selector="CheckBox:disabled">
+            <Setter Property="Opacity" Value="0.55"/>
         </Style>
 
         <Style Selector="ToggleButton.sk-switch">
@@ -734,6 +872,19 @@
 
         <Style Selector="Slider.sk-slider /template/ Thumb,
                          Slider.sk-slider /template/ Thumb#PART_Thumb">
+            <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource AccentForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+
+        <Style Selector="Slider.sk-slider:pointerover /template/ Thumb,
+                         Slider.sk-slider:pointerover /template/ Thumb#PART_Thumb,
+                         Slider.sk-slider:pressed /template/ Thumb,
+                         Slider.sk-slider:pressed /template/ Thumb#PART_Thumb,
+                         Slider.sk-slider /template/ Thumb:pointerover,
+                         Slider.sk-slider /template/ Thumb#PART_Thumb:pointerover,
+                         Slider.sk-slider /template/ Thumb:pressed,
+                         Slider.sk-slider /template/ Thumb#PART_Thumb:pressed">
             <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
             <Setter Property="BorderBrush" Value="{StaticResource AccentForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>

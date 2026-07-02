@@ -31,6 +31,7 @@ public sealed class AppSettings
     public int ClipboardClearSeconds { get; set; } = 15;
     public bool ClipboardCopyEnabled { get; set; } = true;
     public bool CloseToTrayEnabled { get; set; }
+    public int MarkdownAutoSaveSeconds { get; set; } = 3;
     public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
     public int SecurityAcknowledgementVersionAccepted { get; set; }
     public BackupCenterHistory BackupCenterHistory { get; set; } = new();
@@ -85,6 +86,11 @@ public sealed class AppSettings
     {
         QuickFill ??= new QuickFillSettings();
         QuickFill.Normalize();
+    }
+
+    public void NormalizeMarkdownSettings()
+    {
+        MarkdownAutoSaveSeconds = Math.Max(1, MarkdownAutoSaveSeconds);
     }
 
     public static string NormalizeThemeId(string? themeId)

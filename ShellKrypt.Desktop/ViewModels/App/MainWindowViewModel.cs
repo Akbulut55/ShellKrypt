@@ -70,6 +70,7 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private int clipboardClearSeconds;
     [ObservableProperty] private bool clipboardCopyEnabled;
     [ObservableProperty] private bool closeToTrayEnabled;
+    [ObservableProperty] private int markdownAutoSaveSeconds = 3;
     [ObservableProperty] private string themeId = AppSettings.DefaultThemeId;
     [ObservableProperty] private string languageId = AppSettings.DefaultLanguageId;
 
@@ -95,6 +96,7 @@ public partial class MainWindowViewModel : ViewModelBase
         clipboardClearSeconds = sessionSecurity.ClipboardClearSeconds;
         clipboardCopyEnabled = sessionSecurity.ClipboardCopyEnabled;
         closeToTrayEnabled = settings.CloseToTrayEnabled;
+        markdownAutoSaveSeconds = Math.Max(1, settings.MarkdownAutoSaveSeconds);
         themeId = settings.ThemeId;
         languageId = settings.LanguageId;
         _securityAcknowledgementAcceptedAtUtc = settings.SecurityAcknowledgementAcceptedAtUtc;

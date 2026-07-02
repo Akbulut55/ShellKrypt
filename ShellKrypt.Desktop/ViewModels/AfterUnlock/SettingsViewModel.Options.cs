@@ -71,4 +71,5 @@ public sealed partial class SettingsViewModel
 
         public override string ToString() => Label;
     }
+
 }

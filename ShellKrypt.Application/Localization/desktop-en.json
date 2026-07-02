@@ -1,6 +1,6 @@
 {
   "Activity.Button.ClearLogs": "Clear Logs",
-  "Activity.Button.ExportReport": "Export Report",
+  "Activity.Button.ExportReport": "Export Logs",
   "Activity.Category.Activity": "Activity",
   "Activity.Category.ApiKeys": "API Keys",
   "Activity.Category.Audit": "Audit",

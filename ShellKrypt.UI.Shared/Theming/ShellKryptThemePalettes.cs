@@ -83,10 +83,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#174544",
             ["TypeApiKeyForegroundBrush"] = "#57f1db",
             ["StrengthNoneBrush"] = "#7b8a87",
-            ["StrengthWeakBrush"] = "#ff4d5d",
-            ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#ffb35a",
-            ["StrengthSecureBrush"] = "#22c55e"
+            ["StrengthWeakBrush"] = "#ffb4ab",
+            ["StrengthFairBrush"] = "#ffd1aa",
+            ["StrengthStrongBrush"] = "#2dd4bf",
+            ["StrengthSecureBrush"] = "#57f1db"
         });
 
     public static IReadOnlyDictionary<string, string> Light { get; } =
@@ -161,10 +161,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#e6e8ff",
             ["TypeApiKeyForegroundBrush"] = "#4c58a8",
             ["StrengthNoneBrush"] = "#54676e",
-            ["StrengthWeakBrush"] = "#ff4d5d",
-            ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#ffb35a",
-            ["StrengthSecureBrush"] = "#22c55e"
+            ["StrengthWeakBrush"] = "#b94d5a",
+            ["StrengthFairBrush"] = "#ad681c",
+            ["StrengthStrongBrush"] = "#0a7f99",
+            ["StrengthSecureBrush"] = "#0f9fbd"
         });
 
     public static IReadOnlyDictionary<string, string> Crimson { get; } =
@@ -239,10 +239,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#3f1015",
             ["TypeApiKeyForegroundBrush"] = "#b31322",
             ["StrengthNoneBrush"] = "#8b7b80",
-            ["StrengthWeakBrush"] = "#ff4d5d",
-            ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#ffb35a",
-            ["StrengthSecureBrush"] = "#22c55e"
+            ["StrengthWeakBrush"] = "#ffb4ab",
+            ["StrengthFairBrush"] = "#ffd0a3",
+            ["StrengthStrongBrush"] = "#c82131",
+            ["StrengthSecureBrush"] = "#b31322"
         });
 
     public static IReadOnlyDictionary<string, string> Ocean { get; } =
@@ -317,10 +317,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#1b4958",
             ["TypeApiKeyForegroundBrush"] = "#5ed7f2",
             ["StrengthNoneBrush"] = "#7e8d91",
-            ["StrengthWeakBrush"] = "#ff4d5d",
-            ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#ffb35a",
-            ["StrengthSecureBrush"] = "#22c55e"
+            ["StrengthWeakBrush"] = "#ffb4ab",
+            ["StrengthFairBrush"] = "#ffd1aa",
+            ["StrengthStrongBrush"] = "#38b7d8",
+            ["StrengthSecureBrush"] = "#5ed7f2"
         });
 
     public static IReadOnlyDictionary<string, string> Forest { get; } =
@@ -395,10 +395,10 @@ public static class ShellKryptThemePalettes
             ["TypeApiKeyBackgroundBrush"] = "#214a29",
             ["TypeApiKeyForegroundBrush"] = "#84d78f",
             ["StrengthNoneBrush"] = "#808f7c",
-            ["StrengthWeakBrush"] = "#ff4d5d",
-            ["StrengthFairBrush"] = "#ffb35a",
-            ["StrengthStrongBrush"] = "#ffb35a",
-            ["StrengthSecureBrush"] = "#22c55e"
+            ["StrengthWeakBrush"] = "#ffb4ab",
+            ["StrengthFairBrush"] = "#ffd1aa",
+            ["StrengthStrongBrush"] = "#5ebf6d",
+            ["StrengthSecureBrush"] = "#84d78f"
         });
 
     public static IReadOnlyList<ShellKryptThemeDefinition> All { get; } =

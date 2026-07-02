@@ -37,7 +37,7 @@
                   <Button.Flyout>
                     <Flyout Placement="BottomEdgeAlignedLeft"
                             FlyoutPresenterClasses="cleanPickerFlyout">
-                      <Border Classes="notesPickerPopup">
+                      <Border Classes="sk-picker-popup notesPickerPopup">
                         <Grid RowDefinitions="Auto,Auto,Auto,*"
                               RowSpacing="10">
                           <Grid ColumnDefinitions="*,Auto"
@@ -61,7 +61,7 @@
 
                           <TextBox Grid.Row="1"
                                    Text="{Binding NotePickerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                   Classes="notesPickerSearch"
+                                   Classes="sk-picker-search notesPickerSearch"
                                    PlaceholderText="{DynamicResource Loc.Notes.Picker.SearchPlaceholder}"/>
 
                           <Border Grid.Row="2"
@@ -84,7 +84,7 @@
                                             IsVisible="{Binding HasNotePickerAll}">
                                 <ItemsControl.ItemTemplate>
                                   <DataTemplate x:DataType="vm:NoteItemVm">
-                                    <Border Classes="notesPickerItem"
+                                    <Border Classes="sk-picker-card notesPickerItem"
                                             Classes.active="{Binding IsSelected}">
                                       <Grid ColumnDefinitions="*,Auto"
                                             ColumnSpacing="10">
@@ -411,11 +411,6 @@
     </Style>
 
     <Style Selector="Border.notesPickerPopup">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="6"/>
-      <Setter Property="Padding" Value="14"/>
       <Setter Property="Width" Value="420"/>
       <Setter Property="MaxHeight" Value="520"/>
     </Style>
@@ -427,17 +422,6 @@
       <Setter Property="Padding" Value="0"/>
     </Style>
 
-    <Style Selector="TextBox.notesPickerSearch">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="Padding" Value="12,8"/>
-      <Setter Property="Margin" Value="0"/>
-    </Style>
-
     <Style Selector="Border.notesPickerSectionHeader">
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="0,0,0,1"/>
@@ -446,20 +430,7 @@
     </Style>
 
     <Style Selector="Border.notesPickerItem">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="5"/>
-      <Setter Property="Padding" Value="8"/>
       <Setter Property="Margin" Value="0,0,0,8"/>
-    </Style>
-
-    <Style Selector="Border.notesPickerItem:pointerover">
-      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
-    </Style>
-
-    <Style Selector="Border.notesPickerItem.active">
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
     </Style>
 
     <Style Selector="Button.notesPickerItemButton">

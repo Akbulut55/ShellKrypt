@@ -89,29 +89,42 @@
         </Grid>
 
         <Border Grid.Row="2"
-                Classes="cards-filter-shell"
-                Padding="0">
+                Classes="cards-filter-shell">
           <WrapPanel Orientation="Horizontal"
                      VerticalAlignment="Center">
-            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Classes="cards-search"
-                     PlaceholderText="{DynamicResource Loc.Cards.Search.Placeholder}"
-                     VerticalAlignment="Center"/>
-            <ComboBox Classes="cards-select"
+            <Border Classes="cards-search-shell">
+              <Grid ColumnDefinitions="Auto,*"
+                    ColumnSpacing="10">
+                <PathIcon Data="{StaticResource IconSearch}"
+                          Width="16"
+                          Height="16"
+                          Foreground="{StaticResource TextMutedBrush}"
+                          VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1"
+                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="cards-search"
+                         PlaceholderText="{DynamicResource Loc.Cards.Search.Placeholder}"
+                         VerticalAlignment="Center"/>
+              </Grid>
+            </Border>
+            <ComboBox Classes="sk-combo-filter"
+                      Width="124"
                       ItemsSource="{Binding BankFilters}"
                       SelectedItem="{Binding SelectedBankFilter, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <ComboBox Classes="cards-select"
+            <ComboBox Classes="sk-combo-filter"
+                      Width="124"
                       ItemsSource="{Binding CardTypeFilters}"
                       SelectedItem="{Binding SelectedCardTypeFilter, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
-            <ComboBox Classes="cards-select"
+            <ComboBox Classes="sk-combo-filter"
+                      Width="158"
                       ItemsSource="{Binding SortOptions}"
                       SelectedItem="{Binding SelectedSortOption, Mode=TwoWay}"
                       VerticalAlignment="Center"/>
             <Button Classes="sk-primary"
                     Command="{Binding AddNewCommand}"
-                    Margin="0,0,0,10"
+                    Margin="0"
                     VerticalAlignment="Center">
               <StackPanel Orientation="Horizontal"
                           Spacing="7"
@@ -328,7 +341,7 @@
                 <ComboBox ItemsSource="{Binding CardTypeOptions}"
                           SelectedItem="{Binding AddCardType, Mode=TwoWay}"
                           IsEnabled="{Binding IsCardFormEditable}"
-                          Classes="modal-shell-input"/>
+                          Classes="sk-combo-modal"/>
               </StackPanel>
 
               <StackPanel Grid.Row="1"
@@ -360,7 +373,7 @@
                 <ComboBox ItemsSource="{Binding IssuerOptions}"
                           SelectedItem="{Binding AddIssuer, Mode=TwoWay}"
                           IsEnabled="{Binding IsCardFormEditable}"
-                          Classes="modal-shell-input"/>
+                          Classes="sk-combo-modal"/>
               </StackPanel>
 
               <StackPanel Grid.Row="2"
@@ -538,11 +551,12 @@
     </Style>
 
     <Style Selector="Border.cards-stat">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
       <Setter Property="BorderBrush" Value="Transparent"/>
       <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="MinHeight" Value="96"/>
+      <Setter Property="ClipToBounds" Value="True"/>
     </Style>
 
     <Style Selector="Border.cards-stat.primary">
@@ -554,43 +568,33 @@
     </Style>
 
     <Style Selector="Border.cards-filter-shell">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="CornerRadius" Value="0"/>
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="10"/>
     </Style>
 
-    <Style Selector="TextBox.cards-search">
+    <Style Selector="Border.cards-search-shell">
       <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
       <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
       <Setter Property="BorderThickness" Value="1"/>
       <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Height" Value="38"/>
+      <Setter Property="Width" Value="260"/>
+      <Setter Property="Margin" Value="0,0,10,0"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="TextBox.cards-search">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
       <Setter Property="FontSize" Value="13"/>
       <Setter Property="Height" Value="38"/>
       <Setter Property="MinHeight" Value="38"/>
       <Setter Property="MinWidth" Value="0"/>
-      <Setter Property="Width" Value="260"/>
-      <Setter Property="Margin" Value="0,0,10,10"/>
-      <Setter Property="Padding" Value="12,8"/>
+      <Setter Property="Padding" Value="0,8"/>
     </Style>
-
-    <Style Selector="ComboBox.cards-select">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="Width" Value="112"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Margin" Value="0,0,10,10"/>
-      <Setter Property="Padding" Value="12,0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Left"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
-
-
-
 
 
 

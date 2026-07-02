@@ -11,8 +11,7 @@
   <Grid>
     <ScrollViewer HorizontalScrollBarVisibility="Auto"
                   VerticalScrollBarVisibility="Auto"
-                  BringIntoViewOnFocusChange="False"
-                  ScrollChanged="OnSettingsScrollChanged">
+                  BringIntoViewOnFocusChange="False">
       <StackPanel Margin="16"
                   MaxWidth="1500"
                   Spacing="14">
@@ -52,56 +51,16 @@
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Grid Grid.Column="1"
-                          HorizontalAlignment="Right">
-                      <Button x:Name="AutoLockPickerButton"
-                              Classes="sk-button settings-picker-button"
-                              Command="{Binding ToggleAutoLockPickerCommand}">
-                        <Grid ColumnDefinitions="Auto,Auto"
-                              HorizontalAlignment="Center">
-                          <TextBlock Text="{Binding SelectedAutoLockDurationLabel}"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropDown}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding !IsAutoLockPickerOpen}"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropUp}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding IsAutoLockPickerOpen}"/>
-                        </Grid>
-                      </Button>
-
-                      <Popup IsOpen="{Binding IsAutoLockPickerOpen, Mode=TwoWay}"
-                             PlacementTarget="{Binding #AutoLockPickerButton}"
-                             Placement="BottomEdgeAlignedLeft"
-                             PlacementConstraintAdjustment="SlideX"
-                             VerticalOffset="4"
-                             IsLightDismissEnabled="True">
-                        <Border Classes="settings-picker-popup"
-                                MinWidth="150">
-                          <ItemsControl ItemsSource="{Binding AutoLockDurations}"
-                                        HorizontalAlignment="Stretch">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Classes="sk-picker-option"
-                                        Classes.active="{Binding IsSelected}"
-                                        Command="{Binding #Root.DataContext.SelectAutoLockDurationCommand}"
-                                        CommandParameter="{Binding}"/>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </Border>
-                      </Popup>
-                    </Grid>
+                    <ComboBox Grid.Column="1"
+                              Classes="sk-combo-settings"
+                              ItemsSource="{Binding AutoLockDurations}"
+                              SelectedItem="{Binding SelectedAutoLockDuration, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                   </Grid>
                 </Border>
 
@@ -118,56 +77,16 @@
                                  FontSize="12"
                                  TextWrapping="Wrap"/>
                     </StackPanel>
-                    <Grid Grid.Column="1"
-                          HorizontalAlignment="Right">
-                      <Button x:Name="FocusLockPickerButton"
-                              Classes="sk-button settings-picker-button"
-                              Command="{Binding ToggleFocusLockPickerCommand}">
-                        <Grid ColumnDefinitions="Auto,Auto"
-                              HorizontalAlignment="Center">
-                          <TextBlock Text="{Binding SelectedFocusLossLockDelayLabel}"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropDown}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding !IsFocusLockPickerOpen}"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropUp}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding IsFocusLockPickerOpen}"/>
-                        </Grid>
-                      </Button>
-
-                      <Popup IsOpen="{Binding IsFocusLockPickerOpen, Mode=TwoWay}"
-                             PlacementTarget="{Binding #FocusLockPickerButton}"
-                             Placement="BottomEdgeAlignedLeft"
-                             PlacementConstraintAdjustment="SlideX"
-                             VerticalOffset="4"
-                             IsLightDismissEnabled="True">
-                        <Border Classes="settings-picker-popup"
-                                MinWidth="128">
-                          <ItemsControl ItemsSource="{Binding FocusLossLockDelayOptions}"
-                                        HorizontalAlignment="Stretch">
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Classes="sk-picker-option"
-                                        Classes.active="{Binding IsSelected}"
-                                        Command="{Binding #Root.DataContext.SelectFocusLossLockDelayCommand}"
-                                        CommandParameter="{Binding}"/>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </Border>
-                      </Popup>
-                    </Grid>
+                    <ComboBox Grid.Column="1"
+                              Classes="sk-combo-settings"
+                              ItemsSource="{Binding FocusLossLockDelayOptions}"
+                              SelectedItem="{Binding SelectedFocusLossLockDelay, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                   </Grid>
                 </Border>
 
@@ -194,55 +113,15 @@
                                 HorizontalAlignment="Right">
                       <CheckBox Content="{DynamicResource Loc.Settings.AllowCopy}"
                                 IsChecked="{Binding ClipboardCopyEnabled}"/>
-                      <Grid>
-                        <Button x:Name="ClipboardClearPickerButton"
-                                Classes="sk-button settings-picker-button"
-                                Command="{Binding ToggleClipboardClearPickerCommand}">
-                          <Grid ColumnDefinitions="Auto,Auto"
-                                HorizontalAlignment="Center">
-                            <TextBlock Text="{Binding SelectedClipboardClearDurationLabel}"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <PathIcon Grid.Column="1"
-                                      Data="{StaticResource IconDropDown}"
-                                      Width="16"
-                                      Height="16"
-                                      Margin="10,0,0,0"
-                                      Foreground="{StaticResource TextMutedBrush}"
-                                      IsVisible="{Binding !IsClipboardClearPickerOpen}"/>
-                            <PathIcon Grid.Column="1"
-                                      Data="{StaticResource IconDropUp}"
-                                      Width="16"
-                                      Height="16"
-                                      Margin="10,0,0,0"
-                                      Foreground="{StaticResource TextMutedBrush}"
-                                      IsVisible="{Binding IsClipboardClearPickerOpen}"/>
-                          </Grid>
-                        </Button>
-
-                        <Popup IsOpen="{Binding IsClipboardClearPickerOpen, Mode=TwoWay}"
-                               PlacementTarget="{Binding #ClipboardClearPickerButton}"
-                               Placement="BottomEdgeAlignedLeft"
-                               PlacementConstraintAdjustment="SlideX"
-                               VerticalOffset="4"
-                               IsLightDismissEnabled="True">
-                          <Border Classes="settings-picker-popup"
-                                  MinWidth="128">
-                            <ItemsControl ItemsSource="{Binding ClipboardClearTimeoutOptions}"
-                                          HorizontalAlignment="Stretch">
-                              <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                  <Button Content="{Binding Label}"
-                                          Classes="sk-picker-option"
-                                          Classes.active="{Binding IsSelected}"
-                                          Command="{Binding #Root.DataContext.SelectClipboardClearDurationCommand}"
-                                          CommandParameter="{Binding}"/>
-                                </DataTemplate>
-                              </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                          </Border>
-                        </Popup>
-                      </Grid>
+                      <ComboBox Classes="sk-combo-settings"
+                                ItemsSource="{Binding ClipboardClearTimeoutOptions}"
+                                SelectedItem="{Binding SelectedClipboardClearDuration, Mode=TwoWay}">
+                        <ComboBox.ItemTemplate>
+                          <DataTemplate>
+                            <TextBlock Text="{Binding Label}"/>
+                          </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                      </ComboBox>
                     </StackPanel>
                   </Grid>
                 </Border>
@@ -283,8 +162,9 @@
                                   Spacing="8">
                         <TextBlock Text="{DynamicResource Loc.Settings.MasterPassword.SecurityProfile}"
                                    Classes="settings-mini-label"/>
-                        <ComboBox ItemsSource="{Binding SecurityProfiles}"
-                                  SelectedItem="{Binding SelectedSecurityProfile}">
+                        <ComboBox Classes="sk-combo-settings"
+                                  ItemsSource="{Binding SecurityProfiles}"
+                                  SelectedItem="{Binding SelectedSecurityProfile, Mode=TwoWay}">
                           <ComboBox.ItemTemplate>
                             <DataTemplate>
                               <TextBlock Text="{Binding Label}"/>
@@ -361,60 +241,42 @@
                                FontSize="14"
                                FontWeight="SemiBold"
                                VerticalAlignment="Center"/>
-                    <Grid Grid.Column="1"
-                          HorizontalAlignment="Right">
-                      <Button x:Name="ThemePickerButton"
-                              Classes="sk-button settings-picker-button"
-                              Command="{Binding ToggleThemePickerCommand}">
-                        <Grid ColumnDefinitions="Auto,Auto"
-                              HorizontalAlignment="Center">
-                          <TextBlock Text="{Binding ThemeModeLabel}"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropDown}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding !IsThemePickerOpen}"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropUp}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding IsThemePickerOpen}"/>
-                        </Grid>
-                      </Button>
+                    <ComboBox Grid.Column="1"
+                              Classes="sk-combo-settings"
+                              ItemsSource="{Binding ThemeOptions}"
+                              SelectedItem="{Binding SelectedThemeOption, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
+                  </Grid>
+                </Border>
 
-                      <Popup IsOpen="{Binding IsThemePickerOpen, Mode=TwoWay}"
-                             PlacementTarget="{Binding #ThemePickerButton}"
-                             Placement="BottomEdgeAlignedLeft"
-                             PlacementConstraintAdjustment="SlideX"
-                             VerticalOffset="4"
-                             IsLightDismissEnabled="True">
-                        <Border Classes="settings-picker-popup"
-                                MinWidth="104">
-                          <ItemsControl ItemsSource="{Binding ThemeOptions}">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <StackPanel/>
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Classes="sk-picker-option"
-                                        Classes.active="{Binding IsSelected}"
-                                        Command="{Binding #Root.DataContext.SelectThemeCommand}"
-                                        CommandParameter="{Binding}"/>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </Border>
-                      </Popup>
-                    </Grid>
+                <Border Classes="settings-toggle-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="12">
+                    <StackPanel Spacing="3"
+                                VerticalAlignment="Center">
+                      <TextBlock Text="{DynamicResource Loc.Settings.MarkdownAutoSave.Title}"
+                                 FontSize="14"
+                                 FontWeight="SemiBold"/>
+                      <TextBlock Text="{Binding MarkdownAutoSaveSummary}"
+                                 Classes="page-subtitle"
+                                 FontSize="12"
+                                 TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <ComboBox Grid.Column="1"
+                              Classes="sk-combo-settings"
+                              ItemsSource="{Binding MarkdownAutoSaveDurationOptions}"
+                              SelectedItem="{Binding SelectedMarkdownAutoSaveDuration, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                   </Grid>
                 </Border>
 
@@ -430,60 +292,16 @@
                                  Classes="page-subtitle"
                                  FontSize="12"/>
                     </StackPanel>
-                    <Grid Grid.Column="1"
-                          HorizontalAlignment="Right">
-                      <Button x:Name="LanguagePickerButton"
-                              Classes="sk-button settings-picker-button"
-                              Command="{Binding ToggleLanguagePickerCommand}">
-                        <Grid ColumnDefinitions="Auto,Auto"
-                              HorizontalAlignment="Center">
-                          <TextBlock Text="{Binding SelectedLanguageLabel}"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropDown}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding !IsLanguagePickerOpen}"/>
-                          <PathIcon Grid.Column="1"
-                                    Data="{StaticResource IconDropUp}"
-                                    Width="16"
-                                    Height="16"
-                                    Margin="10,0,0,0"
-                                    Foreground="{StaticResource TextMutedBrush}"
-                                    IsVisible="{Binding IsLanguagePickerOpen}"/>
-                        </Grid>
-                      </Button>
-
-                      <Popup IsOpen="{Binding IsLanguagePickerOpen, Mode=TwoWay}"
-                             PlacementTarget="{Binding #LanguagePickerButton}"
-                             Placement="BottomEdgeAlignedLeft"
-                             PlacementConstraintAdjustment="SlideX"
-                             VerticalOffset="4"
-                             IsLightDismissEnabled="True">
-                        <Border Classes="settings-picker-popup"
-                                MinWidth="104">
-                          <ItemsControl ItemsSource="{Binding LanguageOptions}">
-                            <ItemsControl.ItemsPanel>
-                              <ItemsPanelTemplate>
-                                <StackPanel/>
-                              </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                            <ItemsControl.ItemTemplate>
-                              <DataTemplate>
-                                <Button Content="{Binding Label}"
-                                        Classes="sk-picker-option"
-                                        Classes.active="{Binding IsSelected}"
-                                        Command="{Binding #Root.DataContext.SelectLanguageCommand}"
-                                        CommandParameter="{Binding}"/>
-                              </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                          </ItemsControl>
-                        </Border>
-                      </Popup>
-                    </Grid>
+                    <ComboBox Grid.Column="1"
+                              Classes="sk-combo-settings"
+                              ItemsSource="{Binding LanguageOptions}"
+                              SelectedItem="{Binding SelectedLanguageOption, Mode=TwoWay}">
+                      <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                          <TextBlock Text="{Binding Label}"/>
+                        </DataTemplate>
+                      </ComboBox.ItemTemplate>
+                    </ComboBox>
                   </Grid>
                 </Border>
 
@@ -674,21 +492,6 @@
       <Setter Property="FontSize" Value="10"/>
       <Setter Property="FontWeight" Value="Black"/>
       <Setter Property="LetterSpacing" Value="2.2"/>
-    </Style>
-
-    <Style Selector="Border.settings-picker-popup">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="ClipToBounds" Value="True"/>
-    </Style>
-
-    <Style Selector="Button.settings-picker-button">
-      <Setter Property="HorizontalAlignment" Value="Right"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-      <Setter Property="Padding" Value="12,8"/>
     </Style>
 
     <Style Selector="Border.settings-vault-card">
