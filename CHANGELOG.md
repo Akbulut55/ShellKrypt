@@ -6,6 +6,10 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+### Changed
+
+- Combined the Crypto Tools service implementation into a single `CryptoToolsService.cs` file without changing tool behavior.
+
 ## [ShellKrypt 0.17.10] - 2026-07-03
 
 ### Added
