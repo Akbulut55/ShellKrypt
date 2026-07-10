@@ -86,7 +86,6 @@
         <SolidColorBrush x:Key="StrengthWeakBrush" Color="#ffb4ab"/>
         <SolidColorBrush x:Key="StrengthFairBrush" Color="#ffd1aa"/>
         <SolidColorBrush x:Key="StrengthStrongBrush" Color="#2dd4bf"/>
-        <SolidColorBrush x:Key="StrengthSecureBrush" Color="#57f1db"/>
         <LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
             <GradientStop Offset="0" Color="#57f1db"/>
             <GradientStop Offset="1" Color="#2dd4bf"/>

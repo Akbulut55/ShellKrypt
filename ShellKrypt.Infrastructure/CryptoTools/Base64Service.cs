@@ -1,8 +1,9 @@
 using System.Text;
+using ShellKrypt.Core.CryptoTools;
 
-namespace ShellKrypt.Infrastructure.Tools;
+namespace ShellKrypt.Infrastructure.CryptoTools;
 
-public sealed partial class CryptoToolsService
+public sealed class Base64Service : IBase64Service
 {
     public string EncodeBase64(string input)
     {

@@ -98,7 +98,7 @@ public sealed class LocalizationServiceTests
         Assert.Equal("API Anahtarları", service.Get("ApiKeys.Title"));
         Assert.Equal("Doğrulayıcı", service.Get("Authenticator.Title"));
         Assert.Equal("Markdown Notları", service.Get("Notes.Title"));
-        Assert.Equal("Parola Üreteci", service.Get("Generator.Password.Title"));
+        Assert.Equal("Kripto Araçları", service.Get("CryptoTools.Password.Title"));
         Assert.Equal("Güvenlik Denetimi", service.Get("SecurityAudit.Title"));
         Assert.Equal("Backup Center", service.Get("BackupCenter.Title"));
         Assert.NotEqual("BackupCenter.Health.Title", service.Get("BackupCenter.Health.Title"));

@@ -8,8 +8,9 @@ using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Core.Tools;
+using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
 using ShellKrypt.UI.Shared.Navigation;
 
@@ -39,7 +40,10 @@ public partial class ShellViewModel : ViewModelBase
         IQuickFillEntryService quickFillEntryService,
         AuthenticatorQrImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
-        ICryptoToolsService cryptoToolsService,
+        IPasswordGenerator passwordGenerator,
+        IPasswordStrengthService passwordStrengthService,
+        IHashService hashService,
+        IBase64Service base64Service,
         ActivityLogService activityLogService,
         VaultRegistryService vaultRegistryService)
     {
@@ -69,7 +73,12 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         ProjectSecrets = new ProjectSecretsViewModel(_root, projectSecretService, apiKeyService, AllItems.RefreshAfterMutationAsync);
-        Tools = new ToolsViewModel(_root, cryptoToolsService);
+        CryptoTools = new CryptoToolsViewModel(
+            _root,
+            passwordGenerator,
+            passwordStrengthService,
+            hashService,
+            base64Service);
         QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorService);
         Health = new HealthViewModel(_root, this, healthAuditService);
         BackupCenter = new BackupCenterViewModel(_root);
@@ -85,7 +94,7 @@ public partial class ShellViewModel : ViewModelBase
     public AuthenticatorViewModel Authenticator { get; }
     public ApiKeysViewModel ApiKeys { get; }
     public ProjectSecretsViewModel ProjectSecrets { get; }
-    public ToolsViewModel Tools { get; }
+    public CryptoToolsViewModel CryptoTools { get; }
     public QuickFillViewModel QuickFill { get; }
     public HealthViewModel Health { get; }
     public BackupCenterViewModel BackupCenter { get; }
@@ -115,7 +124,7 @@ public partial class ShellViewModel : ViewModelBase
         Authenticator.RefreshLocalization();
         ApiKeys.RefreshLocalization();
         ProjectSecrets.RefreshLocalization();
-        Tools.RefreshLocalization();
+        CryptoTools.RefreshLocalization();
         QuickFill.RefreshLocalization();
         Health.RefreshLocalization();
         BackupCenter.RefreshLocalization();

@@ -1,38 +1,9 @@
-using System.Security.Cryptography;
-using ShellKrypt.Core.Tools;
+using ShellKrypt.Core.CryptoTools;
 
-namespace ShellKrypt.Infrastructure.Tools;
+namespace ShellKrypt.Infrastructure.CryptoTools;
 
-public sealed partial class CryptoToolsService
+public sealed class PasswordStrengthService : IPasswordStrengthService
 {
-    public string? GeneratePassword(PasswordGenerationOptions options)
-    {
-        var length = Math.Clamp(options.Length, 1, 100);
-        var pools = new List<char[]>();
-        if (options.IncludeLowercase) pools.Add(Lowercase);
-        if (options.IncludeUppercase) pools.Add(Uppercase);
-        if (options.IncludeNumbers) pools.Add(Numbers);
-        if (options.IncludeSymbols) pools.Add(Symbols);
-
-        if (pools.Count == 0)
-            return null;
-
-        var chars = new List<char>(length);
-
-        if (length >= pools.Count)
-        {
-            foreach (var pool in pools)
-                chars.Add(pool[RandomNumberGenerator.GetInt32(pool.Length)]);
-        }
-
-        var all = pools.SelectMany(pool => pool).ToArray();
-        while (chars.Count < length)
-            chars.Add(all[RandomNumberGenerator.GetInt32(all.Length)]);
-
-        Shuffle(chars);
-        return new string(chars.ToArray());
-    }
-
     public PasswordStrengthAssessment AssessPasswordStrength(string? password)
     {
         if (string.IsNullOrWhiteSpace(password))
@@ -48,25 +19,25 @@ public sealed partial class CryptoToolsService
 
         if (hasLower)
         {
-            poolSize += Lowercase.Length;
+            poolSize += PasswordCharacterSets.Lowercase.Length;
             enabledClasses++;
         }
 
         if (hasUpper)
         {
-            poolSize += Uppercase.Length;
+            poolSize += PasswordCharacterSets.Uppercase.Length;
             enabledClasses++;
         }
 
         if (hasDigits)
         {
-            poolSize += Numbers.Length;
+            poolSize += PasswordCharacterSets.Numbers.Length;
             enabledClasses++;
         }
 
         if (hasSymbols)
         {
-            poolSize += Symbols.Length;
+            poolSize += PasswordCharacterSets.Symbols.Length;
             enabledClasses++;
         }
 
@@ -81,21 +52,11 @@ public sealed partial class CryptoToolsService
 
         var rating = score switch
         {
-            >= 80 => PasswordStrengthRating.Secure,
             >= 60 => PasswordStrengthRating.Strong,
             >= 35 => PasswordStrengthRating.Fair,
             _ => PasswordStrengthRating.Weak
         };
 
         return new PasswordStrengthAssessment(entropyBits, score, rating);
-    }
-
-    private static void Shuffle(IList<char> chars)
-    {
-        for (var i = chars.Count - 1; i > 0; i--)
-        {
-            var j = RandomNumberGenerator.GetInt32(i + 1);
-            (chars[i], chars[j]) = (chars[j], chars[i]);
-        }
     }
 }

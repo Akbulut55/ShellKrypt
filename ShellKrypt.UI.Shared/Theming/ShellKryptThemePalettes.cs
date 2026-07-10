@@ -85,8 +85,7 @@ public static class ShellKryptThemePalettes
             ["StrengthNoneBrush"] = "#7b8a87",
             ["StrengthWeakBrush"] = "#ffb4ab",
             ["StrengthFairBrush"] = "#ffd1aa",
-            ["StrengthStrongBrush"] = "#2dd4bf",
-            ["StrengthSecureBrush"] = "#57f1db"
+            ["StrengthStrongBrush"] = "#2dd4bf"
         });
 
     public static IReadOnlyDictionary<string, string> Light { get; } =
@@ -163,8 +162,7 @@ public static class ShellKryptThemePalettes
             ["StrengthNoneBrush"] = "#54676e",
             ["StrengthWeakBrush"] = "#b94d5a",
             ["StrengthFairBrush"] = "#ad681c",
-            ["StrengthStrongBrush"] = "#0a7f99",
-            ["StrengthSecureBrush"] = "#0f9fbd"
+            ["StrengthStrongBrush"] = "#0a7f99"
         });
 
     public static IReadOnlyDictionary<string, string> Crimson { get; } =
@@ -241,8 +239,7 @@ public static class ShellKryptThemePalettes
             ["StrengthNoneBrush"] = "#8b7b80",
             ["StrengthWeakBrush"] = "#ffb4ab",
             ["StrengthFairBrush"] = "#ffd0a3",
-            ["StrengthStrongBrush"] = "#c82131",
-            ["StrengthSecureBrush"] = "#b31322"
+            ["StrengthStrongBrush"] = "#c82131"
         });
 
     public static IReadOnlyDictionary<string, string> Ocean { get; } =
@@ -319,8 +316,7 @@ public static class ShellKryptThemePalettes
             ["StrengthNoneBrush"] = "#7e8d91",
             ["StrengthWeakBrush"] = "#ffb4ab",
             ["StrengthFairBrush"] = "#ffd1aa",
-            ["StrengthStrongBrush"] = "#38b7d8",
-            ["StrengthSecureBrush"] = "#5ed7f2"
+            ["StrengthStrongBrush"] = "#38b7d8"
         });
 
     public static IReadOnlyDictionary<string, string> Forest { get; } =
@@ -397,8 +393,7 @@ public static class ShellKryptThemePalettes
             ["StrengthNoneBrush"] = "#808f7c",
             ["StrengthWeakBrush"] = "#ffb4ab",
             ["StrengthFairBrush"] = "#ffd1aa",
-            ["StrengthStrongBrush"] = "#5ebf6d",
-            ["StrengthSecureBrush"] = "#84d78f"
+            ["StrengthStrongBrush"] = "#5ebf6d"
         });
 
     public static IReadOnlyList<ShellKryptThemeDefinition> All { get; } =

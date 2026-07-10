@@ -1,9 +1,10 @@
 using System.Security.Cryptography;
 using System.Text;
+using ShellKrypt.Core.CryptoTools;
 
-namespace ShellKrypt.Infrastructure.Tools;
+namespace ShellKrypt.Infrastructure.CryptoTools;
 
-public sealed partial class CryptoToolsService
+public sealed class HashService : IHashService
 {
     public string ComputeSha256(string input)
         => ComputeHash(input, SHA256.HashData);
