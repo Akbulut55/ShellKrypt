@@ -93,15 +93,20 @@ Internal product plans, engineering notes, and agent instructions are intentiona
 
 ```text
 ShellKrypt/
-|-- ShellKrypt.Core/
-|-- ShellKrypt.Application/
-|-- ShellKrypt.Infrastructure/
-|-- ShellKrypt.UI.Shared/
-|-- ShellKrypt.Desktop/
-|-- ShellKrypt.Mobile/
-|-- ShellKrypt.Mobile.Android/
-|-- ShellKrypt.Mobile.iOS/
-|-- ShellKrypt.Tests/
+|-- src/
+|   |-- ShellKrypt.Core/
+|   |-- ShellKrypt.Application/
+|   |-- ShellKrypt.Infrastructure/
+|   |-- ShellKrypt.UI.Shared/
+|   |-- ShellKrypt.Desktop/
+|   |-- ShellKrypt.Mobile/
+|   |-- ShellKrypt.Mobile.Android/
+|   `-- ShellKrypt.Mobile.iOS/
+|-- tests/
+|   `-- ShellKrypt.Tests/
+|-- docs/
+|   `-- README.md
+|-- ShellKrypt.slnx
 |-- README.md
 |-- SECURITY.md
 |-- DISCLAIMER.md
@@ -114,14 +119,14 @@ ShellKrypt/
 
 Project responsibilities:
 
-- `ShellKrypt.Core` contains domain models, payload records, service interfaces, security settings, and transfer models.
-- `ShellKrypt.Application` contains shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
-- `ShellKrypt.Infrastructure` contains SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, file stores, path guards, and activity log persistence.
-- `ShellKrypt.UI.Shared` contains shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
-- `ShellKrypt.Desktop` contains the Avalonia desktop app, views, viewmodels, UI services, assets, and desktop platform integration.
-- `ShellKrypt.Mobile` contains the shared Avalonia mobile UI and mobile viewmodels.
-- `ShellKrypt.Mobile.Android` and `ShellKrypt.Mobile.iOS` contain platform app heads and package metadata.
-- `ShellKrypt.Tests` contains xUnit tests for core, application, infrastructure, desktop adapter, and mobile shared behavior.
+- `src/ShellKrypt.Core` contains domain models, payload records, service interfaces, security settings, and transfer models.
+- `src/ShellKrypt.Application` contains shared use-cases, session/state helpers, registry/settings services, item summaries, filters, and pagination logic.
+- `src/ShellKrypt.Infrastructure` contains SQLite vault storage, encrypted payload persistence, Argon2-based unlock, backup/restore, import/export, file stores, path guards, and activity log persistence.
+- `src/ShellKrypt.UI.Shared` contains shared theme resources, reusable UI controls, converters, and cross-shell visual primitives.
+- `src/ShellKrypt.Desktop` contains the Avalonia desktop app, views, viewmodels, UI services, assets, and desktop platform integration.
+- `src/ShellKrypt.Mobile` contains the shared Avalonia mobile UI and mobile viewmodels.
+- `src/ShellKrypt.Mobile.Android` and `src/ShellKrypt.Mobile.iOS` contain platform app heads and package metadata.
+- `tests/ShellKrypt.Tests` contains xUnit tests for core, application, infrastructure, desktop adapter, and mobile shared behavior.
 
 Dependency direction:
 
@@ -152,7 +157,7 @@ Android and iOS platform heads are built directly from their project files inste
 
 ```powershell
 dotnet restore .\ShellKrypt.slnx
-dotnet run --project .\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj
+dotnet run --project .\src\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj
 ```
 
 ## Build
@@ -170,13 +175,13 @@ dotnet build .\ShellKrypt.slnx --artifacts-path .\artifacts
 Android app head build:
 
 ```powershell
-dotnet build .\ShellKrypt.Mobile.Android\ShellKrypt.Mobile.Android.csproj -f net10.0-android
+dotnet build .\src\ShellKrypt.Mobile.Android\ShellKrypt.Mobile.Android.csproj -f net10.0-android
 ```
 
 iOS app head build requires the iOS workload and supported Apple build environment:
 
 ```powershell
-dotnet build .\ShellKrypt.Mobile.iOS\ShellKrypt.Mobile.iOS.csproj -f net10.0-ios
+dotnet build .\src\ShellKrypt.Mobile.iOS\ShellKrypt.Mobile.iOS.csproj -f net10.0-ios
 ```
 
 ## Test
@@ -191,13 +196,13 @@ dotnet list .\ShellKrypt.slnx package --vulnerable --include-transitive
 Windows self-contained single-file publish:
 
 ```powershell
-dotnet publish .\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o .\publish\win-x64
+dotnet publish .\src\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true -o .\publish\win-x64
 ```
 
 Framework-dependent publish:
 
 ```powershell
-dotnet publish .\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj -c Release -r win-x64 --self-contained false -o .\publish\win-x64-framework-dependent
+dotnet publish .\src\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj -c Release -r win-x64 --self-contained false -o .\publish\win-x64-framework-dependent
 ```
 
 The Windows executable is produced as:

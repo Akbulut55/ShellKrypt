@@ -6,6 +6,14 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ## [Unreleased]
 
+## [ShellKrypt 0.19.0] - 2026-07-10
+
+### Changed
+
+- Reorganized production projects under `src/`, tests under `tests/`, and added a `docs/` entry point while keeping the root solution canonical.
+
+## [ShellKrypt 0.18.0] - 2026-07-10
+
 ### Changed
 
 - Split Crypto Tools into reusable password generation, password strength, hashing, and Base64 capabilities while keeping them together in one desktop workspace.

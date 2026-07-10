@@ -125,7 +125,7 @@ public sealed class LocalizationServiceTests
 
     private static IEnumerable<string> EnumerateDesktopLocalizationReferences()
     {
-        var desktopRoot = Path.Combine(FindRepositoryRoot(), "ShellKrypt.Desktop");
+        var desktopRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop");
         var regex = new Regex(
             @"Loc\.([A-Za-z0-9_.]+)|T\(_root,\s*""([^""]+)""|T\(""([^""]+)""",
             RegexOptions.Compiled);
@@ -152,7 +152,7 @@ public sealed class LocalizationServiceTests
 
     private static IEnumerable<string> EnumerateDesktopViewModelLocalizationKeyLiterals()
     {
-        var viewModelsRoot = Path.Combine(FindRepositoryRoot(), "ShellKrypt.Desktop", "ViewModels");
+        var viewModelsRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop", "ViewModels");
         var regex = new Regex(
             "\"([A-Z][A-Za-z0-9]*(?:\\.[A-Za-z0-9]+){1,})\"",
             RegexOptions.Compiled);
