@@ -1,19 +1,22 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using ShellKrypt.Core.Tools;
+using ShellKrypt.Core.CryptoTools;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
 
-namespace ShellKrypt.Desktop.ViewModels;
+namespace ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
 
-public partial class ToolsViewModel : ViewModelBase
+public partial class CryptoToolsViewModel : ViewModelBase
 {
     private const int PasswordDisplayRowLength = 50;
     private const int UtilityOutputDisplayRowLength = 48;
     private const int DisplayRows = 2;
     private readonly MainWindowViewModel _root;
-    private readonly ICryptoToolsService _cryptoToolsService;
+    private readonly IPasswordGenerator _passwordGenerator;
+    private readonly IPasswordStrengthService _passwordStrengthService;
+    private readonly IHashService _hashService;
+    private readonly IBase64Service _base64Service;
 
     [ObservableProperty] private double passwordLength = 32;
     [ObservableProperty] private bool includeLowercase = true;
@@ -28,10 +31,18 @@ public partial class ToolsViewModel : ViewModelBase
     [ObservableProperty] private string base64Input = "";
     [ObservableProperty] private string base64Output = "";
 
-    public ToolsViewModel(MainWindowViewModel root, ICryptoToolsService cryptoToolsService)
+    public CryptoToolsViewModel(
+        MainWindowViewModel root,
+        IPasswordGenerator passwordGenerator,
+        IPasswordStrengthService passwordStrengthService,
+        IHashService hashService,
+        IBase64Service base64Service)
     {
         _root = root;
-        _cryptoToolsService = cryptoToolsService;
+        _passwordGenerator = passwordGenerator;
+        _passwordStrengthService = passwordStrengthService;
+        _hashService = hashService;
+        _base64Service = base64Service;
         GeneratePassword();
     }
 
@@ -39,22 +50,22 @@ public partial class ToolsViewModel : ViewModelBase
     public string GeneratedPasswordDisplay => FormatPasswordForDisplay(GeneratedPassword);
     public string HashOutputDisplay => FormatUtilityOutputForDisplay(HashOutput);
     public string Base64OutputDisplay => FormatUtilityOutputForDisplay(Base64Output);
-    public int PasswordStrengthScore => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Score;
-    public string PasswordStrengthLabel => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
+    public int PasswordStrengthScore => _passwordStrengthService.AssessPasswordStrength(GeneratedPassword).Score;
+    public string PasswordStrengthLabel => _passwordStrengthService.AssessPasswordStrength(GeneratedPassword).Rating switch
     {
-        PasswordStrengthRating.None => T(_root, "Generator.Strength.None"),
-        PasswordStrengthRating.Weak => T(_root, "Generator.Strength.Weak"),
-        PasswordStrengthRating.Fair => T(_root, "Generator.Strength.Fair"),
-        PasswordStrengthRating.Strong => T(_root, "Generator.Strength.Strong"),
-        _ => T(_root, "Generator.Strength.Secure")
+        PasswordStrengthRating.None => T(_root, "CryptoTools.Strength.None"),
+        PasswordStrengthRating.Weak => T(_root, "CryptoTools.Strength.Weak"),
+        PasswordStrengthRating.Fair => T(_root, "CryptoTools.Strength.Fair"),
+        PasswordStrengthRating.Strong => T(_root, "CryptoTools.Strength.Strong"),
+        _ => throw new ArgumentOutOfRangeException()
     };
-    public string PasswordStrengthBrush => _cryptoToolsService.AssessPasswordStrength(GeneratedPassword).Rating switch
+    public string PasswordStrengthBrush => _passwordStrengthService.AssessPasswordStrength(GeneratedPassword).Rating switch
     {
         PasswordStrengthRating.None => "StrengthNoneBrush",
         PasswordStrengthRating.Weak => "StrengthWeakBrush",
         PasswordStrengthRating.Fair => "StrengthFairBrush",
         PasswordStrengthRating.Strong => "StrengthStrongBrush",
-        _ => "StrengthSecureBrush"
+        _ => throw new ArgumentOutOfRangeException()
     };
 
     partial void OnPasswordLengthChanged(double value)
@@ -86,7 +97,7 @@ public partial class ToolsViewModel : ViewModelBase
     [RelayCommand]
     private void GeneratePassword()
     {
-        var generated = _cryptoToolsService.GeneratePassword(new PasswordGenerationOptions(
+        var generated = _passwordGenerator.GeneratePassword(new PasswordGenerationOptions(
             Length: NormalizePasswordLength(PasswordLength),
             IncludeLowercase: IncludeLowercase,
             IncludeUppercase: IncludeUppercase,
@@ -103,31 +114,31 @@ public partial class ToolsViewModel : ViewModelBase
             return;
 
         await _root.CopyToClipboardAsync(GeneratedPassword);
-        _root.LogActivity("generator", "Generated password copied", "Copied a generated password from the password generator.", "info", affectedItem: "Password Generator");
+        _root.LogActivity("crypto-tools", "Generated password copied", "Copied a generated password from Crypto Tools.", "info", affectedItem: "Crypto Tools");
     }
 
     [RelayCommand]
     private void Sha256()
     {
-        HashOutput = _cryptoToolsService.ComputeSha256(HashInput);
+        HashOutput = _hashService.ComputeSha256(HashInput);
     }
 
     [RelayCommand]
     private void Sha512()
     {
-        HashOutput = _cryptoToolsService.ComputeSha512(HashInput);
+        HashOutput = _hashService.ComputeSha512(HashInput);
     }
 
     [RelayCommand]
     private void Base64Encode()
     {
-        Base64Output = _cryptoToolsService.EncodeBase64(Base64Input);
+        Base64Output = _base64Service.EncodeBase64(Base64Input);
     }
 
     [RelayCommand]
     private void Base64Decode()
     {
-        Base64Output = _cryptoToolsService.DecodeBase64(Base64Input);
+        Base64Output = _base64Service.DecodeBase64(Base64Input);
     }
 
     private static int NormalizePasswordLength(double value)

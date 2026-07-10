@@ -20,7 +20,7 @@ public partial class ShellViewModel
             ShellKryptSectionKeys.WebLogins => WebLogins,
             ShellKryptSectionKeys.Notes => MarkdownNotes,
             ShellKryptSectionKeys.Cards => Cards,
-            ShellKryptSectionKeys.Generator => Tools,
+            ShellKryptSectionKeys.CryptoTools => CryptoTools,
             ShellKryptSectionKeys.QuickFill => QuickFill,
             ShellKryptSectionKeys.Audit => Health,
             ShellKryptSectionKeys.Backup => BackupCenter,

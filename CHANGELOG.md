@@ -8,7 +8,9 @@ Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Befo
 
 ### Changed
 
-- Combined the Crypto Tools service implementation into a single `CryptoToolsService.cs` file without changing tool behavior.
+- Split Crypto Tools into reusable password generation, password strength, hashing, and Base64 capabilities while keeping them together in one desktop workspace.
+- Renamed the Password Generator workspace, navigation identifiers, localization keys, and activity category to Crypto Tools.
+- Simplified password strength ratings to None, Weak, Fair, and Strong.
 
 ## [ShellKrypt 0.17.10] - 2026-07-03
 

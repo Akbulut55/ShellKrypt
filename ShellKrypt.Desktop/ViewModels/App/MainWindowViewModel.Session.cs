@@ -93,7 +93,10 @@ public partial class MainWindowViewModel
             _quickFillEntryService,
             _authenticatorQrImportService,
             _healthAuditService,
-            _cryptoToolsService,
+            _passwordGenerator,
+            _passwordStrengthService,
+            _hashService,
+            _base64Service,
             _activityLogService,
             _vaultRegistryService);
 }
