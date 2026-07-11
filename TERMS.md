@@ -1,60 +1,73 @@
 # ShellKrypt: Terms Of Use
 
-Status: ShellKrypt project terms for locally distributed desktop builds.
+Status: draft for locally distributed pre-release desktop builds.
 
-## 1. Acceptance
+These terms describe use of ShellKrypt. They should be reviewed before public
+distribution, sale, hosting, or reliance on the software.
 
-By installing, running, or using ShellKrypt, you acknowledge these terms, the privacy notice, the security policy, and the disclaimer included with the project. If you do not agree, do not use ShellKrypt for real data.
+Related documents:
 
-## 2. Product Scope
+- Privacy notice: [`PRIVACY.md`](PRIVACY.md)
+- Notice: [`NOTICE.md`](NOTICE.md)
+- Disclaimer: [`DISCLAIMER.md`](DISCLAIMER.md)
+- Security notes: [`SECURITY.md`](SECURITY.md)
+- License file or link: [`LICENSE`](LICENSE)
 
-ShellKrypt is a local-only encrypted vault application. It is intended to store user-managed vault files, backups, exports, and app metadata on the user's own device or user-selected storage locations. ShellKrypt does not provide a cloud account, hosted sync service, remote recovery service, or server-side access to user vaults by default.
+## Acceptance
 
-ShellKrypt is not externally audited yet. Security claims must remain limited to the actual design and implementation described in `README.md`, `SECURITY.md`, and `DISCLAIMER.md`.
+> By using, accessing, downloading, copying, installing, contributing to, or relying on ShellKrypt, people acknowledge these terms and the related privacy, notice, security, license, and disclaimer documents. People who do not agree should not use ShellKrypt for real data.
 
-## 3. No Password Recovery
+## Scope Of Use
 
-ShellKrypt cannot recover a forgotten master password. If a vault is locked and the master password is lost, the encrypted data cannot be recovered by ShellKrypt, the project owner, or anyone else unless the user has a valid backup and the required backup passphrase.
+- Store and manage user-controlled encrypted vault records locally.
+- Create local encrypted backups and explicit reports or exports.
+- Inspect, modify, and redistribute covered source under the applicable license.
 
-Users are responsible for creating, protecting, and verifying backups. Emergency Kit and automatic-backup features are readiness aids only; they do not create a password recovery service.
+The project is not intended for:
 
-## 4. User Responsibilities
+- Hosted account, cloud synchronization, remote recovery, or team administration.
+- Regulated payment-card, medical, legal, compliance, or enterprise-security use without independent assessment.
+- Use as a guarantee against data loss, compromised devices, malware, or every security threat.
 
-Users are responsible for:
+## User Responsibilities
 
-- choosing and remembering strong master passwords and backup passphrases
-- keeping backups, exports, and vault files secure
-- protecting the device, operating system account, clipboard, and filesystem
-- deleting plaintext exports when they are no longer needed
-- understanding that in-app automatic backups run only while ShellKrypt is open, the vault is unlocked, and the session backup passphrase is available
-- ensuring that their use of ShellKrypt complies with applicable laws, workplace rules, and data-handling obligations
+- Remember and protect master passwords and backup passphrases, and maintain verified backups.
+- Protect devices, operating-system accounts, files, exports, clipboard contents, and any data shared outside ShellKrypt.
+- Confirm that use, modification, distribution, and stored data comply with applicable laws, policies, licenses, and third-party rights.
 
-ShellKrypt is not a PCI-certified product, medical-record system, legal record system, or regulated compliance platform.
+## Restricted Uses
 
-## 5. Plaintext Exports And Clipboard
+- Do not use ShellKrypt to access, store, distribute, or process data without lawful authority.
+- Do not misrepresent modified or unofficial builds as official, signed, tested, endorsed, or supported ShellKrypt releases.
+- Do not remove or violate license, attribution, or third-party notice obligations.
 
-Plaintext exports and activity report exports are decrypted reports. They may expose sensitive data if stored, shared, synced, backed up, indexed, or uploaded outside ShellKrypt.
+## Data, External Systems, And Shared Output
 
-Clipboard clearing is best-effort and is not a security boundary. Other applications, the operating system, clipboard managers, remote desktop tools, and malware may observe clipboard contents.
+- Plaintext exports and activity reports are decrypted output; users control and accept responsibility for where they are stored or shared.
+- Clipboard clearing is best-effort, and external applications or operating-system services may retain copied values.
+- Backups, exports, project scans, external storage, and third-party synchronization occur through user-controlled systems outside ShellKrypt's control.
 
-## 6. License And Official Builds
+## License, Notices, And Attribution
 
-ShellKrypt source code is prepared for release under `GPL-3.0-or-later`. The full license text is in `LICENSE`.
+- License or usage status: GPL-3.0-or-later source, subject to the full license text.
+- Notice or attribution location: [`NOTICE.md`](NOTICE.md) and [`LICENSE`](LICENSE).
+- Branding or official-distribution rules: described in [`NOTICE.md`](NOTICE.md); unofficial builds must not imply official status.
 
-Official signed builds, paid distribution channels, support services, names, logos, and release infrastructure may be offered separately from the source license. Modified builds must not misrepresent themselves as official ShellKrypt releases. See `NOTICE.md`.
+## Support, Updates, And Availability
 
-## 7. Updates And Support
+- Support status: active pre-release development with no guaranteed response or support period.
+- Update expectation: updates may be released, delayed, changed, or withdrawn.
+- Availability expectation: no promise of continuous availability, hosted access, or continued distribution.
+- Compatibility expectation: pre-1.0 interfaces, formats, workflows, and platform support may change.
 
-Pre-release builds may change, break, or be withdrawn. Support channels, update schedules, refund rules, and commercial distribution terms are controlled by the distribution channel or separate written policy when one is provided.
+## Changes To These Terms
 
-Do not rely on undocumented behavior as a stable contract before a public 1.0 release.
+- Change process: update this document when product scope, distribution, support, data handling, or legal expectations materially change.
+- Where changes are announced: project changelog, release notes, or official distribution materials.
+- When changes apply: as stated with the relevant release or publication.
 
-## 8. No Warranty
+## Open Terms Questions
 
-ShellKrypt is provided as-is, without warranties of any kind. The project owner does not guarantee that ShellKrypt is error-free, secure against all threats, compatible with every device, or suitable for every use case.
-
-To the maximum extent permitted by applicable law, the project owner is not liable for lost data, lost passwords, exposed exports, device compromise, business interruption, or other damages arising from use or inability to use ShellKrypt.
-
-## 9. Changes
-
-These terms may change for future builds. Material changes should be reflected in `CHANGELOG.md` or release notes.
+- Which jurisdiction and governing-law terms are appropriate for official distribution?
+- What commercial support, refund, and store-specific terms will apply?
+- What contributor terms are needed before accepting external contributions?

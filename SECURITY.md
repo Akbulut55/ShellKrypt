@@ -1,187 +1,135 @@
 # ShellKrypt: Security
 
-This document defines ShellKrypt's security, privacy, data-handling, and secret-management rules. Any implementation that touches vaults, credentials, storage, imports, exports, logs, clipboard, or release packaging must comply with this document.
+This document records ShellKrypt's public security expectations: what must be protected, who can access it, what must not be exposed, and how security risks are reviewed.
 
-## 1. Security Summary
+Related documents:
 
-- Data sensitivity: high
-- Auth required: local vault unlock with master password
-- External providers: none by default
-- Stores user data: yes, in local `.skvault` files
-- Stores regulated data: can store payment card details if the user enters them; ShellKrypt is not a PCI-certified product
-- Distribution target: local desktop app first; mobile app heads are in progress
-- Audit status: not externally audited
-- License status: prepared for GPL-3.0-or-later source release
+- Privacy notice: [`PRIVACY.md`](PRIVACY.md).
+- Disclaimer: [`DISCLAIMER.md`](DISCLAIMER.md).
 
-Security claims must stay factual:
+Detailed architecture, threat-model, cryptography, data-handling, format, and
+development documents are maintained privately during pre-1.0 development. This
+public policy defines the security expectations users and vulnerability
+reporters can rely on.
 
-- local-only encrypted vault
-- AES-GCM encrypted payloads
-- Argon2id master password derivation
-- no password recovery
-- not externally audited yet
+## Security Summary
 
-Do not use claims such as "military-grade", "unhackable", or "zero risk".
+- Security owner: Project owner and maintainer.
+- Security status: active and needs external review.
+- Data sensitivity: high.
+- Authentication required: yes, through local master-password vault unlock.
+- Authorization model: local vault ownership after successful unlock; no remote roles or account service.
+- External systems with security impact: operating system, filesystem, clipboard, package supply chain, optional mobile platforms, and user-selected backup or synchronization tools.
+- Highest-risk area: loss or disclosure of vault key material, decrypted secrets, master passwords, backup passphrases, or plaintext exports.
 
-## 2. Reporting A Vulnerability
+ShellKrypt is pre-1.0 and has not received an external security audit. Report suspected vulnerabilities privately to the project owner or through the repository's private security-advisory channel when available. Do not include real vaults, credentials, backups, exports, or private logs in a report; reproduce issues with synthetic data.
 
-Report suspected vulnerabilities through the repository security contact when one is configured. Until then, report suspected vulnerabilities privately to the project owner.
+Only the latest distributed pre-1.0 build is expected to receive security fixes unless release notes say otherwise. Security claims must remain factual: local-only encrypted vault, Argon2id password derivation, AES-GCM encrypted payloads, no password recovery, and no external audit.
 
-When reporting, include:
+## Protected Assets
 
-- affected ShellKrypt version or commit
-- operating system and platform
-- whether the vault was locked or unlocked
-- minimal reproduction steps using synthetic data
-- expected behavior and actual behavior
-- whether any real secrets, vaults, backups, exports, or logs may be involved
-
-Do not send real vault files, master passwords, backup passphrases, API keys, OTP seeds, card numbers, CVCs, plaintext exports, or private logs unless explicitly requested and sanitized.
-
-Expected handling:
-
-- Acknowledge the report when received.
-- Reproduce with synthetic data.
-- Assess impact against this security policy.
-- Patch privately when needed before publishing enough detail for users to update.
-- Add regression tests where practical.
-- Publish release notes without exposing exploit details before users can update.
-
-Before broad public distribution, configure a dedicated security contact such as a private email address or GitHub Security Advisories workflow.
-
-## 3. Supported Versions
-
-ShellKrypt is currently pre-1.0. Only the latest distributed build is expected to receive fixes unless a release note says otherwise.
-
-When stable releases are published, maintain this table:
-
-| Version | Supported |
-|---|---:|
-| latest stable | Yes |
-| older pre-1.0 builds | No |
-
-## 4. Data Classification
-
-| Data Type | Examples | Storage Allowed | Logging Allowed | Notes |
-|---|---|---:|---:|---|
-| Public project data | README, docs, synthetic examples | Yes | Yes | Must not include real secrets |
-| App metadata | settings, vault registry, audit dismissals, Backup Center history, automatic-backup status, Emergency Kit checklist state | Yes | Redacted | Must not contain raw item secrets |
-| Private user data | titles, usernames, emails, URLs, notes, card metadata | Restricted | Redacted only | Store sensitive payloads encrypted |
-| Secrets | passwords, API keys, tokens, OTP seeds, CVCs, backup passphrases, master passwords | Encrypted only where required | No | Never commit or log |
-| Plaintext exports | decrypted JSON reports, activity reports | User-controlled only | No | Must be clearly labeled and warned |
-| Vault files | `.skvault` SQLite databases | Local file only | Path basename only when practical | Sensitive; do not commit |
-| Backups | `.skbx` encrypted backup packages | User-controlled only | Basename only | Requires separate backup passphrase |
-
-## 5. Secret Handling
-
-- Secrets must never be committed.
-- `.env` files are local only and are not required for normal desktop use.
-- Local vaults, backups, plaintext exports, screenshots containing secrets, and private logs must not be committed.
-- Master passwords and backup passphrases must not be persisted by ShellKrypt.
-- Automatic-backup passphrases are session-only memory values and must be cleared on lock, vault switch, import/restore, and app close.
-- App settings, vault registry, audit dismissal state, and activity logs must not contain raw passwords, card numbers, CVCs, OTP seeds, API secret values, or note contents.
-- Clipboard contents are outside ShellKrypt's full control; clearing is best-effort and is not a security boundary.
-- Rotate any real credentials after suspected exposure.
-
-Approved secret locations:
-
-| Secret | Scope | Storage Location | Rotation Policy |
-|---|---|---|---|
-| Master password | Vault unlock | User memory only; not stored | User changes by changing master password |
-| Vault key | Active vault | Encrypted in `vault_meta.encryptedVaultKey`, present in memory while unlocked | Rewrapped on master-password change |
-| Item secrets | Vault items | AES-GCM encrypted payloads in `.skvault` | User edits/replaces records |
-| Backup passphrase | `.skbx` backup and automatic backup session | User memory/session memory only; not stored | User creates a new backup |
-
-## 6. Authentication And Authorization
-
-Auth model:
-
-> Local vault unlock. The user proves knowledge of the master password, ShellKrypt derives key material with Argon2id, decrypts the vault key, and keeps the vault unlocked until lock, timeout, focus-loss policy, vault switch, or app exit.
-
-Roles:
-
-| Role | Capabilities | Restrictions |
+| Asset | Why It Matters | Protection Needed |
 |---|---|---|
-| Vault owner | Full local access after successful unlock | Must know master password or backup passphrase |
-| Locked local user | Can see launcher/unlock UI | Cannot decrypt vault records |
-| App maintainer | Can change app code and release builds | Cannot recover user vaults without password/passphrase |
+| Vault key and unlock material | Controls access to encrypted vault records | Authenticated encryption, memory-limited lifetime, and no logging |
+| Item secrets and private records | Includes passwords, tokens, OTP seeds, card data, notes, and project variables | Encrypt before persistence and reveal only during explicit unlocked workflows |
+| Vaults, backups, and exports | Can contain complete or partial user data | Path validation, explicit user actions, clear encrypted/plaintext distinction, and safe deletion rules |
+| Activity history and app metadata | Can expose behavior, paths, names, and security posture | Encrypt sensitive activity details, minimize retained metadata, and sanitize output |
 
-Rules:
+Protection rules:
 
-- There is no server-side account or remote authorization layer.
-- Privileged local actions include unlock, export, import, restore, delete vault, change master password, reveal secret, and copy secret.
-- Destructive or plaintext-producing actions require clear confirmation.
-- Lock clears in-memory session state as much as practical and clears clipboard through best-effort OS clipboard APIs.
+- Sensitive item payloads must be encrypted before storage, and cryptographic failures must fail closed.
+- Master passwords and backup passphrases must not be persisted by ShellKrypt.
+- No security control or status indicator may imply password recovery or protection against a fully compromised device.
 
-## 7. Threat Model
+## Sensitive Data Rules
 
-| Threat | Impact | Mitigation | Verification |
+| Data Or Material | Allowed Location | Logging Allowed | Sharing Allowed | Notes |
+|---|---|---:|---:|---|
+| Passwords, tokens, OTP seeds, card secrets, and note contents | Encrypted vault payload or temporary unlocked memory | No | Restricted to explicit user actions | Never commit or include in fixtures |
+| Vault and backup files | User-controlled local files | Basename or safe status only | Restricted | `.skvault` and `.skbx` remain sensitive |
+| Plaintext exports and activity reports | Explicit user-selected output path | No contents | User controlled | Decrypted output requires warning |
+| App settings and vault registry | Local app-data metadata | Redacted | No automatic sharing | Must not contain raw item secrets |
+
+Sensitive data rules:
+
+- Use only synthetic records in tests, screenshots, issues, and shared logs.
+- Do not duplicate referenced API keys or other secrets unless the user explicitly requests an independent copy.
+- Treat clipboard contents, plaintext exports, process memory, and files handled by other applications as outside the encrypted-at-rest boundary.
+
+## Secrets And Credentials
+
+| Secret Or Credential | Used For | Stored In | Rotation Or Review |
 |---|---|---|---|
-| Forgotten master password | Permanent data loss | No-recovery warnings, backup guidance, change-password flow | Manual smoke test and docs review |
-| Offline vault theft | Secret disclosure attempt | Argon2id key derivation, AES-GCM encrypted payloads, encrypted vault key | Crypto tests, unlock tests, wrong-key tests |
-| Tampered ciphertext or swapped payload | Corrupt or malicious data | AES-GCM tag validation and associated data where practical | Tamper/swap/truncation tests |
-| Plaintext export mishandling | Full decrypted disclosure | Explicit confirmation, filename warning, post-export warning | UI/manual test and activity log review |
-| Clipboard exposure | Secret copied outside app | Copy-disabled setting, timeout clearing, clear on lock/switch/destructive flows | Clipboard setting tests/manual checks |
-| Automatic backup misconfiguration | Missing recovery copy or unexpected local backup files | Disabled by default, session-only passphrase, verification after export, retention limited to exact auto-backup filename pattern | Scheduler and retention tests/manual checks |
-| Activity log leakage | Secrets in event history | Vault-scoped encrypted logs and redaction rules | Activity log tests and code review |
-| Unsafe file deletion/overwrite | User data loss | Path canonicalization, extension guards, active-vault overwrite checks | File guard tests |
-| Malformed import package | Crash, partial import, resource exhaustion | Size limits, validation before KDF work, transactions | Import parser tests |
-| App memory exposure while unlocked | Secret disclosure to local malware/debuggers | Clear lock behavior and honest documentation | Threat-model review |
-| Supply-chain vulnerability | Compromise through dependencies | Vulnerability checks and dependency review | `dotnet list ... package --vulnerable --include-transitive` |
+| Master password | Unlocking wrapped vault-key material | User knowledge and temporary input only | User-controlled password change |
+| Vault key | Encrypting and decrypting vault payloads | Wrapped in vault metadata and temporarily in memory while unlocked | Rewrapped on master-password change; format changes require review |
+| Backup passphrase | Protecting `.skbx` backups | User knowledge or current in-app session memory only | Create a new backup when changed |
+| Signing and distribution credentials | Future official build verification | Approved external secure storage, never the repository | Review before each release and rotate after suspected exposure |
 
-## 8. Input And Output Safety
+Secret rules:
 
-- Validate paths before reading, writing, deleting, importing, or exporting.
-- Enforce `.skvault`, `.skbx`, `.json`, and `.csv` extensions where expected.
-- Enforce import size and row/field limits.
-- Validate backup package fields before expensive Argon2 work.
-- Use transactions for imports/restores that can modify many records.
-- Treat plaintext JSON exports and activity report exports as decrypted reports.
-- Treat printable Emergency Kit exports as plaintext safe-metadata reports. They must not contain passwords, backup passphrases, hints, item secrets, card numbers, OTP seeds, or note contents.
-- Avoid full filesystem paths in activity log details when the basename is sufficient.
-- Keep the first-use security acknowledgement accurate when no-recovery, export, clipboard, audit, or privacy behavior changes.
-- Bump `AppSettings.CurrentSecurityAcknowledgementVersion` when material terms, privacy, disclaimer, or security text changes should require users to accept again.
+- Never commit secrets, `.env` values, real vaults, backups, plaintext exports, or signing material.
+- Clear session-only secret state on lock, vault switch, restore/import transitions, and application exit where practical.
+- Rotate any credential that may have been exposed and avoid sharing raw evidence in public reports.
 
-## 9. Logging And Observability
+## Access Control
+
+| Actor, Role, Or Process | Can Access | Must Not Access | Notes |
+|---|---|---|---|
+| Unlocked vault owner | Decrypted records required by explicit actions | Unrelated files or records outside the selected vault | Must successfully unlock locally |
+| Locked local user | Launcher, vault metadata needed for selection, and unlock form | Decrypted item payloads and vault key | No remote authorization fallback |
+| ShellKrypt maintainer | Source code and synthetic development data | User vaults, passwords, passphrases, or recovery material | Cannot recover a user's encrypted vault |
+| Backup or export workflow | Validated data for the requested operation | Unrelated filesystem paths and unrequested secrets | Requires explicit user action and warnings where plaintext is produced |
+
+Access rules:
+
+- Privileged actions include unlock, reveal, copy, export, restore, import, change password, and deletion.
+- Destructive or plaintext-producing actions require clear confirmation and path validation.
+- Platform-specific services receive only the minimum data needed for the active action.
+
+## Input, Output, And Boundary Rules
+
+| Boundary | Main Risk | Rule |
+|---|---|---|
+| Vault, backup, import, and export files | Traversal, overwrite, malformed input, data loss, or disclosure | Canonicalize paths, enforce expected formats and limits, validate before mutation, and use transactions where needed |
+| Clipboard, reveal, Quick Fill, and Auto-Type | Secret disclosure to other processes or the wrong target | Require explicit action, respect copy controls, clear best-effort, and never claim unsupported platform behavior |
+| Project Secrets scanning and `.env` workflows | Reading excessive files or exposing plaintext values | Scan only user-selected roots with limits and ignores; never log or display matched secret values |
+| QR, image, CSV, JSON, and package parsers | Resource exhaustion, malformed data, or partial writes | Limit input size, validate structure, and fail without unsafe partial state |
+
+Boundary rules:
+
+- Enforce expected extensions and file-size, row-count, field-size, and scan limits before expensive work.
+- Treat all imported content and external-system responses as untrusted.
+- Do not implement Project Secrets command execution, shell injection, or automatic process-variable injection.
+
+## Logging And Error Handling
 
 Allowed:
 
-- High-level events such as vault created, vault unlocked, backup exported, import completed, activity logs cleared.
-- Backup Center and Emergency Kit events when they contain only safe operation names, basenames, counts, statuses, and timestamps.
-- Synthetic IDs, session IDs, timestamps, categories, and statuses.
-- File basenames for imports/exports when useful.
-- Redacted or summarized metadata.
+- Safe action names, synthetic or opaque IDs, timestamps, categories, statuses, counts, and basenames.
+- Redacted metadata and user-facing errors that identify the failed operation without exposing payload contents.
+- Security-audit findings that name affected record metadata or variable keys without including secret values.
 
 Not allowed:
 
-- Master passwords, backup passphrases, item passwords, API keys, tokens, OTP seeds, CVCs, full card numbers, or note contents.
-- Raw QR payloads containing OTP secrets.
-- Full plaintext exports or decrypted backup contents.
-- Full local paths when basename is enough.
-- Real user data in test fixtures or committed logs.
+- Master passwords, backup passphrases, passwords, API keys, tokens, OTP seeds, CVCs, full card numbers, or Project Secret values.
+- Note contents, raw QR payloads, decrypted payloads, full exports, hardcoded secret matches, or backup contents.
+- Full local paths when a basename or safe description is sufficient.
 
-## 10. Data Retention And Deletion
-
-- Retention policy: local user controls vault files, manual backups, and exports.
-- Activity log retention: encrypted per-vault log store keeps a bounded recent history.
-- Deletion policy: deleting a vault removes the selected `.skvault` target after safety checks; backups/exports remain user-managed.
-- Export policy: encrypted backups are preferred; plaintext exports are allowed with explicit confirmation and warnings.
-- Backup policy: users should create and verify `.skbx` backups before relying on a vault.
-- Automatic-backup policy: in-app automatic backups run only while the app is open, the vault is unlocked, a backup directory is configured, and a session-only backup passphrase is available. Retention cleanup must delete only exact ShellKrypt auto-backup filenames.
+## External Code And Dependency Rules
 
 Rules:
 
-- Backups have the same sensitivity assumptions as primary storage.
-- Plaintext reports are more sensitive than encrypted vault files and should be deleted when no longer needed.
-- Generated exports and backups must not be committed.
+- Add dependencies only when they remove meaningful complexity and have maintainable source, licensing, and security posture.
+- Review packages that affect cryptography, storage, native code, parsing, platform integration, or distribution more strictly.
+- Run dependency vulnerability checks before release and do not ignore applicable advisories without a documented assessment.
 
-## 11. Dependency And Supply Chain Policy
+Review triggers:
 
-- Add dependencies only when they reduce real complexity.
-- Prefer maintained packages with clear licenses.
-- Review packages that run native code, parse untrusted files, or affect crypto/storage.
-- Run vulnerability checks before release:
+- A cryptographic, storage, parsing, native, or platform dependency receives a security advisory or major-version update.
+- A feature adds networking, accounts, telemetry, remote services, plugins, command execution, browser integration, or new secret-sharing boundaries.
 
-```powershell
-dotnet list .\ShellKrypt.slnx package --vulnerable --include-transitive
-```
+## Open Security Questions
+
+- Which private reporting address and response expectations will be published before public 1.0?
+- What external security review scope is required before recommending ShellKrypt for real sensitive data?
+- Which signing, update-verification, and release-provenance controls will protect official builds?
