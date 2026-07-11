@@ -1,9 +1,9 @@
 <Solution>
-  <Project Path="ShellKrypt.Application/ShellKrypt.Application.csproj" />
-  <Project Path="ShellKrypt.Core/ShellKrypt.Core.csproj" Id="4e882112-aa01-483b-8ba3-21a170c20b0d" />
-  <Project Path="ShellKrypt.Desktop/ShellKrypt.Desktop.csproj" />
-  <Project Path="ShellKrypt.Infrastructure/ShellKrypt.Infrastructure.csproj" Id="ad80a042-c170-4f7f-b38a-91476f179f51" />
-  <Project Path="ShellKrypt.Mobile/ShellKrypt.Mobile.csproj" />
-  <Project Path="ShellKrypt.Tests/ShellKrypt.Tests.csproj" />
-  <Project Path="ShellKrypt.UI.Shared/ShellKrypt.UI.Shared.csproj" />
+  <Project Path="src/ShellKrypt.Application/ShellKrypt.Application.csproj" />
+  <Project Path="src/ShellKrypt.Core/ShellKrypt.Core.csproj" Id="4e882112-aa01-483b-8ba3-21a170c20b0d" />
+  <Project Path="src/ShellKrypt.Desktop/ShellKrypt.Desktop.csproj" />
+  <Project Path="src/ShellKrypt.Infrastructure/ShellKrypt.Infrastructure.csproj" Id="ad80a042-c170-4f7f-b38a-91476f179f51" />
+  <Project Path="src/ShellKrypt.Mobile/ShellKrypt.Mobile.csproj" />
+  <Project Path="tests/ShellKrypt.Tests/ShellKrypt.Tests.csproj" />
+  <Project Path="src/ShellKrypt.UI.Shared/ShellKrypt.UI.Shared.csproj" />
 </Solution>

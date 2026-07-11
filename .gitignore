@@ -371,6 +371,7 @@ FodyWeavers.xsd
 vaults/
 local/
 *.skvault
+*.skbx
 *.skvault-journal
 *.skvault-wal
 *.skvault-shm
@@ -387,23 +388,21 @@ local/
 *.sqlite3-wal
 *.sqlite3-shm
 
+# Local environment files may contain plaintext secrets.
+.env
+.env.*
+!.env.example
+!.env.template
+
 ############################################
 # ShellKrypt private/internal docs
 ############################################
-/AGENTS.md
-/DATABASE.md
-/DECISIONS.md
-/DEVELOPMENT.md
-/IDEA.md
-/OPERATIONS.md
-/PLAN.md
-/ROADMAP.md
-/TECH_STACK.md
+/docs/
 
 ############################################
 # ShellKrypt raw icon source downloads
 ############################################
-ShellKrypt.Desktop/Assets/Icons/
+/src/ShellKrypt.Desktop/Assets/Icons/
 
 ############################################
 # Avalonia / Accelerate optional extras

@@ -1,56 +1,57 @@
-# ShellKrypt Disclaimer
+# ShellKrypt: Disclaimer
 
-ShellKrypt is local-only encrypted vault software. It is designed to store sensitive records in local `.skvault` files controlled by the user.
+This document describes limits and risks for ShellKrypt. It should be reviewed
+before public distribution, sale, or reliance on the software.
+
+Related documents:
+
+- Terms of use: [`TERMS.md`](TERMS.md)
+- Privacy notice: [`PRIVACY.md`](PRIVACY.md)
+- Security notes: [`SECURITY.md`](SECURITY.md)
+- Notice: [`NOTICE.md`](NOTICE.md)
+
+## General Disclaimer
+
+> ShellKrypt is pre-release local encrypted-vault software provided for use at the user's own risk. Users remain responsible for passwords, devices, backups, exports, and decisions based on the software.
 
 ## No Warranty
 
-ShellKrypt is provided as-is, without warranty of any kind. The project owner and contributors do not guarantee that the software is error-free, secure against every attack, compatible with every device, or suitable for every use case.
+The project does not guarantee:
 
-## No Password Recovery
+- That ShellKrypt is error-free, secure against every attack, or suitable for regulated use.
+- That every build, dependency, platform, file, or future update remains compatible or available.
+- That forgotten master passwords, forgotten backup passphrases, deleted files, or damaged vaults can be recovered.
 
-ShellKrypt intentionally has no password recovery service.
+## Reliance And Use Risk
 
-If you forget the master password while a vault is locked, ShellKrypt cannot recover the encrypted data. The project owner, contributors, and official builds cannot decrypt the vault without the correct master password or a valid encrypted backup and backup passphrase.
+- Do not rely on ShellKrypt as the only copy of important data; create and verify independent encrypted backups.
+- Security Audit, Backup Center, Emergency Kit, and status indicators are advisory and can miss risks.
+- Pre-1.0 behavior, formats, and interfaces may change, and undocumented behavior is not a stable contract.
 
-Create and verify backups before relying on a vault. Automatic backups and Emergency Kit checks can help with readiness, but they do not recover a forgotten master password or forgotten backup passphrase.
+## Data, Export, And Output Risk
 
-## Security Scope
+- Plaintext JSON exports and activity reports are decrypted output and can expose sensitive information outside the vault.
+- Clipboard managers, remote desktop tools, malware, indexing, synchronization, and backup software can retain copied or exported data beyond ShellKrypt's control.
+- Printable or metadata-only reports may still reveal names, paths, filenames, timestamps, counts, and security-readiness information.
 
-ShellKrypt uses local encryption mechanisms such as Argon2id-derived unlock keys and AES-GCM encrypted payloads. These are implementation choices, not a guarantee that every build, platform, dependency, device, or user workflow is risk-free.
+## Security Limits
 
-ShellKrypt has not received an external security audit. Do not treat it as certified, independently audited, or appropriate for regulated enterprise requirements unless you perform your own review.
+- ShellKrypt has not received an external security audit and is not certified for enterprise, payment-card, medical, legal, or compliance workloads.
+- Argon2id and AES-GCM are implementation choices, not a guarantee against a compromised device, malicious build, weak password, dependency flaw, or misuse.
+- Secrets can exist in process memory while a vault is unlocked, and clipboard clearing is best-effort rather than a security boundary.
 
-Security Audit, Emergency Kit, and Backup Center status indicators are advisory local checks. They can miss risks and do not replace user judgment, independent review, or safe backup practices.
+## Availability, Support, And Compatibility Limits
 
-## User Responsibility
-
-Users are responsible for:
-
-- remembering master passwords and backup passphrases
-- protecting local devices from malware and unauthorized access
-- storing backups safely
-- deleting plaintext exports when no longer needed
-- verifying official downloads before trusting them
-- complying with laws, workplace policies, and platform rules that apply to their use
-
-## Plaintext Exports
-
-Plaintext JSON exports and activity report exports are decrypted reports. They are more sensitive than encrypted vault files and should be stored, transferred, and deleted carefully.
-
-Printable Emergency Kit exports are plaintext safe-metadata reports. They should still be stored carefully because they can reveal vault names, backup filenames, timestamps, and recovery-readiness information.
-
-## Automatic Backup Limitations
-
-In-app automatic backups run only while ShellKrypt is open, the vault is unlocked, the configured backup directory is available, and the session-only backup passphrase has been entered. They are not an operating-system backup service and do not replace manual backup verification.
-
-## Clipboard Limitations
-
-Clipboard clearing is best-effort. Operating systems, clipboard managers, remote desktop tools, and other applications may retain copied values outside ShellKrypt's control.
-
-## Payment Card And Regulated Data
-
-ShellKrypt can store card-like data if the user enters it, but ShellKrypt is not a PCI-certified payment-card system and is not a substitute for regulated data-handling infrastructure.
+- The project may change, break, pause, or be withdrawn without a guaranteed support period.
+- Automatic backups run only under their documented in-app conditions and are not an operating-system backup service.
+- Platform-specific behavior, including Quick Fill, native Wayland Auto-Type, mobile features, packaging, and update delivery, may be incomplete or unsupported.
 
 ## Not Professional Advice
 
-ShellKrypt documentation and security notes are product documentation, not a regulated compliance or professional security service.
+> ShellKrypt, its documentation, audit findings, and security notes are not legal, financial, compliance, payment-card, or professional security advice. Obtain qualified advice for regulated or high-risk use.
+
+## Open Disclaimer Questions
+
+- Which jurisdiction-specific liability language is required before official paid distribution?
+- What external review must occur before stronger security claims are permitted?
+- Which support and refund terms will accompany official distribution channels?

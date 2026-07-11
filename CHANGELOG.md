@@ -1,10 +1,53 @@
-# Changelog
+# ShellKrypt: Changelog
 
-Project-level changes for `ShellKrypt`.
+Public project-level change history for ShellKrypt.
 
-Format follows Keep a Changelog. New changes accumulate under `Unreleased`. Before preparing a release, move relevant `Unreleased` entries into a versioned release section.
+Changes are grouped by release using Added, Changed, Fixed, Removed, and Security sections where they apply.
+
+## Versioning Policy
+
+Version format:
+
+```text
+MAJOR.MINOR.PATCH
+```
+
+- PATCH: fixes, polish, small content or behavior changes, and small internal cleanup.
+- MINOR: new features, new sections, meaningful workflow changes, and notable improvements.
+- MAJOR: stable release milestones, breaking changes, major redesigns, incompatible data or API changes, or a new project generation.
+- Before `1.0.0`, minor versions can represent larger project iterations while ShellKrypt is still stabilizing.
+- When `Unreleased` changes move into a new versioned section, update the
+  corresponding application version metadata and current-version documentation
+  in the same change.
 
 ## [Unreleased]
+
+## [ShellKrypt 0.19.1] - 2026-07-11
+
+### Added
+
+- Added structured private maintainer documentation for project direction,
+  engineering practices, architecture, storage and file formats, cryptography,
+  threat modeling, data handling, the in-app Security Audit, and temporary
+  technical findings.
+
+### Changed
+
+- Replaced overlapping legacy planning notes with subject-owned documentation
+  rules, explicit authority boundaries, and focused cross-references.
+- Reworked the public README, security policy, privacy notice, legal notices,
+  disclaimer, and terms so public documents no longer depend on private
+  maintainer material.
+- Updated repository ignore rules for the private documentation tree, encrypted
+  backup packages, local environment files, and the new Desktop source path.
+
+## [ShellKrypt 0.19.0] - 2026-07-10
+
+### Changed
+
+- Reorganized production projects under `src/`, tests under `tests/`, and added a `docs/` entry point while keeping the root solution canonical.
+
+## [ShellKrypt 0.18.0] - 2026-07-10
 
 ### Changed
 
