@@ -1,0 +1,41 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.Shared.ItemIdentityPanel"
+             x:Name="Root"
+             x:CompileBindings="False">
+  <StackPanel Spacing="14">
+    <Border Classes="item-details-identity-panel">
+      <StackPanel Spacing="14">
+        <StackPanel IsVisible="{Binding ShowSummary, ElementName=Root}"
+                    HorizontalAlignment="Center"
+                    Spacing="9">
+          <Border Classes="item-details-identity-icon" HorizontalAlignment="Center">
+            <PathIcon Data="{Binding IconData, ElementName=Root}" Width="42" Height="42"/>
+          </Border>
+          <TextBlock Text="{Binding Title, ElementName=Root}"
+                     FontSize="20"
+                     FontWeight="SemiBold"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"/>
+          <TextBlock Text="{Binding Subtitle, ElementName=Root}"
+                     Classes="page-subtitle"
+                     HorizontalAlignment="Center"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"/>
+          <Border IsVisible="{Binding HasBadge, ElementName=Root}"
+                  Classes="item-details-badge"
+                  HorizontalAlignment="Center">
+            <TextBlock Text="{Binding Badge, ElementName=Root}"/>
+          </Border>
+        </StackPanel>
+        <ContentControl Content="{Binding BodyContent, ElementName=Root}"
+                        HorizontalContentAlignment="Stretch"/>
+      </StackPanel>
+    </Border>
+    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="7">
+      <PathIcon Data="{StaticResource IconLock}" Width="15" Height="15" Foreground="{StaticResource AccentBrush}"/>
+      <TextBlock Text="{Binding EncryptionText, ElementName=Root}" Classes="page-subtitle"/>
+    </StackPanel>
+  </StackPanel>
+</UserControl>

@@ -1,0 +1,30 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:feature="using:ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys.ApiKeyItemView"
+             x:Name="Root"
+             x:DataType="feature:ApiKeyRowVm"
+             x:CompileBindings="False">
+  <Border Classes="item-workspace-card" PointerPressed="Card_OnPointerPressed">
+    <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="10">
+      <Button Classes="item-card-open" Command="{Binding ShowDetailsCommand, ElementName=Root}" CommandParameter="{Binding}">
+        <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+          <Border Width="32" Height="32" CornerRadius="4" Background="{StaticResource SurfaceElevatedBrush}"><TextBlock Text="{Binding Monogram}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource AccentBrush}" FontWeight="Bold"/></Border>
+          <StackPanel Grid.Column="1" Spacing="2"><TextBlock Text="{Binding Name}" Classes="item-card-title"/><TextBlock Text="{Binding UserDisplay}" Classes="item-card-secondary"/></StackPanel>
+        </Grid>
+      </Button>
+      <Border Grid.Row="1" Classes="item-secret-row">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="7">
+          <TextBlock Text="{Binding PrimaryFieldLabel}" Classes="item-card-secondary"/>
+          <TextBlock Grid.Column="1" Text="{Binding PrimaryFieldDisplay}" FontFamily="{StaticResource MonoFontFamily}" TextTrimming="CharacterEllipsis"/>
+          <Button Grid.Column="2" Classes="sk-icon-ghost" Command="{Binding ToggleSecretCommand, ElementName=Root}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource IconVisibility}" Width="15"/></Button>
+          <Button Grid.Column="3" Classes="sk-icon-ghost" Command="{Binding CopySecretCommand, ElementName=Root}" CommandParameter="{Binding}"><PathIcon Data="{StaticResource IconContentCopy}" Width="15"/></Button>
+        </Grid>
+      </Border>
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+        <TextBlock Text="{Binding ProviderDisplay}" Classes="item-card-secondary"/>
+        <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Details}" Classes="sk-link" Command="{Binding ShowDetailsCommand, ElementName=Root}" CommandParameter="{Binding}"/>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

@@ -1,0 +1,60 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:feature="using:ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards"
+             xmlns:shared="using:ShellKrypt.Desktop.Features.ItemWorkspaces.Shared"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards.CardEditorView"
+             x:DataType="feature:CardEditorViewModel"
+             x:CompileBindings="False">
+  <Grid>
+    <Border Classes="item-delete-confirm" IsVisible="{Binding IsConfirmDelete}">
+      <StackPanel Spacing="8"><TextBlock Text="{DynamicResource Loc.Cards.Modal.DeleteTitle}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding FooterText}" TextWrapping="Wrap"/></StackPanel>
+    </Border>
+
+    <shared:ResponsiveItemDetailsPanel IsVisible="{Binding IsDetails}">
+      <shared:ItemIdentityPanel ShowSummary="False" EncryptionText="{DynamicResource Loc.ItemWorkspace.Details.EncryptedLocally}">
+        <shared:ItemIdentityPanel.BodyContent>
+          <Border Classes="item-card-preview">
+            <Grid RowDefinitions="Auto,*,Auto">
+              <Border Width="62" Height="48" CornerRadius="9" Background="{StaticResource SurfaceElevatedBrush}">
+                <PathIcon Data="{StaticResource IconCreditCard}" Width="30" Height="30"/>
+              </Border>
+              <TextBlock Grid.Row="1" Text="{Binding CardPreviewNumber}" FontFamily="{StaticResource MonoFontFamily}" FontSize="21" VerticalAlignment="Center" TextWrapping="NoWrap"/>
+              <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="28">
+                <StackPanel Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Cardholder}" Classes="item-detail-label"/><TextBlock Text="{Binding Cardholder}" FontSize="16" TextTrimming="CharacterEllipsis"/></StackPanel>
+                <StackPanel Grid.Column="1" Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Expires}" Classes="item-detail-label"/><TextBlock Text="{Binding CardPreviewExpiry}" FontSize="16"/></StackPanel>
+                <TextBlock Grid.Column="2" Text="{Binding Issuer}" FontSize="18" FontWeight="Bold" VerticalAlignment="Bottom"/>
+              </Grid>
+            </Grid>
+          </Border>
+        </shared:ItemIdentityPanel.BodyContent>
+      </shared:ItemIdentityPanel>
+
+      <Border Classes="item-details-section">
+        <StackPanel>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardTitle}" Value="{Binding Title}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Bank}" Value="{Binding Bank}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Cardholder}" Value="{Binding Cardholder}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardNumber}" Value="{Binding NumberDisplay}" IsRevealed="{Binding SecretsVisible}" ToggleCommand="{Binding ToggleSecretsCommand}" CopyCommand="{Binding CopyNumberCommand}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Expiry}" Value="{Binding CardPreviewExpiry}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Cvc}" Value="{Binding CvcDisplay}" IsRevealed="{Binding SecretsVisible}" HasCopyAction="False" ToggleCommand="{Binding ToggleSecretsCommand}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Issuer}" Value="{Binding Issuer}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardType}" Value="{Binding CardType}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Notes}" Value="{Binding NotesDisplay}"/>
+        </StackPanel>
+      </Border>
+    </shared:ResponsiveItemDetailsPanel>
+
+    <Grid IsVisible="{Binding IsEditable}" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,*,*" RowSpacing="13" ColumnSpacing="14">
+      <StackPanel Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Title}" Classes="modal-shell-label"/><TextBox Text="{Binding Title}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Column="1" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Bank}" Classes="modal-shell-label"/><TextBox Text="{Binding Bank}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Column="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Cardholder}" Classes="modal-shell-label"/><TextBox Text="{Binding Cardholder}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Grid.ColumnSpan="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Number}" Classes="modal-shell-label"/><TextBox Text="{Binding Number}" TextChanged="CardNumberTextBox_OnTextChanged" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Grid.Column="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Cvc}" Classes="modal-shell-label"/><TextBox Text="{Binding Cvc}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.ExpiryMonth}" Classes="modal-shell-label"/><TextBox Text="{Binding ExpiryMonth}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="2" Grid.Column="1" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.ExpiryYear}" Classes="modal-shell-label"/><TextBox Text="{Binding ExpiryYear}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="2" Grid.Column="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Issuer}" Classes="modal-shell-label"/><ComboBox ItemsSource="{Binding IssuerOptions}" SelectedItem="{Binding Issuer}" Classes="sk-combo-modal"/></StackPanel>
+      <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Common.Notes.Label}" Classes="modal-shell-label"/><TextBox Text="{Binding Notes}" AcceptsReturn="True" MinHeight="90" Classes="modal-shell-input multiline"/></StackPanel>
+      <StackPanel Grid.Row="3" Grid.Column="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Cards.Form.Type}" Classes="modal-shell-label"/><ComboBox ItemsSource="{Binding CardTypeOptions}" SelectedItem="{Binding CardType}" Classes="sk-combo-modal"/></StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

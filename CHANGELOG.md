@@ -22,6 +22,26 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.20.0] - 2026-07-12
+
+### Changed
+
+- Reorganized Web Logins, Credit Cards, and API Keys into colocated Desktop
+  feature folders with shared workspace headers, toolbars, responsive card
+  grids, editor state, and modal footer controls.
+- Replaced the three item tables and large metric panels with responsive cards,
+  compact findings summaries, and consistent add, details, edit, cancel, save,
+  and delete-confirmation flows.
+- Updated Web Login password generation to use the reusable Crypto Tools
+  password generator instead of a feature-local implementation.
+- Standardized Web Login, Credit Card, and API Key detail dialogs around a
+  responsive identity-and-details layout with masked secret rows, feature
+  icons, local-encryption status, and consistent Delete, Close, and Edit
+  actions.
+- Refined the shared modal and Dark theme presentation with neutral charcoal
+  surfaces, cyan interaction accents, clearer elevation hierarchy, and
+  semantic read-only secret and credit-card preview surfaces.
+
 ## [ShellKrypt 0.19.1] - 2026-07-11
 
 ### Added

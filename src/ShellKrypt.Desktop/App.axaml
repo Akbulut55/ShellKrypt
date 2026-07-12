@@ -14,29 +14,29 @@
         <FontFamily x:Key="MonoFontFamily">avares://ShellKrypt/Resources/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
         <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
         <converters:ThemeResourceGeometryConverter x:Key="ThemeResourceGeometryConverter"/>
-        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
-        <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0e0e0e"/>
-        <SolidColorBrush x:Key="SurfaceBrush" Color="#201f1f"/>
-        <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#2a2a2a"/>
-        <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#353534"/>
-        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#353534"/>
-        <SolidColorBrush x:Key="SidebarBrush" Color="#1c1b1b"/>
-        <SolidColorBrush x:Key="BorderBrushSoft" Color="#333c4a46"/>
-        <SolidColorBrush x:Key="BorderBrushStrong" Color="#66859490"/>
-        <SolidColorBrush x:Key="WindowOutlineBrush" Color="#272626"/>
-        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#e5e2e1"/>
-        <SolidColorBrush x:Key="TextMutedBrush" Color="#bacac5"/>
+        <SolidColorBrush x:Key="AppBackgroundBrush" Color="#121212"/>
+        <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0b0b0c"/>
+        <SolidColorBrush x:Key="SurfaceBrush" Color="#1b1b1d"/>
+        <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#242427"/>
+        <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#2e2e32"/>
+        <SolidColorBrush x:Key="SurfaceHoverBrush" Color="#38383d"/>
+        <SolidColorBrush x:Key="SidebarBrush" Color="#18181a"/>
+        <SolidColorBrush x:Key="BorderBrushSoft" Color="#334f4f56"/>
+        <SolidColorBrush x:Key="BorderBrushStrong" Color="#66787882"/>
+        <SolidColorBrush x:Key="WindowOutlineBrush" Color="#28282b"/>
+        <SolidColorBrush x:Key="TextPrimaryBrush" Color="#f0f0f2"/>
+        <SolidColorBrush x:Key="TextMutedBrush" Color="#aaaab2"/>
         <SolidColorBrush x:Key="TextInverseBrush" Color="#050505"/>
-        <SolidColorBrush x:Key="TextSelectionBackgroundBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="TextSelectionBackgroundBrush" Color="#22d3ee"/>
         <SolidColorBrush x:Key="TextSelectionForegroundBrush" Color="#061413"/>
-        <SolidColorBrush x:Key="AccentBrush" Color="#57f1db"/>
-        <SolidColorBrush x:Key="AccentHoverBrush" Color="#63f5e1"/>
-        <SolidColorBrush x:Key="AccentPressedBrush" Color="#2dd4bf"/>
-        <SolidColorBrush x:Key="AccentMutedBrush" Color="#1a4f47"/>
-        <SolidColorBrush x:Key="AccentForegroundBrush" Color="#003731"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#22d3ee"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#67e8f9"/>
+        <SolidColorBrush x:Key="AccentPressedBrush" Color="#06b6d4"/>
+        <SolidColorBrush x:Key="AccentMutedBrush" Color="#123740"/>
+        <SolidColorBrush x:Key="AccentForegroundBrush" Color="#042f36"/>
         <SolidColorBrush x:Key="SuccessBrush" Color="#9cd1c6"/>
         <SolidColorBrush x:Key="SuccessMutedBrush" Color="#174544"/>
-        <SolidColorBrush x:Key="SuccessForegroundBrush" Color="#57f1db"/>
+        <SolidColorBrush x:Key="SuccessForegroundBrush" Color="#9cd1c6"/>
         <SolidColorBrush x:Key="WarningBrush" Color="#ffd1aa"/>
         <SolidColorBrush x:Key="WarningMutedBrush" Color="#3a3228"/>
         <SolidColorBrush x:Key="WarningForegroundBrush" Color="#ffd1aa"/>
@@ -48,19 +48,20 @@
         <SolidColorBrush x:Key="DangerHoverBrush" Color="#ff8f8f"/>
         <SolidColorBrush x:Key="InfoBrush" Color="#bacac5"/>
         <SolidColorBrush x:Key="InfoMutedBrush" Color="#2a2a2a"/>
-        <SolidColorBrush x:Key="TableShellBrush" Color="#0e0e0e"/>
-        <SolidColorBrush x:Key="TableHeaderBrush" Color="#201f1f"/>
-        <SolidColorBrush x:Key="TableRowBrush" Color="#2a2a2a"/>
-        <SolidColorBrush x:Key="TableRowHoverBrush" Color="#353534"/>
-        <SolidColorBrush x:Key="TableRowSelectedBrush" Color="#353534"/>
-        <SolidColorBrush x:Key="TableBorderBrush" Color="#171f1d"/>
-        <SolidColorBrush x:Key="TableFooterBrush" Color="#201f1f"/>
-        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0e0e0e"/>
-        <SolidColorBrush x:Key="InputBorderBrush" Color="#333c4a46"/>
-        <SolidColorBrush x:Key="InputHoverBorderBrush" Color="#333c4a46"/>
-        <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#57f1db"/>
-        <SolidColorBrush x:Key="ModalCardBrush" Color="#201f1f"/>
-        <SolidColorBrush x:Key="ModalBorderBrush" Color="#663c4a46"/>
+        <SolidColorBrush x:Key="TableShellBrush" Color="#0b0b0c"/>
+        <SolidColorBrush x:Key="TableHeaderBrush" Color="#1b1b1d"/>
+        <SolidColorBrush x:Key="TableRowBrush" Color="#242427"/>
+        <SolidColorBrush x:Key="TableRowHoverBrush" Color="#2e2e32"/>
+        <SolidColorBrush x:Key="TableRowSelectedBrush" Color="#38383d"/>
+        <SolidColorBrush x:Key="TableBorderBrush" Color="#1b1b1e"/>
+        <SolidColorBrush x:Key="TableFooterBrush" Color="#1b1b1d"/>
+        <SolidColorBrush x:Key="InputBackgroundBrush" Color="#0b0b0c"/>
+        <SolidColorBrush x:Key="InputBorderBrush" Color="#334f4f56"/>
+        <SolidColorBrush x:Key="InputHoverBorderBrush" Color="#66787882"/>
+        <SolidColorBrush x:Key="InputFocusBorderBrush" Color="#22d3ee"/>
+        <SolidColorBrush x:Key="ModalCardBrush" Color="#1b1b1d"/>
+        <SolidColorBrush x:Key="CardPreviewBackgroundBrush" Color="#102832"/>
+        <SolidColorBrush x:Key="ModalBorderBrush" Color="#66787882"/>
         <SolidColorBrush x:Key="OverlayScrimBrush" Color="#b0000000"/>
         <SolidColorBrush x:Key="OverlaySoftScrimBrush" Color="#70000000"/>
         <SolidColorBrush x:Key="ResizeHitTestBrush" Color="#01000000"/>
@@ -100,10 +101,11 @@
     <Application.Styles>
         <FluentTheme>
             <FluentTheme.Palettes>
-                <ColorPaletteResources x:Key="Dark" Accent="#57f1db"/>
+                <ColorPaletteResources x:Key="Dark" Accent="#22d3ee"/>
                 <ColorPaletteResources x:Key="Light" Accent="#19cdb6"/>
             </FluentTheme.Palettes>
         </FluentTheme>
+        <StyleInclude Source="avares://ShellKrypt/Features/ItemWorkspaces/Shared/ItemWorkspaceStyles.axaml"/>
 
         <Style Selector="Window">
             <Setter Property="Background" Value="{StaticResource AppBackgroundBrush}"/>

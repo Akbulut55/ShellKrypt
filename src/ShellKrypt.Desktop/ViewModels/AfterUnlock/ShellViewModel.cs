@@ -10,6 +10,9 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
+using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
+using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
 using ShellKrypt.UI.Shared.Navigation;
@@ -67,7 +70,7 @@ public partial class ShellViewModel : ViewModelBase
         }
 
         AllItems = new AllItemsViewModel(_root, this, vaultItemSummaryService);
-        WebLogins = new WebLoginsViewModel(_root, webLoginService, AllItems.RefreshAfterMutationAsync);
+        WebLogins = new WebLoginsViewModel(_root, webLoginService, passwordGenerator, AllItems.RefreshAfterMutationAsync);
         MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
         Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
