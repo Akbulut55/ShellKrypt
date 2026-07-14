@@ -160,9 +160,14 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
         Assert.DoesNotContain("4242424242424242", editor.CardPreviewNumber, StringComparison.Ordinal);
         Assert.DoesNotContain("123", editor.CardPreviewNumber, StringComparison.Ordinal);
 
-        editor.ToggleSecretsCommand.Execute(null);
+        editor.ToggleNumberCommand.Execute(null);
+        Assert.True(editor.NumberVisible);
+        Assert.False(editor.CvcVisible);
+        editor.ToggleCvcCommand.Execute(null);
+        Assert.True(editor.CvcVisible);
         editor.BeginEditCommand.Execute(null);
-        Assert.False(editor.SecretsVisible);
+        Assert.False(editor.NumberVisible);
+        Assert.False(editor.CvcVisible);
         Assert.Equal(ModalShellSize.Wide, editor.ModalSize);
     }
 

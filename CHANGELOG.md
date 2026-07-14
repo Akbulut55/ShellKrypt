@@ -22,6 +22,32 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.21.0] - 2026-07-14
+
+### Changed
+
+- Updated Avalonia across Desktop, shared UI, and mobile projects from 12.0
+  to 12.1, including the Linux DBus dependency required by Avalonia 12.1.
+- Rebuilt the Desktop design system around Dark and Light semantic palettes,
+  modular shared style dictionaries, standardized compact controls, and
+  enforceable contrast and XAML styling rules.
+- Migrated ordinary Desktop inputs, search fields, read-only secret surfaces,
+  and button aliases to shared `sk-*` component roles.
+- Rebuilt the Credit Card details preview with a scalable theme-backed
+  gradient and depth elements instead of a bitmap asset.
+- Unified Dark and Light primary actions on a shared cyan accent while
+  retaining a darker accessible accent text role for Light surfaces.
+
+### Fixed
+
+- Separated Credit Card number and CVC reveal controls and replaced
+  font-dependent CVC asterisks with consistent masking bullets.
+
+### Removed
+
+- Removed the Crimson, Ocean, and Forest themes and the obsolete legacy theme
+  mode compatibility field.
+
 ## [ShellKrypt 0.20.0] - 2026-07-12
 
 ### Changed

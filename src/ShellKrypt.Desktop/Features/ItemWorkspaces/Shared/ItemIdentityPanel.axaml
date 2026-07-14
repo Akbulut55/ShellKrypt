@@ -33,7 +33,10 @@
                         HorizontalContentAlignment="Stretch"/>
       </StackPanel>
     </Border>
-    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Spacing="7">
+    <StackPanel Orientation="Horizontal"
+                HorizontalAlignment="Center"
+                Spacing="7"
+                IsVisible="{Binding ShowEncryption, ElementName=Root}">
       <PathIcon Data="{StaticResource IconLock}" Width="15" Height="15" Foreground="{StaticResource AccentBrush}"/>
       <TextBlock Text="{Binding EncryptionText, ElementName=Root}" Classes="page-subtitle"/>
     </StackPanel>

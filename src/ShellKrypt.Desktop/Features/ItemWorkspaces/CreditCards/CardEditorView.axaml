@@ -10,19 +10,26 @@
       <StackPanel Spacing="8"><TextBlock Text="{DynamicResource Loc.Cards.Modal.DeleteTitle}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding FooterText}" TextWrapping="Wrap"/></StackPanel>
     </Border>
 
-    <shared:ResponsiveItemDetailsPanel IsVisible="{Binding IsDetails}">
-      <shared:ItemIdentityPanel ShowSummary="False" EncryptionText="{DynamicResource Loc.ItemWorkspace.Details.EncryptedLocally}">
+    <shared:ResponsiveItemDetailsPanel IsVisible="{Binding IsDetails}" IdentityWidth="360" Gap="24">
+      <shared:ItemIdentityPanel ShowSummary="False" ShowEncryption="False">
         <shared:ItemIdentityPanel.BodyContent>
           <Border Classes="item-card-preview">
-            <Grid RowDefinitions="Auto,*,Auto">
-              <Border Width="62" Height="48" CornerRadius="9" Background="{StaticResource SurfaceElevatedBrush}">
-                <PathIcon Data="{StaticResource IconCreditCard}" Width="30" Height="30"/>
-              </Border>
-              <TextBlock Grid.Row="1" Text="{Binding CardPreviewNumber}" FontFamily="{StaticResource MonoFontFamily}" FontSize="21" VerticalAlignment="Center" TextWrapping="NoWrap"/>
-              <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="28">
-                <StackPanel Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Cardholder}" Classes="item-detail-label"/><TextBlock Text="{Binding Cardholder}" FontSize="16" TextTrimming="CharacterEllipsis"/></StackPanel>
-                <StackPanel Grid.Column="1" Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Expires}" Classes="item-detail-label"/><TextBlock Text="{Binding CardPreviewExpiry}" FontSize="16"/></StackPanel>
-                <TextBlock Grid.Column="2" Text="{Binding Issuer}" FontSize="18" FontWeight="Bold" VerticalAlignment="Bottom"/>
+            <Grid ClipToBounds="True">
+              <Grid RowDefinitions="Auto,*,Auto">
+                <TextBlock Grid.Row="1"
+                           Text="{Binding CardPreviewNumber}"
+                           FontFamily="{StaticResource MonoFontFamily}"
+                           FontSize="18"
+                           LetterSpacing="0.5"
+                           HorizontalAlignment="Center"
+                           TextAlignment="Center"
+                           VerticalAlignment="Center"
+                           TextWrapping="NoWrap"/>
+                <Grid Grid.Row="2" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="28">
+                  <StackPanel Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Cardholder}" Classes="item-detail-label"/><TextBlock Text="{Binding Cardholder}" FontSize="16" TextTrimming="CharacterEllipsis"/></StackPanel>
+                  <StackPanel Grid.Column="1" Spacing="5"><TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Expires}" Classes="item-detail-label"/><TextBlock Text="{Binding CardPreviewExpiry}" FontSize="16"/></StackPanel>
+                  <TextBlock Grid.Column="2" Text="{Binding Issuer}" FontSize="18" FontWeight="Bold" FontStyle="Italic" VerticalAlignment="Bottom"/>
+                </Grid>
               </Grid>
             </Grid>
           </Border>
@@ -34,9 +41,9 @@
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardTitle}" Value="{Binding Title}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Bank}" Value="{Binding Bank}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Cardholder}" Value="{Binding Cardholder}"/>
-          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardNumber}" Value="{Binding NumberDisplay}" IsRevealed="{Binding SecretsVisible}" ToggleCommand="{Binding ToggleSecretsCommand}" CopyCommand="{Binding CopyNumberCommand}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardNumber}" Value="{Binding NumberDisplay}" IsRevealed="{Binding NumberVisible}" ToggleCommand="{Binding ToggleNumberCommand}" CopyCommand="{Binding CopyNumberCommand}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Expiry}" Value="{Binding CardPreviewExpiry}"/>
-          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Cvc}" Value="{Binding CvcDisplay}" IsRevealed="{Binding SecretsVisible}" HasCopyAction="False" ToggleCommand="{Binding ToggleSecretsCommand}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Cvc}" Value="{Binding CvcDisplay}" IsRevealed="{Binding CvcVisible}" HasCopyAction="False" ToggleCommand="{Binding ToggleCvcCommand}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Issuer}" Value="{Binding Issuer}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.CardType}" Value="{Binding CardType}"/>
           <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Notes}" Value="{Binding NotesDisplay}"/>

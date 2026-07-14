@@ -88,7 +88,7 @@
                           VerticalAlignment="Center"/>
                 <TextBox Grid.Column="1"
                          Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="allitems-top-search"
+                         Classes="sk-search-input"
                          PlaceholderText="{DynamicResource Loc.AllItems.Search.Placeholder}"/>
               </Grid>
             </Border>
@@ -305,13 +305,6 @@
       <Setter Property="Margin" Value="0"/>
     </Style>
 
-    <Style Selector="TextBox.allitems-top-search">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="0,11"/>
-      <Setter Property="MinHeight" Value="42"/>
-    </Style>
 
     <Style Selector="Border.allitems-stat-card">
       <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>

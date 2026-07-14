@@ -197,7 +197,7 @@ public partial class ModalShell : UserControl
             SetCurrentValue(DialogWidthProperty, Size switch
             {
                 ModalShellSize.Wide => 760d,
-                ModalShellSize.ItemDetails => 980d,
+                ModalShellSize.ItemDetails => 900d,
                 _ => 640d
             });
     }

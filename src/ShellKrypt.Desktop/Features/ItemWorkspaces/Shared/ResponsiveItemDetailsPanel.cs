@@ -10,10 +10,10 @@ public sealed class ResponsiveItemDetailsPanel : Panel
         AvaloniaProperty.Register<ResponsiveItemDetailsPanel, double>(nameof(Breakpoint), 760);
 
     public static readonly StyledProperty<double> IdentityWidthProperty =
-        AvaloniaProperty.Register<ResponsiveItemDetailsPanel, double>(nameof(IdentityWidth), 340);
+        AvaloniaProperty.Register<ResponsiveItemDetailsPanel, double>(nameof(IdentityWidth), 360);
 
     public static readonly StyledProperty<double> GapProperty =
-        AvaloniaProperty.Register<ResponsiveItemDetailsPanel, double>(nameof(Gap), 32);
+        AvaloniaProperty.Register<ResponsiveItemDetailsPanel, double>(nameof(Gap), 28);
 
     public double Breakpoint { get => GetValue(BreakpointProperty); set => SetValue(BreakpointProperty, value); }
     public double IdentityWidth { get => GetValue(IdentityWidthProperty); set => SetValue(IdentityWidthProperty, value); }

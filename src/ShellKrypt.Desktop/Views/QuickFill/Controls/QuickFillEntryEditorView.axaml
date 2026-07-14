@@ -50,17 +50,6 @@
       <Setter Property="FontSize" Value="22" />
       <Setter Property="FontWeight" Value="SemiBold" />
     </Style>
-    <Style Selector="TextBox.qfe-input">
-      <Setter Property="MinHeight" Value="44" />
-      <Setter Property="Padding" Value="14,0" />
-      <Setter Property="VerticalContentAlignment" Value="Center" />
-    </Style>
-    <Style Selector="TextBox.qfe-notes">
-      <Setter Property="MinHeight" Value="92" />
-      <Setter Property="AcceptsReturn" Value="True" />
-      <Setter Property="TextWrapping" Value="Wrap" />
-      <Setter Property="Padding" Value="14,12" />
-    </Style>
   </UserControl.Styles>
 
   <Grid>
@@ -83,11 +72,11 @@
                  Grid.Column="0"
                  PlaceholderText="{DynamicResource Loc.QuickFill.Entry.NamePlaceholder}"
                  Text="{Binding EntryName}"
-                 Classes="qfe-input" />
+                 Classes="sk-input" />
         <TextBox Grid.Row="1"
                  Grid.Column="1"
                  Text="{Binding EntryCategory}"
-                 Classes="qfe-input" />
+                 Classes="sk-input" />
       </Grid>
 
       <Border Grid.Row="1" Classes="qfe-sequence-card">
@@ -100,7 +89,7 @@
         <TextBox Grid.Row="0"
                  Text="{Binding Notes}"
                  PlaceholderText="{DynamicResource Loc.QuickFill.Entry.Notes}"
-                 Classes="qfe-notes" />
+                 Classes="sk-input sk-textarea" />
         <Grid Grid.Row="1"
               ColumnDefinitions="*,Auto,Auto,Auto"
               ColumnSpacing="14"

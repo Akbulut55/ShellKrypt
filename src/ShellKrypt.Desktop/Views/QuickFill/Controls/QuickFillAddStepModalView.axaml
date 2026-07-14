@@ -61,10 +61,10 @@
                         IsVisible="{Binding IsManualFieldSource}">
               <TextBox Text="{Binding OwnedFieldLabel}"
                        PlaceholderText="{DynamicResource Loc.QuickFill.Field.Label}"
-                       Classes="qfe-input" />
+                       Classes="sk-input" />
               <TextBox Text="{Binding OwnedFieldValue}"
                        PlaceholderText="{DynamicResource Loc.QuickFill.Field.Value}"
-                       Classes="qfe-input" />
+                       Classes="sk-input" />
               <Button Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
                       Command="{Binding AddOwnedFieldCommand}"
                       Classes="sk-secondary"
@@ -134,7 +134,7 @@
                       IsVisible="{Binding IsAddTextMode}">
             <TextBox Text="{Binding AddStepText}"
                      PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.TextPlaceholder}"
-                     Classes="qfe-input"/>
+                     Classes="sk-input"/>
             <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddText}"
                     Command="{Binding AddTextSequenceStepCommand}"
                     Classes="sk-secondary"
@@ -145,7 +145,7 @@
                       IsVisible="{Binding IsAddDelayMode}">
             <TextBox Text="{Binding AddStepDelayMilliseconds}"
                      PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.DelayPlaceholder}"
-                     Classes="qfe-input"/>
+                     Classes="sk-input"/>
             <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelay}"
                     Command="{Binding AddDelaySequenceStepCommand}"
                     Classes="sk-secondary"

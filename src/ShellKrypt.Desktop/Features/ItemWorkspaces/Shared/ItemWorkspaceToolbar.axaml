@@ -11,7 +11,7 @@
           <TextBox Grid.Column="1"
                    Text="{Binding SearchText, ElementName=Root, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                    PlaceholderText="{Binding SearchPlaceholder, ElementName=Root}"
-                   Classes="item-workspace-search"/>
+                   Classes="sk-search-input"/>
         </Grid>
       </Border>
       <ContentControl Grid.Column="1" Content="{Binding FilterContent, ElementName=Root}" HorizontalAlignment="Left"/>

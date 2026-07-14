@@ -21,9 +21,6 @@ public sealed class FileAppSettingsStore : IAppSettingsStore
 
             var json = File.ReadAllText(DefaultPaths.SettingsPath);
             var settings = JsonSerializer.Deserialize<AppSettings>(json, JsonOptions) ?? new AppSettings();
-            if (!HasJsonProperty(json, nameof(AppSettings.ThemeId)))
-                settings.ThemeId = AppSettings.ThemeIdFromLegacyMode(settings.ThemeMode);
-
             return settings;
         }
         catch
@@ -40,19 +37,5 @@ public sealed class FileAppSettingsStore : IAppSettingsStore
 
         var json = JsonSerializer.Serialize(settings, JsonOptions);
         File.WriteAllText(DefaultPaths.SettingsPath, json);
-    }
-
-    private static bool HasJsonProperty(string json, string propertyName)
-    {
-        try
-        {
-            using var document = JsonDocument.Parse(json);
-            return document.RootElement.ValueKind == JsonValueKind.Object &&
-                   document.RootElement.TryGetProperty(propertyName, out _);
-        }
-        catch
-        {
-            return false;
-        }
     }
 }

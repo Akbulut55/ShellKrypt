@@ -4,7 +4,7 @@
              x:Name="Root"
              x:CompileBindings="False">
   <Border Classes="item-details-row">
-    <Grid ColumnDefinitions="200,*" ColumnSpacing="24">
+    <Grid ColumnDefinitions="180,*" ColumnSpacing="20">
       <TextBlock Text="{Binding Label, ElementName=Root}" Classes="item-details-row-label" VerticalAlignment="Center"/>
       <TextBlock Grid.Column="1" Text="{Binding Value, ElementName=Root}" FontSize="15" TextWrapping="Wrap" VerticalAlignment="Center"/>
     </Grid>

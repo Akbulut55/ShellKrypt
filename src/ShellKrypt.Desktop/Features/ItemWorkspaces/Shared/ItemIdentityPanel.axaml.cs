@@ -13,6 +13,7 @@ public partial class ItemIdentityPanel : UserControl
     public static readonly StyledProperty<string> EncryptionTextProperty = AvaloniaProperty.Register<ItemIdentityPanel, string>(nameof(EncryptionText), "");
     public static readonly StyledProperty<object?> BodyContentProperty = AvaloniaProperty.Register<ItemIdentityPanel, object?>(nameof(BodyContent));
     public static readonly StyledProperty<bool> ShowSummaryProperty = AvaloniaProperty.Register<ItemIdentityPanel, bool>(nameof(ShowSummary), true);
+    public static readonly StyledProperty<bool> ShowEncryptionProperty = AvaloniaProperty.Register<ItemIdentityPanel, bool>(nameof(ShowEncryption), true);
     public static readonly StyledProperty<bool> HasBadgeProperty = AvaloniaProperty.Register<ItemIdentityPanel, bool>(nameof(HasBadge));
 
     public ItemIdentityPanel() => InitializeComponent();
@@ -24,6 +25,7 @@ public partial class ItemIdentityPanel : UserControl
     public string EncryptionText { get => GetValue(EncryptionTextProperty); set => SetValue(EncryptionTextProperty, value); }
     public object? BodyContent { get => GetValue(BodyContentProperty); set => SetValue(BodyContentProperty, value); }
     public bool ShowSummary { get => GetValue(ShowSummaryProperty); set => SetValue(ShowSummaryProperty, value); }
+    public bool ShowEncryption { get => GetValue(ShowEncryptionProperty); set => SetValue(ShowEncryptionProperty, value); }
     public bool HasBadge { get => GetValue(HasBadgeProperty); private set => SetValue(HasBadgeProperty, value); }
 
     protected override void OnPropertyChanged(AvaloniaPropertyChangedEventArgs change)

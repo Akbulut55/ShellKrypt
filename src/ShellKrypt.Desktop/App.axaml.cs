@@ -43,6 +43,11 @@ namespace ShellKrypt.Desktop
             UpdateAccentGradient(
                 theme.Palette["AccentBrush"],
                 theme.Palette["AccentPressedBrush"]);
+
+            UpdateGradient(
+                "CardPreviewGradientBrush",
+                theme.Palette["CardPreviewGradientStartColor"],
+                theme.Palette["CardPreviewGradientEndColor"]);
         }
 
         public void ApplyLocalization(LocalizationService localization)
@@ -55,11 +60,18 @@ namespace ShellKrypt.Desktop
         {
             if (TryGetResource(key, null, out var resource) && resource is SolidColorBrush brush)
                 brush.Color = Color.Parse(color);
+            else if (resource is Color)
+                Resources[key] = Color.Parse(color);
         }
 
         private void UpdateAccentGradient(string startColor, string endColor)
         {
-            if (!TryGetResource("AccentGradientBrush", null, out var resource) ||
+            UpdateGradient("AccentGradientBrush", startColor, endColor);
+        }
+
+        private void UpdateGradient(string resourceKey, string startColor, string endColor)
+        {
+            if (!TryGetResource(resourceKey, null, out var resource) ||
                 resource is not LinearGradientBrush gradient ||
                 gradient.GradientStops.Count < 2)
             {

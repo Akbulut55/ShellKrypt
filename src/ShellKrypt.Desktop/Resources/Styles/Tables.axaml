@@ -1,0 +1,138 @@
+<Styles xmlns="https://github.com/avaloniaui">
+<Style Selector="Border.table-shell">
+    <Setter Property="Background" Value="{StaticResource TableShellBrush}"/>
+    <Setter Property="CornerRadius" Value="12"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+</Style>
+
+<Style Selector="Border.table-header-row">
+    <Setter Property="Background" Value="{StaticResource TableHeaderBrush}"/>
+    <Setter Property="Padding" Value="16,12"/>
+</Style>
+
+<Style Selector="Border.table-row">
+    <Setter Property="Background" Value="{StaticResource TableRowBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="CornerRadius" Value="0"/>
+</Style>
+
+<Style Selector="Border.table-row:pointerover">
+    <Setter Property="Background" Value="{StaticResource TableRowHoverBrush}"/>
+</Style>
+
+<Style Selector="ListBox.table-list">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+</Style>
+
+<Style Selector="ListBox.table-list ListBoxItem">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+</Style>
+
+<Style Selector="ListBox.table-list ListBoxItem:selected Border.table-row">
+    <Setter Property="Background" Value="{StaticResource TableRowSelectedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
+</Style>
+
+<Style Selector="ListBox.table-list ListBoxItem:pointerover Border.table-row">
+    <Setter Property="Background" Value="{StaticResource TableRowHoverBrush}"/>
+</Style>
+
+<Style Selector="Border.table-footer-row">
+    <Setter Property="Background" Value="{StaticResource TableFooterBrush}"/>
+    <Setter Property="Padding" Value="16,12"/>
+</Style>
+
+<Style Selector="TextBlock.table-header-text">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="LetterSpacing" Value="1.2"/>
+</Style>
+
+<Style Selector="TextBlock.table-footer-text">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="12"/>
+</Style>
+
+<Style Selector="StackPanel.table-empty">
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="VerticalAlignment" Value="Center"/>
+    <Setter Property="Spacing" Value="10"/>
+</Style>
+
+<Style Selector="TextBlock.table-empty-title">
+    <Setter Property="FontSize" Value="18"/>
+    <Setter Property="FontWeight" Value="Bold"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="TextBlock.table-empty-subtitle">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="13"/>
+    <Setter Property="MaxWidth" Value="460"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+    <Setter Property="TextWrapping" Value="Wrap"/>
+</Style>
+
+<Style Selector="Button.sk-table-action">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="11"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="Height" Value="30"/>
+    <Setter Property="MinHeight" Value="30"/>
+    <Setter Property="MinWidth" Value="56"/>
+    <Setter Property="Padding" Value="8,0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="Button.sk-table-action:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-table-page">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="12"/>
+    <Setter Property="Height" Value="34"/>
+    <Setter Property="MinHeight" Value="34"/>
+    <Setter Property="MinWidth" Value="74"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="Button.sk-table-page:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-table-page:disabled">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="Opacity" Value="0.72"/>
+</Style>
+
+<Style Selector="Button.sk-table-page.active">
+    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+</Style>
+
+</Styles>

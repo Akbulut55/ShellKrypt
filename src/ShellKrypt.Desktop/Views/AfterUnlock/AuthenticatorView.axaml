@@ -30,7 +30,7 @@
                 ColumnSpacing="12"
                 VerticalAlignment="Center">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Classes="auth-search"
+                     Classes="sk-search-input"
                      PlaceholderText="{DynamicResource Loc.Authenticator.Search.Placeholder}"/>
             <Button Grid.Column="1"
                     Content="{DynamicResource Loc.Authenticator.Button.AddCode}"
@@ -575,7 +575,7 @@
                 <TextBlock Text="{DynamicResource Loc.Common.Name.Label}"
                            Classes="auth-kicker"/>
                 <TextBox Text="{Binding FormName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         Classes="auth-modal-input"
+                         Classes="sk-input sk-input-large"
                          PlaceholderText="{DynamicResource Loc.Authenticator.Form.Name.Placeholder}"/>
               </StackPanel>
 
@@ -599,16 +599,16 @@
                           Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
                            Classes="auth-kicker"/>
-                <Border Classes="auth-modal-input-shell">
+                <Border Classes="sk-input-shell">
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
                     <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="auth-modal-input borderless"
+                             Classes="sk-input sk-input-large sk-input-borderless"
                              PasswordChar="*"
                              IsVisible="{Binding !IsFormSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="auth-modal-input borderless"
+                             Classes="sk-input sk-input-large sk-input-borderless"
                              IsVisible="{Binding IsFormSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <Button Grid.Column="1"
@@ -692,7 +692,7 @@
                     <TextBlock Text="{DynamicResource Loc.Authenticator.Form.ValidPeriod}"
                                Classes="auth-kicker"/>
                     <TextBox Text="{Binding FormPeriodSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="auth-modal-input"
+                             Classes="sk-input sk-input-large"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.ValidPeriod.Placeholder}"/>
                   </StackPanel>
                 </Grid>
@@ -843,17 +843,6 @@
       <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
     </Style>
 
-    <Style Selector="TextBox.auth-search">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Padding" Value="14,8"/>
-    </Style>
 
     <Style Selector="TextBlock.auth-list-code">
       <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
@@ -956,54 +945,12 @@
       <Setter Property="Padding" Value="28"/>
     </Style>
 
-    <Style Selector="Border.auth-modal-input-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-    </Style>
 
-    <Style Selector="Border.auth-modal-input-shell:focus-within">
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Padding" Value="14,10"/>
-      <Setter Property="MinHeight" Value="42"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input.borderless">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Padding" Value="14,10"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input.borderless:focus">
-      <Setter Property="BorderBrush" Value="Transparent"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input.borderless /template/ Border#PART_BorderElement">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="CornerRadius" Value="0"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input.borderless:pointerover /template/ Border#PART_BorderElement">
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
 
-    <Style Selector="TextBox.auth-modal-input.borderless:focus /template/ Border#PART_BorderElement">
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
   </UserControl.Styles>
 </UserControl>

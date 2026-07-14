@@ -153,11 +153,11 @@
               <StackPanel Spacing="8">
                 <TextBlock Text="{DynamicResource Loc.QuickFill.Popup.MasterPassword}"
                            Classes="qf-unlock-label"/>
-                <Border Classes="qf-unlock-password-shell">
+                <Border Classes="sk-input-shell">
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="8">
                     <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="qf-unlock-input"
+                             Classes="sk-input sk-input-borderless"
                              PasswordChar="*"
                              PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"
                              IsVisible="{Binding !ShowPassword}">
@@ -167,7 +167,7 @@
                       </TextBox.KeyBindings>
                     </TextBox>
                     <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                             Classes="qf-unlock-input"
+                             Classes="sk-input sk-input-borderless"
                              PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"
                              IsVisible="{Binding ShowPassword}">
                       <TextBox.KeyBindings>
@@ -425,45 +425,11 @@
       <Setter Property="FontWeight" Value="SemiBold"/>
     </Style>
 
-    <Style Selector="Border.qf-unlock-password-shell">
-      <Setter Property="MinHeight" Value="48"/>
-      <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="12,0,8,0"/>
-    </Style>
 
-    <Style Selector="Border.qf-unlock-password-shell:focus-within">
-      <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
-    </Style>
 
-    <Style Selector="TextBox.qf-unlock-input">
-      <Setter Property="MinHeight" Value="46"/>
-      <Setter Property="Padding" Value="4,0"/>
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="CaretBrush" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="VerticalContentAlignment" Value="Center"/>
-    </Style>
 
-    <Style Selector="TextBox.qf-unlock-input /template/ Border#PART_BorderElement">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-    </Style>
 
-    <Style Selector="TextBox.qf-unlock-input:pointerover /template/ Border#PART_BorderElement">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-    </Style>
 
-    <Style Selector="TextBox.qf-unlock-input:focus /template/ Border#PART_BorderElement">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-    </Style>
 
     <Style Selector="Border.qf-unlock-status">
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
