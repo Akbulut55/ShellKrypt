@@ -1,7 +1,7 @@
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace ShellKrypt.Desktop.Views;
+namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorView : UserControl
 {

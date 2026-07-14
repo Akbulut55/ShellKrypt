@@ -1,7 +1,7 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 
-namespace ShellKrypt.Desktop.ViewModels;
+namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorViewModel
 {
@@ -21,7 +21,7 @@ public partial class AuthenticatorViewModel
         if (_root.VaultPath is null)
             return;
 
-        var updated = await _authenticatorService.MarkUsedAsync(_root.VaultPath, _root.VaultKey, SelectedEntry.Id);
+        var updated = await _entryService.MarkUsedAsync(_root.VaultPath, _root.VaultKey, SelectedEntry.Id);
         SelectedEntry.Apply(updated);
         RefreshSnapshots();
         await _refreshAllItemsAsync(updated.Id);
@@ -31,10 +31,8 @@ public partial class AuthenticatorViewModel
     private void RefreshSnapshots()
     {
         foreach (var entry in _allEntries)
-            entry.ApplySnapshot(_authenticatorService.GetCurrentCode(entry.ToEntry()));
+            entry.ApplySnapshot(_codeGenerator.GetCurrentCode(entry.ToEntry()));
 
-        OnPropertyChanged(nameof(RefreshingSoonCount));
-        OnPropertyChanged(nameof(RecentlyUsedCount));
         OnPropertyChanged(nameof(CanCopyCode));
     }
 }

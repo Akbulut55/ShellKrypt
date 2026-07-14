@@ -4,9 +4,9 @@ using System.Globalization;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Localization;
-using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Authenticator;
 
-namespace ShellKrypt.Desktop.ViewModels;
+namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public sealed partial class AuthenticatorAccountVm : ObservableObject
 {

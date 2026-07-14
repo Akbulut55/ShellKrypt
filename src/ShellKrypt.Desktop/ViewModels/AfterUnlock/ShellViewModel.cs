@@ -8,8 +8,10 @@ using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
@@ -37,11 +39,12 @@ public partial class ShellViewModel : ViewModelBase
         IWebLoginService webLoginService,
         ICardService cardService,
         INoteService noteService,
-        IAuthenticatorService authenticatorService,
+        IAuthenticatorEntryService authenticatorEntryService,
+        IOneTimePasswordGenerator oneTimePasswordGenerator,
         IApiKeyService apiKeyService,
         IProjectSecretService projectSecretService,
         IQuickFillEntryService quickFillEntryService,
-        AuthenticatorQrImportService authenticatorQrImportService,
+        AuthenticatorQrImageImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
         IPasswordGenerator passwordGenerator,
         IPasswordStrengthService passwordStrengthService,
@@ -73,7 +76,13 @@ public partial class ShellViewModel : ViewModelBase
         WebLogins = new WebLoginsViewModel(_root, webLoginService, passwordGenerator, AllItems.RefreshAfterMutationAsync);
         MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
         Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
-        Authenticator = new AuthenticatorViewModel(_root, authenticatorService, authenticatorQrImportService, AllItems.RefreshAfterMutationAsync);
+        Authenticator = new AuthenticatorViewModel(
+            _root,
+            authenticatorEntryService,
+            oneTimePasswordGenerator,
+            authenticatorQrImportService,
+            new AuthenticatorRefreshTimer(),
+            AllItems.RefreshAfterMutationAsync);
         ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
         ProjectSecrets = new ProjectSecretsViewModel(_root, projectSecretService, apiKeyService, AllItems.RefreshAfterMutationAsync);
         CryptoTools = new CryptoToolsViewModel(
@@ -82,7 +91,7 @@ public partial class ShellViewModel : ViewModelBase
             passwordStrengthService,
             hashService,
             base64Service);
-        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorService);
+        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorEntryService);
         Health = new HealthViewModel(_root, this, healthAuditService);
         BackupCenter = new BackupCenterViewModel(_root);
         Settings = new SettingsViewModel(_root, this, vaultRegistryService);
@@ -105,6 +114,11 @@ public partial class ShellViewModel : ViewModelBase
     public SettingsViewModel Settings { get; }
     public ActivityViewModel Activity { get; }
     public NavItemVm SettingsNavItem { get; }
+
+    public void Deactivate()
+    {
+        Authenticator.Deactivate();
+    }
 
     public override void RefreshLocalization()
     {

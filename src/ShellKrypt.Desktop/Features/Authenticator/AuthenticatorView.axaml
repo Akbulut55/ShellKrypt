@@ -1,14 +1,15 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ShellKrypt.Desktop.ViewModels"
-             x:Class="ShellKrypt.Desktop.Views.AuthenticatorView"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.Authenticator"
+             xmlns:ui="using:ShellKrypt.UI.Shared.Controls"
+             x:Class="ShellKrypt.Desktop.Features.Authenticator.AuthenticatorView"
              x:CompileBindings="False"
              x:DataType="vm:AuthenticatorViewModel">
 
   <Grid>
     <Grid Margin="20"
-          RowDefinitions="Auto,*"
-          RowSpacing="22"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="12"
           HorizontalAlignment="Stretch"
           VerticalAlignment="Stretch">
         <Grid Grid.Row="0"
@@ -39,7 +40,14 @@
           </Grid>
         </Grid>
 
-        <Grid Grid.Row="1"
+        <TextBlock Grid.Row="1"
+                   Text="{Binding Error}"
+                   Foreground="{StaticResource DangerBrush}"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding HasError}"/>
+
+        <Grid Grid.Row="2"
               ColumnDefinitions="*,0.82*"
               ColumnSpacing="12"
               VerticalAlignment="Stretch">
@@ -256,9 +264,13 @@
                             Classes="sk-secondary sk-secondary-accent"
                             Command="{Binding CopyCodeCommand}"
                             IsEnabled="{Binding CanCopyCode}"/>
-                    <Button Content="{DynamicResource Loc.Common.Details}"
+                    <Button Content="{DynamicResource Loc.Common.Edit}"
                             Classes="sk-secondary"
-                            Command="{Binding OpenDetailsCommand}"
+                            Command="{Binding BeginEditCommand}"
+                            IsEnabled="{Binding CanEditSelection}"/>
+                    <Button Content="{DynamicResource Loc.Common.Delete}"
+                            Classes="sk-danger"
+                            Command="{Binding BeginDeleteCommand}"
                             IsEnabled="{Binding CanEditSelection}"/>
                   </StackPanel>
                 </StackPanel>
@@ -356,216 +368,26 @@
         </Grid>
     </Grid>
 
-    <Border Background="{StaticResource OverlayScrimBrush}"
-            IsVisible="{Binding IsDetailsModalOpen}">
-      <Grid>
-        <Border Classes="auth-modal-card"
-                Width="640"
-                MaxHeight="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Grid}}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                        VerticalScrollBarVisibility="Auto">
-          <StackPanel Spacing="22">
-            <Grid ColumnDefinitions="*,Auto"
-                  ColumnSpacing="12">
-              <StackPanel Spacing="6">
-                <TextBlock Text="{DynamicResource Loc.Authenticator.Details.Title}"
-                           FontSize="24"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource AccentBrush}"/>
-                <TextBlock Text="{DynamicResource Loc.Authenticator.Details.Subtitle}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
 
-              <Button Grid.Column="1"
-                      Content="X"
-                      Classes="sk-icon-ghost"
-                      Command="{Binding CloseDetailsCommand}"/>
-            </Grid>
-
-            <Grid ColumnDefinitions="Auto,*"
-                  ColumnSpacing="16"
-                  VerticalAlignment="Center">
-              <Border Width="56"
-                      Height="56"
-                      CornerRadius="28"
-                      Background="{StaticResource AppBackgroundSoftBrush}">
-                <TextBlock Text="{Binding SelectedEntry.Monogram}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"
-                           FontSize="16"
-                           FontWeight="Black"/>
-              </Border>
-
-              <StackPanel Grid.Column="1"
-                          Spacing="4"
-                          VerticalAlignment="Center">
-                <TextBlock Text="{Binding SelectedEntry.Name}"
-                           FontSize="22"
-                           FontWeight="SemiBold"/>
-                <TextBlock Text="{Binding SelectedEntry.DetailHint}"
-                           Classes="page-subtitle"
-                           FontSize="13"/>
-              </StackPanel>
-            </Grid>
-
-            <Border Classes="auth-code-card"
-                    MaxWidth="560"
-                    HorizontalAlignment="Stretch">
-              <StackPanel Spacing="12"
-                          HorizontalAlignment="Center">
-                <TextBlock Text="{Binding SelectedEntry.CurrentCodeDisplay}"
-                           Classes="auth-detail-code"
-                           HorizontalAlignment="Center"/>
-                <Grid ColumnDefinitions="52,*"
-                      ColumnSpacing="12"
-                      HorizontalAlignment="Stretch"
-                      IsVisible="{Binding SelectedEntry.HasCountdown}">
-                  <TextBlock Text="{Binding SelectedEntry.RemainingDisplay}"
-                             Classes="auth-footer-meta"
-                             HorizontalAlignment="Right"
-                             VerticalAlignment="Center"/>
-                  <ProgressBar Grid.Column="1"
-                               Classes="auth-detail-progress"
-                               Minimum="0"
-                               Maximum="100"
-                               Value="{Binding SelectedEntry.ProgressPercent}"
-                               VerticalAlignment="Center"/>
-                </Grid>
-                <TextBlock Text="{Binding SelectedEntry.ProgressLabel}"
-                           Classes="auth-footer-meta"
-                           HorizontalAlignment="Center"
-                           IsVisible="{Binding !SelectedEntry.HasCountdown}"/>
-              </StackPanel>
-            </Border>
-
-            <Border Classes="auth-info-card">
-              <Grid ColumnDefinitions="*,*"
-                    RowDefinitions="Auto,Auto"
-                    ColumnSpacing="28"
-                    RowSpacing="22">
-                <StackPanel Spacing="6">
-                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.SecretKey}"
-                             Classes="auth-kicker"/>
-                  <Grid ColumnDefinitions="Auto,Auto"
-                        ColumnSpacing="8"
-                        HorizontalAlignment="Left">
-                    <TextBlock Text="{Binding SelectedEntry.SecretDisplay}"
-                               Classes="auth-secret-text"
-                               TextWrapping="NoWrap"
-                               TextTrimming="CharacterEllipsis"
-                               MaxWidth="360"/>
-                    <Button Grid.Column="1"
-                            Classes="sk-icon-ghost auth-secret-eye-button"
-                            Command="{Binding ToggleSecretVisibilityCommand}"
-                            CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding !SelectedEntry.IsSecretVisible}">
-                      <PathIcon Data="{StaticResource IconVisibility}"
-                                Width="17"
-                                Height="17"/>
-                    </Button>
-                    <Button Grid.Column="1"
-                            Classes="sk-icon-ghost auth-secret-eye-button"
-                            Command="{Binding ToggleSecretVisibilityCommand}"
-                            CommandParameter="{Binding SelectedEntry}"
-                            IsVisible="{Binding SelectedEntry.IsSecretVisible}">
-                      <PathIcon Data="{StaticResource IconVisibilityOff}"
-                                Width="17"
-                                Height="17"/>
-                    </Button>
-                  </Grid>
-                </StackPanel>
-
-                <StackPanel Grid.Column="1"
-                            Spacing="6">
-                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.KeyType}"
-                             Classes="auth-kicker"/>
-                  <TextBlock Text="{Binding SelectedEntry.KeyTypeDisplay}"
-                             FontSize="13"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1"
-                            Spacing="6">
-                  <TextBlock Text="{DynamicResource Loc.Authenticator.Detail.CodeFormat}"
-                             Classes="auth-kicker"/>
-                  <TextBlock Text="{Binding SelectedEntry.DigitsDisplay}"
-                             FontFamily="{StaticResource MonoFontFamily}"
-                             FontSize="13"/>
-                </StackPanel>
-
-                <StackPanel Grid.Row="1"
-                            Grid.Column="1"
-                            Spacing="6">
-                  <TextBlock Text="{DynamicResource Loc.Authenticator.Form.Algorithm}"
-                             Classes="auth-kicker"/>
-                  <TextBlock Text="{Binding SelectedEntry.RotationDisplay}"
-                             FontSize="13"/>
-                </StackPanel>
-              </Grid>
-            </Border>
-
-            <Grid ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="12">
-              <TextBlock Text="{DynamicResource Loc.Authenticator.Modal.Footer}"
-                         Classes="page-subtitle"
-                         FontSize="12"
-                         TextWrapping="Wrap"
-                         VerticalAlignment="Center"/>
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Common.Delete}"
-                      Classes="sk-danger"
-                      Command="{Binding BeginDetailsDeleteCommand}"/>
-              <Button Grid.Column="2"
-                      Content="{DynamicResource Loc.Common.Edit}"
-                      Classes="sk-primary"
-                      Command="{Binding BeginDetailsEditCommand}"/>
-            </Grid>
-          </StackPanel>
-          </ScrollViewer>
-        </Border>
-      </Grid>
-    </Border>
-
-    <Border Background="{StaticResource OverlayScrimBrush}"
-            IsVisible="{Binding IsEditorModalOpen}">
-      <Grid>
-        <Border Classes="auth-modal-card"
-                Width="640"
-                MaxHeight="{Binding Bounds.Height, RelativeSource={RelativeSource AncestorType=Grid}}"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-          <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                        VerticalScrollBarVisibility="Auto">
-          <StackPanel Spacing="22">
-            <Grid ColumnDefinitions="*,Auto,Auto,Auto"
-                  ColumnSpacing="12">
-              <StackPanel Spacing="6">
-                <TextBlock Text="{Binding EditorModalTitle}"
-                           FontSize="24"
-                           FontWeight="SemiBold"
-                           Foreground="{StaticResource AccentBrush}"/>
-                <TextBlock Text="{Binding EditorModalSubtitle}"
-                           Classes="page-subtitle"
-                           TextWrapping="Wrap"/>
-              </StackPanel>
-
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Authenticator.Button.ImportQr}"
+    <ui:ModalShell DataContext="{Binding Editor}"
+                   IsOpen="{Binding IsOpen}"
+                   Title="{Binding Title}"
+                   Subtitle="{Binding Subtitle}"
+                   Error="{Binding Error}"
+                   FooterText="{DynamicResource Loc.Authenticator.Qr.Footer}"
+                   CloseCommand="{Binding CancelCommand}">
+      <ui:ModalShell.Body>
+        <StackPanel Spacing="22">
+            <StackPanel Orientation="Horizontal"
+                        Spacing="12"
+                        HorizontalAlignment="Right">
+              <Button Content="{DynamicResource Loc.Authenticator.Button.ImportQr}"
                       Classes="sk-secondary sk-secondary-accent"
                       Command="{Binding ImportQrScreenshotCommand}"/>
-
-              <Button Grid.Column="2"
-                      Content="{DynamicResource Loc.Authenticator.Button.PasteQr}"
+              <Button Content="{DynamicResource Loc.Authenticator.Button.PasteQr}"
                       Classes="sk-secondary sk-secondary-accent"
                       Command="{Binding PasteQrImageCommand}"/>
-
-              <Button Grid.Column="3"
-                      Content="X"
-                      Classes="sk-icon-ghost"
-                      Command="{Binding CancelEditorCommand}"/>
-            </Grid>
+            </StackPanel>
 
             <Grid ColumnDefinitions="*,*"
                   RowDefinitions="Auto,Auto"
@@ -574,7 +396,7 @@
               <StackPanel Spacing="7">
                 <TextBlock Text="{DynamicResource Loc.Common.Name.Label}"
                            Classes="auth-kicker"/>
-                <TextBox Text="{Binding FormName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                <TextBox Text="{Binding Name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                          Classes="sk-input sk-input-large"
                          PlaceholderText="{DynamicResource Loc.Authenticator.Form.Name.Placeholder}"/>
               </StackPanel>
@@ -585,7 +407,7 @@
                            Classes="auth-kicker"/>
                 <ComboBox Classes="sk-combo-modal"
                           ItemsSource="{Binding KeyTypeOptions}"
-                          SelectedItem="{Binding SelectedFormKeyType, Mode=TwoWay}">
+                          SelectedItem="{Binding SelectedKeyType, Mode=TwoWay}">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Label}"/>
@@ -602,31 +424,31 @@
                 <Border Classes="sk-input-shell">
                   <Grid ColumnDefinitions="*,Auto"
                         ColumnSpacing="10">
-                    <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Secret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="sk-input sk-input-large sk-input-borderless"
                              PasswordChar="*"
-                             IsVisible="{Binding !IsFormSecretVisible}"
+                             IsVisible="{Binding !IsSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
-                    <TextBox Text="{Binding FormSecret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding Secret, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="sk-input sk-input-large sk-input-borderless"
-                             IsVisible="{Binding IsFormSecretVisible}"
+                             IsVisible="{Binding IsSecretVisible}"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.Secret.Placeholder}"/>
                     <Button Grid.Column="1"
                             Classes="sk-icon-ghost"
-                            Command="{Binding ToggleFormSecretVisibilityCommand}"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
                             VerticalAlignment="Center"
                             Margin="0,0,4,0"
-                            IsVisible="{Binding !IsFormSecretVisible}">
+                            IsVisible="{Binding !IsSecretVisible}">
                       <PathIcon Data="{StaticResource IconVisibility}"
                                 Width="17"
                                 Height="17"/>
                     </Button>
                     <Button Grid.Column="1"
                             Classes="sk-icon-ghost"
-                            Command="{Binding ToggleFormSecretVisibilityCommand}"
+                            Command="{Binding ToggleSecretVisibilityCommand}"
                             VerticalAlignment="Center"
                             Margin="0,0,4,0"
-                            IsVisible="{Binding IsFormSecretVisible}">
+                            IsVisible="{Binding IsSecretVisible}">
                       <PathIcon Data="{StaticResource IconVisibilityOff}"
                                 Width="17"
                                 Height="17"/>
@@ -661,7 +483,7 @@
                                Classes="auth-kicker"/>
                     <ComboBox Classes="sk-combo-modal"
                               ItemsSource="{Binding AlgorithmOptions}"
-                              SelectedItem="{Binding SelectedFormAlgorithm, Mode=TwoWay}">
+                              SelectedItem="{Binding SelectedAlgorithm, Mode=TwoWay}">
                       <ComboBox.ItemTemplate>
                         <DataTemplate>
                           <TextBlock Text="{Binding Label}"/>
@@ -676,7 +498,7 @@
                                Classes="auth-kicker"/>
                     <ComboBox Classes="sk-combo-modal"
                               ItemsSource="{Binding DigitsOptions}"
-                              SelectedItem="{Binding SelectedFormDigits, Mode=TwoWay}">
+                              SelectedItem="{Binding SelectedDigits, Mode=TwoWay}">
                       <ComboBox.ItemTemplate>
                         <DataTemplate>
                           <TextBlock Text="{Binding Label}"/>
@@ -688,10 +510,10 @@
                   <StackPanel Grid.Row="1"
                               Grid.ColumnSpan="2"
                               Spacing="7"
-                              IsVisible="{Binding ShowAdvancedPeriod}">
+                              IsVisible="{Binding ShowPeriod}">
                     <TextBlock Text="{DynamicResource Loc.Authenticator.Form.ValidPeriod}"
                                Classes="auth-kicker"/>
-                    <TextBox Text="{Binding FormPeriodSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <TextBox Text="{Binding PeriodSecondsText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              Classes="sk-input sk-input-large"
                              PlaceholderText="{DynamicResource Loc.Authenticator.Form.ValidPeriod.Placeholder}"/>
                   </StackPanel>
@@ -704,105 +526,56 @@
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,12">
-              <TextBlock Text="{Binding SelectedTypeSummary}"
+              <TextBlock Text="{Binding TypeSummary}"
                          Classes="page-subtitle"
                          FontSize="12"
                          TextWrapping="Wrap"/>
             </Border>
 
-            <TextBlock Text="{Binding Error}"
-                       Foreground="{StaticResource DangerBrush}"
-                       FontSize="12"
-                       TextWrapping="Wrap"
-                       IsVisible="{Binding HasError}"/>
+        </StackPanel>
+      </ui:ModalShell.Body>
+      <ui:ModalShell.FooterActions>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button Content="{DynamicResource Loc.Common.Cancel}"
+                  Classes="sk-secondary"
+                  Command="{Binding CancelCommand}"/>
+          <Button Content="{Binding SaveButtonText}"
+                  Classes="sk-primary"
+                  Command="{Binding SaveCommand}"/>
+        </StackPanel>
+      </ui:ModalShell.FooterActions>
+    </ui:ModalShell>
 
-            <Grid ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="12">
-              <TextBlock Text="{DynamicResource Loc.Authenticator.Qr.Footer}"
-                         Classes="page-subtitle"
-                         FontSize="12"
-                         TextWrapping="Wrap"
-                         VerticalAlignment="Center"/>
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="sk-secondary"
-                      Command="{Binding CancelEditorCommand}"/>
-              <Button Grid.Column="2"
-                      Content="{Binding SaveButtonText}"
-                      Classes="sk-primary"
-                      Command="{Binding SaveEditorCommand}"/>
-            </Grid>
-          </StackPanel>
-          </ScrollViewer>
-        </Border>
-      </Grid>
-    </Border>
-
-    <Border Background="{StaticResource OverlayScrimBrush}"
-            IsVisible="{Binding IsDeleteConfirmOpen}">
-      <Grid>
-        <Border Classes="auth-modal-card"
-                Width="560"
-                HorizontalAlignment="Center"
-                VerticalAlignment="Center">
-          <StackPanel Spacing="20">
-            <Border Width="72"
-                    Height="72"
-                    CornerRadius="36"
-                    Background="{StaticResource AppBackgroundSoftBrush}"
-                    HorizontalAlignment="Center">
-              <TextBlock Text="!"
-                         HorizontalAlignment="Center"
-                         VerticalAlignment="Center"
-                         Foreground="{StaticResource DangerBrush}"
-                         FontSize="30"
-                         FontWeight="Bold"/>
-            </Border>
-
-            <StackPanel Spacing="10"
-                        HorizontalAlignment="Center">
-              <TextBlock Text="{Binding DeleteConfirmationText}"
-                         FontSize="28"
-                         FontWeight="SemiBold"
-                         TextAlignment="Center"/>
-              <TextBlock Text="{DynamicResource Loc.Authenticator.Delete.Body}"
-                         Classes="page-subtitle"
-                         MaxWidth="420"
-                         TextAlignment="Center"
-                         TextWrapping="Wrap"/>
-            </StackPanel>
-
-            <Border Background="{StaticResource DangerPanelBrush}"
+    <ui:ModalShell IsOpen="{Binding IsDeleteConfirmOpen}"
+                   DialogWidth="560"
+                   Title="{Binding DeleteConfirmationText}"
+                   Subtitle="{DynamicResource Loc.Authenticator.Delete.Body}"
+                   FooterText="{Binding SelectedEntry.Name}"
+                   CloseCommand="{Binding CancelDeleteCommand}">
+      <ui:ModalShell.Body>
+        <Border Background="{StaticResource DangerPanelBrush}"
                     BorderBrush="{StaticResource DangerBorderBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="18,16">
-              <TextBlock Text="{DynamicResource Loc.Authenticator.Delete.Warning}"
+          <TextBlock Text="{DynamicResource Loc.Authenticator.Delete.Warning}"
                          Foreground="{StaticResource DangerBrush}"
                          FontSize="13"
                          FontWeight="SemiBold"
                          TextWrapping="Wrap"/>
-            </Border>
-
-            <Grid ColumnDefinitions="*,Auto,Auto"
-                  ColumnSpacing="12">
-              <TextBlock Text="{Binding SelectedEntry.Name}"
-                         Classes="page-subtitle"
-                         FontSize="12"
-                         VerticalAlignment="Center"/>
-              <Button Grid.Column="1"
-                      Content="{DynamicResource Loc.Common.Cancel}"
-                      Classes="sk-secondary"
-                      Command="{Binding CancelDeleteCommand}"/>
-              <Button Grid.Column="2"
-                      Content="{DynamicResource Loc.Authenticator.Button.DeleteCode}"
-                      Classes="sk-danger"
-                      Command="{Binding ConfirmDeleteCommand}"/>
-            </Grid>
-          </StackPanel>
         </Border>
-      </Grid>
-    </Border>
+      </ui:ModalShell.Body>
+      <ui:ModalShell.FooterActions>
+        <StackPanel Orientation="Horizontal" Spacing="12">
+          <Button Content="{DynamicResource Loc.Common.Cancel}"
+                  Classes="sk-secondary"
+                  Command="{Binding CancelDeleteCommand}"/>
+          <Button Content="{DynamicResource Loc.Authenticator.Button.DeleteCode}"
+                  Classes="sk-danger"
+                  Command="{Binding ConfirmDeleteCommand}"/>
+        </StackPanel>
+      </ui:ModalShell.FooterActions>
+    </ui:ModalShell>
   </Grid>
 
   <UserControl.Styles>
@@ -936,21 +709,6 @@
       <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
       <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
     </Style>
-
-    <Style Selector="Border.auth-modal-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="28"/>
-    </Style>
-
-
-
-
-
-
-
 
   </UserControl.Styles>
 </UserControl>

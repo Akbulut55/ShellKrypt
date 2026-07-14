@@ -2,7 +2,7 @@ using System;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 
-namespace ShellKrypt.Desktop.ViewModels;
+namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorViewModel
 {
@@ -13,15 +13,8 @@ public partial class AuthenticatorViewModel
             return;
 
         Error = string.Empty;
-        IsDetailsModalOpen = false;
-        IsEditorModalOpen = false;
+        Editor.Close();
         IsDeleteConfirmOpen = true;
-    }
-
-    [RelayCommand]
-    private void BeginDetailsDelete()
-    {
-        BeginDelete();
     }
 
     [RelayCommand]
@@ -52,13 +45,12 @@ public partial class AuthenticatorViewModel
         try
         {
             var deleted = SelectedEntry;
-            await _authenticatorService.DeleteAsync(_root.VaultPath, deleted.Id);
+            await _entryService.DeleteAsync(_root.VaultPath, deleted.Id);
             _allEntries.Remove(deleted);
             ApplyFilter();
             await _refreshAllItemsAsync(null);
             _root.LogActivity("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning", affectedItem: deleted.Name);
             IsDeleteConfirmOpen = false;
-            IsDetailsModalOpen = false;
         }
         catch (Exception ex)
         {

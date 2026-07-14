@@ -4,9 +4,11 @@ using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
+using ShellKrypt.Infrastructure.Authenticator;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -48,7 +50,7 @@ public sealed class DesktopSecurityServicesTests
             var web = new WebLoginService(repo);
             var cards = new CardService(repo);
             var apiKeys = new ApiKeyService(repo);
-            var authenticators = new AuthenticatorService(repo);
+            var authenticators = new AuthenticatorEntryService(repo);
             var notes = new NoteService(repo);
             var vaultPath = DefaultPaths.GetSuggestedVaultPath("metadata-test");
 
@@ -149,15 +151,16 @@ public sealed class DesktopSecurityServicesTests
     }
 
     [Fact]
-    public void AuthenticatorQrImportService_RejectsCorruptedImage()
+    public void AuthenticatorQrDecoder_RejectsCorruptedImage()
     {
         using var workspace = new TempWorkspace();
         var imagePath = workspace.FilePath("corrupt.png");
         File.WriteAllBytes(imagePath, Encoding.UTF8.GetBytes("not an image"));
 
-        var service = new AuthenticatorQrImportService();
+        var service = new AuthenticatorQrDecoder();
 
-        Assert.ThrowsAny<Exception>(() => service.ImportFromImage(imagePath));
+        using var stream = File.OpenRead(imagePath);
+        Assert.ThrowsAny<Exception>(() => service.Decode(stream));
     }
 
     private static bool Contains(byte[] haystack, byte[] needle)

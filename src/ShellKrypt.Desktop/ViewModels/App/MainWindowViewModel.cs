@@ -1,22 +1,25 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Authenticator;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Services.QuickFill;
 using ShellKrypt.Infrastructure.Items;
+using ShellKrypt.Infrastructure.Authenticator;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.CryptoTools;
 using ShellKrypt.Infrastructure.Vaulting;
 using AppState = ShellKrypt.Desktop.Services.AppState;
-using AuthenticatorQrImportService = ShellKrypt.Desktop.Services.AuthenticatorQrImportService;
 using ClipboardService = ShellKrypt.Desktop.Services.ClipboardService;
 using SessionSecurityService = ShellKrypt.Desktop.Services.SessionSecurityService;
 
@@ -30,7 +33,7 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly ActivityLogService _activityLogService = new(new SqliteActivityLogStore());
     private readonly LocalizationService _localization = new();
     private readonly ClipboardService _clipboardService = new();
-    private readonly AuthenticatorQrImportService _authenticatorQrImportService = new();
+    private readonly AuthenticatorQrImageImportService _authenticatorQrImportService;
     private readonly SessionSecurityService _sessionSecurity;
     private readonly IVaultService _vaultService = new SqliteVaultService();
     private readonly IItemRepository _itemRepo = new SqliteItemRepository();
@@ -38,7 +41,8 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
     private readonly INoteService _noteService;
-    private readonly IAuthenticatorService _authenticatorService;
+    private readonly IAuthenticatorEntryService _authenticatorEntryService;
+    private readonly IOneTimePasswordGenerator _oneTimePasswordGenerator;
     private readonly IApiKeyService _apiKeyService;
     private readonly IProjectSecretService _projectSecretService;
     private readonly IQuickFillEntryService _quickFillEntryService;
@@ -84,7 +88,10 @@ public partial class MainWindowViewModel : ViewModelBase
         _webLoginService = new WebLoginService(_itemRepo);
         _cardService = new CardService(_itemRepo);
         _noteService = new NoteService(_itemRepo);
-        _authenticatorService = new AuthenticatorService(_itemRepo);
+        _authenticatorEntryService = new AuthenticatorEntryService(_itemRepo);
+        _oneTimePasswordGenerator = new OneTimePasswordGenerator();
+        _authenticatorQrImportService = new AuthenticatorQrImageImportService(
+            new AuthenticatorQrImportService(new AuthenticatorQrDecoder(), new OtpAuthUriParser()));
         _apiKeyService = new ApiKeyService(_itemRepo);
         _projectSecretService = new ProjectSecretService(_itemRepo);
         _quickFillEntryService = new QuickFillEntryService(_itemRepo);

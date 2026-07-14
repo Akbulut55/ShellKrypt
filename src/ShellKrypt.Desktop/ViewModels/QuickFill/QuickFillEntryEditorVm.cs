@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Application.QuickFill;
 using ShellKrypt.Core.Items;
 

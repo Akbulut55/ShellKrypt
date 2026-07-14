@@ -1,29 +1,28 @@
 using System.Buffers.Binary;
 using System.Security.Cryptography;
-using ShellKrypt.Core.Items;
+using ShellKrypt.Core.Authenticator;
 
-namespace ShellKrypt.Infrastructure.Items;
+namespace ShellKrypt.Infrastructure.Authenticator;
 
-public sealed partial class AuthenticatorService
+public sealed class OneTimePasswordGenerator : IOneTimePasswordGenerator
 {
     public AuthenticatorCodeSnapshot GetCurrentCode(AuthenticatorEntry entry, DateTimeOffset? now = null)
     {
         try
         {
-            var secretBytes = DecodeBase32(NormalizeSecret(entry.Secret));
-            var digits = NormalizeDigits(entry.Digits);
+            var secretBytes = Base32Codec.Decode(AuthenticatorNormalization.Secret(entry.Secret));
+            var digits = AuthenticatorNormalization.Digits(entry.Digits);
+            var snapshotTime = now ?? DateTimeOffset.UtcNow;
             var counter = entry.KeyType == AuthenticatorKeyType.CounterBased
-                ? (ulong)NormalizeCounter(entry.Counter)
-                : CalculateTimeCounter(now ?? DateTimeOffset.UtcNow, NormalizePeriod(entry.PeriodSeconds));
+                ? (ulong)AuthenticatorNormalization.Counter(entry.Counter)
+                : CalculateTimeCounter(snapshotTime, AuthenticatorNormalization.Period(entry.PeriodSeconds));
 
-            var code = GenerateCode(secretBytes, counter, NormalizeAlgorithm(entry.Algorithm), digits);
+            var code = GenerateCode(secretBytes, counter, AuthenticatorNormalization.Algorithm(entry.Algorithm), digits);
             if (entry.KeyType == AuthenticatorKeyType.CounterBased)
                 return new AuthenticatorCodeSnapshot(code, 0, 0, true);
 
-            var snapshotTime = now ?? DateTimeOffset.UtcNow;
-            var period = NormalizePeriod(entry.PeriodSeconds);
-            var unixSeconds = snapshotTime.ToUnixTimeSeconds();
-            var remaining = period - (int)(unixSeconds % period);
+            var period = AuthenticatorNormalization.Period(entry.PeriodSeconds);
+            var remaining = period - (int)(snapshotTime.ToUnixTimeSeconds() % period);
             if (remaining <= 0)
                 remaining = period;
 
@@ -41,11 +40,11 @@ public sealed partial class AuthenticatorService
 
     private static string GenerateCode(byte[] secretBytes, ulong counter, string algorithm, int digits)
     {
-        var counterBytes = new byte[8];
+        Span<byte> counterBytes = stackalloc byte[8];
         BinaryPrimitives.WriteUInt64BigEndian(counterBytes, counter);
 
         using var hmac = CreateHmac(algorithm, secretBytes);
-        var hash = hmac.ComputeHash(counterBytes);
+        var hash = hmac.ComputeHash(counterBytes.ToArray());
         var offset = hash[^1] & 0x0F;
         var binary =
             ((hash[offset] & 0x7F) << 24) |
@@ -54,12 +53,11 @@ public sealed partial class AuthenticatorService
             hash[offset + 3];
 
         var modulus = digits == 8 ? 100000000 : 1000000;
-        var otp = binary % modulus;
-        return otp.ToString(new string('0', digits));
+        return (binary % modulus).ToString(new string('0', digits));
     }
 
     private static HMAC CreateHmac(string algorithm, byte[] key)
-        => NormalizeAlgorithm(algorithm) switch
+        => algorithm switch
         {
             "HMAC-SHA256" => new HMACSHA256(key),
             "HMAC-SHA512" => new HMACSHA512(key),

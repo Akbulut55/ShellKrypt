@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.ViewModels.QuickFill;
 
@@ -17,7 +18,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
     private readonly IApiKeyService _apiKeyService;
-    private readonly IAuthenticatorService _authenticatorService;
+    private readonly IAuthenticatorEntryService _authenticatorService;
 
     [ObservableProperty] private QuickFillEntryRowVm? selectedEntry;
     [ObservableProperty] private string searchText = "";
@@ -33,7 +34,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
         IWebLoginService webLoginService,
         ICardService cardService,
         IApiKeyService apiKeyService,
-        IAuthenticatorService authenticatorService)
+        IAuthenticatorEntryService authenticatorService)
     {
         _root = root;
         _entryService = entryService;
