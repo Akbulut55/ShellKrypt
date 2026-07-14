@@ -6,6 +6,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Application.QuickFill;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
@@ -23,7 +24,8 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
     private readonly IApiKeyService _apiKeyService;
-    private readonly IAuthenticatorService _authenticatorService;
+    private readonly IAuthenticatorEntryService _authenticatorService;
+    private readonly IOneTimePasswordGenerator _oneTimePasswordGenerator;
     private readonly AutoTypeService _autoTypeService;
     private readonly QuickFillTargetContext _target;
 
@@ -51,7 +53,8 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         IWebLoginService webLoginService,
         ICardService cardService,
         IApiKeyService apiKeyService,
-        IAuthenticatorService authenticatorService,
+        IAuthenticatorEntryService authenticatorService,
+        IOneTimePasswordGenerator oneTimePasswordGenerator,
         AutoTypeService autoTypeService,
         QuickFillTargetContext target)
     {
@@ -62,6 +65,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         _cardService = cardService;
         _apiKeyService = apiKeyService;
         _authenticatorService = authenticatorService;
+        _oneTimePasswordGenerator = oneTimePasswordGenerator;
         _autoTypeService = autoTypeService;
         _target = target;
 
@@ -532,7 +536,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     private string ResolveAuthenticator(string itemId)
     {
         var entry = _authenticators.FirstOrDefault(entry => entry.Id == itemId);
-        return entry is null ? "" : _authenticatorService.GetCurrentCode(entry).Code;
+        return entry is null ? "" : _oneTimePasswordGenerator.GetCurrentCode(entry).Code;
     }
 
     private static QuickFillEntryInput ToInput(QuickFillEntry entry, bool enabled)

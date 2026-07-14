@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.ViewModels;
@@ -13,6 +14,9 @@ public partial class ShellViewModel
 
         foreach (var item in NavItems)
             item.IsSelected = ReferenceEquals(item, value);
+
+        if (CurrentPage is AuthenticatorViewModel previousAuthenticator)
+            previousAuthenticator.Deactivate();
 
         CurrentPage = value.Key switch
         {
@@ -31,6 +35,9 @@ public partial class ShellViewModel
             ShellKryptSectionKeys.Activity => Activity,
             _ => AllItems
         };
+
+        if (CurrentPage is AuthenticatorViewModel currentAuthenticator)
+            currentAuthenticator.Activate();
 
         OnPropertyChanged(nameof(CurrentSectionTitle));
         OnPropertyChanged(nameof(CurrentSectionSubtitle));

@@ -1,6 +1,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.ViewModels.App.QuickFill;
 using ShellKrypt.Desktop.Views.App.QuickFill;
@@ -66,7 +67,8 @@ public partial class MainWindowViewModel
             _webLoginService,
             _cardService,
             _apiKeyService,
-            _authenticatorService,
+            _authenticatorEntryService,
+            _oneTimePasswordGenerator,
             _autoTypeService,
             target);
 

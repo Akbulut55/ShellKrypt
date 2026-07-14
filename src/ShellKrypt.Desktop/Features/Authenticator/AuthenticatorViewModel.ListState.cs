@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 
-namespace ShellKrypt.Desktop.ViewModels;
+namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorViewModel
 {
@@ -13,25 +13,6 @@ public partial class AuthenticatorViewModel
     {
         if (entry is not null)
             SelectedEntry = entry;
-    }
-
-    [RelayCommand]
-    private void OpenDetails()
-    {
-        if (SelectedEntry is null)
-            return;
-
-        Error = string.Empty;
-        IsEditorModalOpen = false;
-        IsDeleteConfirmOpen = false;
-        IsDetailsModalOpen = true;
-    }
-
-    [RelayCommand]
-    private void CloseDetails()
-    {
-        Error = string.Empty;
-        IsDetailsModalOpen = false;
     }
 
     public async Task<bool> OpenEntryByIdAsync(string itemId)
@@ -70,7 +51,7 @@ public partial class AuthenticatorViewModel
         try
         {
             _allEntries.Clear();
-            var entries = await _authenticatorService.ListAsync(_root.VaultPath, _root.VaultKey);
+            var entries = await _entryService.ListAsync(_root.VaultPath, _root.VaultKey);
             foreach (var entry in entries)
                 _allEntries.Add(new AuthenticatorAccountVm(entry, _root.Localization));
 
@@ -125,8 +106,6 @@ public partial class AuthenticatorViewModel
     {
         OnPropertyChanged(nameof(TotalCount));
         OnPropertyChanged(nameof(CodesCountDisplay));
-        OnPropertyChanged(nameof(RefreshingSoonCount));
-        OnPropertyChanged(nameof(RecentlyUsedCount));
         OnPropertyChanged(nameof(HasEntries));
         OnPropertyChanged(nameof(HasSelection));
         OnPropertyChanged(nameof(EmptyTitle));
@@ -137,12 +116,4 @@ public partial class AuthenticatorViewModel
         OnPropertyChanged(nameof(DeleteConfirmationText));
     }
 
-    private static bool IsRecentlyUsed(string? value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return false;
-
-        return DateTimeOffset.TryParse(value, out var timestamp) &&
-               timestamp >= DateTimeOffset.UtcNow.Subtract(RecentlyUsedWindow);
-    }
 }

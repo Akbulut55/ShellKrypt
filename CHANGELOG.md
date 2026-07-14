@@ -22,6 +22,23 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.22.0] - 2026-07-14
+
+### Changed
+
+- Split Authenticator persistence, OTP generation, `otpauth` URI parsing, and
+  QR decoding into focused reusable capabilities across Core, Application, and
+  Infrastructure.
+- Reorganized the Desktop Authenticator as a colocated feature with a dedicated
+  editor viewmodel and navigation-scoped code refresh lifecycle.
+- Updated Quick Fill to resolve Authenticator entries and one-time codes through
+  the focused Authenticator contracts.
+
+### Removed
+
+- Removed the duplicate Authenticator details dialog in favor of the live
+  workspace details pane.
+
 ## [ShellKrypt 0.21.0] - 2026-07-14
 
 ### Changed
