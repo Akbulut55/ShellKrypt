@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:feature="using:ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins"
+             xmlns:shared="using:ShellKrypt.Desktop.Features.ItemWorkspaces.Shared"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins.WebLoginEditorView"
+             x:DataType="feature:WebLoginEditorViewModel"
+             x:CompileBindings="False">
+  <Grid>
+    <Border Classes="item-delete-confirm" IsVisible="{Binding IsConfirmDelete}">
+      <StackPanel Spacing="8"><TextBlock Text="{DynamicResource Loc.WebLogins.Modal.DeleteTitle}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding FooterText}" TextWrapping="Wrap"/></StackPanel>
+    </Border>
+
+    <shared:ResponsiveItemDetailsPanel IsVisible="{Binding IsDetails}">
+      <shared:ItemIdentityPanel IconData="{StaticResource IconWeb}"
+                                Title="{Binding Title}"
+                                Subtitle="{Binding UrlHostDisplay}"
+                                EncryptionText="{DynamicResource Loc.ItemWorkspace.Details.EncryptedLocally}"/>
+      <Border Classes="item-details-section">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.Credentials}" FontSize="17" FontWeight="SemiBold" Margin="0,7,0,4"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Username}" Value="{Binding Username}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Email}" Value="{Binding Email}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Password}"
+                                      Value="{Binding PasswordDisplay}"
+                                      IsRevealed="{Binding IsPasswordVisible}"
+                                      ToggleCommand="{Binding TogglePasswordVisibilityCommand}"
+                                      CopyCommand="{Binding CopyPasswordCommand}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.WebsiteUrl}" Value="{Binding Url}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Notes}" Value="{Binding NotesDisplay}"/>
+        </StackPanel>
+      </Border>
+    </shared:ResponsiveItemDetailsPanel>
+
+    <Grid IsVisible="{Binding IsEditable}" RowDefinitions="Auto,Auto,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="14" ColumnSpacing="16">
+      <StackPanel Spacing="7"><TextBlock Text="{DynamicResource Loc.WebLogins.Form.Title}" Classes="modal-shell-label"/><TextBox Text="{Binding Title}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Column="1" Spacing="7"><TextBlock Text="{DynamicResource Loc.WebLogins.Form.Url}" Classes="modal-shell-label"/><TextBox Text="{Binding Url}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Spacing="7"><TextBlock Text="{DynamicResource Loc.WebLogins.Form.Username}" Classes="modal-shell-label"/><TextBox Text="{Binding Username}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Grid.Column="1" Spacing="7"><TextBlock Text="{DynamicResource Loc.WebLogins.Form.Email}" Classes="modal-shell-label"/><TextBox Text="{Binding Email}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="7"><TextBlock Text="{DynamicResource Loc.WebLogins.Form.Password}" Classes="modal-shell-label"/><Border Classes="modal-shell-input-shell"><Grid ColumnDefinitions="*,Auto,Auto,Auto"><TextBox Text="{Binding Password}" PasswordChar="*" IsVisible="{Binding !IsPasswordVisible}" Classes="modal-shell-input borderless"/><TextBox Text="{Binding Password}" IsVisible="{Binding IsPasswordVisible}" Classes="modal-shell-input borderless"/><Button Grid.Column="1" Classes="modal-shell-field-action" Command="{Binding TogglePasswordVisibilityCommand}"><PathIcon Data="{StaticResource IconVisibility}" Width="15"/></Button><Button Grid.Column="2" Classes="modal-shell-field-action" Command="{Binding CopyPasswordCommand}" Content="{DynamicResource Loc.Common.Copy}"/><Button Grid.Column="3" Classes="modal-shell-field-action primary" Command="{Binding GeneratePasswordCommand}" Content="{DynamicResource Loc.Common.Generate}"/></Grid></Border></StackPanel>
+      <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="7"><TextBlock Text="{DynamicResource Loc.Common.Notes.Label}" Classes="modal-shell-label"/><TextBox Text="{Binding Notes}" AcceptsReturn="True" TextWrapping="Wrap" MinHeight="100" Classes="modal-shell-input multiline"/></StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

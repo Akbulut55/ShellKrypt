@@ -22,6 +22,52 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.21.0] - 2026-07-14
+
+### Changed
+
+- Updated Avalonia across Desktop, shared UI, and mobile projects from 12.0
+  to 12.1, including the Linux DBus dependency required by Avalonia 12.1.
+- Rebuilt the Desktop design system around Dark and Light semantic palettes,
+  modular shared style dictionaries, standardized compact controls, and
+  enforceable contrast and XAML styling rules.
+- Migrated ordinary Desktop inputs, search fields, read-only secret surfaces,
+  and button aliases to shared `sk-*` component roles.
+- Rebuilt the Credit Card details preview with a scalable theme-backed
+  gradient and depth elements instead of a bitmap asset.
+- Unified Dark and Light primary actions on a shared cyan accent while
+  retaining a darker accessible accent text role for Light surfaces.
+
+### Fixed
+
+- Separated Credit Card number and CVC reveal controls and replaced
+  font-dependent CVC asterisks with consistent masking bullets.
+
+### Removed
+
+- Removed the Crimson, Ocean, and Forest themes and the obsolete legacy theme
+  mode compatibility field.
+
+## [ShellKrypt 0.20.0] - 2026-07-12
+
+### Changed
+
+- Reorganized Web Logins, Credit Cards, and API Keys into colocated Desktop
+  feature folders with shared workspace headers, toolbars, responsive card
+  grids, editor state, and modal footer controls.
+- Replaced the three item tables and large metric panels with responsive cards,
+  compact findings summaries, and consistent add, details, edit, cancel, save,
+  and delete-confirmation flows.
+- Updated Web Login password generation to use the reusable Crypto Tools
+  password generator instead of a feature-local implementation.
+- Standardized Web Login, Credit Card, and API Key detail dialogs around a
+  responsive identity-and-details layout with masked secret rows, feature
+  icons, local-encryption status, and consistent Delete, Close, and Edit
+  actions.
+- Refined the shared modal and Dark theme presentation with neutral charcoal
+  surfaces, cyan interaction accents, clearer elevation hierarchy, and
+  semantic read-only secret and credit-card preview surfaces.
+
 ## [ShellKrypt 0.19.1] - 2026-07-11
 
 ### Added

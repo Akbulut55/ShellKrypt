@@ -1,0 +1,219 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+<Style Selector="TextBox">
+    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="SelectionBrush" Value="{StaticResource TextSelectionBackgroundBrush}"/>
+    <Setter Property="SelectionForegroundBrush" Value="{StaticResource TextSelectionForegroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+</Style>
+
+<Style Selector="TextBox:focus">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="TextBox.search">
+    <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+    <Setter Property="Padding" Value="14,9"/>
+</Style>
+
+<Style Selector="TextBox.sk-input,
+                 TextBox.sk-search-input">
+    <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusDefault}"/>
+    <Setter Property="Height" Value="{StaticResource ControlHeightDefault}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ControlHeightDefault}"/>
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="TextBox.sk-input-large">
+    <Setter Property="Height" Value="{StaticResource ControlHeightLarge}"/>
+    <Setter Property="MinHeight" Value="{StaticResource ControlHeightLarge}"/>
+</Style>
+
+<Style Selector="TextBox.sk-textarea">
+    <Setter Property="MinHeight" Value="90"/>
+    <Setter Property="Padding" Value="12,10"/>
+    <Setter Property="VerticalContentAlignment" Value="Top"/>
+</Style>
+
+<Style Selector="TextBox.sk-input-borderless">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="FocusAdorner" Value="{x:Null}"/>
+</Style>
+
+<Style Selector="TextBox.sk-input-borderless /template/ Border#PART_BorderElement,
+                 TextBox.sk-input-borderless:pointerover /template/ Border#PART_BorderElement,
+                 TextBox.sk-input-borderless:focus /template/ Border#PART_BorderElement">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+</Style>
+
+<Style Selector="Border.sk-input-shell">
+    <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="{StaticResource RadiusDefault}"/>
+    <Setter Property="Padding" Value="0"/>
+</Style>
+
+<Style Selector="Border.sk-input-shell:focus-within">
+    <Setter Property="BorderBrush" Value="{StaticResource FocusRingBrush}"/>
+</Style>
+
+<Style Selector="TextBox:disabled">
+    <Setter Property="Foreground" Value="{StaticResource TextDisabledBrush}"/>
+    <Setter Property="Opacity" Value="1"/>
+</Style>
+
+<Style Selector="CheckBox">
+    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+        <ControlTemplate>
+            <Grid ColumnDefinitions="Auto,*"
+                  ColumnSpacing="8"
+                  VerticalAlignment="Center">
+                <Border Name="CheckBoxSquare"
+                        Width="20"
+                        Height="20"
+                        Background="{StaticResource AppBackgroundSoftBrush}"
+                        BorderBrush="{StaticResource BorderBrushStrong}"
+                        BorderThickness="1"
+                        CornerRadius="4"
+                        VerticalAlignment="Center">
+                    <Path Name="CheckGlyph"
+                          Data="M7.33 14.67 3.5 10.83 4.91 9.42 7.33 11.84 15.09 4.08 16.5 5.5Z"
+                          Fill="{StaticResource AccentForegroundBrush}"
+                          Stretch="Uniform"
+                          Width="13"
+                          Height="13"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"
+                          IsVisible="False"/>
+                </Border>
+                <ContentPresenter Grid.Column="1"
+                                  Content="{TemplateBinding Content}"
+                                  ContentTemplate="{TemplateBinding ContentTemplate}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  FontFamily="{TemplateBinding FontFamily}"
+                                  FontSize="{TemplateBinding FontSize}"
+                                  FontWeight="{TemplateBinding FontWeight}"
+                                  VerticalAlignment="Center"/>
+            </Grid>
+        </ControlTemplate>
+    </Setter>
+</Style>
+
+<Style Selector="CheckBox:pointerover /template/ Border#CheckBoxSquare">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="CheckBox:checked /template/ Border#CheckBoxSquare">
+    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="CheckBox:checked /template/ Path#CheckGlyph">
+    <Setter Property="IsVisible" Value="True"/>
+</Style>
+
+<Style Selector="CheckBox:disabled">
+    <Setter Property="Opacity" Value="0.55"/>
+</Style>
+
+<Style Selector="ToggleButton.sk-switch">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="MinWidth" Value="42"/>
+    <Setter Property="MinHeight" Value="24"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+    <Setter Property="Template">
+        <ControlTemplate>
+            <PathIcon Name="SwitchIcon"
+                      Data="{StaticResource IconToggleOff}"
+                      Width="42"
+                      Height="24"
+                      Foreground="{StaticResource TextMutedBrush}"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"/>
+        </ControlTemplate>
+    </Setter>
+</Style>
+
+<Style Selector="ToggleButton.sk-switch:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+</Style>
+
+<Style Selector="ToggleButton.sk-switch:checked /template/ PathIcon#SwitchIcon">
+    <Setter Property="Data" Value="{StaticResource IconToggleOn}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="ToggleButton.sk-switch:disabled /template/ PathIcon#SwitchIcon">
+    <Setter Property="Opacity" Value="0.55"/>
+</Style>
+
+<Style Selector="Slider.sk-slider">
+    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="Background" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="MinHeight" Value="28"/>
+</Style>
+
+<Style Selector="Slider.sk-slider /template/ Border#PART_TrackBackground,
+                 Slider.sk-slider /template/ Border#PART_TrackBackgroundHorizontal,
+                 Slider.sk-slider /template/ Border#PART_TrackBackgroundVertical,
+                 Slider.sk-slider /template/ Border#HorizontalTrackRect,
+                 Slider.sk-slider /template/ Border#VerticalTrackRect">
+    <Setter Property="Background" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="CornerRadius" Value="999"/>
+</Style>
+
+<Style Selector="Slider.sk-slider /template/ Border#PART_TrackFill,
+                 Slider.sk-slider /template/ Border#PART_TrackFillHorizontal,
+                 Slider.sk-slider /template/ Border#PART_TrackFillVertical,
+                 Slider.sk-slider /template/ Border#HorizontalDecreaseRect,
+                 Slider.sk-slider /template/ Border#VerticalDecreaseRect">
+    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="CornerRadius" Value="999"/>
+</Style>
+
+<Style Selector="Slider.sk-slider /template/ Thumb,
+                 Slider.sk-slider /template/ Thumb#PART_Thumb">
+    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource AccentForegroundBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+</Style>
+
+<Style Selector="Slider.sk-slider:pointerover /template/ Thumb,
+                 Slider.sk-slider:pointerover /template/ Thumb#PART_Thumb,
+                 Slider.sk-slider:pressed /template/ Thumb,
+                 Slider.sk-slider:pressed /template/ Thumb#PART_Thumb,
+                 Slider.sk-slider /template/ Thumb:pointerover,
+                 Slider.sk-slider /template/ Thumb#PART_Thumb:pointerover,
+                 Slider.sk-slider /template/ Thumb:pressed,
+                 Slider.sk-slider /template/ Thumb#PART_Thumb:pressed">
+    <Setter Property="Background" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource AccentForegroundBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+</Style>
+
+</Styles>

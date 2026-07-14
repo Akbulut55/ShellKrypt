@@ -1,0 +1,153 @@
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="TextBlock.item-workspace-result">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="Border.item-workspace-summary-chip">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="7,3"/>
+  </Style>
+  <Style Selector="TextBlock.item-workspace-summary-text">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="Border.item-workspace-toolbar">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Padding" Value="10"/>
+  </Style>
+  <Style Selector="Border.item-workspace-search-shell">
+    <Setter Property="Background" Value="{StaticResource InputBackgroundBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource InputBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="11,0"/>
+    <Setter Property="Height" Value="38"/>
+  </Style>
+  <Style Selector="Border.item-workspace-card">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="14"/>
+    <Setter Property="MinHeight" Value="150"/>
+  </Style>
+  <Style Selector="Border.item-workspace-card:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
+  </Style>
+  <Style Selector="Button.item-card-open">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    <Setter Property="VerticalContentAlignment" Value="Stretch"/>
+  </Style>
+  <Style Selector="Button.item-card-open:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+  </Style>
+  <Style Selector="Border.item-secret-row">
+    <Setter Property="Background" Value="{StaticResource SurfaceSunkenBrush}"/>
+    <Setter Property="CornerRadius" Value="4"/>
+    <Setter Property="Padding" Value="10,7"/>
+  </Style>
+  <Style Selector="TextBlock.item-card-title">
+    <Setter Property="FontSize" Value="14"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+  </Style>
+  <Style Selector="TextBlock.item-card-secondary">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="11"/>
+  </Style>
+  <Style Selector="TextBlock.item-detail-label">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="10"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="LetterSpacing" Value="1.2"/>
+  </Style>
+  <Style Selector="Border.item-delete-confirm">
+    <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource DangerBorderBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Padding" Value="18"/>
+  </Style>
+  <Style Selector="Button.item-details-delete">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+  </Style>
+  <Style Selector="Button.item-details-delete:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource DangerHoverBrush}"/>
+  </Style>
+  <Style Selector="Border.item-details-header-icon">
+    <Setter Property="Width" Value="52"/>
+    <Setter Property="Height" Value="52"/>
+    <Setter Property="CornerRadius" Value="10"/>
+    <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="Border.item-details-identity-panel">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="MinHeight" Value="320"/>
+  </Style>
+  <Style Selector="Border.item-details-identity-icon">
+    <Setter Property="Width" Value="86"/>
+    <Setter Property="Height" Value="86"/>
+    <Setter Property="CornerRadius" Value="14"/>
+    <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+  </Style>
+  <Style Selector="Border.item-details-badge">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="5"/>
+    <Setter Property="Padding" Value="10,4"/>
+  </Style>
+  <Style Selector="Border.item-details-section">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+  </Style>
+  <Style Selector="Border.item-details-row">
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="0,0,0,1"/>
+    <Setter Property="Padding" Value="0,12"/>
+  </Style>
+  <Style Selector="TextBlock.item-details-row-label">
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="FontSize" Value="15"/>
+  </Style>
+  <Style Selector="Border.item-details-secret-row">
+    <Setter Property="Background" Value="{StaticResource SurfaceSunkenBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="10,5"/>
+    <Setter Property="MaxWidth" Value="280"/>
+    <Setter Property="HorizontalAlignment" Value="Left"/>
+  </Style>
+  <Style Selector="Border.item-card-preview">
+    <Setter Property="Background" Value="{StaticResource CardPreviewGradientBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="16"/>
+    <Setter Property="Padding" Value="22"/>
+    <Setter Property="Height" Value="250"/>
+    <Setter Property="ClipToBounds" Value="True"/>
+  </Style>
+</Styles>

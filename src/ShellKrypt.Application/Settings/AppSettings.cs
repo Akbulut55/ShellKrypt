@@ -12,17 +12,11 @@ public sealed class AppSettings
     public static readonly IReadOnlySet<string> KnownThemeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
     {
         "dark",
-        "light",
-        "crimson",
-        "ocean",
-        "forest"
+        "light"
     };
 
     public string ThemeId { get; set; } = DefaultThemeId;
     public string LanguageId { get; set; } = DefaultLanguageId;
-
-    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
-    public AppThemeMode ThemeMode { get; set; } = AppThemeMode.Dark;
 
     public bool AutoLockEnabled { get; set; } = true;
     public int AutoLockMinutes { get; set; } = 15;
@@ -54,7 +48,6 @@ public sealed class AppSettings
     public void NormalizeThemeId()
     {
         ThemeId = NormalizeThemeId(ThemeId);
-        ThemeMode = AppThemeMode.Dark;
     }
 
     public void NormalizeLanguageId()
@@ -101,9 +94,6 @@ public sealed class AppSettings
         var normalized = themeId.Trim().ToLowerInvariant();
         return KnownThemeIds.Contains(normalized) ? normalized : DefaultThemeId;
     }
-
-    public static string ThemeIdFromLegacyMode(AppThemeMode mode)
-        => mode == AppThemeMode.Light ? "light" : DefaultThemeId;
 
     public static string NormalizeLanguageId(string? languageId)
         => LanguageRegistry.GetById(languageId).Id;

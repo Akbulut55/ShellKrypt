@@ -1,0 +1,160 @@
+<Styles xmlns="https://github.com/avaloniaui">
+<Style Selector="Button.sk-picker-option">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="MinHeight" Value="34"/>
+    <Setter Property="Padding" Value="10,7"/>
+</Style>
+
+<Style Selector="Button.sk-picker-option:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-picker-option.active">
+    <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Border.sk-picker-popup">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="14"/>
+</Style>
+
+<Style Selector="TextBox.sk-picker-search">
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="Height" Value="38"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="Margin" Value="0"/>
+</Style>
+
+<Style Selector="Border.sk-picker-card">
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="5"/>
+    <Setter Property="Padding" Value="8"/>
+</Style>
+
+<Style Selector="Border.sk-picker-card:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+</Style>
+
+<Style Selector="Border.sk-picker-card.active">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="ComboBox">
+    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="8"/>
+    <Setter Property="MinHeight" Value="40"/>
+    <Setter Property="MaxDropDownHeight" Value="220"/>
+    <Setter Property="AutoScrollToSelectedItem" Value="False"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo">
+    <Setter Property="MinHeight" Value="40"/>
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo-settings">
+    <Setter Property="Width" Value="126"/>
+    <Setter Property="MinWidth" Value="126"/>
+    <Setter Property="MinHeight" Value="38"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo-settings TextBlock">
+    <Setter Property="HorizontalAlignment" Value="Center"/>
+    <Setter Property="TextAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo-filter">
+    <Setter Property="MinHeight" Value="40"/>
+    <Setter Property="Height" Value="40"/>
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo-modal">
+    <Setter Property="MinHeight" Value="42"/>
+    <Setter Property="Height" Value="42"/>
+    <Setter Property="Padding" Value="12,0"/>
+    <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox.sk-combo-compact">
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="Height" Value="36"/>
+    <Setter Property="Padding" Value="10,0"/>
+    <Setter Property="HorizontalContentAlignment" Value="Left"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="ComboBox /template/ Popup#PART_Popup">
+    <Setter Property="Placement" Value="BottomEdgeAlignedLeft"/>
+    <Setter Property="PlacementConstraintAdjustment" Value="SlideX,ResizeY"/>
+    <Setter Property="VerticalOffset" Value="4"/>
+</Style>
+
+<Style Selector="ComboBox /template/ PathIcon#DropDownGlyph,
+                 ComboBox /template/ PathIcon#PART_DropDownGlyph">
+    <Setter Property="Data" Value="{StaticResource IconDropDown}"/>
+    <Setter Property="Width" Value="16"/>
+    <Setter Property="Height" Value="16"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+</Style>
+
+<Style Selector="ComboBox:pressed /template/ PathIcon#DropDownGlyph,
+                 ComboBox:pressed /template/ PathIcon#PART_DropDownGlyph">
+    <Setter Property="Data" Value="{StaticResource IconDropUp}"/>
+</Style>
+
+<Style Selector="ComboBoxItem">
+    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="MinHeight" Value="38"/>
+    <Setter Property="Padding" Value="14,8"/>
+    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+</Style>
+
+<Style Selector="ComboBoxItem:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="ComboBoxItem:selected">
+    <Setter Property="Background" Value="{StaticResource AccentMutedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+</Styles>

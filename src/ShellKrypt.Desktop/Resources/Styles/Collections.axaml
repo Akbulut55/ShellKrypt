@@ -1,0 +1,32 @@
+<Styles xmlns="https://github.com/avaloniaui">
+<Style Selector="ListBox">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+</Style>
+
+<Style Selector="ListBoxItem">
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="Margin" Value="0,0,0,12"/>
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="8"/>
+</Style>
+
+<Style Selector="ListBoxItem:selected">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushStrong}"/>
+</Style>
+
+<Style Selector="ListBoxItem:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+</Style>
+
+<Style Selector="FlyoutPresenter.cleanPickerFlyout">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Padding" Value="0"/>
+</Style>
+</Styles>

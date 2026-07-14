@@ -208,7 +208,7 @@
               <TextBlock Text="{DynamicResource Loc.CryptoTools.Hash.Input}"
                          Classes="stitch-kicker"/>
               <TextBox Text="{Binding HashInput}"
-                       Classes="stitch-input"
+                       Classes="sk-input sk-textarea"
                        AcceptsReturn="True"
                        TextWrapping="Wrap"
                        MinHeight="80"
@@ -263,7 +263,7 @@
               <TextBlock Text="{DynamicResource Loc.CryptoTools.Base64.Input}"
                          Classes="stitch-kicker"/>
               <TextBox Text="{Binding Base64Input}"
-                       Classes="stitch-input"
+                       Classes="sk-input sk-textarea"
                        AcceptsReturn="True"
                        TextWrapping="Wrap"
                        MinHeight="80"
@@ -333,14 +333,6 @@
       <Setter Property="Padding" Value="12,5"/>
     </Style>
 
-    <Style Selector="TextBox.stitch-input">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="10"/>
-      <Setter Property="FontSize" Value="13"/>
-    </Style>
 
     <Style Selector="SelectableTextBlock.stitch-password-output">
       <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>

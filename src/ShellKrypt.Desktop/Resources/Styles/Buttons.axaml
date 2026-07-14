@@ -1,0 +1,189 @@
+<Styles xmlns="https://github.com/avaloniaui">
+<Style Selector="Button">
+    <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
+    <Setter Property="VerticalContentAlignment" Value="Center"/>
+</Style>
+
+<Style Selector="Button.sk-button">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+</Style>
+
+<Style Selector="Button.sk-button:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+</Style>
+
+<Style Selector="Button.sk-button:pressed">
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-button:disabled,
+                 Button.sk-primary:disabled,
+                 Button.sk-secondary:disabled,
+                 Button.sk-danger:disabled,
+                 Button.sk-ghost:disabled,
+                 Button.sk-icon:disabled,
+                 Button.sk-icon-ghost:disabled,
+                 Button.sk-chip:disabled,
+                 Button.sk-table-action:disabled,
+                 Button.sk-picker-option:disabled">
+    <Setter Property="Foreground" Value="{StaticResource TextDisabledBrush}"/>
+    <Setter Property="Opacity" Value="0.72"/>
+</Style>
+
+<Style Selector="Button.sk-primary">
+    <Setter Property="Background" Value="{StaticResource AccentGradientBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentForegroundBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+    <Setter Property="FontWeight" Value="SemiBold"/>
+</Style>
+
+<Style Selector="Button.sk-primary:pointerover">
+    <Setter Property="Background" Value="{StaticResource AccentHoverBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-primary:pressed">
+    <Setter Property="Background" Value="{StaticResource AccentPressedBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-secondary">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+</Style>
+
+<Style Selector="Button.sk-secondary:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+</Style>
+
+<Style Selector="Button.sk-secondary-accent">
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-danger">
+    <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource DangerBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+</Style>
+
+<Style Selector="Button.sk-danger:pointerover">
+    <Setter Property="Background" Value="{StaticResource DangerPanelBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource DangerHoverBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-ghost">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,9"/>
+    <Setter Property="MinHeight" Value="36"/>
+</Style>
+
+<Style Selector="Button.sk-ghost:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-icon">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+    <Setter Property="MinWidth" Value="32"/>
+    <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="8"/>
+</Style>
+
+<Style Selector="Button.sk-icon:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-icon-ghost">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Width" Value="32"/>
+    <Setter Property="Height" Value="32"/>
+    <Setter Property="MinWidth" Value="32"/>
+    <Setter Property="MinHeight" Value="32"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="CornerRadius" Value="8"/>
+</Style>
+
+<Style Selector="Button.sk-icon-ghost:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+</Style>
+
+<Style Selector="Button.sk-link">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="0"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentTextBrush}"/>
+    <Setter Property="Padding" Value="0"/>
+    <Setter Property="MinHeight" Value="0"/>
+</Style>
+
+<Style Selector="Button.sk-link:pointerover">
+    <Setter Property="Background" Value="Transparent"/>
+    <Setter Property="Foreground" Value="{StaticResource AccentHoverBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-chip">
+    <Setter Property="Background" Value="{StaticResource SurfaceElevatedBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+    <Setter Property="BorderThickness" Value="1"/>
+    <Setter Property="CornerRadius" Value="6"/>
+    <Setter Property="Padding" Value="12,8"/>
+    <Setter Property="MinHeight" Value="34"/>
+    <Setter Property="FontSize" Value="12"/>
+</Style>
+
+<Style Selector="Button.sk-chip:pointerover">
+    <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+    <Setter Property="BorderBrush" Value="Transparent"/>
+</Style>
+
+<Style Selector="Button.sk-chip-selected,
+                 Button.sk-chip.active">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+    <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+</Style>
+
+<Style Selector="Button.sk-chip-selected:pointerover,
+                 Button.sk-chip.active:pointerover">
+    <Setter Property="BorderBrush" Value="{StaticResource AccentBrush}"/>
+</Style>
+
+</Styles>

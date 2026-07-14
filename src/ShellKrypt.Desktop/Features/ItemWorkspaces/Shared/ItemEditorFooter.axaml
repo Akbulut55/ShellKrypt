@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.Shared.ItemEditorFooter"
+             x:Name="Root"
+             x:CompileBindings="False">
+  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="16">
+    <TextBlock Text="{Binding InfoText, ElementName=Root}"
+               IsVisible="{Binding !ShowDetails, ElementName=Root}"
+               Classes="page-subtitle"
+               TextWrapping="Wrap"
+               VerticalAlignment="Center"/>
+
+    <Button IsVisible="{Binding ShowDetails, ElementName=Root}"
+            Classes="item-details-delete"
+            Command="{Binding DeleteCommand, ElementName=Root}">
+      <StackPanel Orientation="Horizontal" Spacing="7">
+        <PathIcon Data="{StaticResource IconDelete}" Width="16" Height="16"/>
+        <TextBlock Text="{Binding DeleteText, ElementName=Root}"/>
+      </StackPanel>
+    </Button>
+
+    <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="12">
+      <Button Content="{Binding CancelText, ElementName=Root}"
+              Classes="modal-shell-secondary-button"
+              IsVisible="{Binding ShowCancel, ElementName=Root}"
+              Command="{Binding CancelCommand, ElementName=Root}"/>
+      <Button Content="{Binding SaveText, ElementName=Root}"
+              Classes="modal-shell-primary-button"
+              IsVisible="{Binding ShowSave, ElementName=Root}"
+              Command="{Binding SaveCommand, ElementName=Root}"/>
+      <Button Content="{Binding CloseText, ElementName=Root}"
+              Classes="modal-shell-secondary-button"
+              IsVisible="{Binding ShowDetails, ElementName=Root}"
+              Command="{Binding CloseCommand, ElementName=Root}"/>
+      <Button Content="{Binding EditText, ElementName=Root}"
+              Classes="modal-shell-primary-button"
+              IsVisible="{Binding ShowDetails, ElementName=Root}"
+              Command="{Binding EditCommand, ElementName=Root}"/>
+      <Button Content="{Binding DeleteText, ElementName=Root}"
+              Classes="modal-shell-danger-button"
+              IsVisible="{Binding ShowDeleteConfirm, ElementName=Root}"
+              Command="{Binding ConfirmDeleteCommand, ElementName=Root}"/>
+    </StackPanel>
+  </Grid>
+</UserControl>

@@ -48,7 +48,7 @@ public sealed class ApplicationInfrastructureServicesTests
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
         settings.CloseToTrayEnabled = true;
-        settings.ThemeId = "ocean";
+        settings.ThemeId = "light";
         settings.LanguageId = "tr";
         settings.BackupCenterHistory.LastEncryptedBackupPath = workspace.FilePath("backup.skbx");
         settings.BackupSchedule.Enabled = true;
@@ -66,7 +66,6 @@ public sealed class ApplicationInfrastructureServicesTests
         using var document = JsonDocument.Parse(json);
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ThemeId), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.LanguageId), out _));
-        Assert.False(document.RootElement.TryGetProperty(nameof(AppSettings.ThemeMode), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.ClipboardClearSeconds), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.CloseToTrayEnabled), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.SecurityAcknowledgementAcceptedAtUtc), out _));
@@ -79,7 +78,7 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
         Assert.True(service.Load().CloseToTrayEnabled);
-        Assert.Equal("ocean", service.Load().ThemeId);
+        Assert.Equal("light", service.Load().ThemeId);
         Assert.Equal("tr", service.Load().LanguageId);
         Assert.Equal(workspace.FilePath("backup.skbx"), service.Load().BackupCenterHistory.LastEncryptedBackupPath);
         Assert.True(service.Load().BackupSchedule.Enabled);
@@ -94,8 +93,7 @@ public sealed class ApplicationInfrastructureServicesTests
     }
 
     [Theory]
-    [InlineData("{\"ThemeMode\":1}", "light")]
-    [InlineData("{\"ThemeId\":\"forest\"}", "forest")]
+    [InlineData("{\"ThemeId\":\"forest\"}", "dark")]
     [InlineData("{\"ThemeId\":\"unknown\"}", "dark")]
     [InlineData("{\"ThemeId\":\"\"}", "dark")]
     public void AppSettingsService_NormalizesThemeStorage(string json, string expectedThemeId)
@@ -113,7 +111,6 @@ public sealed class ApplicationInfrastructureServicesTests
 
         using var saved = JsonDocument.Parse(File.ReadAllText(DefaultPaths.SettingsPath));
         Assert.Equal(expectedThemeId, saved.RootElement.GetProperty(nameof(AppSettings.ThemeId)).GetString());
-        Assert.False(saved.RootElement.TryGetProperty(nameof(AppSettings.ThemeMode), out _));
     }
 
     [Theory]

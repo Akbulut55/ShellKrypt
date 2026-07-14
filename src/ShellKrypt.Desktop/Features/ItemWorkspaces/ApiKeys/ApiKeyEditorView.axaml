@@ -1,0 +1,49 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:feature="using:ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys"
+             xmlns:shared="using:ShellKrypt.Desktop.Features.ItemWorkspaces.Shared"
+             x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys.ApiKeyEditorView"
+             x:DataType="feature:ApiKeyEditorViewModel"
+             x:CompileBindings="False">
+  <Grid>
+    <Border Classes="item-delete-confirm" IsVisible="{Binding IsConfirmDelete}">
+      <StackPanel Spacing="8"><TextBlock Text="{DynamicResource Loc.ApiKeys.Modal.DeleteTitle}" FontSize="18" FontWeight="SemiBold"/><TextBlock Text="{Binding FooterText}" TextWrapping="Wrap"/></StackPanel>
+    </Border>
+
+    <shared:ResponsiveItemDetailsPanel IsVisible="{Binding IsDetails}">
+      <shared:ItemIdentityPanel IconData="{StaticResource IconKey}"
+                                Title="{Binding Name}"
+                                Subtitle="{Binding Provider}"
+                                Badge="{Binding CredentialBadge}"
+                                EncryptionText="{DynamicResource Loc.ItemWorkspace.Details.EncryptedLocally}">
+        <shared:ItemIdentityPanel.BodyContent>
+          <Border BorderBrush="{StaticResource BorderBrushSoft}" BorderThickness="0,1,0,0" Padding="0,14,0,0">
+            <Grid ColumnDefinitions="Auto,*" ColumnSpacing="9">
+              <PathIcon Data="{StaticResource IconKey}" Width="16" Height="16" Foreground="{StaticResource TextMutedBrush}"/>
+              <TextBlock Grid.Column="1" Text="{Binding User}" TextWrapping="Wrap"/>
+            </Grid>
+          </Border>
+        </shared:ItemIdentityPanel.BodyContent>
+      </shared:ItemIdentityPanel>
+
+      <Border Classes="item-details-section">
+        <StackPanel>
+          <TextBlock Text="{DynamicResource Loc.ItemWorkspace.Details.CredentialDetails}" FontSize="17" FontWeight="SemiBold" Margin="0,7,0,4"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Name}" Value="{Binding Name}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Provider}" Value="{Binding Provider}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.User}" Value="{Binding User}"/>
+          <shared:ItemSecretDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.ApiKey}" Value="{Binding ValueDisplay}" IsRevealed="{Binding ValueVisible}" ToggleCommand="{Binding ToggleValueCommand}" CopyCommand="{Binding CopyValueCommand}"/>
+          <shared:ItemDetailRow Label="{DynamicResource Loc.ItemWorkspace.Details.Notes}" Value="{Binding NotesDisplay}"/>
+        </StackPanel>
+      </Border>
+    </shared:ResponsiveItemDetailsPanel>
+
+    <Grid IsVisible="{Binding IsEditable}" RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,*" RowSpacing="14" ColumnSpacing="16">
+      <StackPanel Spacing="6"><TextBlock Text="{DynamicResource Loc.Common.Name.Label}" Classes="modal-shell-label"/><TextBox Text="{Binding Name}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Column="1" Spacing="6"><TextBlock Text="{DynamicResource Loc.ApiKeys.Form.Provider}" Classes="modal-shell-label"/><TextBox Text="{Binding Provider}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Spacing="6"><TextBlock Text="{DynamicResource Loc.ApiKeys.Form.User}" Classes="modal-shell-label"/><TextBox Text="{Binding User}" Classes="modal-shell-input"/></StackPanel>
+      <StackPanel Grid.Row="1" Grid.Column="1" Spacing="6"><TextBlock Text="{DynamicResource Loc.ApiKeys.Form.ApiKeyValue}" Classes="modal-shell-label"/><Border Classes="modal-shell-input-shell"><Grid ColumnDefinitions="*,Auto"><TextBox Text="{Binding Value}" PasswordChar="*" IsVisible="{Binding !ValueVisible}" Classes="modal-shell-input borderless"/><TextBox Text="{Binding Value}" IsVisible="{Binding ValueVisible}" Classes="modal-shell-input borderless"/><Button Grid.Column="1" Classes="modal-shell-field-action" Command="{Binding ToggleValueCommand}"><PathIcon Data="{StaticResource IconVisibility}" Width="15"/></Button></Grid></Border></StackPanel>
+      <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Spacing="6"><TextBlock Text="{DynamicResource Loc.Common.Notes.Label}" Classes="modal-shell-label"/><TextBox Text="{Binding Notes}" AcceptsReturn="True" MinHeight="110" Classes="modal-shell-input multiline"/></StackPanel>
+    </Grid>
+  </Grid>
+</UserControl>

@@ -3,11 +3,12 @@
              x:Class="ShellKrypt.Mobile.MobileApp"
              RequestedThemeVariant="Dark">
   <Application.Resources>
-    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#131313"/>
-    <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0e0e0e"/>
-    <SolidColorBrush x:Key="SurfaceBrush" Color="#201f1f"/>
-    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#2a2a2a"/>
-    <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#353534"/>
+    <SolidColorBrush x:Key="AppBackgroundBrush" Color="#121212"/>
+    <SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0b0b0c"/>
+    <SolidColorBrush x:Key="SurfaceBrush" Color="#1b1b1d"/>
+    <SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#242427"/>
+    <SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#2e2e32"/>
+    <SolidColorBrush x:Key="CardPreviewBackgroundBrush" Color="#102832"/>
     <SolidColorBrush x:Key="SidebarBrush" Color="#1c1b1b"/>
     <SolidColorBrush x:Key="BorderBrushSoft" Color="#333c4a46"/>
     <SolidColorBrush x:Key="WindowOutlineBrush" Color="#272626"/>

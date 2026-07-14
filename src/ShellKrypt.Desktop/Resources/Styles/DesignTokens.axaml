@@ -1,0 +1,110 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:converters="using:ShellKrypt.UI.Shared.Converters">
+<FontFamily x:Key="AppFontFamily">avares://ShellKrypt/Resources/Fonts/Inter#Inter</FontFamily>
+<FontFamily x:Key="MonoFontFamily">avares://ShellKrypt/Resources/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
+<converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>
+<converters:ThemeResourceGeometryConverter x:Key="ThemeResourceGeometryConverter"/>
+<SolidColorBrush x:Key="AppBackgroundBrush" Color="#121212"/>
+<SolidColorBrush x:Key="AppBackgroundSoftBrush" Color="#0b0b0c"/>
+  <SolidColorBrush x:Key="SurfaceBrush" Color="#1b1b1d"/>
+<SolidColorBrush x:Key="SurfaceRaisedBrush" Color="#242427"/>
+<SolidColorBrush x:Key="SurfaceElevatedBrush" Color="#2e2e32"/>
+<SolidColorBrush x:Key="SurfaceHoverBrush" Color="#38383d"/>
+<SolidColorBrush x:Key="SidebarBrush" Color="#18181a"/>
+<SolidColorBrush x:Key="BorderBrushSoft" Color="#334f4f56"/>
+<SolidColorBrush x:Key="BorderBrushStrong" Color="#66787882"/>
+<SolidColorBrush x:Key="WindowOutlineBrush" Color="#28282b"/>
+<SolidColorBrush x:Key="TextPrimaryBrush" Color="#f0f0f2"/>
+<SolidColorBrush x:Key="TextMutedBrush" Color="#aaaab2"/>
+<SolidColorBrush x:Key="TextInverseBrush" Color="#050505"/>
+<SolidColorBrush x:Key="TextSelectionBackgroundBrush" Color="#087f9c"/>
+<SolidColorBrush x:Key="TextSelectionForegroundBrush" Color="#ffffff"/>
+<SolidColorBrush x:Key="AccentBrush" Color="#00819a"/>
+<SolidColorBrush x:Key="AccentTextBrush" Color="#22c7e8"/>
+<SolidColorBrush x:Key="AccentHoverBrush" Color="#00a8c3"/>
+<SolidColorBrush x:Key="AccentPressedBrush" Color="#006d83"/>
+<SolidColorBrush x:Key="AccentMutedBrush" Color="#102f3a"/>
+<SolidColorBrush x:Key="AccentForegroundBrush" Color="#ffffff"/>
+<SolidColorBrush x:Key="SuccessBrush" Color="#9cd1c6"/>
+<SolidColorBrush x:Key="SuccessMutedBrush" Color="#174544"/>
+<SolidColorBrush x:Key="SuccessForegroundBrush" Color="#9cd1c6"/>
+<SolidColorBrush x:Key="WarningBrush" Color="#ffd1aa"/>
+<SolidColorBrush x:Key="WarningMutedBrush" Color="#3a3228"/>
+<SolidColorBrush x:Key="WarningForegroundBrush" Color="#ffd1aa"/>
+<SolidColorBrush x:Key="DangerBrush" Color="#ffb4ab"/>
+<SolidColorBrush x:Key="DangerMutedBrush" Color="#3a2426"/>
+<SolidColorBrush x:Key="DangerPanelBrush" Color="#261e1112"/>
+<SolidColorBrush x:Key="DangerBorderBrush" Color="#55ffb4ab"/>
+<SolidColorBrush x:Key="DangerForegroundBrush" Color="#050505"/>
+<SolidColorBrush x:Key="DangerHoverBrush" Color="#ff8f8f"/>
+<SolidColorBrush x:Key="InfoBrush" Color="#bacac5"/>
+<SolidColorBrush x:Key="InfoMutedBrush" Color="#2a2a2a"/>
+<SolidColorBrush x:Key="TableShellBrush" Color="#0b0b0c"/>
+<SolidColorBrush x:Key="TableHeaderBrush" Color="#1b1b1d"/>
+<SolidColorBrush x:Key="TableRowBrush" Color="#242427"/>
+<SolidColorBrush x:Key="TableRowHoverBrush" Color="#2e2e32"/>
+<SolidColorBrush x:Key="TableRowSelectedBrush" Color="#38383d"/>
+<SolidColorBrush x:Key="TableBorderBrush" Color="#1b1b1e"/>
+<SolidColorBrush x:Key="TableFooterBrush" Color="#1b1b1d"/>
+<SolidColorBrush x:Key="InputBackgroundBrush" Color="#0b0b0c"/>
+<SolidColorBrush x:Key="InputBorderBrush" Color="#334f4f56"/>
+<SolidColorBrush x:Key="InputHoverBorderBrush" Color="#66787882"/>
+<SolidColorBrush x:Key="InputFocusBorderBrush" Color="#22c7e8"/>
+<SolidColorBrush x:Key="ModalCardBrush" Color="#1b1b1d"/>
+<SolidColorBrush x:Key="CardPreviewBackgroundBrush" Color="#102832"/>
+<LinearGradientBrush x:Key="CardPreviewGradientBrush" StartPoint="0,0" EndPoint="1,0.8">
+  <GradientStop Offset="0" Color="#18566a"/>
+  <GradientStop Offset="1" Color="#06141d"/>
+</LinearGradientBrush>
+<SolidColorBrush x:Key="ModalBorderBrush" Color="#66787882"/>
+<SolidColorBrush x:Key="OverlayScrimBrush" Color="#b0000000"/>
+<SolidColorBrush x:Key="OverlaySoftScrimBrush" Color="#70000000"/>
+<SolidColorBrush x:Key="ResizeHitTestBrush" Color="#01000000"/>
+<SolidColorBrush x:Key="WatermarkBrush" Color="#0fffffff"/>
+<SolidColorBrush x:Key="QuoteBackgroundBrush" Color="#101918"/>
+<SolidColorBrush x:Key="HeroGlowPrimaryBrush" Color="#1800ffff"/>
+<SolidColorBrush x:Key="HeroGlowSecondaryBrush" Color="#101a4f47"/>
+<SolidColorBrush x:Key="CaptionButtonForegroundBrush" Color="#cccccc"/>
+<SolidColorBrush x:Key="CaptionButtonHoverBrush" Color="#2a2d2e"/>
+<SolidColorBrush x:Key="CaptionButtonHoverForegroundBrush" Color="#ffffff"/>
+<SolidColorBrush x:Key="CaptionButtonCloseHoverBrush" Color="#c42b1c"/>
+<SolidColorBrush x:Key="TypeWebBackgroundBrush" Color="#223b36"/>
+<SolidColorBrush x:Key="TypeWebForegroundBrush" Color="#9cd1c6"/>
+<SolidColorBrush x:Key="TypeCardBackgroundBrush" Color="#4a3827"/>
+<SolidColorBrush x:Key="TypeCardForegroundBrush" Color="#ffd1aa"/>
+<SolidColorBrush x:Key="TypeNoteBackgroundBrush" Color="#174544"/>
+<SolidColorBrush x:Key="TypeNoteForegroundBrush" Color="#57f1db"/>
+<SolidColorBrush x:Key="TypeAuthenticatorBackgroundBrush" Color="#1c3e4a"/>
+<SolidColorBrush x:Key="TypeAuthenticatorForegroundBrush" Color="#9fe8ff"/>
+<SolidColorBrush x:Key="TypeApiKeyBackgroundBrush" Color="#174544"/>
+<SolidColorBrush x:Key="TypeApiKeyForegroundBrush" Color="#57f1db"/>
+<SolidColorBrush x:Key="StrengthNoneBrush" Color="#7b8a87"/>
+<SolidColorBrush x:Key="StrengthWeakBrush" Color="#ffb4ab"/>
+<SolidColorBrush x:Key="StrengthFairBrush" Color="#ffd1aa"/>
+<SolidColorBrush x:Key="StrengthStrongBrush" Color="#2dd4bf"/>
+<LinearGradientBrush x:Key="AccentGradientBrush" StartPoint="0,0" EndPoint="1,1">
+    <GradientStop Offset="0" Color="#00819a"/>
+    <GradientStop Offset="1" Color="#006d83"/>
+</LinearGradientBrush>
+  <SolidColorBrush x:Key="CanvasBrush" Color="#121212"/>
+  <SolidColorBrush x:Key="SurfaceSunkenBrush" Color="#151517"/>
+  <SolidColorBrush x:Key="TextDisabledBrush" Color="#74747d"/>
+  <SolidColorBrush x:Key="FocusRingBrush" Color="#22c7e8"/>
+
+  <x:Double x:Key="Space2">2</x:Double>
+  <x:Double x:Key="Space4">4</x:Double>
+  <x:Double x:Key="Space6">6</x:Double>
+  <x:Double x:Key="Space8">8</x:Double>
+  <x:Double x:Key="Space12">12</x:Double>
+  <x:Double x:Key="Space16">16</x:Double>
+  <x:Double x:Key="Space20">20</x:Double>
+  <x:Double x:Key="Space24">24</x:Double>
+  <x:Double x:Key="Space32">32</x:Double>
+  <CornerRadius x:Key="RadiusSmall">4</CornerRadius>
+  <CornerRadius x:Key="RadiusDefault">6</CornerRadius>
+  <CornerRadius x:Key="RadiusLarge">8</CornerRadius>
+  <x:Double x:Key="ControlHeightCompact">32</x:Double>
+  <x:Double x:Key="ControlHeightDefault">38</x:Double>
+  <x:Double x:Key="ControlHeightLarge">42</x:Double>
+</ResourceDictionary>

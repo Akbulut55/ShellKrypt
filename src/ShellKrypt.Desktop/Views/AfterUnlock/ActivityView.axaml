@@ -28,7 +28,7 @@
                    VerticalAlignment="Center">
           <Border Classes="activity-search-shell">
             <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Classes="activity-search-box"
+                     Classes="sk-search-input"
                      PlaceholderText="{DynamicResource Loc.Activity.Search.Placeholder}"/>
           </Border>
 
@@ -295,16 +295,6 @@
       <Setter Property="Margin" Value="0,0,12,12"/>
     </Style>
 
-    <Style Selector="TextBox.activity-search-box">
-      <Setter Property="Background" Value="Transparent"/>
-      <Setter Property="BorderBrush" Value="Transparent"/>
-      <Setter Property="BorderThickness" Value="0"/>
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="13"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="MinHeight" Value="38"/>
-      <Setter Property="Padding" Value="14,8"/>
-    </Style>
 
     <Style Selector="Button.activity-filter-chip">
       <Setter Property="Margin" Value="0,0,4,12"/>
