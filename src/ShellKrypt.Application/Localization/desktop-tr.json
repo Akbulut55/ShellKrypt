@@ -322,7 +322,6 @@
   "BackupCenter.Operation.CsvImport": "CSV içe aktarma",
   "BackupCenter.Operation.EncryptedBackup": "Şifreli yedek",
   "BackupCenter.Operation.PlaintextExport": "Düz metin dışa aktarma",
-  "BackupCenter.Operation.LegacyExport": "Eski dışa aktarım",
   "BackupCenter.Operation.RestoreBackup": "Şifreli geri yükleme",
   "BackupCenter.Operation.VerifyBackup": "Yedek doğrulama",
   "BackupCenter.Picker.Csv.FileType": "CSV dosyası",

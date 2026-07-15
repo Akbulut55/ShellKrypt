@@ -1,0 +1,85 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.EncryptedBackupView"
+             x:CompileBindings="False"
+             x:DataType="vm:EncryptedBackupViewModel">
+  <Border Classes="backup-block">
+    <StackPanel Spacing="12">
+      <StackPanel Spacing="6">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Encrypted.Title}" Classes="backup-section-title"/>
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Encrypted.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+      </StackPanel>
+      <WrapPanel Orientation="Horizontal">
+        <Button Content="{DynamicResource Loc.BackupCenter.Mode.Create}" Classes="sk-chip" Margin="0,0,8,8"
+                Background="{Binding CreateModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Foreground="{Binding CreateModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Command="{Binding ShowCreateCommand}"/>
+        <Button Content="{DynamicResource Loc.BackupCenter.Mode.Verify}" Classes="sk-chip" Margin="0,0,8,8"
+                Background="{Binding VerifyModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Foreground="{Binding VerifyModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Command="{Binding ShowVerifyCommand}"/>
+        <Button Content="{DynamicResource Loc.BackupCenter.Mode.Restore}" Classes="sk-chip" Margin="0,0,8,8"
+                Background="{Binding RestoreModeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Foreground="{Binding RestoreModeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                Command="{Binding ShowRestoreCommand}"/>
+      </WrapPanel>
+
+      <StackPanel Spacing="12" IsVisible="{Binding IsCreateMode}">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        <StackPanel Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Path}" Classes="backup-label"/>
+          <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <TextBox Text="{Binding ExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Path.Placeholder}"/>
+            <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Browse}" Classes="sk-secondary"
+                    Command="{Binding BrowseExportPathCommand}"/>
+          </Grid>
+        </StackPanel>
+        <StackPanel Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.BackupCenter.Export.Passphrase}" Classes="backup-label"/>
+          <TextBox Text="{Binding ExportPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PasswordChar="*" PlaceholderText="{DynamicResource Loc.BackupCenter.Export.Passphrase.Placeholder}"/>
+        </StackPanel>
+        <WrapPanel Orientation="Horizontal">
+          <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewBackup}" Classes="sk-secondary"
+                  Margin="0,0,10,0" Command="{Binding PreviewCommand}"/>
+          <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportBackup}" Classes="sk-primary"
+                  Command="{Binding CreateCommand}"/>
+        </WrapPanel>
+        <TextBlock Text="{Binding ExportSummary}" Classes="page-subtitle" FontSize="12" TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <StackPanel Spacing="12" IsVisible="{Binding IsVerifyMode}">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Verify.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+          <TextBox Text="{Binding VerifyPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Path.Placeholder}"/>
+          <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Browse}" Classes="sk-secondary"
+                  Command="{Binding BrowseVerifyPathCommand}"/>
+        </Grid>
+        <TextBox Text="{Binding VerifyPassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PasswordChar="*" PlaceholderText="{DynamicResource Loc.BackupCenter.Verify.Passphrase.Placeholder}"/>
+        <Button Content="{DynamicResource Loc.BackupCenter.Button.VerifyBackup}" Classes="sk-primary"
+                HorizontalAlignment="Left" Command="{Binding VerifyCommand}"/>
+        <TextBlock Text="{Binding VerifySummary}" Classes="page-subtitle" FontSize="12" TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <StackPanel Spacing="12" IsVisible="{Binding IsRestoreMode}">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Restore.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+          <TextBox Text="{Binding RestorePath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Path.Placeholder}"/>
+          <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Browse}" Classes="sk-secondary"
+                  Command="{Binding BrowseRestorePathCommand}"/>
+        </Grid>
+        <TextBox Text="{Binding RestorePassphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PasswordChar="*" PlaceholderText="{DynamicResource Loc.BackupCenter.Restore.Passphrase.Placeholder}"/>
+        <CheckBox Content="{DynamicResource Loc.BackupCenter.Restore.Confirm}" IsChecked="{Binding ConfirmRestore}"/>
+        <Button Content="{DynamicResource Loc.BackupCenter.Button.RestoreBackup}" Classes="sk-danger"
+                HorizontalAlignment="Left" Command="{Binding RestoreCommand}"/>
+        <TextBlock Text="{Binding RestoreSummary}" Classes="page-subtitle" FontSize="12" TextWrapping="Wrap"/>
+      </StackPanel>
+    </StackPanel>
+  </Border>
+</UserControl>

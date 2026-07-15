@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.CsvImportView"
+             x:CompileBindings="False"
+             x:DataType="vm:CsvImportViewModel">
+  <Border Classes="backup-block">
+    <StackPanel Spacing="16">
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Csv.Title}" Classes="backup-section-title"/>
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Csv.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <TextBox Text="{Binding ImportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PlaceholderText="{DynamicResource Loc.BackupCenter.Csv.Path.Placeholder}"/>
+        <Button Grid.Column="1" Content="{DynamicResource Loc.Common.BrowseCsv}" Classes="sk-secondary"
+                Command="{Binding BrowseCommand}"/>
+      </Grid>
+      <ComboBox Classes="sk-combo-modal"
+                ItemsSource="{Binding DuplicateStrategyOptions}"
+                SelectedItem="{Binding SelectedDuplicateStrategyOption}">
+        <ComboBox.ItemTemplate>
+          <DataTemplate x:DataType="vm:CsvDuplicateStrategyOption">
+            <TextBlock Text="{Binding Label}"/>
+          </DataTemplate>
+        </ComboBox.ItemTemplate>
+      </ComboBox>
+      <WrapPanel Orientation="Horizontal">
+        <Button Content="{DynamicResource Loc.BackupCenter.Button.PreviewCsv}" Classes="sk-secondary"
+                Margin="0,0,10,0" Command="{Binding PreviewCommand}"/>
+        <Button Content="{DynamicResource Loc.BackupCenter.Button.ImportCsv}" Classes="sk-primary"
+                Command="{Binding ImportCommand}"/>
+      </WrapPanel>
+      <TextBlock Text="{Binding PreviewSummary}" Classes="page-subtitle" FontSize="12"
+                 TextWrapping="Wrap" IsVisible="{Binding HasPreview}"/>
+    </StackPanel>
+  </Border>
+</UserControl>

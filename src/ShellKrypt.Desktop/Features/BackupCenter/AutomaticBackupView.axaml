@@ -1,0 +1,43 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.AutomaticBackupView"
+             x:CompileBindings="False"
+             x:DataType="vm:AutomaticBackupViewModel">
+  <Border Classes="backup-block">
+    <StackPanel Spacing="12">
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Title}" Classes="backup-section-title"/>
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+      <CheckBox Content="{DynamicResource Loc.BackupCenter.Automatic.Enabled}" IsChecked="{Binding Enabled}"/>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <TextBox Text="{Binding Directory, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Directory.Placeholder}"/>
+        <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Browse}" Classes="sk-secondary"
+                Command="{Binding BrowseDirectoryCommand}"/>
+      </Grid>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <ComboBox Classes="sk-combo-modal"
+                  ItemsSource="{Binding FrequencyOptions}"
+                  SelectedItem="{Binding SelectedFrequencyOption}">
+          <ComboBox.ItemTemplate>
+            <DataTemplate x:DataType="vm:AutomaticBackupFrequencyOption">
+              <TextBlock Text="{Binding Label}"/>
+            </DataTemplate>
+          </ComboBox.ItemTemplate>
+        </ComboBox>
+        <TextBox Grid.Column="1" Width="92"
+                 Text="{Binding RetentionCount, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Retention.Placeholder}"/>
+      </Grid>
+      <TextBox Text="{Binding Passphrase, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+               PasswordChar="*" PlaceholderText="{DynamicResource Loc.BackupCenter.Automatic.Passphrase.Placeholder}"/>
+      <Grid RowDefinitions="Auto,Auto" RowSpacing="10">
+        <Button Content="{DynamicResource Loc.BackupCenter.Button.SaveAutomaticBackup}" Classes="sk-secondary"
+                HorizontalAlignment="Stretch" Command="{Binding SaveCommand}"/>
+        <Button Grid.Row="1" Content="{DynamicResource Loc.BackupCenter.Button.RunAutomaticBackupNow}"
+                Classes="sk-primary" HorizontalAlignment="Stretch" Command="{Binding RunNowCommand}"/>
+      </Grid>
+      <TextBlock Text="{Binding Status}" Classes="page-subtitle" TextWrapping="Wrap" IsVisible="{Binding HasStatus}"/>
+    </StackPanel>
+  </Border>
+</UserControl>

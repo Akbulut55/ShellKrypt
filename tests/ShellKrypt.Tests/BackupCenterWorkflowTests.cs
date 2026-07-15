@@ -1,10 +1,15 @@
 using System.Reflection;
 using System.Text.Json;
+using ShellKrypt.Application.Backups;
 using ShellKrypt.Application.Settings;
+using ShellKrypt.Core.Backups;
+using ShellKrypt.Core.DataTransfer;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Infrastructure.Backups;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
@@ -26,9 +31,9 @@ public sealed class BackupCenterWorkflowTests
 
         var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
 
-        Assert.EndsWith(".skbx", backupCenter.EncryptedExportPath, StringComparison.OrdinalIgnoreCase);
-        Assert.EndsWith(".json", backupCenter.PlaintextExportPath, StringComparison.OrdinalIgnoreCase);
-        Assert.Contains("DECRYPTED", backupCenter.PlaintextExportPath, StringComparison.OrdinalIgnoreCase);
+        Assert.EndsWith(".skbx", backupCenter.Encrypted.ExportPath, StringComparison.OrdinalIgnoreCase);
+        Assert.EndsWith(".json", backupCenter.Plaintext.ExportPath, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("DECRYPTED", backupCenter.Plaintext.ExportPath, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -48,37 +53,37 @@ public sealed class BackupCenterWorkflowTests
         await webLogins.AddAsync(sourceVault, sourceKey, new WebLoginInput("Portal", "https://example.com", "admin", "admin@example.com", "secret-pass", "backup test"));
 
         var sourceBackup = CreateUnlockedBackupCenter(sourceVault, sourceKey);
-        sourceBackup.EncryptedExportPath = backupPath;
-        sourceBackup.ExportPassphrase = "backup-passphrase";
+        sourceBackup.Encrypted.ExportPath = backupPath;
+        sourceBackup.Encrypted.ExportPassphrase = "backup-passphrase";
 
-        await sourceBackup.PreviewExportCommand.ExecuteAsync(null);
-        await sourceBackup.ExportEncryptedCommand.ExecuteAsync(null);
+        await sourceBackup.Encrypted.PreviewCommand.ExecuteAsync(null);
+        await sourceBackup.Encrypted.CreateCommand.ExecuteAsync(null);
 
-        Assert.Contains("Items: 1", sourceBackup.ExportSummary);
+        Assert.Contains("Items: 1", sourceBackup.Encrypted.ExportSummary);
         Assert.True(File.Exists(backupPath));
-        Assert.Contains("Encrypted backup saved", sourceBackup.TransferStatus);
-        Assert.Contains(sourceBackup.RecentHistory, row => row.OperationLabel == "Encrypted backup");
+        Assert.Contains("Encrypted backup saved", sourceBackup.Operation.Status);
+        Assert.Contains(sourceBackup.History.Entries, row => row.OperationLabel == "Encrypted backup");
 
         var verifier = CreateUnlockedBackupCenter(sourceVault, sourceKey);
-        verifier.VerifyBackupPath = backupPath;
-        verifier.VerifyPassphrase = "backup-passphrase";
+        verifier.Encrypted.VerifyPath = backupPath;
+        verifier.Encrypted.VerifyPassphrase = "backup-passphrase";
 
-        await verifier.VerifyBackupCommand.ExecuteAsync(null);
+        await verifier.Encrypted.VerifyCommand.ExecuteAsync(null);
 
-        Assert.Contains("Previewing import: 1 items", verifier.VerifySummary);
-        Assert.Contains("verified", verifier.TransferStatus, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("Previewing import: 1 items", verifier.Encrypted.VerifySummary);
+        Assert.Contains("verified", verifier.Operation.Status, StringComparison.OrdinalIgnoreCase);
 
         var targetBackup = CreateUnlockedBackupCenter(targetVault, targetKey);
-        targetBackup.RestoreBackupPath = backupPath;
-        targetBackup.RestorePassphrase = "backup-passphrase";
+        targetBackup.Encrypted.RestorePath = backupPath;
+        targetBackup.Encrypted.RestorePassphrase = "backup-passphrase";
 
-        await targetBackup.RestoreEncryptedCommand.ExecuteAsync(null);
-        Assert.Contains("Confirm restore", targetBackup.TransferStatus);
+        await targetBackup.Encrypted.RestoreCommand.ExecuteAsync(null);
+        Assert.Contains("Confirm restore", targetBackup.Operation.Status);
 
-        targetBackup.ConfirmRestore = true;
-        await targetBackup.RestoreEncryptedCommand.ExecuteAsync(null);
+        targetBackup.Encrypted.ConfirmRestore = true;
+        await targetBackup.Encrypted.RestoreCommand.ExecuteAsync(null);
 
-        Assert.Contains("Previewing import: 1 items", targetBackup.RestoreSummary);
+        Assert.Contains("Previewing import: 1 items", targetBackup.Encrypted.RestoreSummary);
         var restored = await webLogins.ListAsync(targetVault, targetKey);
         var login = Assert.Single(restored);
         Assert.Equal("Portal", login.Title);
@@ -99,28 +104,28 @@ public sealed class BackupCenterWorkflowTests
         await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Plaintext Portal", "https://plain.example", "owner", "owner@example.com", "plaintext-secret", "json export"));
 
         var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
-        backupCenter.PlaintextExportPath = exportPath;
+        backupCenter.Plaintext.ExportPath = exportPath;
 
-        await backupCenter.ExportPlaintextCommand.ExecuteAsync(null);
+        await backupCenter.Plaintext.ExportCommand.ExecuteAsync(null);
         Assert.False(File.Exists(exportPath));
-        Assert.Contains("Confirm the plaintext export warning", backupCenter.TransferStatus);
+        Assert.Contains("Confirm the plaintext export warning", backupCenter.Operation.Status);
 
-        backupCenter.ConfirmPlaintextExport = true;
-        backupCenter.PlaintextExportConfirmationText = "NOPE";
-        await backupCenter.ExportPlaintextCommand.ExecuteAsync(null);
+        backupCenter.Plaintext.ConfirmExport = true;
+        backupCenter.Plaintext.ConfirmationText = "NOPE";
+        await backupCenter.Plaintext.ExportCommand.ExecuteAsync(null);
         Assert.False(File.Exists(exportPath));
-        Assert.Contains("Type EXPORT", backupCenter.TransferStatus);
+        Assert.Contains("Type EXPORT", backupCenter.Operation.Status);
 
-        backupCenter.PlaintextExportConfirmationText = "EXPORT";
-        await backupCenter.ExportPlaintextCommand.ExecuteAsync(null);
+        backupCenter.Plaintext.ConfirmationText = "EXPORT";
+        await backupCenter.Plaintext.ExportCommand.ExecuteAsync(null);
 
         Assert.True(File.Exists(exportPath));
         var json = await File.ReadAllTextAsync(exportPath);
         Assert.Contains("Plaintext Portal", json);
         Assert.Contains("plaintext-secret", json);
-        Assert.False(backupCenter.ConfirmPlaintextExport);
-        Assert.Equal("", backupCenter.PlaintextExportConfirmationText);
-        Assert.Contains("decrypted", backupCenter.TransferStatus);
+        Assert.False(backupCenter.Plaintext.ConfirmExport);
+        Assert.Equal("", backupCenter.Plaintext.ConfirmationText);
+        Assert.Contains("decrypted", backupCenter.Operation.Status);
     }
 
     [Fact]
@@ -140,14 +145,14 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
 """);
 
         var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
-        backupCenter.CsvImportPath = csvPath;
-        backupCenter.SelectedCsvDuplicateStrategy = VaultCsvDuplicateStrategy.ImportAll;
+        backupCenter.Csv.ImportPath = csvPath;
+        backupCenter.Csv.SelectedDuplicateStrategy = VaultCsvDuplicateStrategy.ImportAll;
 
-        await backupCenter.PreviewCsvImportCommand.ExecuteAsync(null);
-        await backupCenter.ImportCsvCommand.ExecuteAsync(null);
+        await backupCenter.Csv.PreviewCommand.ExecuteAsync(null);
+        await backupCenter.Csv.ImportCommand.ExecuteAsync(null);
 
-        Assert.Equal("Rows: 1 | New: 1 | Duplicates: 0 | Invalid: 0", backupCenter.CsvPreviewSummary);
-        var row = Assert.Single(backupCenter.CsvPreviewRows);
+        Assert.Equal("Rows: 1 | New: 1 | Duplicates: 0 | Invalid: 0", backupCenter.Csv.PreviewSummary);
+        var row = Assert.Single(backupCenter.Csv.PreviewRows);
         Assert.Equal(VaultCsvRowStatus.New, row.Status);
         var imported = await webLogins.ListAsync(vaultPath, vaultKey);
         var login = Assert.Single(imported);
@@ -170,17 +175,17 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         await webLogins.AddAsync(vaultPath, vaultKey, new WebLoginInput("Auto Portal", "https://auto.example", "owner", "", "auto-secret", ""));
 
         var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
-        backupCenter.AutomaticBackupEnabled = true;
-        backupCenter.AutomaticBackupDirectory = backupDir;
-        backupCenter.AutomaticBackupPassphrase = "automatic-backup-passphrase";
-        backupCenter.AutomaticBackupRetentionCount = 2;
+        backupCenter.Automatic.Enabled = true;
+        backupCenter.Automatic.Directory = backupDir;
+        backupCenter.Automatic.Passphrase = "automatic-backup-passphrase";
+        backupCenter.Automatic.RetentionCount = 2;
 
-        await backupCenter.RunAutomaticBackupNowCommand.ExecuteAsync(null);
+        await backupCenter.Automatic.RunNowCommand.ExecuteAsync(null);
 
         var backupPath = Assert.Single(Directory.GetFiles(backupDir, "*.skbx"));
         Assert.Contains("ShellKrypt-vault-Auto-", Path.GetFileName(backupPath));
-        Assert.Contains("Automatic backup completed", backupCenter.AutomaticBackupStatus);
-        Assert.Contains(backupCenter.RecentHistory, row => row.OperationLabel == "Automatic backup");
+        Assert.Contains("Automatic backup completed", backupCenter.Automatic.Status);
+        Assert.Contains(backupCenter.History.Entries, row => row.OperationLabel == "Automatic backup");
 
         var settingsJson = File.Exists(DefaultPaths.SettingsPath)
             ? File.ReadAllText(DefaultPaths.SettingsPath)
@@ -201,13 +206,13 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
 
         var backupCenter = CreateUnlockedBackupCenter(vaultPath, vaultKey);
-        backupCenter.AutomaticBackupEnabled = true;
-        backupCenter.AutomaticBackupDirectory = backupDir;
+        backupCenter.Automatic.Enabled = true;
+        backupCenter.Automatic.Directory = backupDir;
 
-        await backupCenter.RunAutomaticBackupNowCommand.ExecuteAsync(null);
+        await backupCenter.Automatic.RunNowCommand.ExecuteAsync(null);
 
         Assert.Empty(Directory.GetFiles(backupDir, "*.skbx"));
-        Assert.Contains("passphrase", backupCenter.AutomaticBackupStatus, StringComparison.OrdinalIgnoreCase);
+        Assert.Contains("passphrase", backupCenter.Automatic.Status, StringComparison.OrdinalIgnoreCase);
     }
 
     [Fact]
@@ -218,9 +223,10 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         var backupDir = workspace.FilePath("auto-backups");
         Directory.CreateDirectory(backupDir);
 
-        var older = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 1, 10, 0, 0, TimeSpan.Zero));
-        var middle = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 2, 10, 0, 0, TimeSpan.Zero));
-        var newer = AutomaticBackupCoordinator.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 3, 10, 0, 0, TimeSpan.Zero));
+        var files = new AutomaticBackupFileStore();
+        var older = files.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 1, 10, 0, 0, TimeSpan.Zero));
+        var middle = files.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 2, 10, 0, 0, TimeSpan.Zero));
+        var newer = files.BuildBackupPath(backupDir, vaultPath, new DateTimeOffset(2026, 5, 3, 10, 0, 0, TimeSpan.Zero));
         var manual = Path.Combine(backupDir, "ShellKrypt-vault-Manual.skbx");
         var otherVaultAuto = Path.Combine(backupDir, "ShellKrypt-other-Auto-20260501-100000.skbx");
 
@@ -233,7 +239,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         File.SetLastWriteTimeUtc(middle, new DateTime(2026, 5, 2, 10, 0, 0, DateTimeKind.Utc));
         File.SetLastWriteTimeUtc(newer, new DateTime(2026, 5, 3, 10, 0, 0, DateTimeKind.Utc));
 
-        var deleted = AutomaticBackupCoordinator.ApplyRetention(backupDir, vaultPath, retentionCount: 2);
+        var deleted = files.ApplyRetention(backupDir, vaultPath, retentionCount: 2);
 
         Assert.Equal(1, deleted);
         Assert.False(File.Exists(older));
@@ -247,7 +253,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
     public async Task AutomaticBackupCoordinator_CheckDueSkipsWithoutSessionPassphrase()
     {
         using var workspace = new TempWorkspace();
-        var transfer = new FakeVaultTransferService();
+        var backups = new FakeEncryptedVaultBackupService();
         var schedule = new BackupScheduleSettings
         {
             Enabled = true,
@@ -256,13 +262,14 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         };
         var state = new AutomaticBackupState();
         var coordinator = new AutomaticBackupCoordinator(
-            transfer,
+            backups,
+            new AutomaticBackupFileStore(),
             () => new AutomaticBackupContext(workspace.FilePath("vault.skvault"), [1, 2, 3], schedule, state));
 
         var result = await coordinator.CheckDueAsync();
 
         Assert.Null(result);
-        Assert.Equal(0, transfer.ExportEncryptedCallCount);
+        Assert.Equal(0, backups.CreateCallCount);
         Assert.Equal("", state.LastAttemptedAtUtc);
     }
 
@@ -307,12 +314,12 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
             ? File.ReadAllText(DefaultPaths.SettingsPath)
             : "";
 
-        Assert.Equal("Created", backupCenter.BackupHealthBackupStatus);
-        Assert.Equal("Verified", backupCenter.BackupHealthVerificationStatus);
-        Assert.Equal("Enabled", backupCenter.BackupHealthAutomaticStatus);
-        Assert.Contains("safe-backup.skbx", backupCenter.BackupHealthBackupDetail);
-        Assert.Contains("safe-backup.skbx", backupCenter.BackupHealthVerificationDetail);
-        Assert.Contains("auto-backup.skbx", backupCenter.BackupHealthAutomaticDetail);
+        Assert.Equal("Created", backupCenter.Health.BackupStatus);
+        Assert.Equal("Verified", backupCenter.Health.VerificationStatus);
+        Assert.Equal("Enabled", backupCenter.Health.AutomaticStatus);
+        Assert.Contains("safe-backup.skbx", backupCenter.Health.BackupDetail);
+        Assert.Contains("safe-backup.skbx", backupCenter.Health.VerificationDetail);
+        Assert.Contains("auto-backup.skbx", backupCenter.Health.AutomaticDetail);
         Assert.DoesNotContain("do-not-store-backup-passphrase", settingsJson);
         Assert.DoesNotContain("Vault Master Password 2026", settingsJson);
     }
@@ -434,35 +441,23 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         }
     }
 
-    private sealed class FakeVaultTransferService : IVaultTransferService
+    private sealed class FakeEncryptedVaultBackupService : IEncryptedVaultBackupService
     {
-        public int ExportEncryptedCallCount { get; private set; }
+        public int CreateCallCount { get; private set; }
 
-        public Task<VaultSnapshotSummary> GetExportSummaryAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
+        public Task<VaultSnapshotSummary> GetSummaryAsync(string vaultPath, byte[] vaultKey, CancellationToken ct = default)
             => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0, 0));
 
-        public Task ExportPlaintextJsonAsync(string vaultPath, byte[] vaultKey, string outputPath, CancellationToken ct = default)
-            => Task.CompletedTask;
-
-        public Task ExportEncryptedAsync(string vaultPath, byte[] vaultKey, string outputPath, string exportPassphrase, CancellationToken ct = default)
+        public Task CreateAsync(string vaultPath, byte[] vaultKey, string outputPath, string backupPassphrase, CancellationToken ct = default)
         {
-            ExportEncryptedCallCount++;
+            CreateCallCount++;
             return Task.CompletedTask;
         }
 
-        public Task<VaultSnapshotSummary> GetEncryptedImportSummaryAsync(string packagePath, string exportPassphrase, CancellationToken ct = default)
+        public Task<VaultSnapshotSummary> InspectAsync(string packagePath, string backupPassphrase, CancellationToken ct = default)
             => Task.FromResult(new VaultSnapshotSummary(0, 0, 0, 0, 0, 0, 0, 0, 0));
 
-        public Task ImportEncryptedAsync(string packagePath, string exportPassphrase, string vaultPath, byte[] vaultKey, CancellationToken ct = default)
-            => Task.CompletedTask;
-
-        public Task ImportSnapshotAsync(string vaultPath, byte[] vaultKey, VaultSnapshot snapshot, CancellationToken ct = default)
-            => Task.CompletedTask;
-
-        public Task<VaultCsvImportPreview> PreviewCsvImportAsync(string vaultPath, byte[] vaultKey, string csvPath, CancellationToken ct = default)
-            => Task.FromResult(new VaultCsvImportPreview(0, 0, 0, 0, []));
-
-        public Task ImportCsvAsync(string vaultPath, byte[] vaultKey, string csvPath, VaultCsvDuplicateStrategy strategy, CancellationToken ct = default)
+        public Task RestoreAsync(string packagePath, string backupPassphrase, string vaultPath, byte[] vaultKey, CancellationToken ct = default)
             => Task.CompletedTask;
     }
 }

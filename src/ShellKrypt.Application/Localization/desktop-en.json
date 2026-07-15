@@ -322,7 +322,6 @@
   "BackupCenter.Operation.CsvImport": "CSV import",
   "BackupCenter.Operation.EncryptedBackup": "Encrypted backup",
   "BackupCenter.Operation.PlaintextExport": "Plaintext export",
-  "BackupCenter.Operation.LegacyExport": "Legacy export",
   "BackupCenter.Operation.RestoreBackup": "Encrypted restore",
   "BackupCenter.Operation.VerifyBackup": "Backup verify",
   "BackupCenter.Picker.Csv.FileType": "CSV file",
