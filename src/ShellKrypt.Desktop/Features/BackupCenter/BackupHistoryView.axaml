@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.BackupHistoryView"
+             x:CompileBindings="False"
+             x:DataType="vm:BackupHistoryViewModel">
+  <Border Classes="backup-block">
+    <StackPanel Spacing="12">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12" VerticalAlignment="Center">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Title}"
+                   Classes="backup-section-title" VerticalAlignment="Center"/>
+        <Button Grid.Column="1" Content="{DynamicResource Loc.BackupCenter.History.Clear}"
+                Classes="sk-secondary" Command="{Binding ClearCommand}" IsVisible="{Binding HasEntries}"/>
+      </Grid>
+      <ScrollViewer Height="520" HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Auto" IsVisible="{Binding HasEntries}">
+        <ItemsControl ItemsSource="{Binding Entries}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:BackupHistoryEntryVm">
+              <Border Classes="backup-history-row">
+                <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="6">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                    <TextBlock Text="{Binding OperationLabel}" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <Border Grid.Column="1" Classes="backup-history-chip">
+                      <TextBlock Text="{Binding StatusLabel}" FontSize="10" FontWeight="Black"/>
+                    </Border>
+                  </Grid>
+                  <TextBlock Grid.Row="1" Text="{Binding FileDisplay}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+                  <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <TextBlock Text="{Binding CountsDisplay}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Grid.Column="1" Text="{Binding TimestampDisplay}" Classes="backup-muted"/>
+                  </Grid>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+      <Border Height="520" Padding="18" IsVisible="{Binding !HasEntries}">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.History.Empty}" Classes="page-subtitle"
+                   TextWrapping="Wrap" HorizontalAlignment="Center" VerticalAlignment="Center" TextAlignment="Center"/>
+      </Border>
+    </StackPanel>
+  </Border>
+</UserControl>

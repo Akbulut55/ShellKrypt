@@ -1,9 +1,13 @@
 using System.Text;
 using System.Text.Json;
 using System.Security.Cryptography;
+using ShellKrypt.Core.Backups;
+using ShellKrypt.Core.DataTransfer;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Infrastructure.Backups;
 using ShellKrypt.Infrastructure.Crypto;
+using ShellKrypt.Infrastructure.DataTransfer;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -22,7 +26,7 @@ public sealed class VaultTransferServiceTests
     {
         using var workspace = new TempWorkspace();
         var repo = new SqliteItemRepository();
-        var transfer = new SqliteVaultTransferService();
+        var backups = new EncryptedVaultBackupService();
         var vaultService = new SqliteVaultService();
 
         var sourceVault = workspace.FilePath("source.skvault");
@@ -42,9 +46,9 @@ public sealed class VaultTransferServiceTests
         await InsertNoteAsync(repo, sourceVault, sourceKey, noteId, "Travel", "Pack passport and charger", createdAt, updatedAt);
         await repo.SetItemLabelsAsync(sourceVault, webId, new[] { label.Id });
 
-        await transfer.ExportEncryptedAsync(sourceVault, sourceKey, exportPath, "backup-pass");
+        await backups.CreateAsync(sourceVault, sourceKey, exportPath, "backup-pass");
 
-        var summary = await transfer.GetEncryptedImportSummaryAsync(exportPath, "backup-pass");
+        var summary = await backups.InspectAsync(exportPath, "backup-pass");
         Assert.Equal(2, summary.ItemCount);
         Assert.Equal(1, summary.WebCount);
         Assert.Equal(0, summary.CardCount);
@@ -54,7 +58,7 @@ public sealed class VaultTransferServiceTests
         Assert.Equal(1, summary.LabelCount);
         Assert.Equal(1, summary.FavoriteCount);
 
-        await transfer.ImportEncryptedAsync(exportPath, "backup-pass", targetVault, targetKey);
+        await backups.RestoreAsync(exportPath, "backup-pass", targetVault, targetKey);
 
         var targetRows = await repo.ListAsync(targetVault, targetKey);
         Assert.Equal(2, targetRows.Count);
@@ -81,7 +85,7 @@ public sealed class VaultTransferServiceTests
     {
         using var workspace = new TempWorkspace();
         var repo = new SqliteItemRepository();
-        var transfer = new SqliteVaultTransferService();
+        var plaintext = new VaultPlaintextExportService();
         var vaultService = new SqliteVaultService();
 
         var vaultPath = workspace.FilePath("vault.skvault");
@@ -94,7 +98,7 @@ public sealed class VaultTransferServiceTests
 
         await InsertWebAsync(repo, vaultPath, vaultKey, itemId, "GitLab", "https://gitlab.com", "codex", "password!", "notes", createdAt, updatedAt, favorite: false);
 
-        await transfer.ExportPlaintextJsonAsync(vaultPath, vaultKey, exportPath);
+        await plaintext.ExportJsonAsync(vaultPath, vaultKey, exportPath);
 
         var json = await File.ReadAllTextAsync(exportPath);
         var snapshot = JsonSerializer.Deserialize<VaultSnapshot>(json, JsonOptions);
@@ -110,7 +114,7 @@ public sealed class VaultTransferServiceTests
     {
         using var workspace = new TempWorkspace();
         var repo = new SqliteItemRepository();
-        var transfer = new SqliteVaultTransferService();
+        var csv = new VaultCsvImportService();
         var vaultService = new SqliteVaultService();
 
         var vaultPath = workspace.FilePath("vault.skvault");
@@ -129,7 +133,7 @@ Note,Travel,,,,,,Pack passport,,,,,
 Card,Card,,,,,,Jane,12345,12,2030,123
 """);
 
-        var preview = await transfer.PreviewCsvImportAsync(vaultPath, vaultKey, csvPath);
+        var preview = await csv.PreviewAsync(vaultPath, vaultKey, csvPath);
 
         Assert.Equal(3, preview.TotalRows);
         Assert.Equal(1, preview.NewRows);
@@ -145,7 +149,7 @@ Card,Card,,,,,,Jane,12345,12,2030,123
     {
         using var workspace = new TempWorkspace();
         var repo = new SqliteItemRepository();
-        var transfer = new SqliteVaultTransferService();
+        var csv = new VaultCsvImportService();
         var vaultService = new SqliteVaultService();
 
         var vaultPath = workspace.FilePath("vault.skvault");
@@ -162,7 +166,7 @@ Type,Title,Url,Username,Password,Notes
 Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
 """);
 
-        await transfer.ImportCsvAsync(vaultPath, vaultKey, csvPath, VaultCsvDuplicateStrategy.OverwriteDuplicates);
+        await csv.ImportAsync(vaultPath, vaultKey, csvPath, VaultCsvDuplicateStrategy.OverwriteDuplicates);
 
         var rows = await repo.ListAsync(vaultPath, vaultKey);
         Assert.Single(rows);
@@ -180,7 +184,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
     public async Task EncryptedImport_RejectsMalformedBase64Package()
     {
         using var workspace = new TempWorkspace();
-        var transfer = new SqliteVaultTransferService();
+        var backups = new EncryptedVaultBackupService();
         var packagePath = workspace.FilePath("bad.skbx");
 
         await File.WriteAllTextAsync(packagePath, JsonSerializer.Serialize(
@@ -193,7 +197,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
             JsonOptions));
 
         var ex = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            transfer.GetEncryptedImportSummaryAsync(packagePath, "backup-pass"));
+            backups.InspectAsync(packagePath, "backup-pass"));
 
         Assert.Contains("Base64", ex.Message);
     }
@@ -203,7 +207,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
     {
         using var workspace = new TempWorkspace();
         var repo = new SqliteItemRepository();
-        var transfer = new SqliteVaultTransferService();
+        var backups = new EncryptedVaultBackupService();
         var vaultService = new SqliteVaultService();
         var vaultPath = workspace.FilePath("vault.skvault");
         var exportPath = workspace.FilePath("backup.skbx");
@@ -223,14 +227,14 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
             DateTimeOffset.UtcNow.ToString("O"),
             favorite: false);
 
-        await transfer.ExportEncryptedAsync(vaultPath, vaultKey, exportPath, "backup-pass");
+        await backups.CreateAsync(vaultPath, vaultKey, exportPath, "backup-pass");
 
         var package = JsonSerializer.Deserialize<VaultEncryptedPackage>(await File.ReadAllTextAsync(exportPath), JsonOptions)!;
         var tampered = package with { Kdf = package.Kdf with { Iterations = package.Kdf.Iterations + 1 } };
         await File.WriteAllTextAsync(exportPath, JsonSerializer.Serialize(tampered, JsonOptions));
 
         await Assert.ThrowsAnyAsync<CryptographicException>(() =>
-            transfer.GetEncryptedImportSummaryAsync(exportPath, "backup-pass"));
+            backups.InspectAsync(exportPath, "backup-pass"));
     }
 
     [Fact]
@@ -238,7 +242,7 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
     {
         using var workspace = new TempWorkspace();
         var vaultService = new SqliteVaultService();
-        var transfer = new SqliteVaultTransferService();
+        var csv = new VaultCsvImportService();
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
@@ -246,14 +250,14 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
         await File.WriteAllTextAsync(hugeCsv, new string('A', 8 * 1024 * 1024 + 1));
 
         var hugeEx = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            transfer.PreviewCsvImportAsync(vaultPath, vaultKey, hugeCsv));
+            csv.PreviewAsync(vaultPath, vaultKey, hugeCsv));
         Assert.Contains("too large", hugeEx.Message, StringComparison.OrdinalIgnoreCase);
 
         var malformedCsv = workspace.FilePath("malformed.csv");
         await File.WriteAllTextAsync(malformedCsv, "Type,Title\nWeb,\"unterminated");
 
         var malformedEx = await Assert.ThrowsAsync<InvalidDataException>(() =>
-            transfer.PreviewCsvImportAsync(vaultPath, vaultKey, malformedCsv));
+            csv.PreviewAsync(vaultPath, vaultKey, malformedCsv));
         Assert.Contains("unterminated", malformedEx.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -262,15 +266,16 @@ Web,GitHub,https://github.com,octocat,newpass,Imported overwrite
     {
         using var workspace = new TempWorkspace();
         var vaultService = new SqliteVaultService();
-        var transfer = new SqliteVaultTransferService();
+        var backups = new EncryptedVaultBackupService();
+        var plaintext = new VaultPlaintextExportService();
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            transfer.ExportPlaintextJsonAsync(vaultPath, vaultKey, vaultPath));
+            plaintext.ExportJsonAsync(vaultPath, vaultKey, vaultPath));
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            transfer.ImportEncryptedAsync(vaultPath, "backup-pass", vaultPath, vaultKey));
+            backups.RestoreAsync(vaultPath, "backup-pass", vaultPath, vaultKey));
     }
 
     private static async Task<byte[]> CreateAndUnlockVaultAsync(SqliteVaultService vaultService, string vaultPath, string masterPassword)

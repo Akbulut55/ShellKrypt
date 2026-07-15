@@ -1,0 +1,55 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.BackupHealthView"
+             x:CompileBindings="False"
+             x:DataType="vm:BackupCenterViewModel">
+  <Border Classes="backup-block">
+    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+      <StackPanel Spacing="6">
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Title}" Classes="backup-section-title"/>
+        <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.NoRecoveryWarning}"
+                   Classes="page-subtitle" TextWrapping="Wrap"/>
+      </StackPanel>
+      <Grid Grid.Row="1" ColumnDefinitions="*,*" RowDefinitions="Auto,Auto" ColumnSpacing="10" RowSpacing="10">
+        <Border Grid.Row="0" Grid.Column="0" Classes="backup-health-card">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{DynamicResource Loc.BackupCenter.Status.ActiveVault}" Classes="backup-kicker"/>
+            <TextBlock Text="{Binding Health.ActiveVaultDisplay}" Classes="backup-status-value"/>
+            <TextBlock Text="{Binding Health.ActiveVaultPathDisplay}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Row="0" Grid.Column="1" Classes="backup-health-card">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Card.Backup}" Classes="backup-kicker"/>
+            <TextBlock Text="{Binding Health.BackupStatus}" Classes="backup-status-value"
+                       Foreground="{Binding Health.BackupBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+            <TextBlock Text="{Binding Health.BackupDetail}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+            <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.CreateBackup}" Classes="sk-secondary"
+                    HorizontalAlignment="Left" Command="{Binding Encrypted.ShowCreateCommand}"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="0" Classes="backup-health-card">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{DynamicResource Loc.BackupCenter.Health.Card.Verification}" Classes="backup-kicker"/>
+            <TextBlock Text="{Binding Health.VerificationStatus}" Classes="backup-status-value"
+                       Foreground="{Binding Health.VerificationBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+            <TextBlock Text="{Binding Health.VerificationDetail}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+            <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.VerifyBackup}" Classes="sk-secondary"
+                    HorizontalAlignment="Left" Command="{Binding Encrypted.ShowVerifyCommand}"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Row="1" Grid.Column="1" Classes="backup-health-card">
+          <StackPanel Spacing="8">
+            <TextBlock Text="{DynamicResource Loc.BackupCenter.Automatic.Status.Title}" Classes="backup-kicker"/>
+            <TextBlock Text="{Binding Health.AutomaticStatus}" Classes="backup-status-value"
+                       Foreground="{Binding Health.AutomaticBrush, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+            <TextBlock Text="{Binding Automatic.SessionText}" Classes="backup-muted" TextTrimming="CharacterEllipsis"/>
+            <Button Content="{DynamicResource Loc.BackupCenter.Health.Button.Configure}" Classes="sk-secondary"
+                    HorizontalAlignment="Left" Command="{Binding Automatic.ConfigureCommand}"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

@@ -1,6 +1,7 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Backups;
 using ShellKrypt.Application.Authenticator;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
@@ -10,14 +11,19 @@ using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Authenticator;
+using ShellKrypt.Core.Backups;
 using ShellKrypt.Core.CryptoTools;
+using ShellKrypt.Core.DataTransfer;
 using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Features.Authenticator;
+using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Services.QuickFill;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Authenticator;
+using ShellKrypt.Infrastructure.Backups;
+using ShellKrypt.Infrastructure.DataTransfer;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.CryptoTools;
 using ShellKrypt.Infrastructure.ProjectSecrets;
@@ -58,7 +64,10 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IPasswordStrengthService _passwordStrengthService = new PasswordStrengthService();
     private readonly IHashService _hashService = new HashService();
     private readonly IBase64Service _base64Service = new Base64Service();
-    private readonly IVaultTransferService _vaultTransferService = new SqliteVaultTransferService();
+    private readonly IEncryptedVaultBackupService _encryptedBackupService = new EncryptedVaultBackupService();
+    private readonly IVaultPlaintextExportService _plaintextExportService = new VaultPlaintextExportService();
+    private readonly IVaultCsvImportService _csvImportService = new VaultCsvImportService();
+    private readonly IAutomaticBackupFileStore _automaticBackupFiles = new AutomaticBackupFileStore();
     private readonly ForegroundWindowService _foregroundWindowService = new();
     private readonly AutoTypeService _autoTypeService = new();
     private readonly GlobalHotkeyService _globalHotkeyService = new();
@@ -124,7 +133,10 @@ public partial class MainWindowViewModel : ViewModelBase
         _backupSchedule = settings.BackupSchedule;
         _automaticBackupState = settings.AutomaticBackupState;
         _quickFill = settings.QuickFill;
-        _automaticBackupCoordinator = new AutomaticBackupCoordinator(_vaultTransferService, BuildAutomaticBackupContext);
+        _automaticBackupCoordinator = new AutomaticBackupCoordinator(
+            _encryptedBackupService,
+            _automaticBackupFiles,
+            BuildAutomaticBackupContext);
         _automaticBackupCoordinator.StateChanged += (_, _) => AutomaticBackupChanged?.Invoke(this, EventArgs.Empty);
         _automaticBackupCoordinator.RunCompleted += (_, result) =>
         {
@@ -151,7 +163,9 @@ public partial class MainWindowViewModel : ViewModelBase
     public string? VaultPath => _state.VaultPath;
     public byte[] VaultKey => _state.GetVaultKeyOrThrow();
     public LocalizationService Localization => _localization;
-    public IVaultTransferService VaultTransferService => _vaultTransferService;
+    public IEncryptedVaultBackupService EncryptedBackupService => _encryptedBackupService;
+    public IVaultPlaintextExportService PlaintextExportService => _plaintextExportService;
+    public IVaultCsvImportService CsvImportService => _csvImportService;
     public BackupCenterHistory BackupCenterHistory => _backupCenterHistory;
     public EmergencyKitState EmergencyKit => _emergencyKit;
     public BackupScheduleSettings BackupSchedule => _backupSchedule;

@@ -22,6 +22,24 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.24.0] - 2026-07-15
+
+### Changed
+
+- Split Backup Center into focused encrypted-backup, plaintext-export, CSV-import,
+  automatic-backup, health, and history capabilities while preserving the
+  existing single-page workflows and backup formats.
+- Moved Backup Center Desktop composition into a colocated feature with focused
+  workflow viewmodels and internal section controls.
+- Extracted automatic-backup file naming, discovery, verification, and retention
+  from Desktop lifecycle coordination into focused backup capabilities.
+
+### Security
+
+- Separated encrypted-package and vault-snapshot format version validation and
+  rejected dangling or duplicate item-label relationships before restore mutates
+  the target vault.
+
 ## [ShellKrypt 0.23.0] - 2026-07-15
 
 ### Changed

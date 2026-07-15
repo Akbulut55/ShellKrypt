@@ -1,0 +1,24 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.BackupCenter"
+             x:Class="ShellKrypt.Desktop.Features.BackupCenter.PlaintextExportView"
+             x:CompileBindings="False"
+             x:DataType="vm:PlaintextExportViewModel">
+  <Border Classes="backup-block danger">
+    <StackPanel Spacing="16">
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Plaintext.Title}" Classes="backup-section-title"/>
+      <TextBlock Text="{DynamicResource Loc.BackupCenter.Plaintext.Description}" Classes="page-subtitle" TextWrapping="Wrap"/>
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <TextBox Text="{Binding ExportPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Path.Placeholder}"/>
+        <Button Grid.Column="1" Content="{DynamicResource Loc.Common.BrowseJson}" Classes="sk-secondary"
+                Command="{Binding BrowseCommand}"/>
+      </Grid>
+      <CheckBox Content="{DynamicResource Loc.BackupCenter.Plaintext.Warning}" IsChecked="{Binding ConfirmExport}"/>
+      <TextBox Text="{Binding ConfirmationText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+               PlaceholderText="{DynamicResource Loc.BackupCenter.Plaintext.Confirmation.Placeholder}"/>
+      <Button Content="{DynamicResource Loc.BackupCenter.Button.ExportPlaintext}" Classes="sk-danger"
+              HorizontalAlignment="Left" Command="{Binding ExportCommand}"/>
+    </StackPanel>
+  </Border>
+</UserControl>

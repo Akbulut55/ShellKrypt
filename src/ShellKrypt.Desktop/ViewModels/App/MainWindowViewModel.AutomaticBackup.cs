@@ -1,8 +1,8 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
-using ShellKrypt.Application.Settings;
-using ShellKrypt.Desktop.Services;
+using ShellKrypt.Application.Backups;
+using ShellKrypt.Desktop.Features.BackupCenter;
 
 namespace ShellKrypt.Desktop.ViewModels;
 

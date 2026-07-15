@@ -14,6 +14,7 @@ using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Features.Authenticator;
+using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
