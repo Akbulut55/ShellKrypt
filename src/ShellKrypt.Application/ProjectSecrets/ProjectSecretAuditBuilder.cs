@@ -1,55 +1,34 @@
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
 namespace ShellKrypt.Application.ProjectSecrets;
 
 public static class ProjectSecretAuditBuilder
 {
     public static IReadOnlyList<ProjectSecretAuditFinding> BuildFindings(ProjectSecretEntry project)
-    {
-        var findings = new List<ProjectSecretAuditFinding>();
-        findings.AddRange(ProjectSecretValidator.BuildValidationFindings(project));
-        findings.AddRange(BuildDriftFindings(project));
-        findings.AddRange(BuildScanFindings(project));
-        return findings;
-    }
+        => ProjectSecretValidator.BuildValidationFindings(project)
+            .Concat(BuildDriftFindings(project))
+            .Concat(BuildScanFindings(project))
+            .ToArray();
 
     private static IEnumerable<ProjectSecretAuditFinding> BuildDriftFindings(ProjectSecretEntry project)
     {
-        var environments = project.Environments.OrderBy(environment => environment.SortOrder).ToArray();
-        if (environments.Length < 2)
-            yield break;
-
-        var keys = environments
-            .SelectMany(environment => environment.Variables.Select(variable => variable.Key))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToArray();
-
-        foreach (var key in keys)
+        foreach (var environment in project.Environments)
         {
-            var missing = environments
-                .Where(environment => environment.Variables.All(variable => !string.Equals(variable.Key, key, StringComparison.OrdinalIgnoreCase)))
-                .ToArray();
-            foreach (var environment in missing)
-            {
-                yield return new ProjectSecretAuditFinding(
-                    HealthAuditSeverity.Medium,
-                    HealthAuditCategory.ProjectSecretMissingVariable,
-                    project.Id,
-                    environment.Id,
-                    null,
-                    key,
-                    "Project Secret missing in environment",
-                    $"{key} is missing in {environment.Name}.");
-            }
+            var profiles = environment.Profiles.OrderBy(profile => profile.SortOrder).ToArray();
+            if (profiles.Length < 2)
+                continue;
+            var keys = profiles.SelectMany(profile => profile.Variables).Select(variable => variable.Key).Distinct(StringComparer.OrdinalIgnoreCase);
+            foreach (var key in keys)
+            foreach (var profile in profiles.Where(profile => profile.Variables.All(variable => !string.Equals(variable.Key, key, StringComparison.OrdinalIgnoreCase))))
+                yield return new ProjectSecretAuditFinding(HealthAuditSeverity.Medium, HealthAuditCategory.ProjectSecretMissingVariable, project.Id, environment.Id, profile.Id, null, key, "Project Secret missing in profile", $"{key} is missing in {environment.Name} / {profile.Name}.");
         }
     }
 
     private static IEnumerable<ProjectSecretAuditFinding> BuildScanFindings(ProjectSecretEntry project)
     {
-        if (project.LastScanResult is null)
-            yield break;
-
-        foreach (var finding in project.LastScanResult.Findings)
+        foreach (var result in project.ScanResults)
+        foreach (var finding in result.Findings)
         {
             var category = finding.Kind switch
             {
@@ -59,19 +38,8 @@ public static class ProjectSecretAuditBuilder
                 ProjectSecretScanFindingKind.EnvFileWithValuesDetected => HealthAuditCategory.ProjectSecretPlaintextExportRisk,
                 _ => (HealthAuditCategory?)null
             };
-
-            if (category is null)
-                continue;
-
-            yield return new ProjectSecretAuditFinding(
-                finding.Severity,
-                category.Value,
-                project.Id,
-                finding.EnvironmentId,
-                finding.VariableId,
-                finding.VariableKey,
-                "Project Secret scan finding",
-                finding.Message);
+            if (category is not null)
+                yield return new ProjectSecretAuditFinding(finding.Severity, category.Value, project.Id, finding.EnvironmentId, finding.ProfileId, finding.VariableId, finding.VariableKey, "Project Secret scan finding", finding.Message);
         }
     }
 }

@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
+using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
 namespace ShellKrypt.Infrastructure.ProjectSecrets;
 
-public sealed class ProjectSecretFilesystemScanner
+public sealed class ProjectSecretFilesystemScanner : IProjectSecretScanner
 {
     private static readonly Regex EnvReferencePattern = new(
         @"(?:(?:process\.env|import\.meta\.env)\.|\$env:|\$\{|%|GetEnvironmentVariable\(""|getenv\(""|System\.getenv\("")([A-Za-z_][A-Za-z0-9_]*)",
@@ -13,7 +15,7 @@ public sealed class ProjectSecretFilesystemScanner
         @"(?i)(secret|token|api[_-]?key|password)\s*[:=]\s*[""']?[^""'\s]{16,}",
         RegexOptions.Compiled);
 
-    public ProjectSecretScanResult Scan(ProjectSecretScanRequest request)
+    public async Task<ProjectSecretScanResult> ScanAsync(ProjectSecretScanRequest request, CancellationToken ct = default)
     {
         var started = DateTimeOffset.UtcNow;
         var findings = new List<ProjectSecretScanFinding>();
@@ -36,6 +38,7 @@ public sealed class ProjectSecretFilesystemScanner
 
         foreach (var path in EnumerateFilesSafe(request.ProjectRootPath))
         {
+            ct.ThrowIfCancellationRequested();
             if (findings.Count >= ProjectSecretScannerLimits.MaxFindings)
                 break;
 
@@ -67,7 +70,7 @@ public sealed class ProjectSecretFilesystemScanner
             string text;
             try
             {
-                var bytes = File.ReadAllBytes(path);
+                var bytes = await File.ReadAllBytesAsync(path, ct);
                 if (IsLikelyBinary(bytes))
                 {
                     filesSkipped++;
@@ -181,14 +184,14 @@ public sealed class ProjectSecretFilesystemScanner
     }
 
     private static ProjectSecretScanResult Complete(ProjectSecretScanRequest request, DateTimeOffset started, IReadOnlyList<ProjectSecretScanFinding> findings, int filesScanned, int filesSkipped, long bytesScanned)
-        => new(request.ProjectId, request.ProjectRootPath, started.ToString("O"), DateTimeOffset.UtcNow.ToString("O"), filesScanned, filesSkipped, bytesScanned, findings.Take(ProjectSecretScannerLimits.MaxFindings).ToArray());
+        => new(request.ProjectId, request.EnvironmentId, request.ProfileId, request.ProjectRootPath, started.ToString("O"), DateTimeOffset.UtcNow.ToString("O"), filesScanned, filesSkipped, bytesScanned, findings.Take(ProjectSecretScannerLimits.MaxFindings).ToArray());
 
     private static void AddFinding(List<ProjectSecretScanFinding> findings, ProjectSecretScanRequest request, ProjectSecretScanFindingKind kind, HealthAuditSeverity severity, string? key, string? relativePath, int? lineNumber, string? variableKey, string message)
     {
         if (findings.Count >= ProjectSecretScannerLimits.MaxFindings)
             return;
 
-        findings.Add(new ProjectSecretScanFinding(kind, severity, request.ProjectId, null, null, variableKey ?? key, relativePath, lineNumber, message));
+        findings.Add(new ProjectSecretScanFinding(kind, severity, request.ProjectId, request.EnvironmentId, request.ProfileId, null, variableKey ?? key, relativePath, lineNumber, message));
     }
 
     private static bool ContainsKeyReference(string line, string key)

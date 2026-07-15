@@ -1,0 +1,1 @@
+using Avalonia.Controls; namespace ShellKrypt.Desktop.Features.ProjectSecrets; public partial class ProjectSecretVariablesView : UserControl { public ProjectSecretVariablesView()=>InitializeComponent(); }

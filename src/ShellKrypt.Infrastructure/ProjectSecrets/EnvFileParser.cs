@@ -2,9 +2,9 @@ using ShellKrypt.Application.ProjectSecrets;
 
 namespace ShellKrypt.Infrastructure.ProjectSecrets;
 
-public static class EnvFileParser
+public sealed class EnvFileParser : IProjectSecretEnvParser
 {
-    public static ProjectSecretEnvParseResult Parse(string text)
+    public ProjectSecretEnvParseResult Parse(string text)
     {
         var variables = new List<ProjectSecretEnvVariable>();
         var issues = new List<ProjectSecretEnvParseIssue>();
@@ -46,7 +46,7 @@ public static class EnvFileParser
         return new ProjectSecretEnvParseResult(variables, issues);
     }
 
-    public static ProjectSecretEnvImportPreview BuildPreview(
+    public ProjectSecretEnvImportPreview BuildPreview(
         ProjectSecretEnvParseResult parseResult,
         IReadOnlyCollection<string> existingKeys)
     {

@@ -104,7 +104,8 @@ public sealed partial class SqliteVaultTransferService
 
     private static string BuildProjectSecretDuplicateKey(string payloadJson)
     {
-        var payload = ProjectSecretPayloadCompatibility.Deserialize(Encoding.UTF8.GetBytes(payloadJson), JsonOptions);
+        var payload = JsonSerializer.Deserialize<ProjectSecretPayload>(payloadJson, JsonOptions)
+            ?? new ProjectSecretPayload("", "", "", null, Array.Empty<ProjectSecretEnvironmentPayload>(), Array.Empty<ProjectSecretScanResult>());
 
         return string.Join("|",
             "project-secret",

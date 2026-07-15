@@ -1,6 +1,7 @@
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
-namespace ShellKrypt.Infrastructure.Items;
+namespace ShellKrypt.Infrastructure.ProjectSecrets;
 
 public sealed partial class ProjectSecretService
 {

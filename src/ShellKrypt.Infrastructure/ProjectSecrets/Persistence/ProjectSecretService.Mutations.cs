@@ -1,6 +1,7 @@
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
-namespace ShellKrypt.Infrastructure.Items;
+namespace ShellKrypt.Infrastructure.ProjectSecrets;
 
 public sealed partial class ProjectSecretService
 {
@@ -10,6 +11,7 @@ public sealed partial class ProjectSecretService
         ProjectSecretInput input,
         CancellationToken ct = default)
     {
+        await EnsureUniqueNameAsync(vaultPath, vaultKey, input.Name, null, ct);
         var now = DateTimeOffset.UtcNow.ToString("O");
         var header = new VaultItemHeader(
             Id: Guid.NewGuid().ToString("N"),
@@ -32,6 +34,7 @@ public sealed partial class ProjectSecretService
         ProjectSecretInput input,
         CancellationToken ct = default)
     {
+        await EnsureUniqueNameAsync(vaultPath, vaultKey, input.Name, id, ct);
         var header = new VaultItemHeader(
             Id: id,
             Type: ItemType.ProjectSecret,
@@ -47,4 +50,12 @@ public sealed partial class ProjectSecretService
 
     public Task DeleteAsync(string vaultPath, string id, CancellationToken ct = default)
         => _repo.DeleteAsync(vaultPath, id, ct);
+
+    private async Task EnsureUniqueNameAsync(string vaultPath, byte[] vaultKey, string name, string? excludedId, CancellationToken ct)
+    {
+        var normalized = NormalizeRequired(name, "Project name is required.");
+        var projects = await ListAsync(vaultPath, vaultKey, ct);
+        if (projects.Any(project => project.Id != excludedId && string.Equals(project.Name, normalized, StringComparison.OrdinalIgnoreCase)))
+            throw new InvalidOperationException("Project name already exists.");
+    }
 }
