@@ -39,6 +39,9 @@ public partial class ShellViewModel
         if (CurrentPage is AuthenticatorViewModel currentAuthenticator)
             currentAuthenticator.Activate();
 
+        if (ReferenceEquals(CurrentPage, ProjectSecrets))
+            _ = ProjectSecrets.RefreshApiKeysAsync();
+
         OnPropertyChanged(nameof(CurrentSectionTitle));
         OnPropertyChanged(nameof(CurrentSectionSubtitle));
         OnPropertyChanged(nameof(IsSettingsSelected));

@@ -1,5 +1,6 @@
 using System.Text.RegularExpressions;
 using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
 namespace ShellKrypt.Application.ProjectSecrets;
 
@@ -14,36 +15,27 @@ public static class ProjectSecretValidator
         if (string.IsNullOrWhiteSpace(input.Name))
             errors.Add("Project name is required.");
 
-        var environments = input.Environments ?? Array.Empty<ProjectSecretEnvironmentInput>();
-        if (environments.Count == 0)
-            errors.Add("At least one environment is required.");
-
-        foreach (var duplicate in environments
-                     .Select(environment => new { Name = environment.Name.Trim(), ProfileName = ProfileName(environment) })
-                     .Where(environment => environment.Name.Length > 0)
-                     .GroupBy(environment => (environment.Name.ToUpperInvariant(), environment.ProfileName.ToUpperInvariant()))
-                     .Where(group => group.Count() > 1))
-        {
-            errors.Add($"Duplicate environment profile: {duplicate.First().Name} / {duplicate.First().ProfileName}.");
-        }
-
-        foreach (var environment in environments)
+        AddDuplicateErrors(input.Environments, environment => environment.Name, "environment", errors);
+        foreach (var environment in input.Environments)
         {
             if (string.IsNullOrWhiteSpace(environment.Name))
                 errors.Add("Environment name is required.");
 
-            var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var variable in environment.Variables ?? Array.Empty<ProjectSecretVariableInput>())
+            AddDuplicateErrors(environment.Profiles, profile => profile.Name, $"profile in {environment.Name.Trim()}", errors);
+            foreach (var profile in environment.Profiles)
             {
-                var key = variable.Key.Trim();
-                if (key.Length == 0)
-                {
-                    errors.Add($"Variable key is required in {environment.Name.Trim()}.");
-                    continue;
-                }
+                if (string.IsNullOrWhiteSpace(profile.Name))
+                    errors.Add($"Profile name is required in {environment.Name.Trim()}.");
 
-                if (!keys.Add(key))
-                    errors.Add($"Duplicate variable key in {environment.Name.Trim()}: {key}.");
+                AddDuplicateErrors(profile.Variables, variable => variable.Key, $"variable in {environment.Name.Trim()} / {profile.Name.Trim()}", errors);
+                foreach (var variable in profile.Variables)
+                {
+                    if (string.IsNullOrWhiteSpace(variable.Key))
+                        errors.Add($"Variable key is required in {environment.Name.Trim()} / {profile.Name.Trim()}.");
+                    if (variable.SourceKind == ProjectSecretVariableSourceKind.ReferencedApiKey &&
+                        (string.IsNullOrWhiteSpace(variable.ReferencedItemId) || string.IsNullOrWhiteSpace(variable.ReferencedFieldId)))
+                        errors.Add($"Referenced API Key is incomplete for {variable.Key.Trim()}.");
+                }
             }
         }
 
@@ -53,65 +45,35 @@ public static class ProjectSecretValidator
     public static bool IsValidVariableKey(string key)
         => VariableKeyRegex.IsMatch((key ?? "").Trim());
 
-    public static string ProfileName(ProjectSecretEnvironmentInput environment)
-        => string.IsNullOrWhiteSpace(environment.ProfileName) ? environment.Kind.ToString() : environment.ProfileName.Trim();
-
     public static IReadOnlyList<ProjectSecretAuditFinding> BuildValidationFindings(ProjectSecretEntry project)
     {
         var findings = new List<ProjectSecretAuditFinding>();
         foreach (var environment in project.Environments)
+        foreach (var profile in environment.Profiles)
         {
             var seen = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-            foreach (var variable in environment.Variables)
+            foreach (var variable in profile.Variables)
             {
                 if (!seen.Add(variable.Key))
-                {
-                    findings.Add(CreateFinding(
-                        HealthAuditSeverity.Medium,
-                        HealthAuditCategory.ProjectSecretDuplicateKey,
-                        project,
-                        environment,
-                        variable,
-                        "Duplicate Project Secret variable",
-                        $"{variable.Key} appears more than once in {environment.Name}."));
-                }
-
+                    findings.Add(CreateFinding(HealthAuditSeverity.Medium, HealthAuditCategory.ProjectSecretDuplicateKey, project, environment, profile, variable, "Duplicate Project Secret variable", $"{variable.Key} appears more than once in {environment.Name} / {profile.Name}."));
                 if (!IsValidVariableKey(variable.Key))
-                {
-                    findings.Add(CreateFinding(
-                        HealthAuditSeverity.Low,
-                        HealthAuditCategory.ProjectSecretInvalidKey,
-                        project,
-                        environment,
-                        variable,
-                        "Invalid Project Secret variable name",
-                        $"{variable.Key} does not match the recommended environment variable format."));
-                }
-
-                if (string.IsNullOrEmpty(variable.Value) && variable.SourceKind != ProjectSecretVariableSourceKind.LinkedApiKey)
-                {
-                    findings.Add(CreateFinding(
-                        HealthAuditSeverity.Low,
-                        HealthAuditCategory.ProjectSecretEmptyValue,
-                        project,
-                        environment,
-                        variable,
-                        "Empty Project Secret value",
-                        $"{variable.Key} is stored with an empty value in {environment.Name}."));
-                }
+                    findings.Add(CreateFinding(HealthAuditSeverity.Low, HealthAuditCategory.ProjectSecretInvalidKey, project, environment, profile, variable, "Invalid Project Secret variable name", $"{variable.Key} does not match the recommended environment variable format."));
+                if (string.IsNullOrEmpty(variable.Value) && variable.SourceKind != ProjectSecretVariableSourceKind.ReferencedApiKey)
+                    findings.Add(CreateFinding(HealthAuditSeverity.Low, HealthAuditCategory.ProjectSecretEmptyValue, project, environment, profile, variable, "Empty Project Secret value", $"{variable.Key} is stored with an empty value in {environment.Name} / {profile.Name}."));
+                if (variable.SourceKind == ProjectSecretVariableSourceKind.ReferencedApiKey &&
+                    (string.IsNullOrWhiteSpace(variable.ReferencedItemId) || string.IsNullOrWhiteSpace(variable.ReferencedFieldId)))
+                    findings.Add(CreateFinding(HealthAuditSeverity.Medium, HealthAuditCategory.ProjectSecretBrokenApiKeyLink, project, environment, profile, variable, "Broken API Key reference", $"{variable.Key} has an incomplete API Key reference."));
             }
         }
-
         return findings;
     }
 
-    private static ProjectSecretAuditFinding CreateFinding(
-        HealthAuditSeverity severity,
-        HealthAuditCategory category,
-        ProjectSecretEntry project,
-        ProjectSecretEnvironmentEntry environment,
-        ProjectSecretVariableEntry variable,
-        string title,
-        string details)
-        => new(severity, category, project.Id, environment.Id, variable.Id, variable.Key, title, details);
+    private static void AddDuplicateErrors<T>(IEnumerable<T> values, Func<T, string> key, string label, ICollection<string> errors)
+    {
+        foreach (var duplicate in values.Select(key).Select(value => value.Trim()).Where(value => value.Length > 0).GroupBy(value => value, StringComparer.OrdinalIgnoreCase).Where(group => group.Count() > 1))
+            errors.Add($"Duplicate {label}: {duplicate.Key}.");
+    }
+
+    private static ProjectSecretAuditFinding CreateFinding(HealthAuditSeverity severity, HealthAuditCategory category, ProjectSecretEntry project, ProjectSecretEnvironmentEntry environment, ProjectSecretProfileEntry profile, ProjectSecretVariableEntry variable, string title, string details)
+        => new(severity, category, project.Id, environment.Id, profile.Id, variable.Id, variable.Key, title, details);
 }

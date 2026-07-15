@@ -30,13 +30,14 @@
           </Border>
 
           <TextBlock x:Name="MessageText"
-                     FontSize="28"
+                     FontSize="22"
                      FontWeight="Black"
                      TextAlignment="Center"
                      TextWrapping="Wrap"/>
         </StackPanel>
 
-        <StackPanel Grid.Row="1"
+        <StackPanel x:Name="DetailPanel"
+                    Grid.Row="1"
                     Spacing="16"
                     Margin="32,0,32,28">
           <Border Background="{StaticResource DangerPanelBrush}"

@@ -1,17 +1,18 @@
-using ShellKrypt.Core.Items;
+using ShellKrypt.Application.ProjectSecrets;
+using ShellKrypt.Core.ProjectSecrets;
 
 namespace ShellKrypt.Infrastructure.ProjectSecrets;
 
-public static class EnvFileWriter
+public sealed class EnvFileWriter : IProjectSecretEnvWriter
 {
-    public static string WriteEnvironment(IEnumerable<ProjectSecretVariableEntry> variables, Func<ProjectSecretVariableEntry, string>? resolveValue = null)
+    public string WriteEnvironment(IEnumerable<ProjectSecretVariableEntry> variables, Func<ProjectSecretVariableEntry, string> resolveValue)
         => string.Join(Environment.NewLine, variables.Select(variable =>
         {
-            var value = resolveValue?.Invoke(variable) ?? variable.Value;
+            var value = resolveValue(variable);
             return $"{variable.Key}={QuoteIfNeeded(value)}";
         })) + Environment.NewLine;
 
-    public static string WriteTemplate(IEnumerable<ProjectSecretVariableEntry> variables)
+    public string WriteTemplate(IEnumerable<ProjectSecretVariableEntry> variables)
         => string.Join(Environment.NewLine, variables.Select(variable => $"{variable.Key}=")) + Environment.NewLine;
 
     private static string QuoteIfNeeded(string value)

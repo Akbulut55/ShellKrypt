@@ -6,15 +6,18 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
+using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.CryptoTools;
+using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
+using ShellKrypt.Desktop.Features.ProjectSecrets;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
 using ShellKrypt.UI.Shared.Navigation;
@@ -43,6 +46,10 @@ public partial class ShellViewModel : ViewModelBase
         IOneTimePasswordGenerator oneTimePasswordGenerator,
         IApiKeyService apiKeyService,
         IProjectSecretService projectSecretService,
+        IProjectSecretEnvParser projectSecretEnvParser,
+        IProjectSecretEnvWriter projectSecretEnvWriter,
+        IProjectSecretScanner projectSecretScanner,
+        IProjectSecretValueResolver projectSecretValueResolver,
         IQuickFillEntryService quickFillEntryService,
         AuthenticatorQrImageImportService authenticatorQrImportService,
         IHealthAuditService healthAuditService,
@@ -83,8 +90,20 @@ public partial class ShellViewModel : ViewModelBase
             authenticatorQrImportService,
             new AuthenticatorRefreshTimer(),
             AllItems.RefreshAfterMutationAsync);
-        ApiKeys = new ApiKeysViewModel(_root, apiKeyService, AllItems.RefreshAfterMutationAsync);
-        ProjectSecrets = new ProjectSecretsViewModel(_root, projectSecretService, apiKeyService, AllItems.RefreshAfterMutationAsync);
+        ProjectSecrets = new ProjectSecretsViewModel(
+            _root,
+            projectSecretService,
+            apiKeyService,
+            projectSecretEnvParser,
+            projectSecretEnvWriter,
+            projectSecretScanner,
+            projectSecretValueResolver,
+            AllItems.RefreshAfterMutationAsync);
+        ApiKeys = new ApiKeysViewModel(
+            _root,
+            apiKeyService,
+            AllItems.RefreshAfterMutationAsync,
+            ProjectSecrets.RefreshApiKeysAsync);
         CryptoTools = new CryptoToolsViewModel(
             _root,
             passwordGenerator,

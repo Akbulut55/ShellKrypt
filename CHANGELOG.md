@@ -22,6 +22,35 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.23.0] - 2026-07-15
+
+### Changed
+
+- Reworked Project Secrets around the explicit Project, Environment, Profile,
+  and Variable hierarchy with nested encrypted payloads and profile-scoped scan
+  results.
+- Split Project Secrets contracts, application logic, persistence, and Desktop
+  workspace responsibilities into focused feature components.
+- Rebuilt the Project Secrets workspace with profile-scoped Variables,
+  Import / Export, Compare, Scanner, and Settings views plus focused environment,
+  profile, and variable editor dialogs.
+- Renamed linked API Key behavior to explicit reference and import-copy flows,
+  with reference values resolved only while the vault is unlocked.
+
+### Fixed
+
+- Fixed Project Secrets modal overlays so environment and variable dialogs cover
+  the complete workspace instead of rendering beneath tab content.
+- Refreshed referenced API Key values when Project Secrets opens and immediately
+  after API Key changes, while keeping imported API Key copies independent.
+- Removed the unused manual value input from the API Key import-copy flow and
+  hardened Project Secrets payload handling against missing collection values.
+
+### Removed
+
+- Removed the flattened Project Secrets environment/profile compatibility model
+  and redundant top-level API Key link collection.
+
 ## [ShellKrypt 0.22.0] - 2026-07-14
 
 ### Changed

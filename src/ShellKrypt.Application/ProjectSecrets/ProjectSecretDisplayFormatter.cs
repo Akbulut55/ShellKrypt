@@ -1,4 +1,4 @@
-using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
 
 namespace ShellKrypt.Application.ProjectSecrets;
 
@@ -17,7 +17,7 @@ public static class ProjectSecretDisplayFormatter
     public static string SourceLabel(ProjectSecretVariableSourceKind sourceKind)
         => sourceKind switch
         {
-            ProjectSecretVariableSourceKind.LinkedApiKey => "Linked API Key",
+            ProjectSecretVariableSourceKind.ReferencedApiKey => "Referenced API Key",
             ProjectSecretVariableSourceKind.ImportedApiKey => "Imported API Key",
             ProjectSecretVariableSourceKind.ImportedEnvFile => "Imported .env",
             _ => "Manual"
@@ -30,7 +30,7 @@ public static class ProjectSecretDisplayFormatter
             ProjectSecretCompareStatus.Empty => "empty",
             ProjectSecretCompareStatus.InvalidKey => "invalid",
             ProjectSecretCompareStatus.Different => "different",
-            ProjectSecretCompareStatus.BrokenLink => "broken link",
+            ProjectSecretCompareStatus.BrokenReference => "broken reference",
             _ => "present"
         };
 }

@@ -8,6 +8,7 @@ public partial class ConfirmActionWindow : Window
     public ConfirmActionWindow()
     {
         InitializeComponent();
+        DetailPanel.IsVisible = false;
     }
 
     public ConfirmActionWindow(string title, string message, string detail, string confirmText)
@@ -16,6 +17,7 @@ public partial class ConfirmActionWindow : Window
         Title = title;
         MessageText.Text = message;
         DetailText.Text = detail;
+        DetailPanel.IsVisible = !string.IsNullOrWhiteSpace(detail);
         ConfirmButton.Content = confirmText;
     }
 
