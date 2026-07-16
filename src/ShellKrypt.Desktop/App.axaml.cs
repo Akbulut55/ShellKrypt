@@ -4,8 +4,7 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.Bootstrap;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.Views;
+using ShellKrypt.Desktop.Shell;
 using ShellKrypt.UI.Shared.Theming;
 
 namespace ShellKrypt.Desktop

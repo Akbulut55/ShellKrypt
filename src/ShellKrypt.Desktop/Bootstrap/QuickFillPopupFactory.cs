@@ -1,8 +1,8 @@
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.ViewModels.App.QuickFill;
-using ShellKrypt.Desktop.Views.App.QuickFill;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.QuickFill;
+using ShellKrypt.Desktop.Features.QuickFill;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 

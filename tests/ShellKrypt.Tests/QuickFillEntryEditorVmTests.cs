@@ -1,5 +1,5 @@
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels.QuickFill;
+using ShellKrypt.Desktop.Features.QuickFill;
 using Xunit;
 
 namespace ShellKrypt.Tests;

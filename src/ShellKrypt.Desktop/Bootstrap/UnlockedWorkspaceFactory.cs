@@ -4,10 +4,10 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.Features.ProjectSecrets;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
-using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.CryptoTools;
+using ShellKrypt.Desktop.Features.QuickFill;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 

@@ -1,0 +1,331 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.SecurityAudit"
+             x:Class="ShellKrypt.Desktop.Features.SecurityAudit.HealthView"
+             x:CompileBindings="False"
+             x:DataType="vm:HealthViewModel">
+  <Grid>
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                  VerticalScrollBarVisibility="Auto">
+      <StackPanel Margin="16"
+                  MaxWidth="1500"
+                  Spacing="14">
+        <Grid ColumnDefinitions="*,Auto"
+              ColumnSpacing="12"
+              VerticalAlignment="Bottom">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.SecurityAudit.Title}"
+                       FontSize="30"
+                       FontWeight="Bold"/>
+            <TextBlock Text="{Binding SummaryText}"
+                       Classes="page-subtitle"/>
+          </StackPanel>
+
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.SecurityAudit.Button.RunScan}"
+                  Classes="sk-primary"
+                  Command="{Binding RefreshCommand}"/>
+        </Grid>
+
+        <Grid RowDefinitions="Auto,Auto"
+              RowSpacing="12">
+          <Border Classes="audit-score-card">
+            <StackPanel Spacing="14"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+              <Border Width="146"
+                      Height="146"
+                      CornerRadius="73"
+                      BorderBrush="{StaticResource AccentBrush}"
+                      BorderThickness="5"
+                      Background="{StaticResource SurfaceBrush}">
+                <Grid>
+                  <Border Width="124"
+                          Height="124"
+                          CornerRadius="62"
+                          Background="{StaticResource SurfaceBrush}"
+                          HorizontalAlignment="Center"
+                          VerticalAlignment="Center"/>
+                  <StackPanel HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Spacing="6">
+                    <TextBlock Text="{Binding HealthScoreDisplay}"
+                               FontSize="38"
+                               FontWeight="Black"
+                               Foreground="{StaticResource AccentBrush}"
+                               HorizontalAlignment="Center"/>
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.HealthScore}"
+                               Classes="audit-kicker"
+                               HorizontalAlignment="Center"/>
+                  </StackPanel>
+                </Grid>
+              </Border>
+
+              <StackPanel Spacing="6"
+                          HorizontalAlignment="Center">
+                <TextBlock Text="{Binding HealthScoreTitle}"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="{Binding HealthScoreSubtitle}"
+                           Classes="page-subtitle"
+                           TextAlignment="Center"
+                           MaxWidth="300"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <Grid Grid.Row="1"
+                ColumnDefinitions="*,*,*"
+                ColumnSpacing="10"
+                VerticalAlignment="Top">
+            <Border Classes="audit-metric-card">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding HighRiskCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.HighRisk.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Column="1"
+                    Classes="audit-metric-card">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding PasswordFindingCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.PasswordFindings.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2"
+                    Classes="audit-metric-card">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{Binding OtherFindingCount}"
+                           FontSize="32"
+                           FontWeight="Black"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings}"
+                           FontSize="14"
+                           FontWeight="Bold"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{DynamicResource Loc.SecurityAudit.Metric.OtherFindings.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="12"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+            </Border>
+          </Grid>
+        </Grid>
+
+        <Grid>
+          <Border Classes="audit-list-shell">
+            <Grid RowDefinitions="Auto,*">
+              <Border Padding="16,14">
+                <Grid RowDefinitions="Auto,Auto"
+                      RowSpacing="10">
+                  <StackPanel Spacing="6">
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.ActiveFindings}"
+                               FontSize="20"
+                               FontWeight="Bold"/>
+                    <TextBlock Text="{DynamicResource Loc.SecurityAudit.ActiveFindings.Subtitle}"
+                               Classes="page-subtitle"
+                               FontSize="12"/>
+                  </StackPanel>
+
+                  <WrapPanel Grid.Row="1"
+                             Orientation="Horizontal"
+                             VerticalAlignment="Center">
+                    <Button Content="{Binding AllFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsAllFilterActive}"
+                            Command="{Binding ShowAllFindingsCommand}"/>
+                    <Button Content="{Binding HighRiskFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsHighRiskFilterActive}"
+                            Command="{Binding ShowHighRiskFindingsCommand}"/>
+                    <Button Content="{Binding PasswordsFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsPasswordFilterActive}"
+                            Command="{Binding ShowPasswordFindingsCommand}"/>
+                    <Button Content="{Binding CardsFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsCardFilterActive}"
+                            Command="{Binding ShowCardFindingsCommand}"/>
+                    <Button Content="{Binding ApiKeysFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsApiKeyFilterActive}"
+                            Command="{Binding ShowApiKeyFindingsCommand}"/>
+                    <Button Content="{Binding ProjectSecretsFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsProjectSecretFilterActive}"
+                            Command="{Binding ShowProjectSecretFindingsCommand}"/>
+                    <Button Content="{Binding SettingsFilterLabel}"
+                            Classes="sk-chip"
+                            Classes.active="{Binding IsSettingsFilterActive}"
+                            Command="{Binding ShowSettingsFindingsCommand}"/>
+                  </WrapPanel>
+                </Grid>
+              </Border>
+
+              <ScrollViewer Grid.Row="1"
+                            MaxHeight="510"
+                            HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto">
+                <ItemsControl ItemsSource="{Binding VisibleIssues}"
+                              IsVisible="{Binding HasVisibleIssues}">
+                  <ItemsControl.ItemTemplate>
+                    <DataTemplate x:DataType="vm:HealthIssueVm">
+                      <Border Classes="audit-issue-row">
+                        <Grid ColumnDefinitions="Auto,*,Auto"
+                              ColumnSpacing="12">
+                          <Border Width="40"
+                                  Height="40"
+                                  CornerRadius="10"
+                                  Background="{Binding CategoryBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                  VerticalAlignment="Center">
+                            <TextBlock Text="{Binding IconGlyph}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding CategoryBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                       FontWeight="Black"
+                                       FontSize="11"/>
+                          </Border>
+
+                          <StackPanel Grid.Column="1"
+                                      Spacing="7"
+                                      VerticalAlignment="Center">
+                            <WrapPanel Orientation="Horizontal">
+                              <TextBlock Text="{Binding Title}"
+                                         FontSize="14"
+                                         FontWeight="Bold"
+                                         TextWrapping="Wrap"
+                                         Margin="0,0,8,0"/>
+                              <Border Background="{Binding SeverityBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                      CornerRadius="999"
+                                      Padding="10,4"
+                                      Margin="0,0,6,0"
+                                      VerticalAlignment="Center">
+                                <TextBlock Text="{Binding SeverityText}"
+                                           Foreground="{Binding SeverityBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                           FontSize="10"
+                                           FontWeight="Black"/>
+                              </Border>
+                              <Border Background="{Binding CategoryBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                      CornerRadius="999"
+                                      Padding="10,4"
+                                      VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CategoryText}"
+                                           Foreground="{Binding CategoryBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                           FontSize="10"
+                                           FontWeight="Black"/>
+                              </Border>
+                            </WrapPanel>
+                            <TextBlock Text="{Binding AffectedItem}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimaryBrush}"
+                                       TextWrapping="Wrap"/>
+                            <TextBlock Text="{Binding Details}"
+                                       Classes="page-subtitle"
+                                       FontSize="12"
+                                       TextWrapping="Wrap"/>
+                          </StackPanel>
+
+                          <Button Grid.Column="2"
+                                  Content="{Binding ActionText}"
+                                  Classes="sk-table-action"
+                                  Command="{Binding DataContext.RemediateCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"
+                                  IsVisible="{Binding CanRunPrimaryAction}"
+                                  VerticalAlignment="Center"/>
+                        </Grid>
+                      </Border>
+                    </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+
+              <Border Grid.Row="1"
+                      Background="Transparent"
+                      Padding="16,10,16,16"
+                      IsVisible="{Binding !HasVisibleIssues}">
+                <StackPanel Spacing="8">
+                  <TextBlock Text="{Binding EmptyIssuesTitle}"
+                             FontSize="18"
+                             FontWeight="Bold"/>
+                  <TextBlock Text="{Binding EmptyIssuesText}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <TextBlock Text="{Binding Error}"
+                   Foreground="{StaticResource DangerBrush}"
+                   FontSize="12"
+                   TextWrapping="Wrap"
+                   IsVisible="{Binding HasError}"/>
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+
+  <UserControl.Styles>
+
+    <Style Selector="Border.audit-score-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="18"/>
+      <Setter Property="MinHeight" Value="240"/>
+    </Style>
+
+    <Style Selector="TextBlock.audit-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.6"/>
+    </Style>
+
+    <Style Selector="Border.audit-metric-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="14,12"/>
+      <Setter Property="MinHeight" Value="132"/>
+      <Setter Property="VerticalAlignment" Value="Top"/>
+    </Style>
+
+    <Style Selector="Border.audit-list-shell">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+    </Style>
+
+    <Style Selector="Border.audit-issue-row">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderBrush" Value="{StaticResource TableBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="0,0,0,1"/>
+      <Setter Property="Padding" Value="16,12"/>
+    </Style>
+
+    <Style Selector="Border.audit-side-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="16"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

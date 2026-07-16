@@ -1,7 +1,7 @@
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Core.Backups;
 using ShellKrypt.Core.DataTransfer;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 

@@ -5,7 +5,7 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.Bootstrap;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.UI.Shared.Controls;
 using Xunit;

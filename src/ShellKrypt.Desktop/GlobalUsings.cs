@@ -1,0 +1,12 @@
+global using ShellKrypt.Desktop.Shell;
+global using ShellKrypt.Desktop.Shell.Dialogs;
+global using ShellKrypt.Desktop.Shell.Navigation;
+global using ShellKrypt.Desktop.Shell.Runtime;
+global using ShellKrypt.Desktop.Features.ActivityLogs;
+global using ShellKrypt.Desktop.Features.AllItems;
+global using ShellKrypt.Desktop.Features.CryptoTools;
+global using ShellKrypt.Desktop.Features.MarkdownNotes;
+global using ShellKrypt.Desktop.Features.QuickFill;
+global using ShellKrypt.Desktop.Features.SecurityAudit;
+global using ShellKrypt.Desktop.Features.Settings;
+global using ShellKrypt.Desktop.Features.VaultAccess;

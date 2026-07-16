@@ -1,7 +1,7 @@
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Desktop.Services;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.Infrastructure.Services;
 using Xunit;
 

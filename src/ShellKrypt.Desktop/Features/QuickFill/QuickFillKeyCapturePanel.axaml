@@ -1,0 +1,22 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ShellKrypt.Desktop.Features.QuickFill.QuickFillKeyCapturePanel"
+             x:CompileBindings="False"
+             Focusable="True">
+  <Border Background="{DynamicResource SurfaceBrush}"
+          BorderBrush="{DynamicResource BorderBrushSoft}"
+          BorderThickness="1"
+          CornerRadius="4"
+          Padding="12"
+          Focusable="True">
+    <StackPanel Spacing="4">
+      <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.KeyCaptureTitle}"
+                 Foreground="{DynamicResource TextPrimaryBrush}"
+                 FontWeight="SemiBold"/>
+      <TextBlock Text="{DynamicResource Loc.QuickFill.Sequence.KeyCaptureSubtitle}"
+                 Foreground="{DynamicResource TextMutedBrush}"
+                 FontSize="12"
+                 TextWrapping="Wrap"/>
+    </StackPanel>
+  </Border>
+</UserControl>

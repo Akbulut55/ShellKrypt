@@ -1,5 +1,6 @@
 using ShellKrypt.Application.Localization;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.VaultAccess;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
 using System.Text.RegularExpressions;

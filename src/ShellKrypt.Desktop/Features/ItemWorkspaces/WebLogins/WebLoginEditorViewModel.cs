@@ -5,8 +5,8 @@ using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.UI.Shared.Controls;
 
 namespace ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;

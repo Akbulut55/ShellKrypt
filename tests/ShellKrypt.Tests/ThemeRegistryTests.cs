@@ -1,7 +1,8 @@
 using Avalonia.Media;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.Settings;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.UI.Shared.Theming;

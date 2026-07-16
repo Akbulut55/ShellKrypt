@@ -1,7 +1,7 @@
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.Application.Localization;
 
 namespace ShellKrypt.Desktop.Bootstrap;

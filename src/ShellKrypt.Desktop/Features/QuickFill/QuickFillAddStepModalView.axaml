@@ -1,0 +1,177 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="using:ShellKrypt.UI.Shared.Controls"
+             xmlns:qfcontrols="using:ShellKrypt.Desktop.Features.QuickFill"
+             x:Class="ShellKrypt.Desktop.Features.QuickFill.QuickFillAddStepModalView"
+             x:CompileBindings="False">
+  <shared:ModalShell IsOpen="{Binding IsAddStepModalOpen}"
+                     Title="{DynamicResource Loc.QuickFill.Sequence.AddStepPrompt}"
+                     CloseCommand="{Binding CloseAddStepModalCommand}"
+                     FooterText="{Binding PendingKeyPreviewText}"
+                     DialogWidth="520">
+    <shared:ModalShell.Body>
+      <Grid RowDefinitions="Auto,Auto"
+            RowSpacing="14">
+        <WrapPanel Grid.Row="0">
+          <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddFieldChoice}"
+                  Command="{Binding SelectAddFieldModeCommand}"
+                  Classes="sk-secondary"
+                  Margin="0,0,8,8"/>
+          <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddKeyChoice}"
+                  Command="{Binding SelectAddKeyModeCommand}"
+                  Classes="sk-secondary"
+                  Margin="0,0,8,8"/>
+          <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddTextChoice}"
+                  Command="{Binding SelectAddTextModeCommand}"
+                  Classes="sk-secondary"
+                  Margin="0,0,8,8"/>
+          <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelayChoice}"
+                  Command="{Binding SelectAddDelayModeCommand}"
+                  Classes="sk-secondary"
+                  Margin="0,0,8,8"/>
+        </WrapPanel>
+
+        <Grid Grid.Row="1">
+          <StackPanel Spacing="12"
+                      IsVisible="{Binding IsAddFieldMode}">
+            <WrapPanel>
+              <Button Content="{DynamicResource Loc.QuickFill.Source.Manual}"
+                      Command="{Binding SelectManualFieldSourceCommand}"
+                      Classes="sk-secondary"
+                      Margin="0,0,8,8"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Source.WebLogin}"
+                      Command="{Binding SelectWebLoginFieldSourceCommand}"
+                      Classes="sk-secondary"
+                      Margin="0,0,8,8"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Source.CreditCard}"
+                      Command="{Binding SelectCreditCardFieldSourceCommand}"
+                      Classes="sk-secondary"
+                      Margin="0,0,8,8"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Source.ApiKey}"
+                      Command="{Binding SelectApiKeyFieldSourceCommand}"
+                      Classes="sk-secondary"
+                      Margin="0,0,8,8"/>
+              <Button Content="{DynamicResource Loc.QuickFill.Source.Authenticator}"
+                      Command="{Binding SelectAuthenticatorFieldSourceCommand}"
+                      Classes="sk-secondary"
+                      Margin="0,0,8,8"/>
+            </WrapPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsManualFieldSource}">
+              <TextBox Text="{Binding OwnedFieldLabel}"
+                       PlaceholderText="{DynamicResource Loc.QuickFill.Field.Label}"
+                       Classes="sk-input" />
+              <TextBox Text="{Binding OwnedFieldValue}"
+                       PlaceholderText="{DynamicResource Loc.QuickFill.Field.Value}"
+                       Classes="sk-input" />
+              <Button Content="{DynamicResource Loc.QuickFill.Button.AddOwnedField}"
+                      Command="{Binding AddOwnedFieldCommand}"
+                      Classes="sk-secondary"
+                      HorizontalAlignment="Right" />
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsWebLoginFieldSource}">
+              <ComboBox ItemsSource="{Binding WebLoginOptions}"
+                        SelectedItem="{Binding SelectedWebLoginOption}"
+                        Classes="sk-combo-modal" />
+              <ComboBox ItemsSource="{Binding WebLoginFieldOptions}"
+                        SelectedItem="{Binding SelectedWebLoginFieldOption}"
+                        Classes="sk-combo-modal" />
+              <Button Content="{DynamicResource Loc.QuickFill.Button.AddWebLoginField}"
+                      Command="{Binding AddWebLoginFieldCommand}"
+                      Classes="sk-secondary"
+                      HorizontalAlignment="Right" />
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsCreditCardFieldSource}">
+              <ComboBox ItemsSource="{Binding CreditCardOptions}"
+                        SelectedItem="{Binding SelectedCreditCardOption}"
+                        Classes="sk-combo-modal" />
+              <ComboBox ItemsSource="{Binding CreditCardFieldOptions}"
+                        SelectedItem="{Binding SelectedCreditCardFieldOption}"
+                        Classes="sk-combo-modal" />
+              <Button Content="{DynamicResource Loc.QuickFill.Button.AddCreditCardField}"
+                      Command="{Binding AddCreditCardFieldCommand}"
+                      Classes="sk-secondary"
+                      HorizontalAlignment="Right" />
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsApiKeyFieldSource}">
+              <ComboBox ItemsSource="{Binding ApiKeyOptions}"
+                        SelectedItem="{Binding SelectedApiKeyOption}"
+                        Classes="sk-combo-modal" />
+              <ComboBox ItemsSource="{Binding ApiKeyFieldOptions}"
+                        SelectedItem="{Binding SelectedApiKeyFieldOption}"
+                        Classes="sk-combo-modal" />
+              <Button Content="{DynamicResource Loc.QuickFill.Button.AddApiKeyField}"
+                      Command="{Binding AddApiKeyFieldCommand}"
+                      Classes="sk-secondary"
+                      HorizontalAlignment="Right" />
+            </StackPanel>
+
+            <StackPanel Spacing="10"
+                        IsVisible="{Binding IsAuthenticatorFieldSource}">
+              <ComboBox ItemsSource="{Binding AuthenticatorOptions}"
+                        SelectedItem="{Binding SelectedAuthenticatorOption}"
+                        Classes="sk-combo-modal" />
+              <Button Content="{DynamicResource Loc.QuickFill.Button.AddAuthenticatorField}"
+                      Command="{Binding AddAuthenticatorFieldCommand}"
+                      Classes="sk-secondary"
+                      HorizontalAlignment="Right" />
+            </StackPanel>
+          </StackPanel>
+
+          <StackPanel Spacing="10"
+                      IsVisible="{Binding IsAddKeyMode}">
+            <qfcontrols:QuickFillKeyCapturePanel/>
+          </StackPanel>
+
+          <StackPanel Spacing="10"
+                      IsVisible="{Binding IsAddTextMode}">
+            <TextBox Text="{Binding AddStepText}"
+                     PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.TextPlaceholder}"
+                     Classes="sk-input"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddText}"
+                    Command="{Binding AddTextSequenceStepCommand}"
+                    Classes="sk-secondary"
+                    HorizontalAlignment="Right"/>
+          </StackPanel>
+
+          <StackPanel Spacing="10"
+                      IsVisible="{Binding IsAddDelayMode}">
+            <TextBox Text="{Binding AddStepDelayMilliseconds}"
+                     PlaceholderText="{DynamicResource Loc.QuickFill.Sequence.DelayPlaceholder}"
+                     Classes="sk-input"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Sequence.AddDelay}"
+                    Command="{Binding AddDelaySequenceStepCommand}"
+                    Classes="sk-secondary"
+                    HorizontalAlignment="Right"/>
+          </StackPanel>
+        </Grid>
+      </Grid>
+    </shared:ModalShell.Body>
+    <shared:ModalShell.FooterActions>
+      <Grid ColumnDefinitions="Auto,Auto,Auto"
+            ColumnSpacing="10">
+        <Button Grid.Column="0"
+                Content="{DynamicResource Loc.QuickFill.Sequence.ClearPendingKey}"
+                Classes="modal-shell-secondary-button"
+                IsVisible="{Binding HasPendingKeyStep}"
+                Command="{Binding ClearPendingKeyStepCommand}"/>
+        <Button Grid.Column="1"
+                Content="{DynamicResource Loc.QuickFill.Sequence.ConfirmPendingKey}"
+                Classes="modal-shell-primary-button"
+                IsVisible="{Binding HasPendingKeyStep}"
+                Command="{Binding ConfirmPendingKeyStepCommand}"/>
+        <Button Grid.Column="2"
+                Content="{DynamicResource Loc.Common.Cancel}"
+                Classes="modal-shell-secondary-button"
+                Command="{Binding CloseAddStepModalCommand}"/>
+      </Grid>
+    </shared:ModalShell.FooterActions>
+  </shared:ModalShell>
+</UserControl>

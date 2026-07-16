@@ -1,0 +1,357 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.AllItems"
+             x:Class="ShellKrypt.Desktop.Features.AllItems.AllItemsView"
+             x:CompileBindings="False"
+             x:DataType="vm:AllItemsViewModel">
+
+  <Grid>
+    <Grid Margin="16"
+          RowDefinitions="Auto,Auto,*"
+          RowSpacing="14"
+          HorizontalAlignment="Stretch">
+
+        <Grid ColumnDefinitions="*,*,*"
+              ColumnSpacing="8">
+          <Border Classes="allitems-stat-card">
+            <Grid>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
+                <TextBlock Text="{DynamicResource Loc.AllItems.TotalItems}"
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding TotalCount}"
+                           FontSize="34"
+                           FontWeight="Black"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding TotalItemsDeltaText}"
+                           Classes="allitems-accent-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="1"
+                  Classes="allitems-stat-card">
+            <Grid>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
+                <TextBlock Text="{DynamicResource Loc.AllItems.WeakPasswords.Title}"
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding WeakPasswordCount}"
+                           FontSize="34"
+                           FontWeight="Black"
+                           Foreground="{StaticResource DangerBrush}"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding WeakPasswordSubtitle}"
+                           Classes="allitems-muted-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
+            </Grid>
+          </Border>
+
+          <Border Grid.Column="2"
+                  Classes="allitems-stat-card">
+            <Grid>
+              <Grid RowDefinitions="Auto,Auto,*"
+                    RowSpacing="8">
+                <TextBlock Text="{DynamicResource Loc.AllItems.ExpiringSoon.Title}"
+                           Classes="allitems-kicker"/>
+                <TextBlock Grid.Row="1"
+                           Text="{Binding ExpiringSoonCardCount}"
+                           FontSize="34"
+                           FontWeight="Black"
+                           Foreground="{StaticResource WarningBrush}"/>
+                <TextBlock Grid.Row="2"
+                           Text="{Binding ExpiringSoonCardSubtitle}"
+                           Classes="allitems-muted-note"
+                           VerticalAlignment="Bottom"/>
+              </Grid>
+            </Grid>
+          </Border>
+        </Grid>
+
+        <Border Grid.Row="1"
+                Classes="allitems-filter-shell">
+          <Grid ColumnDefinitions="Auto,*"
+                ColumnSpacing="10"
+                VerticalAlignment="Center">
+            <Border Classes="allitems-search-shell"
+                    VerticalAlignment="Center">
+              <Grid ColumnDefinitions="Auto,*"
+                    ColumnSpacing="10">
+                <PathIcon Data="{StaticResource IconSearch}"
+                          Width="16"
+                          Height="16"
+                          Foreground="{StaticResource TextMutedBrush}"
+                          VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1"
+                         Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                         Classes="sk-search-input"
+                         PlaceholderText="{DynamicResource Loc.AllItems.Search.Placeholder}"/>
+              </Grid>
+            </Border>
+
+            <ScrollViewer Grid.Column="1"
+                          HorizontalScrollBarVisibility="Auto"
+                          VerticalScrollBarVisibility="Disabled"
+                          VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="4"
+                          VerticalAlignment="Center">
+                <Button Content="{Binding AllFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsAllTypeActive}"
+                        Command="{Binding ShowAllCommand}"/>
+                <Button Content="{Binding WebFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsWebTypeActive}"
+                        Command="{Binding ShowWebTypesCommand}"/>
+                <Button Content="{Binding CardFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsCardTypeActive}"
+                        Command="{Binding ShowCardTypesCommand}"/>
+                <Button Content="{Binding AuthenticatorFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsAuthenticatorTypeActive}"
+                        Command="{Binding ShowAuthenticatorTypesCommand}"/>
+                <Button Content="{Binding ApiKeyFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsApiKeyTypeActive}"
+                        Command="{Binding ShowApiKeyTypesCommand}"/>
+                <Button Content="{Binding ProjectSecretFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsProjectSecretTypeActive}"
+                        Command="{Binding ShowProjectSecretTypesCommand}"/>
+                <Button Content="{Binding NoteFilterLabel}"
+                        Classes="sk-chip allitems-filter-chip"
+                        Classes.active="{Binding IsNoteTypeActive}"
+                        Command="{Binding ShowNoteTypesCommand}"/>
+              </StackPanel>
+            </ScrollViewer>
+          </Grid>
+        </Border>
+
+        <Border Grid.Row="2"
+                Classes="table-shell"
+                MinWidth="580">
+          <Grid RowDefinitions="Auto,*,Auto">
+            <Border Classes="table-header-row">
+              <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
+                    ColumnSpacing="8">
+                <TextBlock Text="{DynamicResource Loc.Common.Name.Header}"
+                           Classes="table-header-text"/>
+                <TextBlock Grid.Column="1"
+                           Text="{DynamicResource Loc.Common.Type.Header}"
+                           Classes="table-header-text"/>
+                <TextBlock Grid.Column="2"
+                           Text="{DynamicResource Loc.AllItems.Identifier.Header}"
+                           Classes="table-header-text"/>
+                <TextBlock Grid.Column="3"
+                           Text="{DynamicResource Loc.Common.LastModified.Header}"
+                           Classes="table-header-text"/>
+                <TextBlock Grid.Column="4"
+                           Text=""
+                           Classes="table-header-text"/>
+              </Grid>
+            </Border>
+
+            <Grid Grid.Row="1">
+              <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                            VerticalScrollBarVisibility="Auto"
+                            IsVisible="{Binding HasRows}">
+                <ItemsControl ItemsSource="{Binding Rows}"
+                              Classes="allitems-list">
+                  <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="vm:AllItemEntry">
+                    <Border Classes="table-row">
+                      <Grid ColumnDefinitions="1.58*,0.62*,0.82*,0.62*,76"
+                            ColumnSpacing="8"
+                            Margin="12,0"
+                            MinHeight="78">
+                        <Grid ColumnDefinitions="Auto,*"
+                              ColumnSpacing="12"
+                              VerticalAlignment="Center">
+                          <Border Width="38"
+                                  Height="38"
+                                  CornerRadius="10"
+                                  Background="{Binding IconBackground, Converter={StaticResource ThemeResourceBrushConverter}}">
+                            <TextBlock Text="{Binding IconGlyph}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{Binding IconForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                       FontWeight="Black"
+                                       FontSize="11"/>
+                          </Border>
+
+                          <StackPanel Grid.Column="1"
+                                      Spacing="3"
+                                      VerticalAlignment="Center">
+                            <TextBlock Text="{Binding Title}"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       TextTrimming="CharacterEllipsis"/>
+                            <TextBlock Text="{Binding NameSubtitleDisplay}"
+                                       Classes="allitems-cell-subtitle"
+                                       TextTrimming="CharacterEllipsis"/>
+                          </StackPanel>
+                        </Grid>
+
+                        <Border Grid.Column="1"
+                                Background="{Binding TypeBadgeBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                CornerRadius="999"
+                                Padding="10,5"
+                                HorizontalAlignment="Left"
+                                VerticalAlignment="Center">
+                          <TextBlock Text="{Binding DisplayTypeLabel}"
+                                     Foreground="{Binding TypeBadgeForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                                     FontSize="10"
+                                     FontWeight="Black"/>
+                        </Border>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding IdentifierDisplay}"
+                                   FontFamily="{StaticResource MonoFontFamily}"
+                                   FontSize="12"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                        <TextBlock Grid.Column="3"
+                                   Text="{Binding UpdatedDisplay}"
+                                   FontSize="12"
+                                   Foreground="{StaticResource TextPrimaryBrush}"
+                                   VerticalAlignment="Center"/>
+
+                        <StackPanel Grid.Column="4"
+                                    Orientation="Horizontal"
+                                    Spacing="8"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                          <Button Content="{DynamicResource Loc.Common.View}"
+                                  Classes="sk-table-action"
+                                  Command="{Binding DataContext.OpenRowCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"/>
+                        </StackPanel>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                  </ItemsControl.ItemTemplate>
+                </ItemsControl>
+              </ScrollViewer>
+
+              <Border Padding="30,30"
+                      Background="Transparent"
+                      IsVisible="{Binding !HasRows}">
+                <StackPanel Classes="table-empty">
+                  <TextBlock Text="{Binding EmptyStateTitle}"
+                             Classes="table-empty-title"/>
+                  <TextBlock Text="{Binding EmptyStateSubtitle}"
+                             Classes="table-empty-subtitle"/>
+                  <Grid ColumnDefinitions="Auto,Auto"
+                        ColumnSpacing="10"
+                        HorizontalAlignment="Center">
+                    <Button Classes="sk-primary"
+                            Command="{Binding AddItemCommand}">
+                      <StackPanel Orientation="Horizontal"
+                                  Spacing="7"
+                                  HorizontalAlignment="Center"
+                                  VerticalAlignment="Center">
+                        <TextBlock Text="{Binding AddItemButtonText}"
+                                   Foreground="{StaticResource AccentForegroundBrush}"
+                                   FontWeight="SemiBold"/>
+                        <Path Classes="material-icon on-primary"
+                              Width="15"
+                              Height="15"
+                              Data="{StaticResource IconAdd}"/>
+                      </StackPanel>
+                    </Button>
+                    <Button Grid.Column="1"
+                            Content="{DynamicResource Loc.Common.ResetFilters}"
+                            Classes="sk-button"
+                            Command="{Binding ResetFiltersCommand}"/>
+                  </Grid>
+                </StackPanel>
+              </Border>
+            </Grid>
+
+            <Border Grid.Row="2"
+                    Classes="table-footer-row">
+              <Grid ColumnDefinitions="*">
+                <StackPanel Spacing="4"
+                            VerticalAlignment="Center">
+                  <TextBlock Text="{Binding FooterSummary}"
+                             Classes="table-footer-text"/>
+                  <TextBlock Text="{Binding Error}"
+                             Foreground="{StaticResource DangerBrush}"
+                             FontSize="12"
+                             IsVisible="{Binding HasError}"/>
+                </StackPanel>
+              </Grid>
+            </Border>
+          </Grid>
+        </Border>
+    </Grid>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.allitems-search-shell">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="12,0"/>
+      <Setter Property="MinWidth" Value="220"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="Margin" Value="0"/>
+    </Style>
+
+
+    <Style Selector="Border.allitems-stat-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="16,14"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="2.4"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-accent-note">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-muted-note">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style Selector="Border.allitems-filter-shell">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="14"/>
+      <Setter Property="Padding" Value="10"/>
+    </Style>
+
+    <Style Selector="Button.allitems-filter-chip">
+      <Setter Property="Height" Value="42"/>
+      <Setter Property="MinHeight" Value="42"/>
+      <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="ItemsControl.allitems-list">
+      <Setter Property="Background" Value="Transparent"/>
+    </Style>
+
+    <Style Selector="TextBlock.allitems-cell-subtitle">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+    </Style>
+
+  </UserControl.Styles>
+</UserControl>

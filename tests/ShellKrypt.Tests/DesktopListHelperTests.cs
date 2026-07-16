@@ -1,4 +1,4 @@
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
 using System.Collections.ObjectModel;
 using Xunit;
 

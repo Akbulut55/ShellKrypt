@@ -1,0 +1,170 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:ShellKrypt.Desktop.Shell"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        d:DesignWidth="1360"
+        d:DesignHeight="860"
+        x:Class="ShellKrypt.Desktop.Shell.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Icon="/Assets/main-logo.ico"
+        Title="ShellKrypt"
+        Background="{StaticResource AppBackgroundBrush}"
+        TransparencyBackgroundFallback="{StaticResource AppBackgroundBrush}"
+        Width="1360"
+        Height="860"
+        MinWidth="940"
+        MinHeight="660"
+        TransparencyLevelHint="None"
+        WindowDecorations="None"
+        WindowStartupLocation="CenterScreen">
+
+    <Grid Background="{StaticResource AppBackgroundBrush}">
+        <Grid RowDefinitions="40,*"
+              Background="{StaticResource AppBackgroundBrush}">
+            <Border Grid.Row="0"
+                    Background="{StaticResource SurfaceBrush}"
+                    BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="0,0,0,1"
+                    PointerPressed="OnTitleBarPointerPressed">
+                <Grid ColumnDefinitions="Auto,*,Auto"
+                      ColumnSpacing="12"
+                      Margin="10,0,0,0">
+                    <StackPanel Orientation="Horizontal"
+                                Spacing="10"
+                                VerticalAlignment="Center"
+                                IsHitTestVisible="False">
+                        <Path Width="20"
+                              Height="20"
+                              HorizontalAlignment="Center"
+                              VerticalAlignment="Center"
+                              Stretch="Uniform"
+                              Fill="{StaticResource CaptionButtonHoverForegroundBrush}"
+                              Data="{StaticResource IconShellKryptLogo}"/>
+                        <TextBlock Text="ShellKrypt"
+                                   VerticalAlignment="Center"
+                                   FontSize="12"
+                                   FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <Grid Grid.Column="1"
+                          IsHitTestVisible="False"/>
+
+                    <StackPanel Grid.Column="2"
+                                Orientation="Horizontal"
+                                Spacing="0"
+                                HorizontalAlignment="Right">
+
+                            <Button Classes="window-caption-button"
+                                    Click="OnMinimizeClicked">
+                                <Border Width="10"
+                                        Height="1.5"
+                                        CornerRadius="1"
+                                        Background="{StaticResource CaptionButtonForegroundBrush}"/>
+                            </Button>
+
+                            <Button x:Name="MaximizeRestoreButton"
+                                    Classes="window-caption-button"
+                                    Click="OnMaximizeRestoreClicked">
+                                <Path x:Name="MaximizeRestoreIcon"
+                                    Width="10"
+                                    Height="10"
+                                    Stretch="Uniform"
+                                    Stroke="{StaticResource CaptionButtonForegroundBrush}"
+                                    StrokeThickness="1.3"
+                                    Data="M 1.5,1.5 L 8.5,1.5 L 8.5,8.5 L 1.5,8.5 Z"/>
+                            </Button>
+
+                            <Button Classes="window-caption-button window-caption-button-close"
+                                    Click="OnCloseClicked">
+                                <Path Width="10"
+                                    Height="10"
+                                    Stretch="Uniform"
+                                    Stroke="{StaticResource CaptionButtonForegroundBrush}"
+                                    StrokeThickness="1.5"
+                                    StrokeLineCap="Round"
+                                    Data="M 2,2 L 8,8 M 8,2 L 2,8"/>
+                            </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <Border Grid.Row="1"
+                    Background="{StaticResource AppBackgroundBrush}">
+                <ContentControl Content="{Binding Current}"/>
+            </Border>
+        </Grid>
+
+        <Grid RowDefinitions="8,*,8"
+              ColumnDefinitions="8,*,8"
+              IsHitTestVisible="True">
+            <Border Grid.Row="0"
+                    Grid.Column="1"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="SizeNorthSouth"
+                    PointerPressed="OnResizeTopPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="1"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="SizeNorthSouth"
+                    PointerPressed="OnResizeBottomPressed"/>
+            <Border Grid.Row="1"
+                    Grid.Column="0"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="SizeWestEast"
+                    PointerPressed="OnResizeLeftPressed"/>
+            <Border Grid.Row="1"
+                    Grid.Column="2"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="SizeWestEast"
+                    PointerPressed="OnResizeRightPressed"/>
+            <Border Grid.Row="0"
+                    Grid.Column="0"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="TopLeftCorner"
+                    PointerPressed="OnResizeTopLeftPressed"/>
+            <Border Grid.Row="0"
+                    Grid.Column="2"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="TopRightCorner"
+                    PointerPressed="OnResizeTopRightPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="0"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="BottomLeftCorner"
+                    PointerPressed="OnResizeBottomLeftPressed"/>
+            <Border Grid.Row="2"
+                    Grid.Column="2"
+                    Background="{StaticResource ResizeHitTestBrush}"
+                    Cursor="BottomRightCorner"
+                    PointerPressed="OnResizeBottomRightPressed"/>
+        </Grid>
+    </Grid>
+
+    <Window.Styles>
+        <Style Selector="Button.window-caption-button">
+            <Setter Property="Width" Value="46"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="CornerRadius" Value="0"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonForegroundBrush}"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style Selector="Button.window-caption-button:pointerover">
+            <Setter Property="Background" Value="{StaticResource CaptionButtonHoverBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+        </Style>
+
+        <Style Selector="Button.window-caption-button-close:pointerover">
+            <Setter Property="Background" Value="{StaticResource CaptionButtonCloseHoverBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource CaptionButtonHoverForegroundBrush}"/>
+        </Style>
+    </Window.Styles>
+</Window>

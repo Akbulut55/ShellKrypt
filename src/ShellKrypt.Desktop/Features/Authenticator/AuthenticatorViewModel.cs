@@ -5,8 +5,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Authenticator;
-using ShellKrypt.Desktop.Services.Runtime;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell.Runtime;
+using ShellKrypt.Desktop.Shell;
 
 namespace ShellKrypt.Desktop.Features.Authenticator;
 

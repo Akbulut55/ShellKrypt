@@ -1,0 +1,635 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.VaultAccess"
+             x:Class="ShellKrypt.Desktop.Features.VaultAccess.WelcomeView"
+             x:CompileBindings="False"
+             x:DataType="vm:WelcomeViewModel">
+
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Grid Margin="28,24,28,28"
+          MaxWidth="1420"
+          RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto"
+          RowSpacing="24">
+      <Grid ColumnDefinitions="Auto,*"
+            ColumnSpacing="18"
+            VerticalAlignment="Center">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="12"
+                    VerticalAlignment="Center">
+          <Border Width="34"
+                  Height="34"
+                  CornerRadius="10"
+                  Background="{StaticResource AccentMutedBrush}">
+            <Path Width="20"
+                  Height="20"
+                  HorizontalAlignment="Center"
+                  VerticalAlignment="Center"
+                  Stretch="Uniform"
+                  Fill="{StaticResource AccentBrush}"
+                  Data="{StaticResource IconShellKryptLogo}"/>
+          </Border>
+          <TextBlock Text="ShellKrypt"
+                     Foreground="{StaticResource AccentBrush}"
+                     FontSize="20"
+                     FontWeight="Black"
+                     VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center">
+          <Button Content="{DynamicResource Loc.Welcome.Button.ImportVault}"
+                  Classes="sk-secondary"
+                  Command="{Binding ImportVaultCommand}"/>
+          <Button Content="{DynamicResource Loc.Welcome.Button.CreateVault}"
+                  Classes="sk-primary"
+                  Command="{Binding CreateVaultCommand}"/>
+        </StackPanel>
+      </Grid>
+
+      <StackPanel Grid.Row="1"
+                  Spacing="12"
+                  HorizontalAlignment="Center"
+                  Margin="0,18,0,4">
+        <TextBlock HorizontalAlignment="Center">
+          <Run Text="{DynamicResource Loc.Welcome.HeroPrefix}"
+               FontSize="48"
+               FontWeight="Black"/>
+          <Run Text="{DynamicResource Loc.Welcome.HeroAccent}"
+               FontSize="48"
+               FontWeight="Black"
+               Foreground="{StaticResource AccentBrush}"/>
+        </TextBlock>
+        <TextBlock Text="{DynamicResource Loc.Welcome.HeroSubtitle}"
+                   Classes="page-subtitle"
+                   FontSize="16"
+                   MaxWidth="760"
+                   TextAlignment="Center"
+                   TextWrapping="Wrap"/>
+      </StackPanel>
+
+      <Grid Grid.Row="2"
+            ColumnDefinitions="*,Auto"
+            ColumnSpacing="18"
+            VerticalAlignment="Center">
+        <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 Classes="sk-search-input"
+                 Width="400"
+                 PlaceholderText="{DynamicResource Loc.Welcome.Search.Placeholder}"
+                 HorizontalAlignment="Left"
+                 IsEnabled="{Binding HasVaults}"/>
+
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="8"
+                    VerticalAlignment="Center">
+          <TextBlock Text="{DynamicResource Loc.Welcome.Sort.Label}"
+                     Classes="welcome-mini-label"
+                     VerticalAlignment="Center"
+                     Margin="0,0,4,0"/>
+          <Button Content="{DynamicResource Loc.Welcome.Sort.Recent}"
+                  Classes="sk-chip"
+                  Classes.active="{Binding IsRecentSortActive}"
+                  Command="{Binding SortByRecentCommand}"
+                  IsEnabled="{Binding HasVaults}"/>
+          <Button Content="{DynamicResource Loc.Welcome.Sort.Name}"
+                  Classes="sk-chip"
+                  Classes.active="{Binding IsNameSortActive}"
+                  Command="{Binding SortByNameCommand}"
+                  IsEnabled="{Binding HasVaults}"/>
+        </StackPanel>
+      </Grid>
+
+      <Grid Grid.Row="3">
+        <ItemsControl ItemsSource="{Binding Vaults}"
+                      IsVisible="{Binding HasVaults}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Spacing="14"/>
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:VaultRecordVm">
+              <Border Classes="welcome-vault-card">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="18">
+                  <Grid ColumnDefinitions="Auto,*"
+                        ColumnSpacing="18">
+                    <Border Width="52"
+                            Height="52"
+                            CornerRadius="12"
+                            Background="{StaticResource SurfaceRaisedBrush}">
+                      <TextBlock Text="VA"
+                                 HorizontalAlignment="Center"
+                                 VerticalAlignment="Center"
+                                 Foreground="{StaticResource AccentBrush}"
+                                 FontWeight="Black"
+                                 FontSize="13"/>
+                    </Border>
+
+                    <StackPanel Grid.Column="1"
+                                Spacing="8"
+                                VerticalAlignment="Center">
+                      <StackPanel Orientation="Horizontal"
+                                  Spacing="10">
+                        <TextBlock Text="{Binding DisplayLabel}"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <Border Classes="welcome-missing-badge"
+                                IsVisible="{Binding !Exists}">
+                          <TextBlock Text="{Binding AvailabilityBadge}"
+                                     Foreground="{StaticResource DangerBrush}"
+                                     FontSize="10"
+                                     FontWeight="Black"/>
+                        </Border>
+                      </StackPanel>
+
+                      <TextBlock Text="{Binding DescriptionDisplay}"
+                                 Classes="page-subtitle"
+                                 FontSize="13"
+                                 TextTrimming="CharacterEllipsis"/>
+
+                      <StackPanel Orientation="Horizontal"
+                                  Spacing="16">
+                        <TextBlock Text="{Binding LastOpenedDisplayLabel}"
+                                   Classes="welcome-card-meta"/>
+                      </StackPanel>
+                    </StackPanel>
+                  </Grid>
+
+                  <StackPanel Grid.Column="1"
+                              Orientation="Horizontal"
+                              Spacing="8"
+                              VerticalAlignment="Center">
+                    <Button Classes="sk-icon-ghost welcome-favorite-button"
+                            Command="{Binding DataContext.ToggleFavoriteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding Exists}"
+                            ToolTip.Tip="{Binding FavoriteLabel}">
+                      <PathIcon Data="{Binding FavoriteIconKey, Converter={StaticResource ThemeResourceGeometryConverter}}"
+                                Width="18"
+                                Height="18"
+                                Foreground="{Binding FavoriteForegroundKey, Converter={StaticResource ThemeResourceBrushConverter}}"/>
+                    </Button>
+                    <Button Content="{DynamicResource Loc.Common.Open}"
+                            Classes="sk-primary"
+                            Command="{Binding DataContext.OpenVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding Exists}"/>
+                    <Button Content="{DynamicResource Loc.Common.Edit}"
+                            Classes="sk-button"
+                            Command="{Binding DataContext.EditVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding Exists}"/>
+                    <Button Content="{DynamicResource Loc.Common.Delete}"
+                            Classes="sk-danger"
+                            Command="{Binding DataContext.DeleteVaultCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsEnabled="{Binding Exists}"/>
+                    <Button Content="{DynamicResource Loc.Common.RemoveFromList}"
+                            Classes="sk-button"
+                            Command="{Binding DataContext.RemoveVaultFromListCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                            CommandParameter="{Binding}"
+                            IsVisible="{Binding !Exists}"/>
+                  </StackPanel>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <Border Background="Transparent"
+                Padding="20,30"
+                IsVisible="{Binding !HasVaults}">
+          <StackPanel Spacing="12"
+                      HorizontalAlignment="Center">
+            <TextBlock Text="{Binding EmptyStateTitle}"
+                       FontSize="18"
+                       FontWeight="Bold"
+                       TextAlignment="Center"
+                       HorizontalAlignment="Center"/>
+            <TextBlock Text="{Binding EmptyStateSubtitle}"
+                       Classes="page-subtitle"
+                       MaxWidth="520"
+                       HorizontalAlignment="Center"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Grid Grid.Row="4"
+            ColumnDefinitions="*,Auto"
+            IsVisible="{Binding HasMultiplePages}">
+        <Border Background="Transparent"/>
+        <StackPanel Grid.Column="1"
+                    Orientation="Horizontal"
+                    Spacing="10"
+                    VerticalAlignment="Center">
+          <Button Content="{DynamicResource Loc.Common.Previous}"
+                  Classes="sk-button"
+                  Command="{Binding PreviousPageCommand}"
+                  IsEnabled="{Binding CanGoPreviousPage}"/>
+          <TextBlock Text="{Binding PageIndicator}"
+                     VerticalAlignment="Center"
+                     FontSize="12"
+                     FontWeight="SemiBold"/>
+          <Button Content="{DynamicResource Loc.Common.Next}"
+                  Classes="sk-button"
+                  Command="{Binding NextPageCommand}"
+                  IsEnabled="{Binding CanGoNextPage}"/>
+        </StackPanel>
+      </Grid>
+
+      <TextBlock Grid.Row="5"
+                 Text="{Binding Error}"
+                 Foreground="{StaticResource DangerBrush}"
+                 FontSize="12"
+                 IsVisible="{Binding HasError}"
+                 Margin="0,0,0,4"/>
+
+      <StackPanel Grid.Row="5"
+                  Orientation="Horizontal"
+                  Spacing="28"
+                  VerticalAlignment="Bottom">
+        <StackPanel Spacing="3">
+          <TextBlock Text="{DynamicResource Loc.Welcome.Stats.StorageUsed}"
+                     Classes="welcome-mini-label"/>
+          <TextBlock Text="{Binding TotalStorageDisplay}"
+                     FontSize="15"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+        <StackPanel Spacing="3">
+          <TextBlock Text="{DynamicResource Loc.Welcome.Stats.AvailableVaults}"
+                     Classes="welcome-mini-label"/>
+          <TextBlock Text="{Binding ExistingVaultCountDisplay}"
+                     FontSize="15"
+                     FontWeight="SemiBold"/>
+        </StackPanel>
+      </StackPanel>
+    </Grid>
+
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
+            IsVisible="{Binding IsDeleteOverlayOpen}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+      <Grid>
+        <Border Classes="welcome-modal-card"
+                Width="700"
+                MaxWidth="700"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="34,30">
+          <StackPanel Spacing="22">
+            <StackPanel IsVisible="{Binding IsDeleteWarningStep}"
+                        Spacing="22">
+              <Border Width="82"
+                      Height="82"
+                      CornerRadius="41"
+                      Background="{StaticResource SurfaceElevatedBrush}"
+                      HorizontalAlignment="Center">
+                <TextBlock Text="!"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                           FontSize="42"
+                           FontWeight="SemiBold"
+                           Foreground="{StaticResource DangerBrush}"/>
+              </Border>
+
+              <TextBlock Text="{Binding DeleteWarningTitle}"
+                         FontSize="28"
+                         FontWeight="Black"
+                         TextAlignment="Center"
+                         TextWrapping="Wrap"
+                         HorizontalAlignment="Center"/>
+
+              <Border Background="{StaticResource DangerPanelBrush}"
+                      BorderBrush="{StaticResource DangerBorderBrush}"
+                      BorderThickness="1"
+                      CornerRadius="16"
+                      Padding="22,18">
+                <TextBlock Text="{DynamicResource Loc.Welcome.Delete.Warning}"
+                           Foreground="{StaticResource DangerBrush}"
+                           FontSize="14"
+                           FontWeight="SemiBold"
+                           TextWrapping="Wrap"/>
+              </Border>
+
+              <Grid ColumnDefinitions="*,Auto,Auto"
+                    ColumnSpacing="14">
+                <Border Background="Transparent"/>
+                <Button Grid.Column="1"
+                        Content="{DynamicResource Loc.Common.Cancel}"
+                        Classes="sk-secondary"
+                        Command="{Binding CancelDeleteOverlayCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+                <Button Grid.Column="2"
+                        Content="{DynamicResource Loc.Welcome.Delete.PermanentlyDelete}"
+                        Classes="sk-danger"
+                        Command="{Binding ContinueDeleteOverlayCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+              </Grid>
+            </StackPanel>
+
+            <StackPanel IsVisible="{Binding IsDeletePasswordStep}"
+                        Spacing="22">
+              <StackPanel Spacing="8">
+                <TextBlock Text="{Binding DeletePasswordTitle}"
+                           FontSize="28"
+                           FontWeight="Black"
+                           TextWrapping="Wrap"/>
+                <TextBlock Text="{Binding DeletePasswordDetail}"
+                           Classes="page-subtitle"
+                           FontSize="13"
+                           TextWrapping="Wrap"/>
+              </StackPanel>
+
+              <StackPanel Spacing="8">
+                <TextBlock Text="{DynamicResource Loc.Common.MasterPassword.Label}"
+                           Classes="welcome-mini-label"/>
+                <Border Classes="sk-input-shell">
+                  <Grid ColumnDefinitions="*,Auto"
+                        ColumnSpacing="8">
+                    <TextBox Text="{Binding DeletePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="sk-input sk-input-large sk-input-borderless"
+                             PasswordChar="*"
+                             IsVisible="{Binding !IsDeletePasswordVisible}"
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"/>
+                    <TextBox Text="{Binding DeletePassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="sk-input sk-input-large sk-input-borderless"
+                             IsVisible="{Binding IsDeletePasswordVisible}"
+                             PlaceholderText="{DynamicResource Loc.Common.MasterPassword.Placeholder}"/>
+                    <Button Grid.Column="1"
+                            Classes="sk-icon-ghost"
+                            Command="{Binding ToggleDeletePasswordVisibilityCommand}"
+                            IsEnabled="{Binding !IsBusy}"
+                            ToolTip.Tip="{Binding DeletePasswordVisibilityLabel}">
+                      <Grid>
+                        <PathIcon Data="{StaticResource IconVisibility}"
+                                  Width="17"
+                                  Height="17"
+                                  IsVisible="{Binding !IsDeletePasswordVisible}"/>
+                        <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                  Width="17"
+                                  Height="17"
+                                  IsVisible="{Binding IsDeletePasswordVisible}"/>
+                      </Grid>
+                    </Button>
+                  </Grid>
+                </Border>
+              </StackPanel>
+
+              <TextBlock Text="{Binding DeleteOverlayError}"
+                         Foreground="{StaticResource DangerBrush}"
+                         FontSize="12"
+                         TextWrapping="Wrap"
+                         IsVisible="{Binding HasDeleteOverlayError}"/>
+
+              <Grid ColumnDefinitions="*,Auto,Auto"
+                    ColumnSpacing="14">
+                <TextBlock Text="{DynamicResource Loc.Dialog.DestructiveConfirmation.Detail}"
+                           Classes="page-subtitle"
+                           FontSize="13"
+                           MaxWidth="360"
+                           VerticalAlignment="Center"
+                           TextWrapping="Wrap"/>
+                <Button Grid.Column="1"
+                        Content="{DynamicResource Loc.Common.Cancel}"
+                        Classes="sk-secondary"
+                        Command="{Binding CancelDeleteOverlayCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+                <Button Grid.Column="2"
+                        Content="{DynamicResource Loc.Welcome.Delete.DeleteVault}"
+                        Classes="sk-primary"
+                        Command="{Binding ConfirmDeleteOverlayCommand}"
+                        IsEnabled="{Binding !IsBusy}"/>
+              </Grid>
+            </StackPanel>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
+            IsVisible="{Binding IsRemoveOverlayOpen}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+      <Grid>
+        <Border Classes="welcome-modal-card"
+                Width="620"
+                MaxWidth="620"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="34,30">
+          <StackPanel Spacing="22">
+            <Border Width="82"
+                    Height="82"
+                    CornerRadius="41"
+                    Background="{StaticResource SurfaceElevatedBrush}"
+                    HorizontalAlignment="Center">
+              <TextBlock Text="!"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         FontSize="42"
+                         FontWeight="SemiBold"
+                         Foreground="{StaticResource DangerBrush}"/>
+            </Border>
+
+            <TextBlock Text="{Binding RemoveOverlayTitle}"
+                       FontSize="28"
+                       FontWeight="Black"
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       HorizontalAlignment="Center"/>
+
+            <Border Background="{StaticResource DangerPanelBrush}"
+                    BorderBrush="{StaticResource DangerBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="16"
+                    Padding="22,18">
+              <TextBlock Text="{Binding RemoveOverlayDetail}"
+                         Foreground="{StaticResource TextMutedBrush}"
+                         FontSize="14"
+                         FontWeight="SemiBold"
+                         TextWrapping="Wrap"/>
+            </Border>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="14">
+              <Border Background="Transparent"/>
+              <Button Grid.Column="1"
+                      Content="{DynamicResource Loc.Common.Cancel}"
+                      Classes="sk-secondary"
+                      Command="{Binding CancelRemoveOverlayCommand}"
+                      IsEnabled="{Binding !IsBusy}"/>
+              <Button Grid.Column="2"
+                      Content="{DynamicResource Loc.Common.RemoveFromList}"
+                      Classes="sk-primary"
+                      Command="{Binding ConfirmRemoveOverlayCommand}"
+                      IsEnabled="{Binding !IsBusy}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
+            IsVisible="{Binding IsSecurityAcknowledgementOpen}"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch">
+      <Grid>
+        <Border Classes="welcome-modal-card"
+                Width="720"
+                MaxWidth="720"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Padding="34,30">
+          <StackPanel Spacing="22">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Title}"
+                         Foreground="{StaticResource AccentBrush}"
+                         FontSize="28"
+                         FontWeight="Black"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Subtitle}"
+                         Classes="page-subtitle"
+                         FontSize="14"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border Background="{StaticResource AppBackgroundSoftBrush}"
+                    BorderBrush="{StaticResource ModalBorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="20,18">
+              <StackPanel Spacing="10">
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.NoRecovery}"
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.PlaintextExports}"
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.Clipboard}"
+                             TextWrapping="Wrap"/>
+                </Grid>
+                <Grid ColumnDefinitions="Auto,*"
+                      ColumnSpacing="10">
+                  <TextBlock Text="-"
+                             Classes="page-subtitle"
+                             FontWeight="Black"/>
+                  <TextBlock Grid.Column="1"
+                             Text="{DynamicResource Loc.Welcome.Acknowledgement.LocalOnly}"
+                             TextWrapping="Wrap"/>
+                </Grid>
+              </StackPanel>
+            </Border>
+
+            <TextBlock Text="{DynamicResource Loc.Welcome.Acknowledgement.Documents}"
+                       Classes="page-subtitle"
+                       FontSize="13"
+                       TextWrapping="Wrap"/>
+
+            <CheckBox Content="{DynamicResource Loc.Welcome.Acknowledgement.Check}"
+                      Classes="welcome-acknowledgement-check"
+                      IsChecked="{Binding SecurityAcknowledgementConfirmed, Mode=TwoWay}"/>
+
+            <Grid ColumnDefinitions="*,Auto,Auto"
+                  ColumnSpacing="14">
+              <Border Background="Transparent"/>
+              <Button Grid.Column="1"
+                      Content="{DynamicResource Loc.Common.Cancel}"
+                      Classes="sk-secondary"
+                      Command="{Binding CancelSecurityAcknowledgementCommand}"/>
+              <Button Grid.Column="2"
+                      Content="{DynamicResource Loc.Welcome.Acknowledgement.Accept}"
+                      Classes="sk-primary"
+                      Command="{Binding AcceptSecurityAcknowledgementCommand}"/>
+            </Grid>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+
+  <UserControl.Styles>
+
+    <Style Selector="TextBlock.welcome-mini-label">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="LetterSpacing" Value="1.2"/>
+    </Style>
+
+    <Style Selector="Border.welcome-vault-card">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="Padding" Value="20"/>
+    </Style>
+
+    <Style Selector="Border.welcome-missing-badge">
+      <Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/>
+      <Setter Property="CornerRadius" Value="999"/>
+      <Setter Property="Padding" Value="10,4"/>
+    </Style>
+
+    <Style Selector="Border.welcome-vault-card:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+    </Style>
+
+    <Style Selector="TextBlock.welcome-card-meta">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="Button.welcome-favorite-button">
+      <Setter Property="Width" Value="36"/>
+      <Setter Property="Height" Value="36"/>
+      <Setter Property="MinWidth" Value="36"/>
+      <Setter Property="MinHeight" Value="36"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Center"/>
+      <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+
+    <Style Selector="Border.welcome-modal-card">
+      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource ModalBorderBrush}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="18"/>
+    </Style>
+
+
+
+
+
+
+
+    <Style Selector="CheckBox.welcome-acknowledgement-check">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
+      <Setter Property="FontSize" Value="13"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

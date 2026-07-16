@@ -18,7 +18,7 @@ using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Services.QuickFill;
-using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 
