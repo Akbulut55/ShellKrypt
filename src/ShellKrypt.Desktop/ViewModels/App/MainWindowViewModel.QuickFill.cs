@@ -3,8 +3,6 @@ using System.IO;
 using System.Threading.Tasks;
 using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels.App.QuickFill;
-using ShellKrypt.Desktop.Views.App.QuickFill;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -58,25 +56,7 @@ public partial class MainWindowViewModel
     {
         var target = _foregroundWindowService.Capture();
         var suppression = SuppressTransientFocusLoss();
-        var popup = new QuickFillPopupWindow();
-        var vm = new QuickFillPopupViewModel(
-            this,
-            _vaultRegistryService,
-            _vaultService,
-            _quickFillEntryService,
-            _webLoginService,
-            _cardService,
-            _apiKeyService,
-            _authenticatorEntryService,
-            _oneTimePasswordGenerator,
-            _autoTypeService,
-            target);
-
-        vm.CloseRequested += (_, _) => popup.Close();
-        popup.Closed += (_, _) => suppression.Dispose();
-        popup.DataContext = vm;
-        popup.Show();
-        _ = vm.LoadAsync();
+        _quickFillPopup.Open(this, target, suppression);
     }
 
     public void OpenQuickFillManager(QuickFillTargetContext? target = null)

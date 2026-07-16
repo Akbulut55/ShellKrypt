@@ -19,15 +19,8 @@ using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.Services.QuickFill;
-using ShellKrypt.Infrastructure.Items;
-using ShellKrypt.Infrastructure.Authenticator;
-using ShellKrypt.Infrastructure.Backups;
-using ShellKrypt.Infrastructure.DataTransfer;
-using ShellKrypt.Infrastructure.Services;
-using ShellKrypt.Infrastructure.CryptoTools;
-using ShellKrypt.Infrastructure.ProjectSecrets;
-using ShellKrypt.Infrastructure.Vaulting;
 using AppState = ShellKrypt.Desktop.Services.AppState;
 using ClipboardService = ShellKrypt.Desktop.Services.ClipboardService;
 using SessionSecurityService = ShellKrypt.Desktop.Services.SessionSecurityService;
@@ -36,42 +29,23 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class MainWindowViewModel : ViewModelBase
 {
-    private readonly AppState _state = new();
-    private readonly AppSettingsService _settingsService = new(new FileAppSettingsStore());
-    private readonly VaultRegistryService _vaultRegistryService = new(new FileVaultRegistryStore());
-    private readonly ActivityLogService _activityLogService = new(new SqliteActivityLogStore());
-    private readonly LocalizationService _localization = new();
-    private readonly ClipboardService _clipboardService = new();
-    private readonly AuthenticatorQrImageImportService _authenticatorQrImportService;
+    private readonly AppState _state;
+    private readonly AppSettingsService _settingsService;
+    private readonly VaultRegistryService _vaultRegistryService;
+    private readonly ActivityLogService _activityLogService;
+    private readonly LocalizationService _localization;
+    private readonly ClipboardService _clipboardService;
     private readonly SessionSecurityService _sessionSecurity;
-    private readonly IVaultService _vaultService = new SqliteVaultService();
-    private readonly IItemRepository _itemRepo = new SqliteItemRepository();
-    private readonly IVaultItemSummaryService _vaultItemSummaryService;
-    private readonly IWebLoginService _webLoginService;
-    private readonly ICardService _cardService;
-    private readonly INoteService _noteService;
-    private readonly IAuthenticatorEntryService _authenticatorEntryService;
-    private readonly IOneTimePasswordGenerator _oneTimePasswordGenerator;
-    private readonly IApiKeyService _apiKeyService;
-    private readonly IProjectSecretService _projectSecretService;
-    private readonly IProjectSecretEnvParser _projectSecretEnvParser = new EnvFileParser();
-    private readonly IProjectSecretEnvWriter _projectSecretEnvWriter = new EnvFileWriter();
-    private readonly IProjectSecretScanner _projectSecretScanner = new ProjectSecretFilesystemScanner();
-    private readonly IProjectSecretValueResolver _projectSecretValueResolver;
-    private readonly IQuickFillEntryService _quickFillEntryService;
-    private readonly IHealthAuditService _healthAuditService;
-    private readonly IPasswordGenerator _passwordGenerator = new PasswordGenerator();
-    private readonly IPasswordStrengthService _passwordStrengthService = new PasswordStrengthService();
-    private readonly IHashService _hashService = new HashService();
-    private readonly IBase64Service _base64Service = new Base64Service();
-    private readonly IEncryptedVaultBackupService _encryptedBackupService = new EncryptedVaultBackupService();
-    private readonly IVaultPlaintextExportService _plaintextExportService = new VaultPlaintextExportService();
-    private readonly IVaultCsvImportService _csvImportService = new VaultCsvImportService();
-    private readonly IAutomaticBackupFileStore _automaticBackupFiles = new AutomaticBackupFileStore();
-    private readonly ForegroundWindowService _foregroundWindowService = new();
-    private readonly AutoTypeService _autoTypeService = new();
-    private readonly GlobalHotkeyService _globalHotkeyService = new();
+    private readonly IVaultService _vaultService;
+    private readonly IEncryptedVaultBackupService _encryptedBackupService;
+    private readonly IVaultPlaintextExportService _plaintextExportService;
+    private readonly IVaultCsvImportService _csvImportService;
+    private readonly ForegroundWindowService _foregroundWindowService;
+    private readonly GlobalHotkeyService _globalHotkeyService;
     private readonly AutomaticBackupCoordinator _automaticBackupCoordinator;
+    private readonly LockedSurfaceFactory _lockedSurfaces;
+    private readonly UnlockedWorkspaceFactory _unlockedWorkspaces;
+    private readonly QuickFillPopupFactory _quickFillPopup;
     private string? _securityAcknowledgementAcceptedAtUtc;
     private int _securityAcknowledgementVersionAccepted;
     private BackupCenterHistory _backupCenterHistory = new();
@@ -97,22 +71,29 @@ public partial class MainWindowViewModel : ViewModelBase
     [ObservableProperty] private string themeId = AppSettings.DefaultThemeId;
     [ObservableProperty] private string languageId = AppSettings.DefaultLanguageId;
 
-    public MainWindowViewModel()
+    internal MainWindowViewModel(
+        DesktopServiceCatalog services,
+        LockedSurfaceFactory lockedSurfaces,
+        UnlockedWorkspaceFactory unlockedWorkspaces,
+        QuickFillPopupFactory quickFillPopup)
     {
-        _sessionSecurity = new SessionSecurityService(Lock);
-        _vaultItemSummaryService = new VaultItemSummaryService(_itemRepo, new VaultItemPayloadReader());
-        _webLoginService = new WebLoginService(_itemRepo);
-        _cardService = new CardService(_itemRepo);
-        _noteService = new NoteService(_itemRepo);
-        _authenticatorEntryService = new AuthenticatorEntryService(_itemRepo);
-        _oneTimePasswordGenerator = new OneTimePasswordGenerator();
-        _authenticatorQrImportService = new AuthenticatorQrImageImportService(
-            new AuthenticatorQrImportService(new AuthenticatorQrDecoder(), new OtpAuthUriParser()));
-        _apiKeyService = new ApiKeyService(_itemRepo);
-        _projectSecretService = new ProjectSecretService(_itemRepo);
-        _projectSecretValueResolver = new ProjectSecretValueResolver();
-        _quickFillEntryService = new QuickFillEntryService(_itemRepo);
-        _healthAuditService = new HealthAuditService(_itemRepo);
+        _state = services.State;
+        _settingsService = services.SettingsService;
+        _vaultRegistryService = services.VaultRegistryService;
+        _activityLogService = services.ActivityLogService;
+        _localization = services.Localization;
+        _clipboardService = services.ClipboardService;
+        _sessionSecurity = services.SessionSecurity;
+        _vaultService = services.VaultService;
+        _encryptedBackupService = services.EncryptedBackupService;
+        _plaintextExportService = services.PlaintextExportService;
+        _csvImportService = services.CsvImportService;
+        _foregroundWindowService = services.ForegroundWindowService;
+        _globalHotkeyService = services.GlobalHotkeyService;
+        _automaticBackupCoordinator = services.AutomaticBackupCoordinator;
+        _lockedSurfaces = lockedSurfaces;
+        _unlockedWorkspaces = unlockedWorkspaces;
+        _quickFillPopup = quickFillPopup;
 
         var settings = _settingsService.Load();
         var sessionSecurity = settings.ToSessionSecuritySettings();
@@ -133,10 +114,6 @@ public partial class MainWindowViewModel : ViewModelBase
         _backupSchedule = settings.BackupSchedule;
         _automaticBackupState = settings.AutomaticBackupState;
         _quickFill = settings.QuickFill;
-        _automaticBackupCoordinator = new AutomaticBackupCoordinator(
-            _encryptedBackupService,
-            _automaticBackupFiles,
-            BuildAutomaticBackupContext);
         _automaticBackupCoordinator.StateChanged += (_, _) => AutomaticBackupChanged?.Invoke(this, EventArgs.Empty);
         _automaticBackupCoordinator.RunCompleted += (_, result) =>
         {
@@ -156,7 +133,7 @@ public partial class MainWindowViewModel : ViewModelBase
                 shell.QuickFill.RefreshHotkeyStatus();
         };
 
-        Current = new WelcomeViewModel(this, _vaultRegistryService);
+        Current = _lockedSurfaces.CreateWelcome(this);
         ApplyTheme(themeId);
     }
 

@@ -22,7 +22,7 @@ public partial class MainWindowViewModel
         return result;
     }
 
-    private AutomaticBackupContext? BuildAutomaticBackupContext()
+    internal AutomaticBackupContext? BuildAutomaticBackupContext()
     {
         if (!IsUnlocked || string.IsNullOrWhiteSpace(VaultPath))
             return null;

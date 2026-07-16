@@ -13,6 +13,7 @@ using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
@@ -37,29 +38,9 @@ public partial class ShellViewModel : ViewModelBase
     [ObservableProperty] private ViewModelBase currentPage = null!;
     [ObservableProperty] private bool isSidebarCollapsed;
 
-    public ShellViewModel(
+    internal ShellViewModel(
         MainWindowViewModel root,
-        IVaultItemSummaryService vaultItemSummaryService,
-        IWebLoginService webLoginService,
-        ICardService cardService,
-        INoteService noteService,
-        IAuthenticatorEntryService authenticatorEntryService,
-        IOneTimePasswordGenerator oneTimePasswordGenerator,
-        IApiKeyService apiKeyService,
-        IProjectSecretService projectSecretService,
-        IProjectSecretEnvParser projectSecretEnvParser,
-        IProjectSecretEnvWriter projectSecretEnvWriter,
-        IProjectSecretScanner projectSecretScanner,
-        IProjectSecretValueResolver projectSecretValueResolver,
-        IQuickFillEntryService quickFillEntryService,
-        AuthenticatorQrImageImportService authenticatorQrImportService,
-        IHealthAuditService healthAuditService,
-        IPasswordGenerator passwordGenerator,
-        IPasswordStrengthService passwordStrengthService,
-        IHashService hashService,
-        IBase64Service base64Service,
-        ActivityLogService activityLogService,
-        VaultRegistryService vaultRegistryService)
+        Func<ShellViewModel, ShellWorkspaces> createWorkspaces)
     {
         _root = root;
         var navItemsByKey = new Dictionary<string, NavItemVm>();
@@ -80,42 +61,20 @@ public partial class ShellViewModel : ViewModelBase
             NavGroups.Add(new NavGroupVm(group.Key, group.Select(section => navItemsByKey[section.Key]), _root.Localization));
         }
 
-        AllItems = new AllItemsViewModel(_root, this, vaultItemSummaryService);
-        WebLogins = new WebLoginsViewModel(_root, webLoginService, passwordGenerator, AllItems.RefreshAfterMutationAsync);
-        MarkdownNotes = new MarkdownNotesViewModel(_root, noteService, AllItems.RefreshAfterMutationAsync);
-        Cards = new CardsViewModel(_root, cardService, AllItems.RefreshAfterMutationAsync);
-        Authenticator = new AuthenticatorViewModel(
-            _root,
-            authenticatorEntryService,
-            oneTimePasswordGenerator,
-            authenticatorQrImportService,
-            new AuthenticatorRefreshTimer(),
-            AllItems.RefreshAfterMutationAsync);
-        ProjectSecrets = new ProjectSecretsViewModel(
-            _root,
-            projectSecretService,
-            apiKeyService,
-            projectSecretEnvParser,
-            projectSecretEnvWriter,
-            projectSecretScanner,
-            projectSecretValueResolver,
-            AllItems.RefreshAfterMutationAsync);
-        ApiKeys = new ApiKeysViewModel(
-            _root,
-            apiKeyService,
-            AllItems.RefreshAfterMutationAsync,
-            ProjectSecrets.RefreshApiKeysAsync);
-        CryptoTools = new CryptoToolsViewModel(
-            _root,
-            passwordGenerator,
-            passwordStrengthService,
-            hashService,
-            base64Service);
-        QuickFill = new QuickFillViewModel(_root, quickFillEntryService, webLoginService, cardService, apiKeyService, authenticatorEntryService);
-        Health = new HealthViewModel(_root, this, healthAuditService);
-        BackupCenter = new BackupCenterViewModel(_root);
-        Settings = new SettingsViewModel(_root, this, vaultRegistryService);
-        Activity = new ActivityViewModel(_root, activityLogService);
+        var workspaces = createWorkspaces(this);
+        AllItems = workspaces.AllItems;
+        WebLogins = workspaces.WebLogins;
+        MarkdownNotes = workspaces.MarkdownNotes;
+        Cards = workspaces.Cards;
+        Authenticator = workspaces.Authenticator;
+        ApiKeys = workspaces.ApiKeys;
+        ProjectSecrets = workspaces.ProjectSecrets;
+        CryptoTools = workspaces.CryptoTools;
+        QuickFill = workspaces.QuickFill;
+        Health = workspaces.Health;
+        BackupCenter = workspaces.BackupCenter;
+        Settings = workspaces.Settings;
+        Activity = workspaces.Activity;
 
         SelectNav(ShellKryptSectionKeys.Vault);
     }

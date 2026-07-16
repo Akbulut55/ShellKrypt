@@ -4,6 +4,7 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.UI.Shared.Controls;
@@ -23,7 +24,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
         _appRoot = Path.Combine(Path.GetTempPath(), "ShellKrypt.ItemWorkspace.Tests", Guid.NewGuid().ToString("N"));
         _previousAppRoot = Environment.GetEnvironmentVariable(DefaultPaths.AppRootOverrideEnvironmentVariable);
         Environment.SetEnvironmentVariable(DefaultPaths.AppRootOverrideEnvironmentVariable, _appRoot);
-        _root = new MainWindowViewModel();
+        _root = DesktopBootstrap.CreateMainWindowViewModel();
     }
 
     [Fact]

@@ -1,5 +1,6 @@
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -113,7 +114,7 @@ public sealed class LocalizationServiceTests
     {
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
-        var root = new MainWindowViewModel();
+        var root = DesktopBootstrap.CreateMainWindowViewModel();
         var welcome = Assert.IsType<WelcomeViewModel>(root.Current);
 
         Assert.Equal("No vaults yet", welcome.EmptyStateTitle);

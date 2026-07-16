@@ -23,9 +23,9 @@ public partial class MainWindowViewModel
 
     public void HandleWindowDeactivated() => _sessionSecurity.HandleWindowDeactivated();
 
-    public void GoWelcome() => ReplaceCurrent(new WelcomeViewModel(this, _vaultRegistryService));
-    public void GoCreateVault() => ReplaceCurrent(new CreateVaultViewModel(this, _vaultService, _vaultRegistryService));
-    public void GoUnlock() => ReplaceCurrent(new UnlockViewModel(this, _vaultService, _vaultRegistryService));
+    public void GoWelcome() => ReplaceCurrent(_lockedSurfaces.CreateWelcome(this));
+    public void GoCreateVault() => ReplaceCurrent(_lockedSurfaces.CreateCreateVault(this));
+    public void GoUnlock() => ReplaceCurrent(_lockedSurfaces.CreateUnlock(this));
 
     public void OnUnlocked(byte[] vaultKey)
     {
@@ -88,28 +88,5 @@ public partial class MainWindowViewModel
         Current = next;
     }
 
-    private ShellViewModel CreateShell()
-        => new(
-            this,
-            _vaultItemSummaryService,
-            _webLoginService,
-            _cardService,
-            _noteService,
-            _authenticatorEntryService,
-            _oneTimePasswordGenerator,
-            _apiKeyService,
-            _projectSecretService,
-            _projectSecretEnvParser,
-            _projectSecretEnvWriter,
-            _projectSecretScanner,
-            _projectSecretValueResolver,
-            _quickFillEntryService,
-            _authenticatorQrImportService,
-            _healthAuditService,
-            _passwordGenerator,
-            _passwordStrengthService,
-            _hashService,
-            _base64Service,
-            _activityLogService,
-            _vaultRegistryService);
+    private ShellViewModel CreateShell() => _unlockedWorkspaces.Create(this);
 }

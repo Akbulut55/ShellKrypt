@@ -20,10 +20,6 @@
         WindowDecorations="None"
         WindowStartupLocation="CenterScreen">
 
-    <Design.DataContext>
-        <vm:MainWindowViewModel/>
-    </Design.DataContext>
-
     <Grid Background="{StaticResource AppBackgroundBrush}">
         <Grid RowDefinitions="40,*"
               Background="{StaticResource AppBackgroundBrush}">

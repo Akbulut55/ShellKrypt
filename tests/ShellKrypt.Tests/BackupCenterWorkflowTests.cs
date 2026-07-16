@@ -7,6 +7,7 @@ using ShellKrypt.Core.DataTransfer;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Features.BackupCenter;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Backups;
@@ -280,7 +281,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
-        var root = new MainWindowViewModel();
+        var root = DesktopBootstrap.CreateMainWindowViewModel();
         root.SetVaultPath(vaultPath);
         root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
         {
@@ -394,7 +395,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
 
     private static BackupCenterViewModel CreateUnlockedBackupCenter(string vaultPath, byte[] vaultKey)
     {
-        var root = new MainWindowViewModel();
+        var root = DesktopBootstrap.CreateMainWindowViewModel();
         root.SetVaultPath(vaultPath);
         root.OnUnlocked(vaultKey);
         return Assert.IsType<ShellViewModel>(root.Current).BackupCenter;
