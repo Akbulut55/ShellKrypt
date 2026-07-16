@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -19,7 +20,7 @@ public partial class HealthViewModel : ViewModelBase
     internal const string FilterProjectSecrets = "project";
     internal const string FilterSettings = "settings";
 
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
     private readonly ShellViewModel _shell;
     private readonly IHealthAuditService _healthAuditService;
     private readonly List<HealthIssueVm> _allIssues = new();
@@ -44,7 +45,7 @@ public partial class HealthViewModel : ViewModelBase
     [ObservableProperty] private string activeFilter = FilterAll;
 
     public HealthViewModel(
-        MainWindowViewModel root,
+        DesktopFeatureServices root,
         ShellViewModel shell,
         IHealthAuditService healthAuditService)
     {

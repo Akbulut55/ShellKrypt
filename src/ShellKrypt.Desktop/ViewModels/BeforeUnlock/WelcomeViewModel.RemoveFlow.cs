@@ -13,15 +13,15 @@ public sealed partial class WelcomeViewModel
 
         if (SelectedVault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
-        var confirmed = await _root.ConfirmDangerousActionAsync(
-            T(_root, "Welcome.Remove.Title"),
-            T(_root, "Welcome.Remove.ConfirmSubtitle", SelectedVault.DisplayLabel),
-            T(_root, "Welcome.Remove.ConfirmDetail"),
-            T(_root, "Common.RemoveFromList"));
+        var confirmed = await _dialogs.ConfirmDangerousActionAsync(
+            T(_localization, "Welcome.Remove.Title"),
+            T(_localization, "Welcome.Remove.ConfirmSubtitle", SelectedVault.DisplayLabel),
+            T(_localization, "Welcome.Remove.ConfirmDetail"),
+            T(_localization, "Common.RemoveFromList"));
 
         if (!confirmed)
             return;
@@ -33,16 +33,16 @@ public sealed partial class WelcomeViewModel
 
             if (!_vaultRegistry.RemoveVault(path))
             {
-                Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
+                Error = T(_localization, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 
-            if (string.Equals(_root.VaultPath, path, StringComparison.OrdinalIgnoreCase))
-                _root.SetVaultPath("");
+            if (string.Equals(_session.VaultPath, path, StringComparison.OrdinalIgnoreCase))
+                _session.SetVaultPath(null);
 
             ReloadVaults();
-            Status = T(_root, "Welcome.Remove.StatusRemoved", displayName);
-            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
+            Status = T(_localization, "Welcome.Remove.StatusRemoved", displayName);
+            _activity.Log("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)
         {
@@ -57,7 +57,7 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -94,18 +94,18 @@ public sealed partial class WelcomeViewModel
 
             if (!_vaultRegistry.RemoveVault(path))
             {
-                Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
+                Error = T(_localization, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 
-            if (string.Equals(_root.VaultPath, path, StringComparison.OrdinalIgnoreCase))
-                _root.SetVaultPath("");
+            if (string.Equals(_session.VaultPath, path, StringComparison.OrdinalIgnoreCase))
+                _session.SetVaultPath(null);
 
             IsRemoveOverlayOpen = false;
             RemoveTarget = null;
             ReloadVaults();
-            Status = T(_root, "Welcome.Remove.StatusRemoved", displayName);
-            _root.LogActivity("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
+            Status = T(_localization, "Welcome.Remove.StatusRemoved", displayName);
+            _activity.Log("vault", "Vault removed from launcher", $"Removed {displayName} from the local vault list.", "warning", path, displayName);
         }
         catch (Exception ex)
         {

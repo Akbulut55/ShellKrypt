@@ -20,14 +20,14 @@ public sealed partial class WelcomeViewModel
 
         try
         {
-            var (confirmed, path, displayNameInput) = await _root.ShowImportVaultDialogAsync();
+            var (confirmed, path, displayNameInput) = await _dialogs.ShowImportVaultDialogAsync();
             if (!confirmed)
                 return;
 
             path = VaultFileGuard.EnsureExistingVaultFile(path);
             if (!File.Exists(path))
             {
-            Error = T(_root, "Welcome.Error.VaultFileDoesNotExist");
+            Error = T(_localization, "Welcome.Error.VaultFileDoesNotExist");
                 return;
             }
 
@@ -42,8 +42,8 @@ public sealed partial class WelcomeViewModel
                 markOpened: false);
 
             ReloadVaults(entry.VaultPath);
-        Status = T(_root, "Welcome.Status.VaultImported");
-            _root.LogActivity("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath, displayName);
+        Status = T(_localization, "Welcome.Status.VaultImported");
+            _activity.Log("vault", "Vault added to launcher", $"Imported {displayName} into the local vault list.", "success", entry.VaultPath, displayName);
         }
         catch (Exception ex)
         {
@@ -58,13 +58,13 @@ public sealed partial class WelcomeViewModel
 
         if (SelectedVault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         if (!SelectedVault.Exists)
         {
-            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
+            Error = T(_localization, "Welcome.Error.SelectedVaultMissing");
             return;
         }
 
@@ -84,8 +84,8 @@ public sealed partial class WelcomeViewModel
                 markOpened: false);
 
             ReloadVaults(targetPath);
-        Status = T(_root, "Welcome.Status.VaultDuplicated");
-            _root.LogActivity("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath, $"{SelectedVault.DisplayLabel} Copy");
+        Status = T(_localization, "Welcome.Status.VaultDuplicated");
+            _activity.Log("vault", "Vault duplicated", $"Created a duplicate of {SelectedVault.DisplayLabel}.", "success", targetPath, $"{SelectedVault.DisplayLabel} Copy");
         }
         catch (Exception ex)
         {

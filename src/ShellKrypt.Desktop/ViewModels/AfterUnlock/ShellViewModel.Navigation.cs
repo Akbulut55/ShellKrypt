@@ -50,7 +50,7 @@ public partial class ShellViewModel
     }
 
     [RelayCommand]
-    private void Lock() => _root.Lock();
+    private void Lock() => _navigation.Lock();
 
     [RelayCommand]
     private void SelectSection(NavItemVm? item)

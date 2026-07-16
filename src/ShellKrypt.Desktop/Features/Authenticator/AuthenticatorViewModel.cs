@@ -5,13 +5,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Core.Authenticator;
+using ShellKrypt.Desktop.Services.Runtime;
 using ShellKrypt.Desktop.ViewModels;
 
 namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _desktop;
     private readonly IAuthenticatorEntryService _entryService;
     private readonly IOneTimePasswordGenerator _codeGenerator;
     private readonly Func<string?, Task> _refreshAllItemsAsync;
@@ -27,19 +28,19 @@ public partial class AuthenticatorViewModel : ViewModelBase
     [ObservableProperty] private bool isDeleteConfirmOpen;
 
     public AuthenticatorViewModel(
-        MainWindowViewModel root,
+        DesktopFeatureServices desktop,
         IAuthenticatorEntryService entryService,
         IOneTimePasswordGenerator codeGenerator,
         AuthenticatorQrImageImportService qrImportService,
         IAuthenticatorRefreshTimer refreshTimer,
         Func<string?, Task> refreshAllItemsAsync)
     {
-        _root = root;
+        _desktop = desktop;
         _entryService = entryService;
         _codeGenerator = codeGenerator;
         _refreshTimer = refreshTimer;
         _refreshAllItemsAsync = refreshAllItemsAsync;
-        Editor = new AuthenticatorEditorViewModel(root, qrImportService)
+        Editor = new AuthenticatorEditorViewModel(desktop, qrImportService)
         {
             SaveRequested = SaveEditorAsync
         };
@@ -67,25 +68,25 @@ public partial class AuthenticatorViewModel : ViewModelBase
     }
 
     public int TotalCount => _allEntries.Count;
-    public string CodesCountDisplay => T(_root, "Authenticator.Codes.Count", TotalCount);
+    public string CodesCountDisplay => T(_desktop.Localization, "Authenticator.Codes.Count", TotalCount);
     public bool HasEntries => FilteredEntries.Count > 0;
     public bool HasSelection => SelectedEntry is not null;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public bool CanEditSelection => SelectedEntry is not null && !IsBusy;
     public bool CanCopyCode => SelectedEntry?.IsCodeValid == true && !IsBusy;
-    public string PageSubtitle => T(_root, "Authenticator.Subtitle");
+    public string PageSubtitle => T(_desktop.Localization, "Authenticator.Subtitle");
     public string EmptyTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? T(_root, "Authenticator.Empty.NoneTitle")
-        : T(_root, "Authenticator.Empty.NoMatchTitle");
+        ? T(_desktop.Localization, "Authenticator.Empty.NoneTitle")
+        : T(_desktop.Localization, "Authenticator.Empty.NoMatchTitle");
     public string EmptySubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? T(_root, "Authenticator.Empty.NoneSubtitle")
-        : T(_root, "Authenticator.Empty.NoMatchSubtitle");
+        ? T(_desktop.Localization, "Authenticator.Empty.NoneSubtitle")
+        : T(_desktop.Localization, "Authenticator.Empty.NoMatchSubtitle");
     public string DetailSubtitle => SelectedEntry is null
-        ? T(_root, "Authenticator.Detail.SelectCode")
+        ? T(_desktop.Localization, "Authenticator.Detail.SelectCode")
         : SelectedEntry.KeyTypeDisplay;
     public string DeleteConfirmationText => SelectedEntry is null
-        ? T(_root, "Authenticator.Delete.TitleFallback")
-        : T(_root, "Authenticator.Delete.Title", SelectedEntry.Name);
+        ? T(_desktop.Localization, "Authenticator.Delete.TitleFallback")
+        : T(_desktop.Localization, "Authenticator.Delete.Title", SelectedEntry.Name);
     partial void OnSearchTextChanged(string value) => ApplyFilter();
 
     partial void OnSelectedEntryChanged(AuthenticatorAccountVm? value)

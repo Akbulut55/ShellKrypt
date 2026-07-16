@@ -17,13 +17,13 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         if (!vault.Exists)
         {
-            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
+            Error = T(_localization, "Welcome.Error.SelectedVaultMissing");
             return;
         }
 
@@ -74,7 +74,7 @@ public sealed partial class WelcomeViewModel
 
         if (string.IsNullOrWhiteSpace(DeletePassword))
         {
-            DeleteOverlayError = T(_root, "Welcome.Delete.EnterMasterPassword");
+            DeleteOverlayError = T(_localization, "Welcome.Delete.EnterMasterPassword");
             return;
         }
 
@@ -94,22 +94,22 @@ public sealed partial class WelcomeViewModel
 
             SqliteConnection.ClearAllPools();
 
-            await _root.ClearClipboardAsync();
+            await _clipboard.ClearAsync();
             VaultFileGuard.DeleteVaultAndKnownSidecars(deletePath, vault.VaultPath);
 
             if (!_vaultRegistry.RemoveVault(deletePath))
             {
-            Error = T(_root, "Welcome.Error.VaultNoLongerRegistered");
+            Error = T(_localization, "Welcome.Error.VaultNoLongerRegistered");
                 return;
             }
 
-            if (string.Equals(_root.VaultPath, deletePath, StringComparison.OrdinalIgnoreCase))
-                _root.SetVaultPath("");
+            if (string.Equals(_session.VaultPath, deletePath, StringComparison.OrdinalIgnoreCase))
+                _session.SetVaultPath(null);
 
             ClearDeleteOverlay();
             ReloadVaults();
             Status = $"{vault.DisplayLabel} was deleted permanently.";
-            _root.LogActivity("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath, vault.DisplayLabel);
+            _activity.Log("vault", "Vault deleted", $"Permanently deleted {vault.DisplayLabel}.", "danger", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)
         {

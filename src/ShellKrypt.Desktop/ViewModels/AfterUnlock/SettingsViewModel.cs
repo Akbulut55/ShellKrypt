@@ -6,14 +6,16 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.UI.Shared.Theming;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class SettingsViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
+    private readonly IDesktopNavigation _navigation;
     private readonly ShellViewModel _shell;
-    private readonly IVaultService _vaultService = new SqliteVaultService();
+    private readonly IVaultService _vaultService;
     private readonly VaultRegistryService _vaultRegistry;
 
     [ObservableProperty] private bool autoLockEnabled;
@@ -90,11 +92,13 @@ public sealed partial class SettingsViewModel : ViewModelBase
         .. VaultSecurityProfiles.All
     ];
 
-    public SettingsViewModel(MainWindowViewModel root, ShellViewModel shell, VaultRegistryService vaultRegistry)
+    public SettingsViewModel(DesktopFeatureServices root, IDesktopNavigation navigation, ShellViewModel shell, VaultRegistryService vaultRegistry, IVaultService vaultService)
     {
         _root = root;
+        _navigation = navigation;
         _shell = shell;
         _vaultRegistry = vaultRegistry;
+        _vaultService = vaultService;
         _root.Localization.LanguageChanged += OnLocalizationChanged;
         RefreshLocalizedOptionLabels();
         LoadFromRootSettings();

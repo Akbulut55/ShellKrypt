@@ -46,17 +46,12 @@ public partial class MainWindowViewModel
     {
         var target = _quickFillController.CaptureTarget();
         var suppression = SuppressTransientFocusLoss();
-        _quickFillPopup.Open(this, target, suppression);
+        _quickFillPopup.Open(_navigation, target, suppression);
     }
 
     public void OpenQuickFillManager(QuickFillTargetContext? target = null)
     {
-        if (Current is not ShellViewModel shell)
-            return;
-
-        shell.ShowQuickFill();
-        if (target is not null)
-            shell.QuickFill.PrepareEntryFromTarget(target);
+        _navigation.OpenQuickFillManager(target);
     }
 
     public async Task<string?> UnlockFromQuickFillAsync(string vaultPath, string masterPassword)

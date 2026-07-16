@@ -12,13 +12,18 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Services.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.ViewModels.QuickFill;
 
 namespace ShellKrypt.Desktop.ViewModels.App.QuickFill;
 
 public sealed partial class QuickFillPopupViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
+    private readonly IDesktopNavigation _navigation;
+    private readonly IVaultService _vaultService;
+    private readonly SessionSecurityService _sessionSecurity;
     private readonly VaultRegistryService _vaultRegistryService;
     private readonly IQuickFillEntryService _entryService;
     private readonly IWebLoginService _webLoginService;
@@ -46,7 +51,9 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     [ObservableProperty] private bool showAllForApp;
 
     public QuickFillPopupViewModel(
-        MainWindowViewModel root,
+        DesktopFeatureServices root,
+        IDesktopNavigation navigation,
+        SessionSecurityService sessionSecurity,
         VaultRegistryService vaultRegistryService,
         IVaultService vaultService,
         IQuickFillEntryService entryService,
@@ -59,6 +66,9 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         QuickFillTargetContext target)
     {
         _root = root;
+        _navigation = navigation;
+        _sessionSecurity = sessionSecurity;
+        _vaultService = vaultService;
         _vaultRegistryService = vaultRegistryService;
         _entryService = entryService;
         _webLoginService = webLoginService;
@@ -182,7 +192,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
             return;
         }
 
-        var error = await _root.UnlockFromQuickFillAsync(SelectedVault.VaultPath, MasterPassword);
+        var error = await UnlockAsync(SelectedVault.VaultPath, MasterPassword);
         if (!string.IsNullOrWhiteSpace(error))
         {
             Status = error;
@@ -216,7 +226,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
 
         var entry = SelectedEntry.Entry;
         _root.LogActivity("quick-fill", "Quick Fill fill attempted", $"Attempted Quick Fill for {entry.Name}.", "info", _root.VaultPath, entry.Name);
-        using var _ = _root.SuppressTransientFocusLoss();
+        using var _ = _sessionSecurity.SuppressTransientFocusLoss();
         var steps = await BuildAutoTypeStepsAsync(entry);
         if (steps.Count == 0)
         {
@@ -560,6 +570,26 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
         => string.IsNullOrWhiteSpace(target.ProcessName) ? "app" : target.ProcessName;
 
     private string T(string key, params object[] args) => _root.Localization.Get(key, args);
+
+    private async Task<string?> UnlockAsync(string vaultPath, string masterPassword)
+    {
+        if (string.IsNullOrWhiteSpace(vaultPath))
+            return T("QuickFill.Popup.Error.SelectVault");
+        if (string.IsNullOrWhiteSpace(masterPassword))
+            return T("QuickFill.Popup.Error.EnterPassword");
+
+        var targetPath = Path.GetFullPath(vaultPath);
+        if (_root.IsUnlocked && !string.Equals(_root.VaultPath, targetPath, StringComparison.OrdinalIgnoreCase))
+            _navigation.Lock();
+
+        _root.SetVaultPath(targetPath);
+        var result = await _vaultService.UnlockAsync(targetPath, masterPassword);
+        if (!result.Success || result.VaultKey is null)
+            return result.Error ?? T("QuickFill.Popup.Error.UnlockFailed");
+
+        _navigation.OnUnlocked(result.VaultKey);
+        return null;
+    }
 }
 
 public sealed partial class QuickFillPopupEntryVm : ObservableObject

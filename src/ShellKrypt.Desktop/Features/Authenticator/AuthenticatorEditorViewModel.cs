@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Authenticator;
+using ShellKrypt.Desktop.Services.Runtime;
 using ShellKrypt.Desktop.ViewModels;
 
 namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _desktop;
     private readonly AuthenticatorQrImageImportService _qrImportService;
     private long _counter;
 
@@ -29,9 +30,9 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
     [ObservableProperty] private AuthenticatorAlgorithmOption? selectedAlgorithm;
     [ObservableProperty] private AuthenticatorDigitsOption? selectedDigits;
 
-    public AuthenticatorEditorViewModel(MainWindowViewModel root, AuthenticatorQrImageImportService qrImportService)
+    public AuthenticatorEditorViewModel(DesktopFeatureServices desktop, AuthenticatorQrImageImportService qrImportService)
     {
-        _root = root;
+        _desktop = desktop;
         _qrImportService = qrImportService;
         SelectedKeyType = KeyTypeOptions[0];
         SelectedAlgorithm = AlgorithmOptions[0];
@@ -60,13 +61,13 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
         new(8, "8 digits")
     ];
 
-    public string Title => IsEditingExisting ? T(_root, "Authenticator.Modal.EditTitle") : T(_root, "Authenticator.Modal.AddTitle");
-    public string Subtitle => T(_root, "Authenticator.Modal.Subtitle");
-    public string AdvancedOptionsNote => T(_root, "Authenticator.Advanced.Note");
-    public string SaveButtonText => IsEditingExisting ? T(_root, "Common.SaveChanges") : T(_root, "Authenticator.Button.AddCode");
+    public string Title => IsEditingExisting ? T(_desktop.Localization, "Authenticator.Modal.EditTitle") : T(_desktop.Localization, "Authenticator.Modal.AddTitle");
+    public string Subtitle => T(_desktop.Localization, "Authenticator.Modal.Subtitle");
+    public string AdvancedOptionsNote => T(_desktop.Localization, "Authenticator.Advanced.Note");
+    public string SaveButtonText => IsEditingExisting ? T(_desktop.Localization, "Common.SaveChanges") : T(_desktop.Localization, "Authenticator.Button.AddCode");
     public string TypeSummary => SelectedKeyType?.KeyType == AuthenticatorKeyType.CounterBased
-        ? T(_root, "Authenticator.TypeSummary.Counter", _counter, SelectedAlgorithm?.ShortLabel ?? "SHA1", SelectedDigits?.Digits ?? 6)
-        : T(_root, "Authenticator.TypeSummary.Time", NormalizePeriodText(PeriodSecondsText), SelectedAlgorithm?.ShortLabel ?? "SHA1", SelectedDigits?.Digits ?? 6);
+        ? T(_desktop.Localization, "Authenticator.TypeSummary.Counter", _counter, SelectedAlgorithm?.ShortLabel ?? "SHA1", SelectedDigits?.Digits ?? 6)
+        : T(_desktop.Localization, "Authenticator.TypeSummary.Time", NormalizePeriodText(PeriodSecondsText), SelectedAlgorithm?.ShortLabel ?? "SHA1", SelectedDigits?.Digits ?? 6);
     public bool ShowPeriod => SelectedKeyType?.KeyType == AuthenticatorKeyType.TimeBased;
 
     public void OpenAdd()
@@ -133,17 +134,17 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
         Error = string.Empty;
         if (string.IsNullOrWhiteSpace(Name))
         {
-            Error = T(_root, "Authenticator.Validation.NameRequired");
+            Error = T(_desktop.Localization, "Authenticator.Validation.NameRequired");
             return;
         }
         if (string.IsNullOrWhiteSpace(Secret))
         {
-            Error = T(_root, "Authenticator.Validation.SecretRequired");
+            Error = T(_desktop.Localization, "Authenticator.Validation.SecretRequired");
             return;
         }
         if (SelectedKeyType is null)
         {
-            Error = T(_root, "Authenticator.Validation.KeyTypeRequired");
+            Error = T(_desktop.Localization, "Authenticator.Validation.KeyTypeRequired");
             return;
         }
 
@@ -176,10 +177,10 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
     private async Task ImportQrScreenshotAsync()
     {
         Error = string.Empty;
-        var path = await _root.PickOpenFileAsync(
-            T(_root, "Authenticator.Qr.PickerTitle"),
+        var path = await _desktop.Dialogs.PickOpenFileAsync(
+            T(_desktop.Localization, "Authenticator.Qr.PickerTitle"),
             [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"],
-            T(_root, "Authenticator.Qr.FileType"));
+            T(_desktop.Localization, "Authenticator.Qr.FileType"));
         if (string.IsNullOrWhiteSpace(path))
             return;
 
@@ -199,10 +200,10 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
         Error = string.Empty;
         try
         {
-            using var bitmap = await _root.TryGetClipboardBitmapAsync();
+            using var bitmap = await _desktop.Clipboard.TryGetBitmapAsync();
             if (bitmap is null)
             {
-                Error = T(_root, "Authenticator.Qr.NoClipboardImage");
+                Error = T(_desktop.Localization, "Authenticator.Qr.NoClipboardImage");
                 return;
             }
             ApplyImportedSecret(_qrImportService.ImportFromBitmap(bitmap));

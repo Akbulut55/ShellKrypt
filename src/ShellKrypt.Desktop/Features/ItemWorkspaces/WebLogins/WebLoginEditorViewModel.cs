@@ -6,13 +6,14 @@ using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Services.Runtime;
 using ShellKrypt.UI.Shared.Controls;
 
 namespace ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 
 public partial class WebLoginEditorViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _desktop;
     private readonly IWebLoginService _service;
     private readonly IPasswordGenerator _passwordGenerator;
     private readonly Func<WebLoginEntry?, string?, Task> _onMutation;
@@ -30,8 +31,8 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     [ObservableProperty] private bool isPasswordVisible;
     [ObservableProperty] private string error = "";
 
-    public WebLoginEditorViewModel(MainWindowViewModel root, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<WebLoginEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
-    { _root = root; _service = service; _passwordGenerator = passwordGenerator; _onMutation = onMutation; _refreshAllItems = refreshAllItems; }
+    public WebLoginEditorViewModel(DesktopFeatureServices desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<WebLoginEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
+    { _desktop = desktop; _service = service; _passwordGenerator = passwordGenerator; _onMutation = onMutation; _refreshAllItems = refreshAllItems; }
 
     public bool IsAdd => Mode == ItemEditorMode.Add;
     public bool IsDetails => Mode == ItemEditorMode.Details;
@@ -41,10 +42,10 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     public ModalShellSize ModalSize => IsDetails ? ModalShellSize.ItemDetails : ModalShellSize.Standard;
     public string UrlHostDisplay => FormatUrlHost(Url);
     public string PasswordDisplay => IsPasswordVisible ? Password : string.IsNullOrEmpty(Password) ? "" : "••••••••••";
-    public string NotesDisplay => string.IsNullOrWhiteSpace(Notes) ? T(_root, "ItemWorkspace.Details.NoNotes") : Notes.Trim();
-    public string ModalTitle => IsAdd ? T(_root, "WebLogins.Modal.AddTitle") : IsEdit ? T(_root, "WebLogins.Modal.EditTitle") : IsConfirmDelete ? T(_root, "WebLogins.Modal.DeleteTitle") : T(_root, "WebLogins.Modal.DetailsTitle");
-    public string ModalSubtitle => IsAdd ? T(_root, "WebLogins.Modal.AddSubtitle") : IsEdit ? T(_root, "WebLogins.Modal.EditSubtitle") : IsConfirmDelete ? T(_root, "WebLogins.Modal.DeleteSubtitle") : T(_root, "ItemWorkspace.Details.StoredLocally");
-    public string FooterText => IsDetails ? "" : IsConfirmDelete ? T(_root, "WebLogins.Modal.DeleteFooter", Title) : T(_root, "WebLogins.Modal.Footer");
+    public string NotesDisplay => string.IsNullOrWhiteSpace(Notes) ? T(_desktop.Localization, "ItemWorkspace.Details.NoNotes") : Notes.Trim();
+    public string ModalTitle => IsAdd ? T(_desktop.Localization, "WebLogins.Modal.AddTitle") : IsEdit ? T(_desktop.Localization, "WebLogins.Modal.EditTitle") : IsConfirmDelete ? T(_desktop.Localization, "WebLogins.Modal.DeleteTitle") : T(_desktop.Localization, "WebLogins.Modal.DetailsTitle");
+    public string ModalSubtitle => IsAdd ? T(_desktop.Localization, "WebLogins.Modal.AddSubtitle") : IsEdit ? T(_desktop.Localization, "WebLogins.Modal.EditSubtitle") : IsConfirmDelete ? T(_desktop.Localization, "WebLogins.Modal.DeleteSubtitle") : T(_desktop.Localization, "ItemWorkspace.Details.StoredLocally");
+    public string FooterText => IsDetails ? "" : IsConfirmDelete ? T(_desktop.Localization, "WebLogins.Modal.DeleteFooter", Title) : T(_desktop.Localization, "WebLogins.Modal.Footer");
 
     partial void OnModeChanged(ItemEditorMode value) { if (value != ItemEditorMode.Details) IsPasswordVisible = false; NotifyMode(); }
     partial void OnUrlChanged(string value) => OnPropertyChanged(nameof(UrlHostDisplay));
@@ -68,23 +69,23 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     [RelayCommand] private void Cancel() { if (IsConfirmDelete) CancelDelete(); else CancelEdit(); }
     [RelayCommand] private void TogglePasswordVisibility() => IsPasswordVisible = !IsPasswordVisible;
     [RelayCommand] private void GeneratePassword() { Password = _passwordGenerator.GeneratePassword(new(32, true, true, true, true)) ?? ""; IsPasswordVisible = true; Error = ""; }
-    [RelayCommand] private async Task CopyPasswordAsync() { if (Password.Length == 0) { Error = T(_root, "WebLogins.Error.NoPassword"); return; } await _root.CopyToClipboardAsync(Password); }
+    [RelayCommand] private async Task CopyPasswordAsync() { if (Password.Length == 0) { Error = T(_desktop.Localization, "WebLogins.Error.NoPassword"); return; } await _desktop.Clipboard.CopyAsync(Password); }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
         Error = "";
-        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
-        if (string.IsNullOrWhiteSpace(Title)) { Error = T(_root, "Validation.TitleRequired"); return; }
+        if (_desktop.Session.VaultPath is null) { Error = T(_desktop.Localization, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(Title)) { Error = T(_desktop.Localization, "Validation.TitleRequired"); return; }
         try
         {
             var input = new WebLoginInput(Title, Url, Username, Email, Password, Notes);
             var entry = _selected is null
-                ? await _service.AddAsync(_root.VaultPath, _root.VaultKey, input)
-                : await _service.UpdateAsync(_root.VaultPath, _root.VaultKey, _selected.Id, _selected.CreatedAtUtc, input);
+                ? await _service.AddAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, input)
+                : await _service.UpdateAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, _selected.Id, _selected.CreatedAtUtc, input);
             await _refreshAllItems(entry.Id); await _onMutation(entry, null);
-            _root.LogActivity("web", _selected is null ? "Web login added" : "Web login updated", $"{(_selected is null ? "Added" : "Updated")} {entry.Title}.", _selected is null ? "success" : "info", affectedItem: entry.Title);
-            _selected = new WebLoginRowVm(_root.Localization, entry.Id, entry.Title, entry.Username, entry.Password, entry.Url, entry.Notes, entry.CreatedAtUtc, entry.UpdatedAtUtc, false, entry.Email);
+            _desktop.Activity.Log("web", _selected is null ? "Web login added" : "Web login updated", $"{(_selected is null ? "Added" : "Updated")} {entry.Title}.", _selected is null ? "success" : "info", affectedItem: entry.Title);
+            _selected = new WebLoginRowVm(_desktop.Localization, entry.Id, entry.Title, entry.Username, entry.Password, entry.Url, entry.Notes, entry.CreatedAtUtc, entry.UpdatedAtUtc, false, entry.Email);
             Populate(_selected); Mode = ItemEditorMode.Details;
         }
         catch (Exception ex) { Error = ex.Message; }
@@ -93,11 +94,11 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     [RelayCommand]
     private async Task ConfirmDeleteAsync()
     {
-        if (_selected is null || _root.VaultPath is null) return;
+        if (_selected is null || _desktop.Session.VaultPath is null) return;
         try
         {
-            var row = _selected; await _service.DeleteAsync(_root.VaultPath, row.Id); await _refreshAllItems(null); await _onMutation(null, row.Id);
-            _root.LogActivity("web", "Web login deleted", $"Deleted {row.Title}.", "warning", affectedItem: row.Title); Close();
+            var row = _selected; await _service.DeleteAsync(_desktop.Session.VaultPath, row.Id); await _refreshAllItems(null); await _onMutation(null, row.Id);
+            _desktop.Activity.Log("web", "Web login deleted", $"Deleted {row.Title}.", "warning", affectedItem: row.Title); Close();
         }
         catch (Exception ex) { Error = ex.Message; }
     }
@@ -107,7 +108,7 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     private string FormatUrlHost(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
-            return T(_root, "WebLogins.Row.NoUrl");
+            return T(_desktop.Localization, "WebLogins.Row.NoUrl");
         var text = value.Trim();
         if (Uri.TryCreate(text, UriKind.Absolute, out var uri) && !string.IsNullOrWhiteSpace(uri.Host))
             return uri.Host;

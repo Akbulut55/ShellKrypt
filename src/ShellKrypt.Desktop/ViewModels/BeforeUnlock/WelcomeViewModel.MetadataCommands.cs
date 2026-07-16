@@ -13,13 +13,13 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
         try
         {
-            var (confirmed, displayName, description) = await _root.ShowEditVaultDialogAsync(
+            var (confirmed, displayName, description) = await _dialogs.ShowEditVaultDialogAsync(
                 vault.DisplayName,
                 vault.Description,
                 vault.VaultPath);
@@ -34,8 +34,8 @@ public sealed partial class WelcomeViewModel
                 markOpened: false);
 
             ReloadVaults(vault.VaultPath);
-        Status = T(_root, "Welcome.Status.MetadataSaved");
-            _root.LogActivity("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath, displayName);
+        Status = T(_localization, "Welcome.Status.MetadataSaved");
+            _activity.Log("vault", "Vault metadata updated", $"Updated metadata for {displayName}.", "info", vault.VaultPath, displayName);
         }
         catch (Exception ex)
         {
@@ -50,7 +50,7 @@ public sealed partial class WelcomeViewModel
 
         if (vault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -59,8 +59,8 @@ public sealed partial class WelcomeViewModel
             var isFavorite = !vault.IsFavorite;
             _vaultRegistry.SetVaultFavorite(vault.VaultPath, isFavorite);
             ReloadVaults(vault.VaultPath);
-            Status = T(_root, isFavorite ? "Welcome.Status.FavoriteVaultAdded" : "Welcome.Status.FavoriteVaultRemoved");
-            _root.LogActivity("vault", "Vault favorite changed", $"{vault.DisplayLabel} favorite status changed.", "info", vault.VaultPath, vault.DisplayLabel);
+            Status = T(_localization, isFavorite ? "Welcome.Status.FavoriteVaultAdded" : "Welcome.Status.FavoriteVaultRemoved");
+            _activity.Log("vault", "Vault favorite changed", $"{vault.DisplayLabel} favorite status changed.", "info", vault.VaultPath, vault.DisplayLabel);
         }
         catch (Exception ex)
         {

@@ -8,12 +8,13 @@ using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.ViewModels.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
 
 public sealed partial class QuickFillViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
     private readonly IQuickFillEntryService _entryService;
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
@@ -29,7 +30,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     [ObservableProperty] private bool isBusy;
 
     public QuickFillViewModel(
-        MainWindowViewModel root,
+        DesktopFeatureServices root,
         IQuickFillEntryService entryService,
         IWebLoginService webLoginService,
         ICardService cardService,
@@ -383,9 +384,9 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
 public sealed partial class QuickFillEntryRowVm : ObservableObject
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
 
-    public QuickFillEntryRowVm(QuickFillEntry entry, MainWindowViewModel root)
+    public QuickFillEntryRowVm(QuickFillEntry entry, DesktopFeatureServices root)
     {
         Entry = entry;
         _root = root;

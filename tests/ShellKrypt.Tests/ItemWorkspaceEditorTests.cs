@@ -31,7 +31,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     public void WebLoginEditor_CancelEditRestoresSnapshot()
     {
         var editor = new WebLoginEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubWebLoginService(),
             new CapturingPasswordGenerator(),
             (_, _) => Task.CompletedTask,
@@ -66,7 +66,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     {
         var generator = new CapturingPasswordGenerator();
         var editor = new WebLoginEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubWebLoginService(),
             generator,
             (_, _) => Task.CompletedTask,
@@ -115,7 +115,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     public void CardEditor_DeleteCancelReturnsToDetailsWithoutChangingValues()
     {
         var editor = new CardEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubCardService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
@@ -150,7 +150,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     public void CardEditor_PreviewAlwaysMasksNumberAndNeverContainsCvc()
     {
         var editor = new CardEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubCardService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
@@ -186,7 +186,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
             "2026-01-02T00:00:00Z",
             "service-user");
         var editor = new ApiKeyEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubApiKeyService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
@@ -215,7 +215,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
             "2026-01-02T00:00:00Z",
             "service-user");
         var editor = new ApiKeyEditorViewModel(
-            _root,
+            _root.DesktopFeatures,
             new StubApiKeyService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
@@ -233,7 +233,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
 
     private WebLoginEditorViewModel CreateWebLoginEditor()
         => new(
-            _root,
+            _root.DesktopFeatures,
             new StubWebLoginService(),
             new CapturingPasswordGenerator(),
             (_, _) => Task.CompletedTask,

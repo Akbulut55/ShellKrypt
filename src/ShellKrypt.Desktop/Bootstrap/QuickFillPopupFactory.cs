@@ -2,16 +2,19 @@ using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.ViewModels.App.QuickFill;
 using ShellKrypt.Desktop.Views.App.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 
 internal sealed class QuickFillPopupFactory(DesktopServiceCatalog services)
 {
-    public void Open(MainWindowViewModel root, QuickFillTargetContext target, IDisposable focusSuppression)
+    public void Open(IDesktopNavigation navigation, QuickFillTargetContext target, IDisposable focusSuppression)
     {
         var popup = new QuickFillPopupWindow();
         var viewModel = new QuickFillPopupViewModel(
-            root,
+            services.DesktopFeatures,
+            navigation,
+            services.SessionSecurity,
             services.VaultRegistryService,
             services.VaultService,
             services.QuickFillEntryService,

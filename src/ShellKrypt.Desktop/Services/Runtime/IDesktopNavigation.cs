@@ -1,0 +1,14 @@
+using ShellKrypt.Core.Items;
+
+namespace ShellKrypt.Desktop.Services.Runtime;
+
+public interface IDesktopNavigation
+{
+    void GoWelcome();
+    void GoCreateVault();
+    void GoUnlock();
+    void OnUnlocked(byte[] vaultKey);
+    void Lock();
+    void ReloadShell();
+    void OpenQuickFillManager(QuickFillTargetContext? target = null);
+}

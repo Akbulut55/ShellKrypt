@@ -14,6 +14,8 @@ using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Bootstrap;
+using ShellKrypt.Desktop.Services.Runtime;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
@@ -28,7 +30,9 @@ namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ShellViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly LocalizationService _localization;
+    private readonly IVaultSessionController _session;
+    private readonly IDesktopNavigation _navigation;
 
     public ObservableCollection<NavItemVm> NavItems { get; } = new();
     public ObservableCollection<NavItemVm> VisibleNavItems { get; } = new();
@@ -39,14 +43,18 @@ public partial class ShellViewModel : ViewModelBase
     [ObservableProperty] private bool isSidebarCollapsed;
 
     internal ShellViewModel(
-        MainWindowViewModel root,
+        LocalizationService localization,
+        IVaultSessionController session,
+        IDesktopNavigation navigation,
         Func<ShellViewModel, ShellWorkspaces> createWorkspaces)
     {
-        _root = root;
+        _localization = localization;
+        _session = session;
+        _navigation = navigation;
         var navItemsByKey = new Dictionary<string, NavItemVm>();
         foreach (var section in ShellKryptSectionCatalog.DesktopSections)
         {
-            var item = new NavItemVm(section, _root.Localization);
+            var item = new NavItemVm(section, _localization);
             navItemsByKey[section.Key] = item;
             NavItems.Add(item);
             if (section.Key != ShellKryptSectionKeys.Settings)
@@ -58,7 +66,7 @@ public partial class ShellViewModel : ViewModelBase
                      .Where(section => section.Key != ShellKryptSectionKeys.Settings)
                      .GroupBy(section => section.Group))
         {
-            NavGroups.Add(new NavGroupVm(group.Key, group.Select(section => navItemsByKey[section.Key]), _root.Localization));
+            NavGroups.Add(new NavGroupVm(group.Key, group.Select(section => navItemsByKey[section.Key]), _localization));
         }
 
         var workspaces = createWorkspaces(this);

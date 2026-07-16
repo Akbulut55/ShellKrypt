@@ -112,7 +112,7 @@ public sealed partial class SettingsViewModel
             _vaultRegistry.RemoveVault(vaultPath);
             ClearDestroyVaultModal();
             _root.SetVaultPath("");
-            _root.Lock();
+            _navigation.Lock();
         }
         catch (Exception ex)
         {

@@ -44,9 +44,12 @@ public partial class MainWindowViewModel : ViewModelBase
     private readonly IEncryptedVaultBackupService _encryptedBackupService;
     private readonly IVaultPlaintextExportService _plaintextExportService;
     private readonly IVaultCsvImportService _csvImportService;
-    private readonly LockedSurfaceFactory _lockedSurfaces;
-    private readonly UnlockedWorkspaceFactory _unlockedWorkspaces;
+    private readonly DesktopNavigationService _navigation;
     private readonly QuickFillPopupFactory _quickFillPopup;
+    public DesktopFeatureServices DesktopFeatures { get; }
+    public IDesktopNavigation Navigation => _navigation;
+    public VaultRegistryService VaultRegistry => _vaultRegistryService;
+    public IVaultService VaultService => _vaultService;
     public event EventHandler? ActivityChanged;
     public event EventHandler? AutomaticBackupChanged;
 
@@ -55,8 +58,7 @@ public partial class MainWindowViewModel : ViewModelBase
 
     internal MainWindowViewModel(
         DesktopServiceCatalog services,
-        LockedSurfaceFactory lockedSurfaces,
-        UnlockedWorkspaceFactory unlockedWorkspaces,
+        DesktopNavigationService navigation,
         QuickFillPopupFactory quickFillPopup)
     {
         _vaultSession = services.VaultSession;
@@ -73,9 +75,9 @@ public partial class MainWindowViewModel : ViewModelBase
         _encryptedBackupService = services.EncryptedBackupService;
         _plaintextExportService = services.PlaintextExportService;
         _csvImportService = services.CsvImportService;
-        _lockedSurfaces = lockedSurfaces;
-        _unlockedWorkspaces = unlockedWorkspaces;
+        _navigation = navigation;
         _quickFillPopup = quickFillPopup;
+        DesktopFeatures = services.DesktopFeatures;
 
         _settings.Changed += (_, _) => NotifySettingsChanged();
         _activityRecorder.Changed += (_, _) => ActivityChanged?.Invoke(this, EventArgs.Empty);
@@ -90,7 +92,8 @@ public partial class MainWindowViewModel : ViewModelBase
                 shell.QuickFill.RefreshHotkeyStatus();
         };
 
-        Current = _lockedSurfaces.CreateWelcome(this);
+        _navigation.CurrentChanged += (_, _) => Current = _navigation.Current;
+        Current = _navigation.Current;
     }
 
     public string? VaultPath => _vaultSession.VaultPath;

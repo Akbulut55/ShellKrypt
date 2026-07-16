@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Windows.Input;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Items;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
@@ -9,7 +10,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
 {
     private const int AllRowsQuerySize = int.MaxValue;
 
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
     private readonly ShellViewModel _shell;
     private readonly IVaultItemSummaryService _summaryService;
     private AllItemsSortMode _sortMode = AllItemsSortMode.UpdatedDescending;
@@ -33,7 +34,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     private int _expiringSoonCardCount;
     private int _createdThisMonthCount;
 
-    public AllItemsViewModel(MainWindowViewModel root, ShellViewModel shell, IVaultItemSummaryService summaryService)
+    public AllItemsViewModel(DesktopFeatureServices root, ShellViewModel shell, IVaultItemSummaryService summaryService)
     {
         _root = root;
         _shell = shell;

@@ -7,13 +7,14 @@ using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Services.Runtime;
 using ShellKrypt.UI.Shared.Controls;
 
 namespace ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 
 public partial class ApiKeyEditorViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _desktop;
     private readonly IApiKeyService _service;
     private readonly Func<ApiKeyEntry?, string?, Task> _onMutation;
     private readonly Func<string?, Task> _refreshAllItems;
@@ -32,12 +33,12 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
 
     public ApiKeyEditorViewModel(
-        MainWindowViewModel root,
+        DesktopFeatureServices desktop,
         IApiKeyService service,
         Func<ApiKeyEntry?, string?, Task> onMutation,
         Func<string?, Task> refreshAllItems)
     {
-        _root = root;
+        _desktop = desktop;
         _service = service;
         _onMutation = onMutation;
         _refreshAllItems = refreshAllItems;
@@ -50,11 +51,11 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
     public bool IsEditable => IsAdd || IsEdit;
     public ModalShellSize ModalSize => IsDetails ? ModalShellSize.ItemDetails : ModalShellSize.Standard;
     public string ValueDisplay => ValueVisible ? Value : Value.Length == 0 ? "" : "**** **** " + (Value.Length > 4 ? Value[^4..] : "");
-    public string NotesDisplay => string.IsNullOrWhiteSpace(Notes) ? T(_root, "ItemWorkspace.Details.NoNotes") : Notes.Trim();
-    public string CredentialBadge => T(_root, "ItemWorkspace.Details.ApiCredential");
-    public string ModalTitle => IsAdd ? T(_root, "ApiKeys.Modal.AddTitle") : IsEdit ? T(_root, "ApiKeys.Modal.EditTitle") : IsConfirmDelete ? T(_root, "ApiKeys.Modal.DeleteTitle") : T(_root, "ApiKeys.Modal.DetailsTitle");
-    public string ModalSubtitle => IsAdd ? T(_root, "ApiKeys.Modal.AddSubtitle") : IsEdit ? T(_root, "ApiKeys.Modal.EditSubtitle") : IsConfirmDelete ? T(_root, "ApiKeys.Modal.DeleteSubtitle") : T(_root, "ItemWorkspace.Details.StoredLocally");
-    public string FooterText => IsDetails ? "" : IsConfirmDelete ? T(_root, "ApiKeys.Modal.DeleteFooter", Name) : T(_root, "ApiKeys.Modal.Footer");
+    public string NotesDisplay => string.IsNullOrWhiteSpace(Notes) ? T(_desktop.Localization, "ItemWorkspace.Details.NoNotes") : Notes.Trim();
+    public string CredentialBadge => T(_desktop.Localization, "ItemWorkspace.Details.ApiCredential");
+    public string ModalTitle => IsAdd ? T(_desktop.Localization, "ApiKeys.Modal.AddTitle") : IsEdit ? T(_desktop.Localization, "ApiKeys.Modal.EditTitle") : IsConfirmDelete ? T(_desktop.Localization, "ApiKeys.Modal.DeleteTitle") : T(_desktop.Localization, "ApiKeys.Modal.DetailsTitle");
+    public string ModalSubtitle => IsAdd ? T(_desktop.Localization, "ApiKeys.Modal.AddSubtitle") : IsEdit ? T(_desktop.Localization, "ApiKeys.Modal.EditSubtitle") : IsConfirmDelete ? T(_desktop.Localization, "ApiKeys.Modal.DeleteSubtitle") : T(_desktop.Localization, "ItemWorkspace.Details.StoredLocally");
+    public string FooterText => IsDetails ? "" : IsConfirmDelete ? T(_desktop.Localization, "ApiKeys.Modal.DeleteFooter", Name) : T(_desktop.Localization, "ApiKeys.Modal.Footer");
 
     partial void OnModeChanged(ItemEditorMode value)
     {
@@ -97,14 +98,14 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
     [RelayCommand] private void CancelEdit() { if (IsAdd) Close(); else { if (_selected is not null) Populate(_selected); Mode = ItemEditorMode.Details; } }
     [RelayCommand] private void Cancel() { if (IsConfirmDelete) CancelDelete(); else CancelEdit(); }
     [RelayCommand] private void ToggleValue() => ValueVisible = !ValueVisible;
-    [RelayCommand] private async Task CopyValueAsync() { if (Value.Length > 0) await _root.CopyToClipboardAsync(Value); }
+    [RelayCommand] private async Task CopyValueAsync() { if (Value.Length > 0) await _desktop.Clipboard.CopyAsync(Value); }
 
     [RelayCommand]
     private async Task SaveAsync()
     {
         Error = "";
-        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
-        if (string.IsNullOrWhiteSpace(Name)) { Error = T(_root, "Validation.NameRequired"); return; }
+        if (_desktop.Session.VaultPath is null) { Error = T(_desktop.Localization, "Common.NoVaultSelected"); return; }
+        if (string.IsNullOrWhiteSpace(Name)) { Error = T(_desktop.Localization, "Validation.NameRequired"); return; }
 
         try
         {
@@ -123,13 +124,13 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
                     : new ApiKeyFieldInput(existing.Id, existing.Label, existing.FieldType, existing.Value, existing.IsSensitive, existing.IsCopyable, existing.SortOrder)).ToArray();
             var input = new ApiKeyInput(Name, Provider, _environment, Notes, fields, User);
             var entry = _selected is null
-                ? await _service.AddAsync(_root.VaultPath, _root.VaultKey, input)
-                : await _service.UpdateAsync(_root.VaultPath, _root.VaultKey, _selected.Id, _selected.CreatedAtUtc, input);
+                ? await _service.AddAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, input)
+                : await _service.UpdateAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, _selected.Id, _selected.CreatedAtUtc, input);
 
             await _refreshAllItems(entry.Id);
             await _onMutation(entry, null);
-            _root.LogActivity("api_keys", _selected is null ? "API key added" : "API key updated", $"{(_selected is null ? "Added" : "Updated")} {entry.Name}.", _selected is null ? "success" : "info", affectedItem: entry.Name);
-            _selected = new ApiKeyRowVm(entry, _root.Localization);
+            _desktop.Activity.Log("api_keys", _selected is null ? "API key added" : "API key updated", $"{(_selected is null ? "Added" : "Updated")} {entry.Name}.", _selected is null ? "success" : "info", affectedItem: entry.Name);
+            _selected = new ApiKeyRowVm(entry, _desktop.Localization);
             Populate(_selected);
             Mode = ItemEditorMode.Details;
         }
@@ -142,15 +143,15 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
     [RelayCommand]
     private async Task ConfirmDeleteAsync()
     {
-        if (_selected is null || _root.VaultPath is null)
+        if (_selected is null || _desktop.Session.VaultPath is null)
             return;
         try
         {
             var row = _selected;
-            await _service.DeleteAsync(_root.VaultPath, row.Id);
+            await _service.DeleteAsync(_desktop.Session.VaultPath, row.Id);
             await _refreshAllItems(null);
             await _onMutation(null, row.Id);
-            _root.LogActivity("api_keys", "API key deleted", $"Deleted {row.Name}.", "warning", affectedItem: row.Name);
+            _desktop.Activity.Log("api_keys", "API key deleted", $"Deleted {row.Name}.", "warning", affectedItem: row.Name);
             Close();
         }
         catch (Exception ex)

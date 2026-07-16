@@ -5,12 +5,13 @@ using System.IO;
 using System.Linq;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Activity;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class ActivityViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
     private readonly ActivityLogService _store;
     private readonly List<ActivityItemVm> _allItems = new();
     private readonly List<ActivityItemVm> _filteredItems = new();
@@ -22,7 +23,7 @@ public partial class ActivityViewModel : ViewModelBase
     [ObservableProperty] private string activeCategory = "all";
     [ObservableProperty] private string error = "";
 
-    public ActivityViewModel(MainWindowViewModel root, ActivityLogService store)
+    public ActivityViewModel(DesktopFeatureServices root, ActivityLogService store)
     {
         _root = root;
         _store = store;

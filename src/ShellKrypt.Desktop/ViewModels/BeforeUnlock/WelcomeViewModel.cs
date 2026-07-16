@@ -11,15 +11,23 @@ using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
+using ShellKrypt.Application.Localization;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public sealed partial class WelcomeViewModel : ViewModelBase
 {
     private const int VaultPageSize = 3;
-    private readonly MainWindowViewModel _root;
+    private readonly IVaultSessionController _session;
+    private readonly IDesktopNavigation _navigation;
+    private readonly IDesktopDialogService _dialogs;
+    private readonly ISecureClipboardService _clipboard;
+    private readonly IActivityRecorder _activity;
+    private readonly IDesktopSettingsController _settings;
+    private readonly LocalizationService _localization;
     private readonly VaultRegistryService _vaultRegistry;
-    private readonly IVaultService _vaultService = new SqliteVaultService();
+    private readonly IVaultService _vaultService;
     private readonly List<VaultRecordVm> _allVaults = new();
     private SecurityAcknowledgementAction _pendingSecurityAcknowledgementAction;
     private VaultRecordVm? _pendingSecurityAcknowledgementVault;
@@ -46,11 +54,27 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     [ObservableProperty] private bool isSecurityAcknowledgementOpen;
     [ObservableProperty] private bool securityAcknowledgementConfirmed;
 
-    public WelcomeViewModel(MainWindowViewModel root, VaultRegistryService vaultRegistry)
+    public WelcomeViewModel(
+        IVaultService vaultService,
+        VaultRegistryService vaultRegistry,
+        IVaultSessionController session,
+        IDesktopNavigation navigation,
+        IDesktopDialogService dialogs,
+        ISecureClipboardService clipboard,
+        IActivityRecorder activity,
+        IDesktopSettingsController settings,
+        LocalizationService localization)
     {
-        _root = root;
+        _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
-        Status = T(_root, "Welcome.Status.SelectVaultOrCreate");
+        _session = session;
+        _navigation = navigation;
+        _dialogs = dialogs;
+        _clipboard = clipboard;
+        _activity = activity;
+        _settings = settings;
+        _localization = localization;
+        Status = T(_localization, "Welcome.Status.SelectVaultOrCreate");
         ReloadVaults();
     }
 
@@ -61,7 +85,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public bool HasDeleteOverlayError => !string.IsNullOrWhiteSpace(DeleteOverlayError);
     public int VaultCount => _allVaults.Count;
     public int ExistingVaultCount => _allVaults.Count(vault => vault.Exists);
-    public string ExistingVaultCountDisplay => T(_root, ExistingVaultCount == 1 ? "Welcome.Stats.AvailableVaultOne" : "Welcome.Stats.AvailableVaultMany", ExistingVaultCount);
+    public string ExistingVaultCountDisplay => T(_localization, ExistingVaultCount == 1 ? "Welcome.Stats.AvailableVaultOne" : "Welcome.Stats.AvailableVaultMany", ExistingVaultCount);
     public int TotalPages => Math.Max(1, (int)Math.Ceiling(_filteredVaultCount / (double)VaultPageSize));
     public bool HasMultiplePages => TotalPages > 1;
     public bool CanGoPreviousPage => CurrentPage > 1;
@@ -69,18 +93,18 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     public string PageIndicator => $"{CurrentPage} / {TotalPages}";
     public string TotalStorageDisplay => FormatBytes(_allVaults.Where(vault => vault.Exists).Sum(vault => GetVaultSize(vault.VaultPath)));
     public string EmptyStateTitle => string.IsNullOrWhiteSpace(SearchText)
-        ? T(_root, "Welcome.Empty.NoVaultsTitle")
-        : T(_root, "Welcome.Empty.NoSearchTitle");
+        ? T(_localization, "Welcome.Empty.NoVaultsTitle")
+        : T(_localization, "Welcome.Empty.NoSearchTitle");
     public string EmptyStateSubtitle => string.IsNullOrWhiteSpace(SearchText)
-        ? T(_root, "Welcome.Empty.NoVaultsSubtitle")
-        : T(_root, "Welcome.Empty.NoSearchSubtitle");
+        ? T(_localization, "Welcome.Empty.NoVaultsSubtitle")
+        : T(_localization, "Welcome.Empty.NoSearchSubtitle");
     public bool IsDeleteWarningStep => IsDeleteOverlayOpen && !IsDeletePasswordStep;
-    public string DeleteWarningTitle => T(_root, "Welcome.Delete.Title", DeleteTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
-    public string DeletePasswordTitle => T(_root, "Welcome.Delete.PasswordTitle");
+    public string DeleteWarningTitle => T(_localization, "Welcome.Delete.Title", DeleteTarget?.DisplayLabel ?? T(_localization, "Welcome.Vault.Label"));
+    public string DeletePasswordTitle => T(_localization, "Welcome.Delete.PasswordTitle");
     public string DeletePasswordDetail => DeleteTarget is null ? "" : $"Vault: {DeleteTarget.DisplayLabel}";
-    public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? T(_root, "Common.Hide") : T(_root, "Common.Show");
-    public string RemoveOverlayTitle => T(_root, "Welcome.Remove.Title", RemoveTarget?.DisplayLabel ?? T(_root, "Welcome.Vault.Label"));
-    public string RemoveOverlayDetail => T(_root, "Welcome.Remove.Detail");
+    public string DeletePasswordVisibilityLabel => IsDeletePasswordVisible ? T(_localization, "Common.Hide") : T(_localization, "Common.Show");
+    public string RemoveOverlayTitle => T(_localization, "Welcome.Remove.Title", RemoveTarget?.DisplayLabel ?? T(_localization, "Welcome.Vault.Label"));
+    public string RemoveOverlayDetail => T(_localization, "Welcome.Remove.Detail");
     public bool CanAcceptSecurityAcknowledgement => SecurityAcknowledgementConfirmed;
 
     partial void OnSearchTextChanged(string value)

@@ -12,7 +12,7 @@ public sealed partial class WelcomeViewModel
         if (RequestSecurityAcknowledgement(SecurityAcknowledgementAction.CreateVault))
             return;
 
-        _root.GoCreateVault();
+        _navigation.GoCreateVault();
     }
 
     [RelayCommand]
@@ -43,7 +43,7 @@ public sealed partial class WelcomeViewModel
     {
         if (SelectedVault is null)
         {
-            Error = T(_root, "Welcome.Status.SelectVaultFirst");
+            Error = T(_localization, "Welcome.Status.SelectVaultFirst");
             return;
         }
 
@@ -60,8 +60,8 @@ public sealed partial class WelcomeViewModel
 
         if (!vault.Exists)
         {
-            Status = T(_root, "Welcome.Status.MissingVaultFile", vault.VaultPath);
-            Error = T(_root, "Welcome.Error.SelectedVaultMissing");
+            Status = T(_localization, "Welcome.Status.MissingVaultFile", vault.VaultPath);
+            Error = T(_localization, "Welcome.Error.SelectedVaultMissing");
             ReloadVaults(vault.VaultPath);
             return;
         }
@@ -69,7 +69,7 @@ public sealed partial class WelcomeViewModel
         if (RequestSecurityAcknowledgement(SecurityAcknowledgementAction.OpenVault, vault))
             return;
 
-        _root.SetVaultPath(vault.VaultPath);
-        _root.GoUnlock();
+        _session.SetVaultPath(vault.VaultPath);
+        _navigation.GoUnlock();
     }
 }

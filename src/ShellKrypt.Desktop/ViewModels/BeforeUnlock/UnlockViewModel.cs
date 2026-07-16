@@ -5,12 +5,16 @@ using ShellKrypt.Core.Vaulting;
 using System;
 using System.Globalization;
 using System.Threading.Tasks;
+using ShellKrypt.Application.Localization;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class UnlockViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly IVaultSessionController _session;
+    private readonly IDesktopNavigation _navigation;
+    private readonly LocalizationService _localization;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryService _vaultRegistry;
 
@@ -21,39 +25,41 @@ public partial class UnlockViewModel : ViewModelBase
     [ObservableProperty] private bool isBusy;
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public string PasswordVisibilityLabel => ShowPassword ? T(_root, "Common.Hide") : T(_root, "Common.Show");
-    public string VaultStatusDisplay => T(_root, "Unlock.Status.LockedEncrypted");
+    public string PasswordVisibilityLabel => ShowPassword ? T(_localization, "Common.Hide") : T(_localization, "Common.Show");
+    public string VaultStatusDisplay => T(_localization, "Unlock.Status.LockedEncrypted");
     public string EncryptionDisplay => "AES-256 GCM";
     public string LastUpdatedDisplay
     {
         get
         {
-            var value = _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.LastOpenedAtUtc;
+            var value = _vaultRegistry.FindByPath(_session.VaultPath ?? "")?.LastOpenedAtUtc;
             if (string.IsNullOrWhiteSpace(value))
-                return T(_root, "Common.Never");
+                return T(_localization, "Common.Never");
 
             return DateTimeOffset.TryParse(value, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed)
                 ? parsed.ToLocalTime().ToString("g", CultureInfo.InvariantCulture)
                 : value;
         }
     }
-    public string SessionIdDisplay => string.IsNullOrWhiteSpace(_root.VaultPath)
-        ? T(_root, "Unlock.SessionUnavailable")
-        : T(_root, "Unlock.SessionId", Math.Abs((_root.VaultPath ?? string.Empty).GetHashCode()).ToString("X8", CultureInfo.InvariantCulture));
+    public string SessionIdDisplay => string.IsNullOrWhiteSpace(_session.VaultPath)
+        ? T(_localization, "Unlock.SessionUnavailable")
+        : T(_localization, "Unlock.SessionId", Math.Abs((_session.VaultPath ?? string.Empty).GetHashCode()).ToString("X8", CultureInfo.InvariantCulture));
 
-    public string VaultTitle => _vaultRegistry.FindByPath(_root.VaultPath ?? "")?.DisplayName ?? T(_root, "Shell.VaultFallback");
-    public string VaultPath => _root.VaultPath ?? T(_root, "Common.NoVaultSelected");
+    public string VaultTitle => _vaultRegistry.FindByPath(_session.VaultPath ?? "")?.DisplayName ?? T(_localization, "Shell.VaultFallback");
+    public string VaultPath => _session.VaultPath ?? T(_localization, "Common.NoVaultSelected");
     public string VaultDescription
-        => T(_root, "Unlock.Description", VaultTitle);
-    public string RecoveryTitle => T(_root, "Unlock.Recovery.Title");
-    public string RecoveryBody => T(_root, "Unlock.Recovery.Body");
-    public string RecoverySecondaryBody => T(_root, "Unlock.Recovery.SecondaryBody");
+        => T(_localization, "Unlock.Description", VaultTitle);
+    public string RecoveryTitle => T(_localization, "Unlock.Recovery.Title");
+    public string RecoveryBody => T(_localization, "Unlock.Recovery.Body");
+    public string RecoverySecondaryBody => T(_localization, "Unlock.Recovery.SecondaryBody");
 
-    public UnlockViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryService vaultRegistry)
+    public UnlockViewModel(IVaultService vaultService, VaultRegistryService vaultRegistry, IVaultSessionController session, IDesktopNavigation navigation, LocalizationService localization)
     {
-        _root = root;
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
+        _session = session;
+        _navigation = navigation;
+        _localization = localization;
     }
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
@@ -67,22 +73,22 @@ public partial class UnlockViewModel : ViewModelBase
         {
             Error = "";
 
-            if (_root.VaultPath is null)
+            if (_session.VaultPath is null)
             {
-                Error = T(_root, "Unlock.Error.NoVaultSelected");
+                Error = T(_localization, "Unlock.Error.NoVaultSelected");
                 return;
             }
 
-            var result = await _vaultService.UnlockAsync(_root.VaultPath, MasterPassword);
+            var result = await _vaultService.UnlockAsync(_session.VaultPath, MasterPassword);
             if (!result.Success)
             {
                 Error = result.Error is null
-                    ? T(_root, "Unlock.Error.Failed", T(_root, "Activity.Time.Unknown"))
-                    : T(_root, "Unlock.Error.Failed", result.Error);
+                    ? T(_localization, "Unlock.Error.Failed", T(_localization, "Activity.Time.Unknown"))
+                    : T(_localization, "Unlock.Error.Failed", result.Error);
                 return;
             }
 
-            _root.OnUnlocked(result.VaultKey!);
+            _navigation.OnUnlocked(result.VaultKey!);
         }
         finally
         {
@@ -92,7 +98,7 @@ public partial class UnlockViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Back() => _root.GoWelcome();
+    private void Back() => _navigation.GoWelcome();
 
     [RelayCommand]
     private void TogglePasswordVisibility() => ShowPassword = !ShowPassword;

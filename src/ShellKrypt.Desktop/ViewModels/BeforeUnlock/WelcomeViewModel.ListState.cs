@@ -11,14 +11,14 @@ public sealed partial class WelcomeViewModel
         if (value is null)
         {
             Status = Vaults.Count == 0
-                ? T(_root, "Welcome.Status.NoVaults")
-                : T(_root, "Welcome.Status.SelectVault");
+                ? T(_localization, "Welcome.Status.NoVaults")
+                : T(_localization, "Welcome.Status.SelectVault");
             return;
         }
 
         Status = value.Exists
-            ? T(_root, "Welcome.Status.Selected", value.DisplayLabel)
-            : T(_root, "Welcome.Status.SelectedMissing", value.DisplayLabel);
+            ? T(_localization, "Welcome.Status.Selected", value.DisplayLabel)
+            : T(_localization, "Welcome.Status.SelectedMissing", value.DisplayLabel);
     }
 
     private void ReloadVaults(string? selectPath = null)
@@ -29,16 +29,16 @@ public sealed partial class WelcomeViewModel
         try
         {
             var registry = _vaultRegistry.Load();
-            var selectedPath = NormalizePath(selectPath ?? _root.VaultPath);
+            var selectedPath = NormalizePath(selectPath ?? _session.VaultPath);
 
-            var vaults = registry.Vaults.Select(x => new VaultRecordVm(x, _root.Localization)).ToArray();
+            var vaults = registry.Vaults.Select(x => new VaultRecordVm(x, _localization)).ToArray();
 
             _allVaults.Clear();
             _allVaults.AddRange(vaults);
 
             RecentVaults.Clear();
             foreach (var vault in _vaultRegistry.ListRecentVaults())
-                RecentVaults.Add(new VaultRecordVm(vault, _root.Localization));
+                RecentVaults.Add(new VaultRecordVm(vault, _localization));
 
             ApplyFilters();
 
@@ -52,19 +52,19 @@ public sealed partial class WelcomeViewModel
             OnPropertyChanged(nameof(TotalStorageDisplay));
             if (vaults.Length == 0)
             {
-                Status = T(_root, "Welcome.Status.NoVaults");
+                Status = T(_localization, "Welcome.Status.NoVaults");
             }
             else if (SelectedVault is not null)
             {
                 Status = SelectedVault.Exists
-                    ? T(_root, vaults.Length == 1 ? "Welcome.Status.LoadedOne" : "Welcome.Status.LoadedMany", vaults.Length)
-                    : T(_root, "Welcome.Status.SelectedMissing", SelectedVault.DisplayLabel);
+                    ? T(_localization, vaults.Length == 1 ? "Welcome.Status.LoadedOne" : "Welcome.Status.LoadedMany", vaults.Length)
+                    : T(_localization, "Welcome.Status.SelectedMissing", SelectedVault.DisplayLabel);
             }
         }
         catch (Exception ex)
         {
             Error = ex.Message;
-            Status = T(_root, "Welcome.Status.LoadFailed", ex.Message);
+            Status = T(_localization, "Welcome.Status.LoadFailed", ex.Message);
         }
         finally
         {

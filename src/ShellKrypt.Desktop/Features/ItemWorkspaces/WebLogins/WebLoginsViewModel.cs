@@ -9,6 +9,7 @@ using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 
@@ -23,7 +24,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     internal const string SortWebsiteAscendingKey = "website:asc";
     internal const string SortWebsiteDescendingKey = "website:desc";
 
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _desktop;
     private readonly IWebLoginService _service;
     private readonly List<WebLoginRowVm> _all = [];
     private readonly List<WebLoginRowVm> _filtered = [];
@@ -41,11 +42,11 @@ public partial class WebLoginsViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isLoading;
 
-    public WebLoginsViewModel(MainWindowViewModel root, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<string?, Task> refreshAllItemsAsync)
+    public WebLoginsViewModel(DesktopFeatureServices desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<string?, Task> refreshAllItemsAsync)
     {
-        _root = root;
+        _desktop = desktop;
         _service = service;
-        Editor = new WebLoginEditorViewModel(root, service, passwordGenerator, HandleMutationAsync, refreshAllItemsAsync);
+        Editor = new WebLoginEditorViewModel(desktop, service, passwordGenerator, HandleMutationAsync, refreshAllItemsAsync);
         RebuildStaticOptions();
         _ = LoadAsync();
     }
@@ -55,15 +56,15 @@ public partial class WebLoginsViewModel : ViewModelBase
     public int WeakPasswordCount => _all.Count(row => PasswordIsWeak(row.Password));
     public bool HasReusedPasswords => ReusedPasswordCount > 0;
     public bool HasWeakPasswords => WeakPasswordCount > 0;
-    public string ReusedPasswordSummary => T(_root, ReusedPasswordCount == 1 ? "WebLogins.Summary.ReusedOne" : "WebLogins.Summary.ReusedMany", ReusedPasswordCount);
-    public string WeakPasswordSummary => T(_root, WeakPasswordCount == 1 ? "WebLogins.Summary.WeakOne" : "WebLogins.Summary.WeakMany", WeakPasswordCount);
-    public string ResultText => T(_root, "WebLogins.ItemsSummary", _filtered.Count);
+    public string ReusedPasswordSummary => T(_desktop.Localization, ReusedPasswordCount == 1 ? "WebLogins.Summary.ReusedOne" : "WebLogins.Summary.ReusedMany", ReusedPasswordCount);
+    public string WeakPasswordSummary => T(_desktop.Localization, WeakPasswordCount == 1 ? "WebLogins.Summary.WeakOne" : "WebLogins.Summary.WeakMany", WeakPasswordCount);
+    public string ResultText => T(_desktop.Localization, "WebLogins.ItemsSummary", _filtered.Count);
     public bool HasRows => Rows.Count > 0;
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
     public bool ShowRows => HasRows && !IsLoading && !HasError;
     public bool ShowEmptyState => !HasRows && !IsLoading && !HasError;
-    public string EmptyTitle => _all.Count == 0 ? T(_root, "WebLogins.Empty.NoneTitle") : T(_root, "WebLogins.Empty.NoMatchTitle");
-    public string EmptySubtitle => _all.Count == 0 ? T(_root, "WebLogins.Empty.NoneSubtitle") : T(_root, "WebLogins.Empty.NoMatchSubtitle");
+    public string EmptyTitle => _all.Count == 0 ? T(_desktop.Localization, "WebLogins.Empty.NoneTitle") : T(_desktop.Localization, "WebLogins.Empty.NoMatchTitle");
+    public string EmptySubtitle => _all.Count == 0 ? T(_desktop.Localization, "WebLogins.Empty.NoneSubtitle") : T(_desktop.Localization, "WebLogins.Empty.NoMatchSubtitle");
 
     partial void OnSearchTextChanged(string value) => ApplyFilter();
     partial void OnSelectedUsernameFilterChanged(SelectionOptionVm? value) => ApplyFilter();
@@ -80,9 +81,9 @@ public partial class WebLoginsViewModel : ViewModelBase
     private async Task CopyPasswordAsync(WebLoginRowVm? row)
     {
         Error = "";
-        if (row is null || string.IsNullOrWhiteSpace(row.Password)) { Error = T(_root, "WebLogins.Error.NoPassword"); return; }
-        await _root.CopyToClipboardAsync(row.Password);
-        _root.LogActivity("web", "Web login password copied", $"Copied password for {row.Title}.", "info", affectedItem: row.Title);
+        if (row is null || string.IsNullOrWhiteSpace(row.Password)) { Error = T(_desktop.Localization, "WebLogins.Error.NoPassword"); return; }
+        await _desktop.Clipboard.CopyAsync(row.Password);
+        _desktop.Activity.Log("web", "Web login password copied", $"Copied password for {row.Title}.", "info", affectedItem: row.Title);
     }
 
     public async Task<bool> OpenForRemediationAsync(string itemId, bool generateReplacementPassword)
@@ -99,12 +100,12 @@ public partial class WebLoginsViewModel : ViewModelBase
     private async Task LoadAsync()
     {
         Error = "";
-        if (_root.VaultPath is null) { Error = T(_root, "Common.NoVaultSelected"); return; }
+        if (_desktop.Session.VaultPath is null) { Error = T(_desktop.Localization, "Common.NoVaultSelected"); return; }
         IsLoading = true;
         try
         {
             _all.Clear();
-            var entries = await _service.ListAsync(_root.VaultPath, _root.VaultKey);
+            var entries = await _service.ListAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey);
             _all.AddRange(entries.Select(ToRow));
             RefreshDynamicFilters();
             ApplyFilter();
@@ -154,9 +155,9 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         var selectedKey = SelectedSortOption?.Key ?? SortNewestKey;
         SortOptions.Clear();
-        SortOptions.Add(new(SortNewestKey, T(_root, "ItemWorkspace.Sort.Newest"))); SortOptions.Add(new(SortOldestKey, T(_root, "ItemWorkspace.Sort.Oldest")));
-        SortOptions.Add(new(SortTitleAscendingKey, T(_root, "ItemWorkspace.Sort.NameAscending"))); SortOptions.Add(new(SortTitleDescendingKey, T(_root, "ItemWorkspace.Sort.NameDescending")));
-        SortOptions.Add(new(SortWebsiteAscendingKey, T(_root, "ItemWorkspace.Sort.WebsiteAscending"))); SortOptions.Add(new(SortWebsiteDescendingKey, T(_root, "ItemWorkspace.Sort.WebsiteDescending")));
+        SortOptions.Add(new(SortNewestKey, T(_desktop.Localization, "ItemWorkspace.Sort.Newest"))); SortOptions.Add(new(SortOldestKey, T(_desktop.Localization, "ItemWorkspace.Sort.Oldest")));
+        SortOptions.Add(new(SortTitleAscendingKey, T(_desktop.Localization, "ItemWorkspace.Sort.NameAscending"))); SortOptions.Add(new(SortTitleDescendingKey, T(_desktop.Localization, "ItemWorkspace.Sort.NameDescending")));
+        SortOptions.Add(new(SortWebsiteAscendingKey, T(_desktop.Localization, "ItemWorkspace.Sort.WebsiteAscending"))); SortOptions.Add(new(SortWebsiteDescendingKey, T(_desktop.Localization, "ItemWorkspace.Sort.WebsiteDescending")));
         SelectedSortOption = SortOptions.First(option => option.Key == selectedKey);
     }
 
@@ -164,9 +165,9 @@ public partial class WebLoginsViewModel : ViewModelBase
     {
         var selectedUsername = SelectedUsernameFilter?.Key;
         var selectedEmail = SelectedEmailFilter?.Key;
-        UsernameFilters.Clear(); UsernameFilters.Add(new(AllUsernameFilterKey, T(_root, "ItemWorkspace.Filter.UsernameAll")));
+        UsernameFilters.Clear(); UsernameFilters.Add(new(AllUsernameFilterKey, T(_desktop.Localization, "ItemWorkspace.Filter.UsernameAll")));
         foreach (var value in _all.Select(row => row.Username).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) UsernameFilters.Add(new(value, value));
-        EmailFilters.Clear(); EmailFilters.Add(new(AllEmailFilterKey, T(_root, "ItemWorkspace.Filter.EmailAll")));
+        EmailFilters.Clear(); EmailFilters.Add(new(AllEmailFilterKey, T(_desktop.Localization, "ItemWorkspace.Filter.EmailAll")));
         foreach (var value in _all.Select(row => row.Email).Where(value => !string.IsNullOrWhiteSpace(value)).Distinct(StringComparer.OrdinalIgnoreCase).Order(StringComparer.OrdinalIgnoreCase)) EmailFilters.Add(new(value, value));
         SelectedUsernameFilter = UsernameFilters.FirstOrDefault(item => item.Key == selectedUsername) ?? UsernameFilters[0];
         SelectedEmailFilter = EmailFilters.FirstOrDefault(item => item.Key == selectedEmail) ?? EmailFilters[0];
@@ -175,7 +176,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     private void ResetFilters() { SearchText = ""; SelectedUsernameFilter = UsernameFilters.FirstOrDefault(); SelectedEmailFilter = EmailFilters.FirstOrDefault(); SelectedSortOption = SortOptions.FirstOrDefault(); ApplyFilter(); }
     private void NotifyListState() { OnPropertyChanged(nameof(ResultText)); OnPropertyChanged(nameof(HasRows)); OnPropertyChanged(nameof(EmptyTitle)); OnPropertyChanged(nameof(EmptySubtitle)); OnPropertyChanged(nameof(TotalLoginsCount)); OnPropertyChanged(nameof(ReusedPasswordCount)); OnPropertyChanged(nameof(WeakPasswordCount)); OnPropertyChanged(nameof(HasReusedPasswords)); OnPropertyChanged(nameof(HasWeakPasswords)); OnPropertyChanged(nameof(ReusedPasswordSummary)); OnPropertyChanged(nameof(WeakPasswordSummary)); NotifyVisibilityState(); }
     private void NotifyVisibilityState() { OnPropertyChanged(nameof(ShowRows)); OnPropertyChanged(nameof(ShowEmptyState)); }
-    private WebLoginRowVm ToRow(WebLoginEntry entry) => new(_root.Localization, entry.Id, entry.Title, entry.Username, entry.Password, entry.Url, entry.Notes, entry.CreatedAtUtc, entry.UpdatedAtUtc, false, entry.Email);
+    private WebLoginRowVm ToRow(WebLoginEntry entry) => new(_desktop.Localization, entry.Id, entry.Title, entry.Username, entry.Password, entry.Url, entry.Notes, entry.CreatedAtUtc, entry.UpdatedAtUtc, false, entry.Email);
     private static void ApplyEntry(WebLoginRowVm row, WebLoginEntry entry) { row.Title = entry.Title; row.Url = entry.Url; row.Username = entry.Username; row.Email = entry.Email; row.Password = entry.Password; row.Notes = entry.Notes; row.MarkSaved(entry.UpdatedAtUtc); }
     private static DateTimeOffset ParseTimestamp(string value) => DateTimeOffset.TryParse(value, out var parsed) ? parsed : DateTimeOffset.MinValue;
     private static bool PasswordIsWeak(string? value) => !string.IsNullOrWhiteSpace(value) && (value.Length < 12 || new[] { value.Any(char.IsLower), value.Any(char.IsUpper), value.Any(char.IsDigit), value.Any(ch => !char.IsLetterOrDigit(ch)) }.Count(found => found) < 3);

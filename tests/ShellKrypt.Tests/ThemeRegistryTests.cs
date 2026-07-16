@@ -80,7 +80,7 @@ public sealed class ThemeRegistryTests
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
         var root = DesktopBootstrap.CreateMainWindowViewModel();
-        var settings = new SettingsViewModel(root, null!, new VaultRegistryService(new FileVaultRegistryStore()));
+        var settings = new SettingsViewModel(root.DesktopFeatures, root.Navigation, null!, root.VaultRegistry, root.VaultService);
         var light = Assert.Single(settings.ThemeOptions, option => option.Id == ShellKryptThemePalettes.LightId);
 
         Assert.Equal(ShellKryptThemePalettes.All.Count, settings.ThemeOptions.Count);

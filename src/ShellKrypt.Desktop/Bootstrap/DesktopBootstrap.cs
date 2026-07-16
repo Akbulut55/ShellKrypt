@@ -27,8 +27,6 @@ public static class DesktopBootstrap
 {
     public static MainWindowViewModel CreateMainWindowViewModel()
     {
-        MainWindowViewModel? root = null;
-
         var state = new AppState();
         var settingsService = new AppSettingsService(new FileAppSettingsStore());
         var vaultRegistryService = new VaultRegistryService(new FileVaultRegistryStore());
@@ -36,7 +34,6 @@ public static class DesktopBootstrap
         var localization = new LocalizationService();
         var clipboardService = new ClipboardService();
         var sessionSecurity = new SessionSecurityService();
-        sessionSecurity.LockRequested += (_, _) => root?.Lock();
         var vaultService = new SqliteVaultService();
         var itemRepository = new SqliteItemRepository();
         var vaultSession = new VaultSessionController(state);
@@ -81,6 +78,7 @@ public static class DesktopBootstrap
                 : null);
         var automaticBackups = new AutomaticBackupController(automaticBackupCoordinator, settings, vaultSession, activityRecorder);
         var quickFill = new QuickFillController(globalHotkeyService, foregroundWindowService, settings);
+        var desktopFeatures = new DesktopFeatureServices(vaultSession, localization, activityRecorder, secureClipboard, dialogs, settings, quickFill);
 
         var services = new DesktopServiceCatalog(
             vaultSession,
@@ -90,6 +88,7 @@ public static class DesktopBootstrap
             activityRecorder,
             automaticBackups,
             quickFill,
+            desktopFeatures,
             vaultRegistryService,
             localization,
             authenticatorQrImportService,
@@ -120,10 +119,23 @@ public static class DesktopBootstrap
             autoTypeService,
             globalHotkeyService);
 
-        var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService);
+        var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService, vaultSession, dialogs, secureClipboard, activityRecorder, settings, localization);
         var unlockedWorkspaces = new UnlockedWorkspaceFactory(services);
         var quickFillPopup = new QuickFillPopupFactory(services);
-        root = new MainWindowViewModel(services, lockedSurfaces, unlockedWorkspaces, quickFillPopup);
+        var navigation = new DesktopNavigationService(
+            vaultSession,
+            vaultRegistryService,
+            sessionSecurity,
+            secureClipboard,
+            activityRecorder,
+            automaticBackups,
+            lockedSurfaces.CreateWelcome,
+            lockedSurfaces.CreateCreateVault,
+            lockedSurfaces.CreateUnlock,
+            unlockedWorkspaces.Create);
+        sessionSecurity.LockRequested += (_, _) => navigation.Lock();
+        navigation.Initialize();
+        var root = new MainWindowViewModel(services, navigation, quickFillPopup);
         return root;
     }
 }

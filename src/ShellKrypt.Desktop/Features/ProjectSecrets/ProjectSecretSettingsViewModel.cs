@@ -1,10 +1,11 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
-public partial class ProjectSecretSettingsViewModel(MainWindowViewModel root) : ViewModelBase
+public partial class ProjectSecretSettingsViewModel(DesktopFeatureServices root) : ViewModelBase
 {
     public Func<Task>? DeleteRequested { get; set; }
 

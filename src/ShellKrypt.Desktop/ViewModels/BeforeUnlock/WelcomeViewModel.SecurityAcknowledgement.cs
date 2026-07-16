@@ -11,13 +11,13 @@ public sealed partial class WelcomeViewModel
         var action = _pendingSecurityAcknowledgementAction;
         var vault = _pendingSecurityAcknowledgementVault;
 
-        _root.AcceptSecurityAcknowledgement();
+        _settings.AcceptSecurityAcknowledgement();
         ClearSecurityAcknowledgement();
 
         switch (action)
         {
             case SecurityAcknowledgementAction.CreateVault:
-                _root.GoCreateVault();
+                _navigation.GoCreateVault();
                 break;
             case SecurityAcknowledgementAction.ImportVault:
                 await ImportVaultAsync();
@@ -36,7 +36,7 @@ public sealed partial class WelcomeViewModel
 
     private bool RequestSecurityAcknowledgement(SecurityAcknowledgementAction action, VaultRecordVm? vault = null)
     {
-        if (_root.HasAcceptedSecurityAcknowledgement)
+        if (_settings.HasAcceptedSecurityAcknowledgement)
             return false;
 
         _pendingSecurityAcknowledgementAction = action;

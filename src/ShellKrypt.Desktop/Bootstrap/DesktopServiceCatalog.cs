@@ -30,6 +30,7 @@ internal sealed record DesktopServiceCatalog(
     IActivityRecorder ActivityRecorder,
     IAutomaticBackupController AutomaticBackups,
     IQuickFillController QuickFill,
+    DesktopFeatureServices DesktopFeatures,
     VaultRegistryService VaultRegistryService,
     LocalizationService Localization,
     AuthenticatorQrImageImportService AuthenticatorQrImportService,

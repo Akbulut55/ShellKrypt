@@ -5,12 +5,13 @@ using System;
 using System.Collections.ObjectModel;
 using System.Threading;
 using System.Threading.Tasks;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class MarkdownNotesViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly DesktopFeatureServices _root;
     private readonly INoteService _noteService;
     private readonly Func<string?, Task> _refreshAllItemsAsync;
     private CancellationTokenSource? _autoSaveCts;
@@ -38,7 +39,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private string notePickerSearchText = "";
     [ObservableProperty] private string autoSaveStatus = "";
 
-    public MarkdownNotesViewModel(MainWindowViewModel root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
+    public MarkdownNotesViewModel(DesktopFeatureServices root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
     {
         _root = root;
         _noteService = noteService;

@@ -8,12 +8,18 @@ using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Infrastructure.Services;
+using ShellKrypt.Application.Localization;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.ViewModels;
 
 public partial class CreateVaultViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly IVaultSessionController _session;
+    private readonly IDesktopNavigation _navigation;
+    private readonly IDesktopDialogService _dialogs;
+    private readonly IActivityRecorder _activity;
+    private readonly LocalizationService _localization;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryService _vaultRegistry;
 
@@ -32,17 +38,28 @@ public partial class CreateVaultViewModel : ViewModelBase
     ];
 
     public bool HasError => !string.IsNullOrWhiteSpace(Error);
-    public string PasswordGuidanceText => T(_root, "CreateVault.PasswordGuidance");
+    public string PasswordGuidanceText => T(_localization, "CreateVault.PasswordGuidance");
     public string SelectedSecurityDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;
 
     private bool _hasCustomVaultPath;
     private bool _isUpdatingSuggestedPath;
 
-    public CreateVaultViewModel(MainWindowViewModel root, IVaultService vaultService, VaultRegistryService vaultRegistry)
+    public CreateVaultViewModel(
+        IVaultService vaultService,
+        VaultRegistryService vaultRegistry,
+        IVaultSessionController session,
+        IDesktopNavigation navigation,
+        IDesktopDialogService dialogs,
+        IActivityRecorder activity,
+        LocalizationService localization)
     {
-        _root = root;
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
+        _session = session;
+        _navigation = navigation;
+        _dialogs = dialogs;
+        _activity = activity;
+        _localization = localization;
         SelectedSecurityProfile = VaultSecurityProfiles.Default;
         UpdateSuggestedPath();
     }
@@ -66,7 +83,7 @@ public partial class CreateVaultViewModel : ViewModelBase
 
         if (string.IsNullOrWhiteSpace(MasterPassword))
         {
-            Error = T(_root, "CreateVault.Error.MasterPasswordRequired");
+            Error = T(_localization, "CreateVault.Error.MasterPasswordRequired");
             return;
         }
 
@@ -79,7 +96,7 @@ public partial class CreateVaultViewModel : ViewModelBase
 
         if (MasterPassword != ConfirmPassword)
         {
-            Error = T(_root, "CreateVault.Error.PasswordsMismatch");
+            Error = T(_localization, "CreateVault.Error.PasswordsMismatch");
             return;
         }
 
@@ -93,9 +110,9 @@ public partial class CreateVaultViewModel : ViewModelBase
                 Description,
                 markOpened: true);
 
-            _root.LogActivity("vault", "Vault created", $"Created {DisplayName.Trim()} as {Path.GetFileName(VaultPath)}.", "success", VaultPath, DisplayName.Trim());
-            _root.SetVaultPath(VaultPath);
-            _root.GoUnlock();
+            _activity.Log("vault", "Vault created", $"Created {DisplayName.Trim()} as {Path.GetFileName(VaultPath)}.", "success", VaultPath, DisplayName.Trim());
+            _session.SetVaultPath(VaultPath);
+            _navigation.GoUnlock();
         }
         catch (Exception ex)
         {
@@ -110,19 +127,19 @@ public partial class CreateVaultViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void Back() => _root.GoWelcome();
+    private void Back() => _navigation.GoWelcome();
 
     [RelayCommand]
     private async Task BrowseVaultPathAsync()
     {
         Error = "";
         var suggestedPath = string.IsNullOrWhiteSpace(VaultPath) ? DefaultPaths.GetSuggestedVaultPath(DisplayName) : VaultPath;
-        var selectedPath = await _root.PickSaveFileAsync(
-            T(_root, "CreateVault.Picker.Title"),
+        var selectedPath = await _dialogs.PickSaveFileAsync(
+            T(_localization, "CreateVault.Picker.Title"),
             Path.GetFileNameWithoutExtension(suggestedPath),
             ".skvault",
             [".skvault"],
-            T(_root, "CreateVault.Picker.FileType"));
+            T(_localization, "CreateVault.Picker.FileType"));
 
         if (string.IsNullOrWhiteSpace(selectedPath))
             return;

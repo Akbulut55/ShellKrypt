@@ -12,20 +12,20 @@ public partial class AuthenticatorViewModel
 
         if (SelectedEntry is null || !SelectedEntry.IsCodeValid)
         {
-            Error = T(_root, "Authenticator.Validation.NoValidCode");
+            Error = T(_desktop.Localization, "Authenticator.Validation.NoValidCode");
             return;
         }
 
-        await _root.CopyToClipboardAsync(SelectedEntry.CurrentCodeRaw);
+        await _desktop.Clipboard.CopyAsync(SelectedEntry.CurrentCodeRaw);
 
-        if (_root.VaultPath is null)
+        if (_desktop.Session.VaultPath is null)
             return;
 
-        var updated = await _entryService.MarkUsedAsync(_root.VaultPath, _root.VaultKey, SelectedEntry.Id);
+        var updated = await _entryService.MarkUsedAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, SelectedEntry.Id);
         SelectedEntry.Apply(updated);
         RefreshSnapshots();
         await _refreshAllItemsAsync(updated.Id);
-        _root.LogActivity("authenticator", "Authenticator code copied", $"Copied code for {updated.Name}.", "info", affectedItem: updated.Name);
+        _desktop.Activity.Log("authenticator", "Authenticator code copied", $"Copied code for {updated.Name}.", "info", affectedItem: updated.Name);
     }
 
     private void RefreshSnapshots()

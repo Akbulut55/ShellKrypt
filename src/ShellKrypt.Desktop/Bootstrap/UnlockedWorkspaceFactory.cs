@@ -7,29 +7,30 @@ using ShellKrypt.Desktop.Features.ProjectSecrets;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.CryptoTools;
 using ShellKrypt.Desktop.ViewModels.AfterUnlock.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 
 internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
 {
-    public ShellViewModel Create(MainWindowViewModel root)
-        => new(root, shell => CreateWorkspaces(root, shell));
+    public ShellViewModel Create(IDesktopNavigation navigation)
+        => new(services.Localization, services.VaultSession, navigation, shell => CreateWorkspaces(navigation, shell));
 
-    private ShellWorkspaces CreateWorkspaces(MainWindowViewModel root, ShellViewModel shell)
+    private ShellWorkspaces CreateWorkspaces(IDesktopNavigation root, ShellViewModel shell)
     {
-        var allItems = new AllItemsViewModel(root, shell, services.VaultItemSummaryService);
-        var webLogins = new WebLoginsViewModel(root, services.WebLoginService, services.PasswordGenerator, allItems.RefreshAfterMutationAsync);
-        var notes = new MarkdownNotesViewModel(root, services.NoteService, allItems.RefreshAfterMutationAsync);
-        var cards = new CardsViewModel(root, services.CardService, allItems.RefreshAfterMutationAsync);
+        var allItems = new AllItemsViewModel(services.DesktopFeatures, shell, services.VaultItemSummaryService);
+        var webLogins = new WebLoginsViewModel(services.DesktopFeatures, services.WebLoginService, services.PasswordGenerator, allItems.RefreshAfterMutationAsync);
+        var notes = new MarkdownNotesViewModel(services.DesktopFeatures, services.NoteService, allItems.RefreshAfterMutationAsync);
+        var cards = new CardsViewModel(services.DesktopFeatures, services.CardService, allItems.RefreshAfterMutationAsync);
         var authenticator = new AuthenticatorViewModel(
-            root,
+            services.DesktopFeatures,
             services.AuthenticatorEntryService,
             services.OneTimePasswordGenerator,
             services.AuthenticatorQrImportService,
             new AuthenticatorRefreshTimer(),
             allItems.RefreshAfterMutationAsync);
         var projectSecrets = new ProjectSecretsViewModel(
-            root,
+            services.DesktopFeatures,
             services.ProjectSecretService,
             services.ApiKeyService,
             services.ProjectSecretEnvParser,
@@ -38,18 +39,18 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             services.ProjectSecretValueResolver,
             allItems.RefreshAfterMutationAsync);
         var apiKeys = new ApiKeysViewModel(
-            root,
+            services.DesktopFeatures,
             services.ApiKeyService,
             allItems.RefreshAfterMutationAsync,
             projectSecrets.RefreshApiKeysAsync);
         var cryptoTools = new CryptoToolsViewModel(
-            root,
+            services.DesktopFeatures,
             services.PasswordGenerator,
             services.PasswordStrengthService,
             services.HashService,
             services.Base64Service);
         var quickFill = new QuickFillViewModel(
-            root,
+            services.DesktopFeatures,
             services.QuickFillEntryService,
             services.WebLoginService,
             services.CardService,
@@ -66,10 +67,10 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             projectSecrets,
             cryptoTools,
             quickFill,
-            new HealthViewModel(root, shell, services.HealthAuditService),
-            new BackupCenterViewModel(root),
-            new SettingsViewModel(root, shell, services.VaultRegistryService),
-            new ActivityViewModel(root, services.ActivityRecorder.Store));
+            new HealthViewModel(services.DesktopFeatures, shell, services.HealthAuditService),
+            new BackupCenterViewModel(services.DesktopFeatures, services.AutomaticBackups, services.EncryptedBackupService, services.PlaintextExportService, services.CsvImportService, root),
+            new SettingsViewModel(services.DesktopFeatures, root, shell, services.VaultRegistryService, services.VaultService),
+            new ActivityViewModel(services.DesktopFeatures, services.ActivityRecorder.Store));
     }
 }
 
