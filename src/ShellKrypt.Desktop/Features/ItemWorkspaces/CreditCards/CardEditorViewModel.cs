@@ -11,14 +11,14 @@ namespace ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 
 public partial class CardEditorViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly ItemWorkspaceRuntime _desktop;
     private readonly ICardService _service;
     private readonly Func<CardEntry?, string?, Task> _onMutation;
     private readonly Func<string?, Task> _refreshAllItems;
     private CardRowVm? _selected;
     private bool _formatting;
 
-    public CardEditorViewModel(DesktopFeatureServices desktop, ICardService service, Func<CardEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
+    public CardEditorViewModel(ItemWorkspaceRuntime desktop, ICardService service, Func<CardEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
     {
         _desktop = desktop;
         _service = service;

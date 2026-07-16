@@ -1,6 +1,5 @@
 using Avalonia.Media;
 using ShellKrypt.Application.Settings;
-using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Desktop.Features.Settings;
 using ShellKrypt.Desktop.Bootstrap;
@@ -81,7 +80,8 @@ public sealed class ThemeRegistryTests
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
         var root = DesktopBootstrap.CreateMainWindowViewModel();
-        var settings = new SettingsViewModel(root.DesktopFeatures, root.Navigation, null!, root.VaultRegistry, root.VaultService);
+        root.Navigation.OnUnlocked(new byte[32]);
+        var settings = Assert.IsType<ShellViewModel>(root.Current).Settings;
         var light = Assert.Single(settings.ThemeOptions, option => option.Id == ShellKryptThemePalettes.LightId);
 
         Assert.Equal(ShellKryptThemePalettes.All.Count, settings.ThemeOptions.Count);

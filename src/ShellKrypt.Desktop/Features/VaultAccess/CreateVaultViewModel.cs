@@ -7,7 +7,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.Shell.Runtime;
 
@@ -22,10 +21,11 @@ public partial class CreateVaultViewModel : ViewModelBase
     private readonly LocalizationService _localization;
     private readonly IVaultService _vaultService;
     private readonly VaultRegistryService _vaultRegistry;
+    private readonly IDesktopFileService _files;
 
     [ObservableProperty] private string displayName = "MyVault";
     [ObservableProperty] private string description = "";
-    [ObservableProperty] private string vaultPath = DefaultPaths.GetSuggestedVaultPath("MyVault");
+    [ObservableProperty] private string vaultPath = "";
     [ObservableProperty] private string masterPassword = "";
     [ObservableProperty] private string confirmPassword = "";
     [ObservableProperty] private VaultSecurityProfile? selectedSecurityProfile;
@@ -51,7 +51,8 @@ public partial class CreateVaultViewModel : ViewModelBase
         IDesktopNavigation navigation,
         IDesktopDialogService dialogs,
         IActivityRecorder activity,
-        LocalizationService localization)
+        LocalizationService localization,
+        IDesktopFileService files)
     {
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
@@ -60,6 +61,7 @@ public partial class CreateVaultViewModel : ViewModelBase
         _dialogs = dialogs;
         _activity = activity;
         _localization = localization;
+        _files = files;
         SelectedSecurityProfile = VaultSecurityProfiles.Default;
         UpdateSuggestedPath();
     }
@@ -73,7 +75,7 @@ public partial class CreateVaultViewModel : ViewModelBase
         if (_isUpdatingSuggestedPath)
             return;
 
-        _hasCustomVaultPath = !string.Equals(value, DefaultPaths.GetSuggestedVaultPath(DisplayName), StringComparison.OrdinalIgnoreCase);
+        _hasCustomVaultPath = !string.Equals(value, _files.GetSuggestedVaultPath(DisplayName), StringComparison.OrdinalIgnoreCase);
     }
 
     [RelayCommand]
@@ -133,7 +135,7 @@ public partial class CreateVaultViewModel : ViewModelBase
     private async Task BrowseVaultPathAsync()
     {
         Error = "";
-        var suggestedPath = string.IsNullOrWhiteSpace(VaultPath) ? DefaultPaths.GetSuggestedVaultPath(DisplayName) : VaultPath;
+        var suggestedPath = string.IsNullOrWhiteSpace(VaultPath) ? _files.GetSuggestedVaultPath(DisplayName) : VaultPath;
         var selectedPath = await _dialogs.PickSaveFileAsync(
             T(_localization, "CreateVault.Picker.Title"),
             Path.GetFileNameWithoutExtension(suggestedPath),
@@ -156,7 +158,7 @@ public partial class CreateVaultViewModel : ViewModelBase
         _isUpdatingSuggestedPath = true;
         try
         {
-            VaultPath = DefaultPaths.GetSuggestedVaultPath(DisplayName);
+            VaultPath = _files.GetSuggestedVaultPath(DisplayName);
         }
         finally
         {

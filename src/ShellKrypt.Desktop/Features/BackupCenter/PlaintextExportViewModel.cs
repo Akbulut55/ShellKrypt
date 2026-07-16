@@ -1,7 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Desktop.Shell;
-using ShellKrypt.Infrastructure.Services;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 
@@ -24,7 +23,7 @@ public sealed partial class PlaintextExportViewModel : ViewModelBase
         _operation = operation;
         _history = history;
         ExportPath = string.IsNullOrWhiteSpace(context.History.LastPlaintextExportPath)
-            ? DefaultPaths.GetSuggestedExportPath($"{context.VaultDisplayName} DECRYPTED Plaintext Export", ".json")
+            ? context.Files.GetSuggestedExportPath($"{context.VaultDisplayName} DECRYPTED Plaintext Export", ".json")
             : context.History.LastPlaintextExportPath;
     }
 

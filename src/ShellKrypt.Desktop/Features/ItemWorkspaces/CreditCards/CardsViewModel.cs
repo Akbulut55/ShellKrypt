@@ -14,7 +14,7 @@ namespace ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 
 public partial class CardsViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly ItemWorkspaceRuntime _desktop;
     private readonly ICardService _service;
     private readonly List<CardRowVm> _all = [];
     private readonly List<CardRowVm> _filtered = [];
@@ -31,7 +31,7 @@ public partial class CardsViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isLoading;
 
-    public CardsViewModel(DesktopFeatureServices desktop, ICardService service, Func<string?, Task> refreshAllItemsAsync)
+    public CardsViewModel(ItemWorkspaceRuntime desktop, ICardService service, Func<string?, Task> refreshAllItemsAsync)
     { _desktop = desktop; _service = service; Editor = new(desktop, service, HandleMutationAsync, refreshAllItemsAsync); BuildSortOptions(); _ = LoadAsync(); }
 
     public int ExpiringSoonCount => _all.Count(row => row.IsExpiryUrgent);

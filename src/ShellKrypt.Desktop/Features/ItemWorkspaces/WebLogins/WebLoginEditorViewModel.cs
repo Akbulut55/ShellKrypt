@@ -13,7 +13,7 @@ namespace ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 
 public partial class WebLoginEditorViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly ItemWorkspaceRuntime _desktop;
     private readonly IWebLoginService _service;
     private readonly IPasswordGenerator _passwordGenerator;
     private readonly Func<WebLoginEntry?, string?, Task> _onMutation;
@@ -31,7 +31,7 @@ public partial class WebLoginEditorViewModel : ViewModelBase
     [ObservableProperty] private bool isPasswordVisible;
     [ObservableProperty] private string error = "";
 
-    public WebLoginEditorViewModel(DesktopFeatureServices desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<WebLoginEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
+    public WebLoginEditorViewModel(ItemWorkspaceRuntime desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<WebLoginEntry?, string?, Task> onMutation, Func<string?, Task> refreshAllItems)
     { _desktop = desktop; _service = service; _passwordGenerator = passwordGenerator; _onMutation = onMutation; _refreshAllItems = refreshAllItems; }
 
     public bool IsAdd => Mode == ItemEditorMode.Add;

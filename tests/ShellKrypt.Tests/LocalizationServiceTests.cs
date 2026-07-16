@@ -120,7 +120,7 @@ public sealed class LocalizationServiceTests
 
         Assert.Equal("No vaults yet", welcome.EmptyStateTitle);
 
-        root.LanguageId = "tr";
+        root.Localization.SetLanguage("tr");
 
         Assert.Equal("Henüz kasa yok", welcome.EmptyStateTitle);
     }
@@ -154,12 +154,12 @@ public sealed class LocalizationServiceTests
 
     private static IEnumerable<string> EnumerateDesktopViewModelLocalizationKeyLiterals()
     {
-        var viewModelsRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop", "ViewModels");
+        var desktopRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop");
         var regex = new Regex(
             "\"([A-Z][A-Za-z0-9]*(?:\\.[A-Za-z0-9]+){1,})\"",
             RegexOptions.Compiled);
 
-        foreach (var filePath in Directory.EnumerateFiles(viewModelsRoot, "*.cs", SearchOption.AllDirectories))
+        foreach (var filePath in Directory.EnumerateFiles(desktopRoot, "*ViewModel*.cs", SearchOption.AllDirectories))
         {
             var text = File.ReadAllText(filePath);
             foreach (Match match in regex.Matches(text))

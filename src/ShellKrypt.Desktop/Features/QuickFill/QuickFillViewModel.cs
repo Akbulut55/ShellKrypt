@@ -14,7 +14,7 @@ namespace ShellKrypt.Desktop.Features.QuickFill;
 
 public sealed partial class QuickFillViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly QuickFillRuntime _root;
     private readonly IQuickFillEntryService _entryService;
     private readonly IWebLoginService _webLoginService;
     private readonly ICardService _cardService;
@@ -30,7 +30,7 @@ public sealed partial class QuickFillViewModel : ViewModelBase
     [ObservableProperty] private bool isBusy;
 
     public QuickFillViewModel(
-        DesktopFeatureServices root,
+        QuickFillRuntime root,
         IQuickFillEntryService entryService,
         IWebLoginService webLoginService,
         ICardService cardService,
@@ -384,9 +384,9 @@ public sealed partial class QuickFillViewModel : ViewModelBase
 
 public sealed partial class QuickFillEntryRowVm : ObservableObject
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly QuickFillRuntime _root;
 
-    public QuickFillEntryRowVm(QuickFillEntry entry, DesktopFeatureServices root)
+    public QuickFillEntryRowVm(QuickFillEntry entry, QuickFillRuntime root)
     {
         Entry = entry;
         _root = root;

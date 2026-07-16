@@ -10,7 +10,7 @@ namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
 public partial class ProjectSecretScannerViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly ProjectSecretsRuntime _root;
     private readonly IProjectSecretScanner _scanner;
     private readonly IProjectSecretValueResolver _resolver;
     private readonly Func<IReadOnlyList<ApiKeyEntry>> _apiKeys;
@@ -36,7 +36,7 @@ public partial class ProjectSecretScannerViewModel : ViewModelBase
     public bool ShowUnavailable => !IsEnabled;
     public string ProjectRootDisplay => string.IsNullOrWhiteSpace(_project.ProjectRootPath) ? "No project root selected" : _project.ProjectRootPath;
 
-    public ProjectSecretScannerViewModel(DesktopFeatureServices root, IProjectSecretScanner scanner, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
+    public ProjectSecretScannerViewModel(ProjectSecretsRuntime root, IProjectSecretScanner scanner, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
     { _root = root; _scanner = scanner; _resolver = resolver; _apiKeys = apiKeys; }
 
     public void Load(string projectId, ProjectSecretInput project, bool enabled)

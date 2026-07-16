@@ -7,7 +7,7 @@ using ShellKrypt.Desktop.Shell.Runtime;
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 
 internal sealed class BackupCenterContext(
-    DesktopFeatureServices desktop,
+    BackupCenterRuntime desktop,
     IAutomaticBackupController automaticBackups,
     IEncryptedVaultBackupService backups,
     IVaultPlaintextExportService plaintextExports,
@@ -18,6 +18,7 @@ internal sealed class BackupCenterContext(
     public IEncryptedVaultBackupService Backups => backups;
     public IVaultPlaintextExportService PlaintextExports => plaintextExports;
     public IVaultCsvImportService CsvImports => csvImports;
+    public IDesktopFileService Files => desktop.Files;
     public BackupCenterHistory History => automaticBackups.History;
     public BackupScheduleSettings Schedule => automaticBackups.Schedule;
     public AutomaticBackupState AutomaticState => automaticBackups.State;

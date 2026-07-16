@@ -4,8 +4,6 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Data.Sqlite;
-using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.Features.Settings;
 
@@ -47,7 +45,7 @@ public sealed partial class SettingsViewModel
 
         try
         {
-            _destroyVaultPath = VaultFileGuard.EnsureSafeVaultDeletionTarget(_root.VaultPath!, _root.VaultPath);
+            _destroyVaultPath = _root.Files.EnsureSafeVaultDeletionTarget(_root.VaultPath!, _root.VaultPath);
             DestroyVaultDisplayName = Path.GetFileNameWithoutExtension(_destroyVaultPath);
             DestroyVaultPassword = "";
             DestroyVaultError = "";
@@ -105,10 +103,10 @@ public sealed partial class SettingsViewModel
             if (unlockResult.VaultKey is { Length: > 0 } vaultKeyBytes)
                 CryptographicOperations.ZeroMemory(vaultKeyBytes);
 
-            SqliteConnection.ClearAllPools();
+            _root.Files.ClearDatabasePools();
 
             await _root.ClearClipboardAsync();
-            VaultFileGuard.DeleteVaultAndKnownSidecars(vaultPath, _root.VaultPath);
+            _root.Files.DeleteVaultAndKnownSidecars(vaultPath, _root.VaultPath);
             _vaultRegistry.RemoveVault(vaultPath);
             ClearDestroyVaultModal();
             _root.SetVaultPath("");

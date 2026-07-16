@@ -10,20 +10,20 @@ public sealed class DesktopArchitectureTests
     public void UnlockAndReload_RecreateWorkspacesAndDeactivateTransientState()
     {
         var root = DesktopBootstrap.CreateMainWindowViewModel();
-        var applicationServices = root.DesktopFeatures;
+        var applicationServices = root.Session;
 
-        root.OnUnlocked(new byte[32]);
+        root.Navigation.OnUnlocked(new byte[32]);
         var firstShell = Assert.IsType<ShellViewModel>(root.Current);
         firstShell.Authenticator.Editor.OpenAdd();
         Assert.True(firstShell.Authenticator.Editor.IsOpen);
 
-        root.ReloadShell();
+        root.Navigation.ReloadShell();
 
         var secondShell = Assert.IsType<ShellViewModel>(root.Current);
         Assert.NotSame(firstShell, secondShell);
         Assert.False(firstShell.Authenticator.Editor.IsOpen);
-        Assert.Same(applicationServices, root.DesktopFeatures);
-        root.Lock();
+        Assert.Same(applicationServices, root.Session);
+        root.Navigation.Lock();
     }
 
     [Fact]
@@ -50,8 +50,41 @@ public sealed class DesktopArchitectureTests
             {
                 var source = File.ReadAllText(path);
                 return source.Contains("MainWindowViewModel", StringComparison.Ordinal) ||
-                       source.Contains("DesktopServiceCatalog", StringComparison.Ordinal);
+                       source.Contains("DesktopServiceCatalog", StringComparison.Ordinal) ||
+                       source.Contains("DesktopFeatureServices", StringComparison.Ordinal) ||
+                       source.Contains("ShellKrypt.Infrastructure", StringComparison.Ordinal);
             })
+            .Select(path => Relative(desktop, path))
+            .ToArray();
+
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void RootViewModels_DoNotConstructServicesOrWorkspaces()
+    {
+        var desktop = DesktopRoot();
+        var files = new[]
+        {
+            Path.Combine(desktop, "Shell", "MainWindowViewModel.cs"),
+            Path.Combine(desktop, "Shell", "ShellViewModel.cs")
+        };
+        var forbidden = new[] { "DesktopServiceCatalog", "new Sqlite", "new File", "new ShellWorkspaces", "new WebLoginsViewModel", "new SettingsViewModel" };
+        var violations = files
+            .Where(File.Exists)
+            .Where(path => forbidden.Any(value => File.ReadAllText(path).Contains(value, StringComparison.Ordinal)))
+            .Select(path => Relative(desktop, path))
+            .ToArray();
+
+        Assert.Empty(violations);
+    }
+
+    [Fact]
+    public void RemovedBroadFeatureServiceCatalog_RemainsAbsent()
+    {
+        var desktop = DesktopRoot();
+        var violations = Sources(desktop)
+            .Where(path => File.ReadAllText(path).Contains("DesktopFeatureServices", StringComparison.Ordinal))
             .Select(path => Relative(desktop, path))
             .ToArray();
 

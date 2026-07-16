@@ -10,13 +10,10 @@ namespace ShellKrypt.Desktop.Shell
         {
         }
 
-        protected static string T(MainWindowViewModel root, string key, params object[] args)
-            => root.Localization.Get(key, args);
-
     protected static string T(LocalizationService localization, string key, params object[] args)
         => localization.Get(key, args);
 
-    protected static string T(DesktopFeatureServices desktop, string key, params object[] args)
+    protected static string T(ILocalizedRuntime desktop, string key, params object[] args)
         => desktop.Localization.Get(key, args);
 
         protected void NotifyLocalized(params string[] propertyNames)

@@ -12,7 +12,7 @@ namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public partial class AuthenticatorViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly AuthenticatorRuntime _desktop;
     private readonly IAuthenticatorEntryService _entryService;
     private readonly IOneTimePasswordGenerator _codeGenerator;
     private readonly Func<string?, Task> _refreshAllItemsAsync;
@@ -28,7 +28,7 @@ public partial class AuthenticatorViewModel : ViewModelBase
     [ObservableProperty] private bool isDeleteConfirmOpen;
 
     public AuthenticatorViewModel(
-        DesktopFeatureServices desktop,
+        AuthenticatorRuntime desktop,
         IAuthenticatorEntryService entryService,
         IOneTimePasswordGenerator codeGenerator,
         AuthenticatorQrImageImportService qrImportService,

@@ -41,6 +41,7 @@ public static class DesktopBootstrap
         var settings = new DesktopSettingsController(settingsService, localization, sessionSecurity, appearance);
         var secureClipboard = new SecureClipboardService(clipboardService, sessionSecurity);
         var dialogs = new DesktopDialogService(sessionSecurity);
+        var desktopFiles = new DesktopFileService();
         var activityRecorder = new ActivityRecorder(activityLogService, vaultSession);
 
         var vaultItemSummaryService = new VaultItemSummaryService(itemRepository, new VaultItemPayloadReader());
@@ -78,17 +79,16 @@ public static class DesktopBootstrap
                 : null);
         var automaticBackups = new AutomaticBackupController(automaticBackupCoordinator, settings, vaultSession, activityRecorder);
         var quickFill = new QuickFillController(globalHotkeyService, foregroundWindowService, settings);
-        var desktopFeatures = new DesktopFeatureServices(vaultSession, localization, activityRecorder, secureClipboard, dialogs, settings, quickFill);
 
         var services = new DesktopServiceCatalog(
             vaultSession,
             settings,
             dialogs,
+            desktopFiles,
             secureClipboard,
             activityRecorder,
             automaticBackups,
             quickFill,
-            desktopFeatures,
             vaultRegistryService,
             localization,
             authenticatorQrImportService,
@@ -119,7 +119,7 @@ public static class DesktopBootstrap
             autoTypeService,
             globalHotkeyService);
 
-        var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService, vaultSession, dialogs, secureClipboard, activityRecorder, settings, localization);
+        var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService, vaultSession, dialogs, secureClipboard, activityRecorder, settings, localization, desktopFiles);
         var unlockedWorkspaces = new UnlockedWorkspaceFactory(services);
         var quickFillPopup = new QuickFillPopupFactory(services);
         var navigation = new DesktopNavigationService(
@@ -138,19 +138,11 @@ public static class DesktopBootstrap
         var root = new MainWindowViewModel(
             vaultSession,
             settings,
-            dialogs,
             secureClipboard,
-            activityRecorder,
             automaticBackups,
             quickFill,
-            desktopFeatures,
-            vaultRegistryService,
             localization,
             sessionSecurity,
-            vaultService,
-            encryptedBackupService,
-            plaintextExportService,
-            csvImportService,
             navigation,
             quickFillPopup);
         return root;

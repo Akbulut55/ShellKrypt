@@ -10,7 +10,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
 {
     private const int AllRowsQuerySize = int.MaxValue;
 
-    private readonly DesktopFeatureServices _root;
+    private readonly AllItemsRuntime _root;
     private readonly ShellViewModel _shell;
     private readonly IVaultItemSummaryService _summaryService;
     private AllItemsSortMode _sortMode = AllItemsSortMode.UpdatedDescending;
@@ -34,7 +34,7 @@ public sealed partial class AllItemsViewModel : ViewModelBase
     private int _expiringSoonCardCount;
     private int _createdThisMonthCount;
 
-    public AllItemsViewModel(DesktopFeatureServices root, ShellViewModel shell, IVaultItemSummaryService summaryService)
+    public AllItemsViewModel(AllItemsRuntime root, ShellViewModel shell, IVaultItemSummaryService summaryService)
     {
         _root = root;
         _shell = shell;

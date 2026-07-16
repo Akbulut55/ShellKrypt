@@ -8,7 +8,7 @@ namespace ShellKrypt.Desktop.Features.BackupCenter;
 public sealed class BackupCenterViewModel : ViewModelBase
 {
     public BackupCenterViewModel(
-        DesktopFeatureServices desktop,
+        BackupCenterRuntime desktop,
         IAutomaticBackupController automaticBackups,
         IEncryptedVaultBackupService backups,
         IVaultPlaintextExportService plaintextExports,

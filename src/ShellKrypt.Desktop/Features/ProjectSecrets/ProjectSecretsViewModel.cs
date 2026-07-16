@@ -10,7 +10,7 @@ namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
 public partial class ProjectSecretsViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly ProjectSecretsRuntime _root;
     private readonly IProjectSecretService _service;
     private readonly IApiKeyService _apiKeyService;
     private readonly Func<string?, Task> _refreshAllItems;
@@ -43,7 +43,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public string ProjectCountText => $"{Projects.Count} projects";
 
     public ProjectSecretsViewModel(
-        DesktopFeatureServices root,
+        ProjectSecretsRuntime root,
         IProjectSecretService service,
         IApiKeyService apiKeyService,
         IProjectSecretEnvParser parser,

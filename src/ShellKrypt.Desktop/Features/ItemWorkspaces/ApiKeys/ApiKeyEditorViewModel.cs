@@ -14,7 +14,7 @@ namespace ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 
 public partial class ApiKeyEditorViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly ItemWorkspaceRuntime _desktop;
     private readonly IApiKeyService _service;
     private readonly Func<ApiKeyEntry?, string?, Task> _onMutation;
     private readonly Func<string?, Task> _refreshAllItems;
@@ -33,7 +33,7 @@ public partial class ApiKeyEditorViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
 
     public ApiKeyEditorViewModel(
-        DesktopFeatureServices desktop,
+        ItemWorkspaceRuntime desktop,
         IApiKeyService service,
         Func<ApiKeyEntry?, string?, Task> onMutation,
         Func<string?, Task> refreshAllItems)

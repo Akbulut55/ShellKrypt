@@ -13,7 +13,7 @@ public partial class CryptoToolsViewModel : ViewModelBase
     private const int PasswordDisplayRowLength = 50;
     private const int UtilityOutputDisplayRowLength = 48;
     private const int DisplayRows = 2;
-    private readonly DesktopFeatureServices _desktop;
+    private readonly CryptoToolsRuntime _desktop;
     private readonly IPasswordGenerator _passwordGenerator;
     private readonly IPasswordStrengthService _passwordStrengthService;
     private readonly IHashService _hashService;
@@ -33,7 +33,7 @@ public partial class CryptoToolsViewModel : ViewModelBase
     [ObservableProperty] private string base64Output = "";
 
     public CryptoToolsViewModel(
-        DesktopFeatureServices desktop,
+        CryptoToolsRuntime desktop,
         IPasswordGenerator passwordGenerator,
         IPasswordStrengthService passwordStrengthService,
         IHashService hashService,

@@ -15,10 +15,10 @@ namespace ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 public partial class ApiKeysViewModel : ViewModelBase
 {
     internal const string DefaultFieldType = "API Key";
-    private readonly DesktopFeatureServices _desktop; private readonly IApiKeyService _service; private readonly Func<Task> _notifyReferencesChanged; private readonly List<ApiKeyRowVm> _all = []; private readonly List<ApiKeyRowVm> _filtered = [];
+    private readonly ItemWorkspaceRuntime _desktop; private readonly IApiKeyService _service; private readonly Func<Task> _notifyReferencesChanged; private readonly List<ApiKeyRowVm> _all = []; private readonly List<ApiKeyRowVm> _filtered = [];
     public ObservableCollection<ApiKeyRowVm> Rows { get; } = []; public ObservableCollection<SelectionOptionVm> ProviderFilters { get; } = []; public ObservableCollection<SelectionOptionVm> SortOptions { get; } = []; public ApiKeyEditorViewModel Editor { get; }
     [ObservableProperty] private string searchText = ""; [ObservableProperty] private SelectionOptionVm? selectedProviderFilter; [ObservableProperty] private SelectionOptionVm? selectedSortOption; [ObservableProperty] private string error = ""; [ObservableProperty] private bool isLoading;
-    public ApiKeysViewModel(DesktopFeatureServices desktop, IApiKeyService service, Func<string?, Task> refreshAllItemsAsync, Func<Task>? notifyReferencesChanged = null) { _desktop = desktop; _service = service; _notifyReferencesChanged = notifyReferencesChanged ?? (() => Task.CompletedTask); Editor = new(desktop, service, HandleMutationAsync, refreshAllItemsAsync); BuildSortOptions(); _ = LoadAsync(); }
+    public ApiKeysViewModel(ItemWorkspaceRuntime desktop, IApiKeyService service, Func<string?, Task> refreshAllItemsAsync, Func<Task>? notifyReferencesChanged = null) { _desktop = desktop; _service = service; _notifyReferencesChanged = notifyReferencesChanged ?? (() => Task.CompletedTask); Editor = new(desktop, service, HandleMutationAsync, refreshAllItemsAsync); BuildSortOptions(); _ = LoadAsync(); }
     public int ProviderCount => _all.Select(row => row.ProviderDisplay).Distinct(StringComparer.OrdinalIgnoreCase).Count();
     public int SensitiveFieldCount => _all.Sum(row => row.Fields.Count(itemField => itemField.IsSensitive));
     public bool HasProviders => ProviderCount > 0;

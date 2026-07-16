@@ -3,8 +3,6 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
-using ShellKrypt.Infrastructure.Services;
-using ShellKrypt.Infrastructure.Vaulting;
 
 namespace ShellKrypt.Desktop.Features.VaultAccess;
 
@@ -24,7 +22,7 @@ public sealed partial class WelcomeViewModel
             if (!confirmed)
                 return;
 
-            path = VaultFileGuard.EnsureExistingVaultFile(path);
+            path = _files.EnsureExistingVaultFile(path);
             if (!File.Exists(path))
             {
             Error = T(_localization, "Welcome.Error.VaultFileDoesNotExist");
@@ -70,9 +68,9 @@ public sealed partial class WelcomeViewModel
 
         try
         {
-            var sourcePath = VaultFileGuard.EnsureExistingVaultFile(SelectedVault.VaultPath);
-            var targetPath = VaultFileGuard.EnsureVaultFilePath(DefaultPaths.GetSuggestedVaultPath($"{SelectedVault.DisplayLabel} Copy"));
-            VaultFileGuard.EnsureDifferentPaths(sourcePath, targetPath, "Vault duplicate target must be different from the source vault.");
+            var sourcePath = _files.EnsureExistingVaultFile(SelectedVault.VaultPath);
+            var targetPath = _files.EnsureVaultFilePath(_files.GetSuggestedVaultPath($"{SelectedVault.DisplayLabel} Copy"));
+            _files.EnsureDifferentPaths(sourcePath, targetPath, "Vault duplicate target must be different from the source vault.");
             File.Copy(sourcePath, targetPath, overwrite: false);
             CopySidecarIfExists(sourcePath, targetPath, "-wal");
             CopySidecarIfExists(sourcePath, targetPath, "-shm");

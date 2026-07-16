@@ -20,7 +20,7 @@ namespace ShellKrypt.Desktop.Features.QuickFill;
 
 public sealed partial class QuickFillPopupViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly QuickFillRuntime _root;
     private readonly IDesktopNavigation _navigation;
     private readonly IVaultService _vaultService;
     private readonly SessionSecurityService _sessionSecurity;
@@ -51,7 +51,7 @@ public sealed partial class QuickFillPopupViewModel : ViewModelBase
     [ObservableProperty] private bool showAllForApp;
 
     public QuickFillPopupViewModel(
-        DesktopFeatureServices root,
+        QuickFillRuntime root,
         IDesktopNavigation navigation,
         SessionSecurityService sessionSecurity,
         VaultRegistryService vaultRegistryService,

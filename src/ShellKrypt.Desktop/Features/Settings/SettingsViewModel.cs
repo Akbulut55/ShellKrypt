@@ -4,7 +4,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.UI.Shared.Theming;
 using ShellKrypt.Desktop.Shell.Runtime;
 
@@ -12,7 +11,7 @@ namespace ShellKrypt.Desktop.Features.Settings;
 
 public sealed partial class SettingsViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly SettingsRuntime _root;
     private readonly IDesktopNavigation _navigation;
     private readonly ShellViewModel _shell;
     private readonly IVaultService _vaultService;
@@ -92,7 +91,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
         .. VaultSecurityProfiles.All
     ];
 
-    public SettingsViewModel(DesktopFeatureServices root, IDesktopNavigation navigation, ShellViewModel shell, VaultRegistryService vaultRegistry, IVaultService vaultService)
+    public SettingsViewModel(SettingsRuntime root, IDesktopNavigation navigation, ShellViewModel shell, VaultRegistryService vaultRegistry, IVaultService vaultService)
     {
         _root = root;
         _navigation = navigation;

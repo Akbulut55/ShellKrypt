@@ -6,11 +6,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using Microsoft.Data.Sqlite;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.Infrastructure.Services;
-using ShellKrypt.Infrastructure.Vaulting;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.Shell.Runtime;
 
@@ -28,6 +25,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
     private readonly LocalizationService _localization;
     private readonly VaultRegistryService _vaultRegistry;
     private readonly IVaultService _vaultService;
+    private readonly IDesktopFileService _files;
     private readonly List<VaultRecordVm> _allVaults = new();
     private SecurityAcknowledgementAction _pendingSecurityAcknowledgementAction;
     private VaultRecordVm? _pendingSecurityAcknowledgementVault;
@@ -63,7 +61,8 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         ISecureClipboardService clipboard,
         IActivityRecorder activity,
         IDesktopSettingsController settings,
-        LocalizationService localization)
+        LocalizationService localization,
+        IDesktopFileService files)
     {
         _vaultService = vaultService;
         _vaultRegistry = vaultRegistry;
@@ -74,6 +73,7 @@ public sealed partial class WelcomeViewModel : ViewModelBase
         _activity = activity;
         _settings = settings;
         _localization = localization;
+        _files = files;
         Status = T(_localization, "Welcome.Status.SelectVaultOrCreate");
         ReloadVaults();
     }

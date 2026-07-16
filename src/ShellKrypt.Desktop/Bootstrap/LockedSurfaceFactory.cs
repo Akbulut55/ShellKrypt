@@ -14,11 +14,12 @@ internal sealed class LockedSurfaceFactory(
     ISecureClipboardService clipboard,
     IActivityRecorder activity,
     IDesktopSettingsController settings,
-    LocalizationService localization)
+    LocalizationService localization,
+    IDesktopFileService files)
 {
-    public WelcomeViewModel CreateWelcome(IDesktopNavigation navigation) => new(vaultService, vaultRegistryService, session, navigation, dialogs, clipboard, activity, settings, localization);
+    public WelcomeViewModel CreateWelcome(IDesktopNavigation navigation) => new(vaultService, vaultRegistryService, session, navigation, dialogs, clipboard, activity, settings, localization, files);
 
-    public CreateVaultViewModel CreateCreateVault(IDesktopNavigation navigation) => new(vaultService, vaultRegistryService, session, navigation, dialogs, activity, localization);
+    public CreateVaultViewModel CreateCreateVault(IDesktopNavigation navigation) => new(vaultService, vaultRegistryService, session, navigation, dialogs, activity, localization, files);
 
     public UnlockViewModel CreateUnlock(IDesktopNavigation navigation) => new(vaultService, vaultRegistryService, session, navigation, localization);
 }

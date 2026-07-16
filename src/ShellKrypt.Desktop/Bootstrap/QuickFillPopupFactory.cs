@@ -12,7 +12,7 @@ internal sealed class QuickFillPopupFactory(DesktopServiceCatalog services)
     {
         var popup = new QuickFillPopupWindow();
         var viewModel = new QuickFillPopupViewModel(
-            services.DesktopFeatures,
+            new QuickFillRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.QuickFill),
             navigation,
             services.SessionSecurity,
             services.VaultRegistryService,

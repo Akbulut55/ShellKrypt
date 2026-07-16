@@ -20,7 +20,7 @@ public partial class HealthViewModel : ViewModelBase
     internal const string FilterProjectSecrets = "project";
     internal const string FilterSettings = "settings";
 
-    private readonly DesktopFeatureServices _root;
+    private readonly SecurityAuditRuntime _root;
     private readonly ShellViewModel _shell;
     private readonly IHealthAuditService _healthAuditService;
     private readonly List<HealthIssueVm> _allIssues = new();
@@ -45,7 +45,7 @@ public partial class HealthViewModel : ViewModelBase
     [ObservableProperty] private string activeFilter = FilterAll;
 
     public HealthViewModel(
-        DesktopFeatureServices root,
+        SecurityAuditRuntime root,
         ShellViewModel shell,
         IHealthAuditService healthAuditService)
     {

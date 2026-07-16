@@ -11,7 +11,7 @@ namespace ShellKrypt.Desktop.Features.ActivityLogs;
 
 public partial class ActivityViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly ActivityLogsRuntime _root;
     private readonly ActivityLogService _store;
     private readonly List<ActivityItemVm> _allItems = new();
     private readonly List<ActivityItemVm> _filteredItems = new();
@@ -23,7 +23,7 @@ public partial class ActivityViewModel : ViewModelBase
     [ObservableProperty] private string activeCategory = "all";
     [ObservableProperty] private string error = "";
 
-    public ActivityViewModel(DesktopFeatureServices root, ActivityLogService store)
+    public ActivityViewModel(ActivityLogsRuntime root, ActivityLogService store)
     {
         _root = root;
         _store = store;

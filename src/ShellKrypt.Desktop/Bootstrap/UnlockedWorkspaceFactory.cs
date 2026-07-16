@@ -18,19 +18,20 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
 
     private ShellWorkspaces CreateWorkspaces(IDesktopNavigation root, ShellViewModel shell)
     {
-        var allItems = new AllItemsViewModel(services.DesktopFeatures, shell, services.VaultItemSummaryService);
-        var webLogins = new WebLoginsViewModel(services.DesktopFeatures, services.WebLoginService, services.PasswordGenerator, allItems.RefreshAfterMutationAsync);
-        var notes = new MarkdownNotesViewModel(services.DesktopFeatures, services.NoteService, allItems.RefreshAfterMutationAsync);
-        var cards = new CardsViewModel(services.DesktopFeatures, services.CardService, allItems.RefreshAfterMutationAsync);
+        var itemRuntime = new ItemWorkspaceRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard);
+        var allItems = new AllItemsViewModel(new AllItemsRuntime(services.VaultSession, services.Localization), shell, services.VaultItemSummaryService);
+        var webLogins = new WebLoginsViewModel(itemRuntime, services.WebLoginService, services.PasswordGenerator, allItems.RefreshAfterMutationAsync);
+        var notes = new MarkdownNotesViewModel(new MarkdownNotesRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Settings), services.NoteService, allItems.RefreshAfterMutationAsync);
+        var cards = new CardsViewModel(itemRuntime, services.CardService, allItems.RefreshAfterMutationAsync);
         var authenticator = new AuthenticatorViewModel(
-            services.DesktopFeatures,
+            new AuthenticatorRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs),
             services.AuthenticatorEntryService,
             services.OneTimePasswordGenerator,
             services.AuthenticatorQrImportService,
             new AuthenticatorRefreshTimer(),
             allItems.RefreshAfterMutationAsync);
         var projectSecrets = new ProjectSecretsViewModel(
-            services.DesktopFeatures,
+            new ProjectSecretsRuntime(services.VaultSession, services.ActivityRecorder, services.SecureClipboard, services.Dialogs),
             services.ProjectSecretService,
             services.ApiKeyService,
             services.ProjectSecretEnvParser,
@@ -39,18 +40,18 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             services.ProjectSecretValueResolver,
             allItems.RefreshAfterMutationAsync);
         var apiKeys = new ApiKeysViewModel(
-            services.DesktopFeatures,
+            itemRuntime,
             services.ApiKeyService,
             allItems.RefreshAfterMutationAsync,
             projectSecrets.RefreshApiKeysAsync);
         var cryptoTools = new CryptoToolsViewModel(
-            services.DesktopFeatures,
+            new CryptoToolsRuntime(services.Localization, services.ActivityRecorder, services.SecureClipboard),
             services.PasswordGenerator,
             services.PasswordStrengthService,
             services.HashService,
             services.Base64Service);
         var quickFill = new QuickFillViewModel(
-            services.DesktopFeatures,
+            new QuickFillRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.QuickFill),
             services.QuickFillEntryService,
             services.WebLoginService,
             services.CardService,
@@ -67,10 +68,10 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             projectSecrets,
             cryptoTools,
             quickFill,
-            new HealthViewModel(services.DesktopFeatures, shell, services.HealthAuditService),
-            new BackupCenterViewModel(services.DesktopFeatures, services.AutomaticBackups, services.EncryptedBackupService, services.PlaintextExportService, services.CsvImportService, root),
-            new SettingsViewModel(services.DesktopFeatures, root, shell, services.VaultRegistryService, services.VaultService),
-            new ActivityViewModel(services.DesktopFeatures, services.ActivityRecorder.Store));
+            new HealthViewModel(new SecurityAuditRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Settings), shell, services.HealthAuditService),
+            new BackupCenterViewModel(new BackupCenterRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.Files), services.AutomaticBackups, services.EncryptedBackupService, services.PlaintextExportService, services.CsvImportService, root),
+            new SettingsViewModel(new SettingsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Settings, services.Files), root, shell, services.VaultRegistryService, services.VaultService),
+            new ActivityViewModel(new ActivityLogsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Dialogs), services.ActivityRecorder.Store));
     }
 }
 

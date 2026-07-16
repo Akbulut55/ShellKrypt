@@ -24,7 +24,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     internal const string SortWebsiteAscendingKey = "website:asc";
     internal const string SortWebsiteDescendingKey = "website:desc";
 
-    private readonly DesktopFeatureServices _desktop;
+    private readonly ItemWorkspaceRuntime _desktop;
     private readonly IWebLoginService _service;
     private readonly List<WebLoginRowVm> _all = [];
     private readonly List<WebLoginRowVm> _filtered = [];
@@ -42,7 +42,7 @@ public partial class WebLoginsViewModel : ViewModelBase
     [ObservableProperty] private string error = "";
     [ObservableProperty] private bool isLoading;
 
-    public WebLoginsViewModel(DesktopFeatureServices desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<string?, Task> refreshAllItemsAsync)
+    public WebLoginsViewModel(ItemWorkspaceRuntime desktop, IWebLoginService service, IPasswordGenerator passwordGenerator, Func<string?, Task> refreshAllItemsAsync)
     {
         _desktop = desktop;
         _service = service;

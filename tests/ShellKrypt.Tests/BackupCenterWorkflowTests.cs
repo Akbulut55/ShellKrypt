@@ -283,8 +283,8 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateVaultAsync(vaultPath, "Vault Master Password 2026");
         var root = DesktopBootstrap.CreateMainWindowViewModel();
-        root.SetVaultPath(vaultPath);
-        root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
+        root.Session.SetVaultPath(vaultPath);
+        root.AutomaticBackups.History.AddEntry(new BackupCenterHistoryEntry
         {
             Operation = "encrypted-backup",
             Status = "success",
@@ -293,7 +293,7 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
             FileName = "safe-backup.skbx",
             FullPath = workspace.FilePath("safe-backup.skbx")
         });
-        root.BackupCenterHistory.AddEntry(new BackupCenterHistoryEntry
+        root.AutomaticBackups.History.AddEntry(new BackupCenterHistoryEntry
         {
             Operation = "verify-backup",
             Status = "success",
@@ -302,13 +302,13 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
             FileName = "safe-backup.skbx",
             FullPath = workspace.FilePath("safe-backup.skbx")
         });
-        root.BackupSchedule.Enabled = true;
-        root.BackupSchedule.BackupDirectory = workspace.FilePath("auto-backups");
-        root.AutomaticBackupState.LastSuccessfulAtUtc = DateTimeOffset.UtcNow.ToString("O");
-        root.AutomaticBackupState.LastVerifiedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-        root.AutomaticBackupState.LastBackupFileName = "auto-backup.skbx";
-        root.OnUnlocked(vaultKey);
-        root.SetAutomaticBackupSessionPassphrase("do-not-store-backup-passphrase");
+        root.AutomaticBackups.Schedule.Enabled = true;
+        root.AutomaticBackups.Schedule.BackupDirectory = workspace.FilePath("auto-backups");
+        root.AutomaticBackups.State.LastSuccessfulAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        root.AutomaticBackups.State.LastVerifiedAtUtc = DateTimeOffset.UtcNow.ToString("O");
+        root.AutomaticBackups.State.LastBackupFileName = "auto-backup.skbx";
+        root.Navigation.OnUnlocked(vaultKey);
+        root.AutomaticBackups.SetSessionPassphrase("do-not-store-backup-passphrase");
 
         var shell = Assert.IsType<ShellViewModel>(root.Current);
         var backupCenter = shell.BackupCenter;
@@ -397,8 +397,8 @@ Web,Imported Portal,https://import.example,importer,importer@example.com,csv-sec
     private static BackupCenterViewModel CreateUnlockedBackupCenter(string vaultPath, byte[] vaultKey)
     {
         var root = DesktopBootstrap.CreateMainWindowViewModel();
-        root.SetVaultPath(vaultPath);
-        root.OnUnlocked(vaultKey);
+        root.Session.SetVaultPath(vaultPath);
+        root.Navigation.OnUnlocked(vaultKey);
         return Assert.IsType<ShellViewModel>(root.Current).BackupCenter;
     }
 

@@ -13,7 +13,7 @@ namespace ShellKrypt.Desktop.Features.Authenticator;
 
 public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _desktop;
+    private readonly AuthenticatorRuntime _desktop;
     private readonly AuthenticatorQrImageImportService _qrImportService;
     private long _counter;
 
@@ -30,7 +30,7 @@ public sealed partial class AuthenticatorEditorViewModel : ViewModelBase
     [ObservableProperty] private AuthenticatorAlgorithmOption? selectedAlgorithm;
     [ObservableProperty] private AuthenticatorDigitsOption? selectedDigits;
 
-    public AuthenticatorEditorViewModel(DesktopFeatureServices desktop, AuthenticatorQrImageImportService qrImportService)
+    public AuthenticatorEditorViewModel(AuthenticatorRuntime desktop, AuthenticatorQrImageImportService qrImportService)
     {
         _desktop = desktop;
         _qrImportService = qrImportService;

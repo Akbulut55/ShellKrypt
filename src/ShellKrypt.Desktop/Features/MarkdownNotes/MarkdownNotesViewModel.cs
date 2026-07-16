@@ -11,7 +11,7 @@ namespace ShellKrypt.Desktop.Features.MarkdownNotes;
 
 public partial class MarkdownNotesViewModel : ViewModelBase
 {
-    private readonly DesktopFeatureServices _root;
+    private readonly MarkdownNotesRuntime _root;
     private readonly INoteService _noteService;
     private readonly Func<string?, Task> _refreshAllItemsAsync;
     private CancellationTokenSource? _autoSaveCts;
@@ -39,7 +39,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private string notePickerSearchText = "";
     [ObservableProperty] private string autoSaveStatus = "";
 
-    public MarkdownNotesViewModel(DesktopFeatureServices root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
+    public MarkdownNotesViewModel(MarkdownNotesRuntime root, INoteService noteService, Func<string?, Task> refreshAllItemsAsync)
     {
         _root = root;
         _noteService = noteService;

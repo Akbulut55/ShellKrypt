@@ -5,7 +5,7 @@ using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
-public partial class ProjectSecretSettingsViewModel(DesktopFeatureServices root) : ViewModelBase
+public partial class ProjectSecretSettingsViewModel(ProjectSecretsRuntime root) : ViewModelBase
 {
     public Func<Task>? DeleteRequested { get; set; }
 

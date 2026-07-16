@@ -7,7 +7,7 @@ using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
-public partial class ProjectSecretVariableEditorViewModel(DesktopFeatureServices root) : ViewModelBase
+public partial class ProjectSecretVariableEditorViewModel(ProjectSecretsRuntime root) : ViewModelBase
 {
     private ProjectSecretVariableEntry? _original;
     public Func<ProjectSecretVariableEntry, Task<bool>>? SaveRequested { get; set; }

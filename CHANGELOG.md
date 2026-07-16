@@ -22,6 +22,8 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.25.0] - 2026-07-16
+
 ### Changed
 
 - Added an explicit Desktop composition root and focused factories for locked
@@ -31,8 +33,18 @@ MAJOR.MINOR.PATCH
   the main window viewmodel into focused Desktop runtime services.
 - Decoupled Desktop feature viewmodels from the main window and reorganized the
   Desktop project around Shell, Bootstrap, and colocated feature workspaces.
+- Replaced the broad Desktop feature dependency bundle with focused runtime
+  contexts and a narrow Desktop file-system adapter for each workspace.
+- Reduced the main window viewmodel to window, session, navigation, clipboard,
+  automatic-backup, and Quick Fill lifecycle coordination.
 - Added architecture checks that enforce composition ownership and prevent the
-  retired lifecycle-based Desktop namespaces from returning.
+  retired lifecycle-based Desktop namespaces, broad feature service catalogs,
+  and direct feature-to-Infrastructure dependencies from returning.
+
+### Removed
+
+- Removed obsolete main-window forwarding APIs and the empty lifecycle-based
+  Desktop view and viewmodel directory trees.
 
 ## [ShellKrypt 0.24.0] - 2026-07-15
 
