@@ -10,31 +10,31 @@ public sealed class SessionSecurityService
 
     private readonly DispatcherTimer _autoLockTimer = new();
     private readonly DispatcherTimer _focusLossLockTimer = new();
-    private readonly Action _lockRequested;
     private SessionSecuritySettings _settings = new();
     private bool _isUnlocked;
     private int _focusLossSuppressionDepth;
     private DateTimeOffset _lastActivityUtc = DateTimeOffset.MinValue;
 
-    public SessionSecurityService(Action lockRequested)
+    public SessionSecurityService()
     {
-        _lockRequested = lockRequested;
         _focusLossLockTimer.Interval = TimeSpan.FromSeconds(_settings.LockOnDeactivateSeconds);
 
         _autoLockTimer.Tick += (_, _) =>
         {
             StopAutoLockTimer();
             if (_isUnlocked && _settings.AutoLockEnabled)
-                _lockRequested();
+                LockRequested?.Invoke(this, EventArgs.Empty);
         };
 
         _focusLossLockTimer.Tick += (_, _) =>
         {
             StopFocusLossTimer();
             if (_isUnlocked && _settings.LockOnDeactivate)
-                _lockRequested();
+                LockRequested?.Invoke(this, EventArgs.Empty);
         };
     }
+
+    public event EventHandler? LockRequested;
 
     public SessionSecuritySettings Settings => _settings;
     public TimeSpan ClipboardClearDelay => TimeSpan.FromSeconds(_settings.ClipboardClearSeconds);

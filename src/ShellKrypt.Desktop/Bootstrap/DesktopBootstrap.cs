@@ -10,6 +10,7 @@ using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Services.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
 using ShellKrypt.Desktop.ViewModels;
 using ShellKrypt.Infrastructure.Authenticator;
 using ShellKrypt.Infrastructure.Backups;
@@ -34,9 +35,16 @@ public static class DesktopBootstrap
         var activityLogService = new ActivityLogService(new SqliteActivityLogStore());
         var localization = new LocalizationService();
         var clipboardService = new ClipboardService();
-        var sessionSecurity = new SessionSecurityService(() => root?.Lock());
+        var sessionSecurity = new SessionSecurityService();
+        sessionSecurity.LockRequested += (_, _) => root?.Lock();
         var vaultService = new SqliteVaultService();
         var itemRepository = new SqliteItemRepository();
+        var vaultSession = new VaultSessionController(state);
+        var appearance = new DesktopAppearanceService();
+        var settings = new DesktopSettingsController(settingsService, localization, sessionSecurity, appearance);
+        var secureClipboard = new SecureClipboardService(clipboardService, sessionSecurity);
+        var dialogs = new DesktopDialogService(sessionSecurity);
+        var activityRecorder = new ActivityRecorder(activityLogService, vaultSession);
 
         var vaultItemSummaryService = new VaultItemSummaryService(itemRepository, new VaultItemPayloadReader());
         var webLoginService = new WebLoginService(itemRepository);
@@ -68,15 +76,22 @@ public static class DesktopBootstrap
         var automaticBackupCoordinator = new AutomaticBackupCoordinator(
             encryptedBackupService,
             automaticBackupFiles,
-            () => root?.BuildAutomaticBackupContext());
+            () => vaultSession.IsUnlocked && !string.IsNullOrWhiteSpace(vaultSession.VaultPath)
+                ? new AutomaticBackupContext(vaultSession.VaultPath, vaultSession.VaultKey, settings.BackupSchedule, settings.AutomaticBackupState)
+                : null);
+        var automaticBackups = new AutomaticBackupController(automaticBackupCoordinator, settings, vaultSession, activityRecorder);
+        var quickFill = new QuickFillController(globalHotkeyService, foregroundWindowService, settings);
 
         var services = new DesktopServiceCatalog(
-            state,
-            settingsService,
+            vaultSession,
+            settings,
+            dialogs,
+            secureClipboard,
+            activityRecorder,
+            automaticBackups,
+            quickFill,
             vaultRegistryService,
-            activityLogService,
             localization,
-            clipboardService,
             authenticatorQrImportService,
             sessionSecurity,
             vaultService,
@@ -103,8 +118,7 @@ public static class DesktopBootstrap
             csvImportService,
             foregroundWindowService,
             autoTypeService,
-            globalHotkeyService,
-            automaticBackupCoordinator);
+            globalHotkeyService);
 
         var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService);
         var unlockedWorkspaces = new UnlockedWorkspaceFactory(services);

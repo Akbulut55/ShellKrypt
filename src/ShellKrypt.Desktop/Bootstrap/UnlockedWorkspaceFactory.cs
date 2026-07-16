@@ -69,7 +69,7 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             new HealthViewModel(root, shell, services.HealthAuditService),
             new BackupCenterViewModel(root),
             new SettingsViewModel(root, shell, services.VaultRegistryService),
-            new ActivityViewModel(root, services.ActivityLogService));
+            new ActivityViewModel(root, services.ActivityRecorder.Store));
     }
 }
 

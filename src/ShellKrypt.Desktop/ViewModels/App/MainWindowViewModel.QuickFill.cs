@@ -10,7 +10,7 @@ public partial class MainWindowViewModel
 {
     public void AttachQuickFillHotkey()
     {
-        _globalHotkeyService.Start(_quickFill);
+        _quickFillController.Start();
         OnPropertyChanged(nameof(QuickFillHotkeyStatus));
         OnPropertyChanged(nameof(CanConfigureQuickFillSystemShortcut));
         if (Current is ShellViewModel shell)
@@ -19,42 +19,32 @@ public partial class MainWindowViewModel
 
     public void Shutdown()
     {
-        _globalHotkeyService.Stop();
+        _quickFillController.Stop();
         Lock();
     }
 
     public void SaveQuickFillSettings()
     {
-        _quickFill.Normalize();
-        SaveSettingsAndSyncSessionSecurity();
-        AttachQuickFillHotkey();
+        _quickFillController.SaveSettings();
     }
 
     public void AcceptQuickFillAutoTypeAcknowledgement()
     {
-        if (_quickFill.HasAutoTypeAcknowledgement)
-            return;
-
-        _quickFill.AutoTypeAcknowledgedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-        SaveQuickFillSettings();
+        _quickFillController.AcceptAutoTypeAcknowledgement();
     }
 
     public IDisposable SuppressTransientFocusLoss() => _sessionSecurity.SuppressTransientFocusLoss();
 
-    public QuickFillTargetContext CaptureQuickFillTarget() => _foregroundWindowService.Capture();
+    public QuickFillTargetContext CaptureQuickFillTarget() => _quickFillController.CaptureTarget();
 
     public void ConfigureQuickFillSystemShortcut()
     {
-        _globalHotkeyService.ConfigurePortalShortcut();
-        OnPropertyChanged(nameof(QuickFillHotkeyStatus));
-        OnPropertyChanged(nameof(CanConfigureQuickFillSystemShortcut));
-        if (Current is ShellViewModel shell)
-            shell.QuickFill.RefreshHotkeyStatus();
+        _quickFillController.ConfigureSystemShortcut();
     }
 
     public void OpenQuickFillPopup()
     {
-        var target = _foregroundWindowService.Capture();
+        var target = _quickFillController.CaptureTarget();
         var suppression = SuppressTransientFocusLoss();
         _quickFillPopup.Open(this, target, suppression);
     }

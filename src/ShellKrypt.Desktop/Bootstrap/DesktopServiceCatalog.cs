@@ -18,16 +18,20 @@ using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Services.QuickFill;
+using ShellKrypt.Desktop.Services.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
 
 internal sealed record DesktopServiceCatalog(
-    AppState State,
-    AppSettingsService SettingsService,
+    IVaultSessionController VaultSession,
+    IDesktopSettingsController Settings,
+    IDesktopDialogService Dialogs,
+    ISecureClipboardService SecureClipboard,
+    IActivityRecorder ActivityRecorder,
+    IAutomaticBackupController AutomaticBackups,
+    IQuickFillController QuickFill,
     VaultRegistryService VaultRegistryService,
-    ActivityLogService ActivityLogService,
     LocalizationService Localization,
-    ClipboardService ClipboardService,
     AuthenticatorQrImageImportService AuthenticatorQrImportService,
     SessionSecurityService SessionSecurity,
     IVaultService VaultService,
@@ -54,5 +58,4 @@ internal sealed record DesktopServiceCatalog(
     IVaultCsvImportService CsvImportService,
     ForegroundWindowService ForegroundWindowService,
     AutoTypeService AutoTypeService,
-    GlobalHotkeyService GlobalHotkeyService,
-    AutomaticBackupCoordinator AutomaticBackupCoordinator);
+    GlobalHotkeyService GlobalHotkeyService);

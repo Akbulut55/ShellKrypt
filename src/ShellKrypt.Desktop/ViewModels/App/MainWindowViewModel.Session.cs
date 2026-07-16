@@ -8,13 +8,13 @@ public partial class MainWindowViewModel
     public void SetVaultPath(string path)
     {
         var nextPath = string.IsNullOrWhiteSpace(path) ? null : Path.GetFullPath(path);
-        if (!string.Equals(_state.VaultPath, nextPath, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(_vaultSession.VaultPath, nextPath, StringComparison.OrdinalIgnoreCase))
         {
-            _ = _clipboardService.ClearAsync();
-            _automaticBackupCoordinator.ClearSessionPassphrase();
+            _ = _secureClipboard.ClearAsync();
+            _automaticBackups.ClearSessionPassphrase();
         }
 
-        _state.VaultPath = nextPath;
+        _vaultSession.SetVaultPath(nextPath);
     }
 
     public void RecordActivity() => _sessionSecurity.RecordActivity();
@@ -29,28 +29,28 @@ public partial class MainWindowViewModel
 
     public void OnUnlocked(byte[] vaultKey)
     {
-        _state.VaultKey = vaultKey;
+        _vaultSession.SetVaultKey(vaultKey);
         OnPropertyChanged(nameof(IsUnlocked));
 
-        if (!string.IsNullOrWhiteSpace(_state.VaultPath))
-            _vaultRegistryService.MarkOpened(_state.VaultPath);
+        if (!string.IsNullOrWhiteSpace(_vaultSession.VaultPath))
+            _vaultRegistryService.MarkOpened(_vaultSession.VaultPath);
 
         LogActivity(
             category: "vault",
             title: "Vault unlocked",
-            detail: $"Opened {GetVaultDisplayName(_state.VaultPath)}.",
+            detail: $"Opened {GetVaultDisplayName(_vaultSession.VaultPath)}.",
             severity: "success",
-            vaultPath: _state.VaultPath,
-            affectedItem: GetVaultDisplayName(_state.VaultPath));
+            vaultPath: _vaultSession.VaultPath,
+            affectedItem: GetVaultDisplayName(_vaultSession.VaultPath));
 
         _sessionSecurity.SetUnlocked(true);
         ReplaceCurrent(CreateShell());
-        _automaticBackupCoordinator.Start();
+        _automaticBackups.Start();
     }
 
     public void Lock()
     {
-        var vaultPath = _state.VaultPath;
+        var vaultPath = _vaultSession.VaultPath;
         if (!string.IsNullOrWhiteSpace(vaultPath))
         {
             LogActivity(
@@ -62,11 +62,11 @@ public partial class MainWindowViewModel
                 affectedItem: GetVaultDisplayName(vaultPath));
         }
 
-        _automaticBackupCoordinator.Stop();
-        _automaticBackupCoordinator.ClearSessionPassphrase();
+        _automaticBackups.Stop();
+        _automaticBackups.ClearSessionPassphrase();
         _sessionSecurity.SetUnlocked(false);
-        _ = _clipboardService.ClearAsync();
-        _state.ClearSensitive();
+        _ = _secureClipboard.ClearAsync();
+        _vaultSession.ClearSensitive();
         OnPropertyChanged(nameof(IsUnlocked));
         GoWelcome();
     }
