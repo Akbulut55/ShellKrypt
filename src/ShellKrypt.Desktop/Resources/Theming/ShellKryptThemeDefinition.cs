@@ -1,6 +1,6 @@
 using Avalonia.Styling;
 
-namespace ShellKrypt.UI.Shared.Theming;
+namespace ShellKrypt.Desktop.Resources.Theming;
 
 public sealed record ShellKryptThemeDefinition(
     string Id,

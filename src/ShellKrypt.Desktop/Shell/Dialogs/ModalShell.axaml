@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="ShellKrypt.UI.Shared.Controls.ModalShell"
+             x:Class="ShellKrypt.Desktop.Shell.Dialogs.ModalShell"
              x:Name="Root"
              x:CompileBindings="False"
              IsVisible="{Binding IsOpen, ElementName=Root}">

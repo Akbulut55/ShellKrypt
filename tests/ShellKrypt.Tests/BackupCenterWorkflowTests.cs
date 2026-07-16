@@ -14,7 +14,7 @@ using ShellKrypt.Infrastructure.Backups;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
-using ShellKrypt.UI.Shared.Navigation;
+using ShellKrypt.Desktop.Shell.Navigation;
 using Xunit;
 
 namespace ShellKrypt.Tests;

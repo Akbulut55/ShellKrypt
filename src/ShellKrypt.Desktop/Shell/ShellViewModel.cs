@@ -23,7 +23,6 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.Features.ProjectSecrets;
 using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Desktop.Shell;
-using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.Shell;
 

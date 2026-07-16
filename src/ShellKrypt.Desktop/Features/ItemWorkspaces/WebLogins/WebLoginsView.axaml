@@ -1,7 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:shared="using:ShellKrypt.Desktop.Features.ItemWorkspaces.Shared"
-             xmlns:ui="using:ShellKrypt.UI.Shared.Controls"
+             xmlns:ui="using:ShellKrypt.Desktop.Shell.Dialogs"
              xmlns:feature="using:ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins"
              x:Class="ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins.WebLoginsView"
              x:DataType="feature:WebLoginsViewModel"

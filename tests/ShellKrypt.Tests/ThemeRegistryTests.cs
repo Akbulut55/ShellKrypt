@@ -4,7 +4,7 @@ using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Desktop.Features.Settings;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
-using ShellKrypt.UI.Shared.Theming;
+using ShellKrypt.Desktop.Resources.Theming;
 using Xunit;
 
 namespace ShellKrypt.Tests;

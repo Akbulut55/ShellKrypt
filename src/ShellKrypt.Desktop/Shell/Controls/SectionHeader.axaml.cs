@@ -2,7 +2,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Markup.Xaml;
 
-namespace ShellKrypt.UI.Shared.Controls;
+namespace ShellKrypt.Desktop.Shell.Controls;
 
 public partial class SectionHeader : UserControl
 {

@@ -1,4 +1,4 @@
-namespace ShellKrypt.UI.Shared.Navigation;
+namespace ShellKrypt.Desktop.Shell.Navigation;
 
 public static class ShellKryptSectionKeys
 {

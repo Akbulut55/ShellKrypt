@@ -5,7 +5,7 @@ using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.Desktop.Shell;
-using ShellKrypt.UI.Shared.Controls;
+using ShellKrypt.Desktop.Shell.Dialogs;
 
 namespace ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 

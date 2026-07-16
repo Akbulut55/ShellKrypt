@@ -1,4 +1,4 @@
-using ShellKrypt.UI.Shared.Search;
+using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using Xunit;
 
 namespace ShellKrypt.Tests;

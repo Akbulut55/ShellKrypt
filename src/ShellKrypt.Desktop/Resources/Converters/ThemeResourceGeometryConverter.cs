@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace ShellKrypt.UI.Shared.Converters;
+namespace ShellKrypt.Desktop.Resources.Converters;
 
 public sealed class ThemeResourceGeometryConverter : IValueConverter
 {
@@ -14,7 +14,7 @@ public sealed class ThemeResourceGeometryConverter : IValueConverter
             key = parameter as string;
 
         return !string.IsNullOrWhiteSpace(key) &&
-               Application.Current?.TryGetResource(key, null, out var resource) == true &&
+               Avalonia.Application.Current?.TryGetResource(key, null, out var resource) == true &&
                resource is Geometry geometry
             ? geometry
             : null;

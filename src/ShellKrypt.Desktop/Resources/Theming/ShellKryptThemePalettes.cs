@@ -1,7 +1,7 @@
 using System.Collections.ObjectModel;
 using Avalonia.Styling;
 
-namespace ShellKrypt.UI.Shared.Theming;
+namespace ShellKrypt.Desktop.Resources.Theming;
 
 public static class ShellKryptThemePalettes
 {

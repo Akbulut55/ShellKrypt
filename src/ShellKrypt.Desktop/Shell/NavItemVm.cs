@@ -1,7 +1,6 @@
 using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Localization;
-using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.Shell;
 

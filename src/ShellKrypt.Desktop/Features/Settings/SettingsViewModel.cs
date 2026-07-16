@@ -4,7 +4,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.UI.Shared.Theming;
+using ShellKrypt.Desktop.Resources.Theming;
 using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.Settings;

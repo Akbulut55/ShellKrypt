@@ -3,7 +3,7 @@ using Avalonia;
 using Avalonia.Data.Converters;
 using Avalonia.Media;
 
-namespace ShellKrypt.UI.Shared.Converters;
+namespace ShellKrypt.Desktop.Resources.Converters;
 
 public sealed class ThemeResourceBrushConverter : IValueConverter
 {
@@ -14,13 +14,13 @@ public sealed class ThemeResourceBrushConverter : IValueConverter
             key = parameter as string;
 
         if (!string.IsNullOrWhiteSpace(key) &&
-            Application.Current?.TryGetResource(key, null, out var resource) == true &&
+            Avalonia.Application.Current?.TryGetResource(key, null, out var resource) == true &&
             resource is IBrush brush)
         {
             return brush;
         }
 
-        return Application.Current?.TryGetResource("TextMutedBrush", null, out var fallback) == true
+        return Avalonia.Application.Current?.TryGetResource("TextMutedBrush", null, out var fallback) == true
             ? fallback
             : Brushes.Transparent;
     }

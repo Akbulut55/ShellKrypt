@@ -4,5 +4,4 @@
   <Project Path="src/ShellKrypt.Desktop/ShellKrypt.Desktop.csproj" />
   <Project Path="src/ShellKrypt.Infrastructure/ShellKrypt.Infrastructure.csproj" Id="ad80a042-c170-4f7f-b38a-91476f179f51" />
   <Project Path="tests/ShellKrypt.Tests/ShellKrypt.Tests.csproj" />
-  <Project Path="src/ShellKrypt.UI.Shared/ShellKrypt.UI.Shared.csproj" />
 </Solution>

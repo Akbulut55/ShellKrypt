@@ -1,6 +1,6 @@
 <ResourceDictionary xmlns="https://github.com/avaloniaui"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:converters="using:ShellKrypt.UI.Shared.Converters">
+                    xmlns:converters="using:ShellKrypt.Desktop.Resources.Converters">
 <FontFamily x:Key="AppFontFamily">avares://ShellKrypt/Resources/Fonts/Inter#Inter</FontFamily>
 <FontFamily x:Key="MonoFontFamily">avares://ShellKrypt/Resources/Fonts/JetBrainsMono#JetBrains Mono</FontFamily>
 <converters:ThemeResourceBrushConverter x:Key="ThemeResourceBrushConverter"/>

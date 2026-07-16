@@ -22,6 +22,12 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+### Changed
+
+- Moved the remaining Avalonia controls, theme definitions, converters, navigation
+  catalog, and presentation helpers from `ShellKrypt.UI.Shared` into their owning
+  Desktop feature and shell folders, removing the obsolete shared UI project.
+
 ### Removed
 
 - Removed the unfinished Quick Fill feature, including its encrypted entry type,

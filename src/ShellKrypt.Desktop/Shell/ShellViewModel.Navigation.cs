@@ -1,7 +1,6 @@
 using System.Threading.Tasks;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Desktop.Features.Authenticator;
-using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.Shell;
 

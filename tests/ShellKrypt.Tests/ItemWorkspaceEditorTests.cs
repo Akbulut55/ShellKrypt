@@ -9,7 +9,7 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.Shell.Runtime;
-using ShellKrypt.UI.Shared.Controls;
+using ShellKrypt.Desktop.Shell.Dialogs;
 using Xunit;
 
 namespace ShellKrypt.Tests;

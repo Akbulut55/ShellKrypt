@@ -1,4 +1,4 @@
-namespace ShellKrypt.UI.Shared.Search;
+namespace ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 
 public static class ItemSearchMatcher
 {

@@ -5,7 +5,7 @@ using Avalonia.Media;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.Shell;
-using ShellKrypt.UI.Shared.Theming;
+using ShellKrypt.Desktop.Resources.Theming;
 
 namespace ShellKrypt.Desktop
 {

@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.Vaulting;
-using ShellKrypt.UI.Shared.Theming;
+using ShellKrypt.Desktop.Resources.Theming;
 
 namespace ShellKrypt.Desktop.Features.Settings;
 

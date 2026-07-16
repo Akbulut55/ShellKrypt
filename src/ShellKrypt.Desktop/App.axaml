@@ -2,7 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              x:Class="ShellKrypt.Desktop.App"
              xmlns:local="using:ShellKrypt.Desktop"
-             xmlns:converters="using:ShellKrypt.UI.Shared.Converters"
+             xmlns:converters="using:ShellKrypt.Desktop.Resources.Converters"
              RequestedThemeVariant="Dark">
 
     <Application.Resources>

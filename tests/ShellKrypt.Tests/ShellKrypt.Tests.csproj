@@ -26,7 +26,6 @@
     <ProjectReference Include="..\..\src\ShellKrypt.Core\ShellKrypt.Core.csproj" />
     <ProjectReference Include="..\..\src\ShellKrypt.Desktop\ShellKrypt.Desktop.csproj" />
     <ProjectReference Include="..\..\src\ShellKrypt.Infrastructure\ShellKrypt.Infrastructure.csproj" />
-    <ProjectReference Include="..\..\src\ShellKrypt.UI.Shared\ShellKrypt.UI.Shared.csproj" />
   </ItemGroup>
 
 </Project>

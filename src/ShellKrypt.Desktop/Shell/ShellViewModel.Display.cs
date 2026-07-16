@@ -1,6 +1,5 @@
 using System.IO;
 using System.Linq;
-using ShellKrypt.UI.Shared.Navigation;
 
 namespace ShellKrypt.Desktop.Shell;
 

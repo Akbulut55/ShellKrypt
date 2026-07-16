@@ -1,6 +1,6 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             x:Class="ShellKrypt.UI.Shared.Controls.SectionHeader"
+             x:Class="ShellKrypt.Desktop.Shell.Controls.SectionHeader"
              x:Name="Root"
              x:CompileBindings="False">
   <StackPanel Spacing="4">
