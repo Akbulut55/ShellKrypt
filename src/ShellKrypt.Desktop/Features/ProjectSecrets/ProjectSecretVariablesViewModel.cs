@@ -3,13 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
 public partial class ProjectSecretVariablesViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly ProjectSecretsRuntime _root;
     private readonly IProjectSecretValueResolver _resolver;
     private readonly Func<IReadOnlyList<ApiKeyEntry>> _apiKeys;
     private ProjectSecretInput _draft = ProjectSecretEditSession.Empty();
@@ -33,7 +34,7 @@ public partial class ProjectSecretVariablesViewModel : ViewModelBase
     public bool ShowNoProfile => HasEnvironment && !HasProfile;
     public bool ShowNoVariables => HasProfile && !HasVariables;
 
-    public ProjectSecretVariablesViewModel(MainWindowViewModel root, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
+    public ProjectSecretVariablesViewModel(ProjectSecretsRuntime root, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
     {
         _root = root;
         _resolver = resolver;

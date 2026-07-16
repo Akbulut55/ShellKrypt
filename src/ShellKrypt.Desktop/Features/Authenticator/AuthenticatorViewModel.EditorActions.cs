@@ -35,29 +35,29 @@ public partial class AuthenticatorViewModel
 
     private async Task SaveEditorAsync(AuthenticatorInput input, AuthenticatorAccountVm? existingEntry)
     {
-        if (_root.VaultPath is null)
-            throw new InvalidOperationException(T(_root, "Common.NoVaultSelected"));
+        if (_desktop.Session.VaultPath is null)
+            throw new InvalidOperationException(T(_desktop.Localization, "Common.NoVaultSelected"));
 
         if (existingEntry is not null)
         {
             var updated = await _entryService.UpdateAsync(
-                _root.VaultPath,
-                _root.VaultKey,
+                _desktop.Session.VaultPath,
+                _desktop.Session.VaultKey,
                 existingEntry.Id,
                 existingEntry.CreatedAtUtc,
                 input);
             existingEntry.Apply(updated);
             RefreshSnapshots();
             await _refreshAllItemsAsync(updated.Id);
-            _root.LogActivity("authenticator", "Authenticator updated", $"Updated {updated.Name}.", "info", affectedItem: updated.Name);
+            _desktop.Activity.Log("authenticator", "Authenticator updated", $"Updated {updated.Name}.", "info", affectedItem: updated.Name);
             return;
         }
 
-        var added = await _entryService.AddAsync(_root.VaultPath, _root.VaultKey, input);
-        _allEntries.Insert(0, new AuthenticatorAccountVm(added, _root.Localization));
+        var added = await _entryService.AddAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey, input);
+        _allEntries.Insert(0, new AuthenticatorAccountVm(added, _desktop.Localization));
         RefreshSnapshots();
         ApplyFilter(added.Id);
         await _refreshAllItemsAsync(added.Id);
-        _root.LogActivity("authenticator", "Authenticator added", $"Added {added.Name}.", "success", affectedItem: added.Name);
+        _desktop.Activity.Log("authenticator", "Authenticator added", $"Added {added.Name}.", "success", affectedItem: added.Name);
     }
 }

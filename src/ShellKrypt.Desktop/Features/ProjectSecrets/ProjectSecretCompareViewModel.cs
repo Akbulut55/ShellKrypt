@@ -3,7 +3,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 

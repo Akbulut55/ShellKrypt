@@ -2,11 +2,12 @@ using System.Collections.ObjectModel;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
-public partial class ProjectSecretVariableEditorViewModel(MainWindowViewModel root) : ViewModelBase
+public partial class ProjectSecretVariableEditorViewModel(ProjectSecretsRuntime root) : ViewModelBase
 {
     private ProjectSecretVariableEntry? _original;
     public Func<ProjectSecretVariableEntry, Task<bool>>? SaveRequested { get; set; }

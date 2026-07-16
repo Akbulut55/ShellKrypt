@@ -1,7 +1,8 @@
 using Avalonia.Media;
 using ShellKrypt.Application.Settings;
-using ShellKrypt.Application.Vaulting;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.Settings;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.UI.Shared.Theming;
 using Xunit;
@@ -78,8 +79,9 @@ public sealed class ThemeRegistryTests
     {
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
-        var root = new MainWindowViewModel();
-        var settings = new SettingsViewModel(root, null!, new VaultRegistryService(new FileVaultRegistryStore()));
+        var root = DesktopBootstrap.CreateMainWindowViewModel();
+        root.Navigation.OnUnlocked(new byte[32]);
+        var settings = Assert.IsType<ShellViewModel>(root.Current).Settings;
         var light = Assert.Single(settings.ThemeOptions, option => option.Id == ShellKryptThemePalettes.LightId);
 
         Assert.Equal(ShellKryptThemePalettes.All.Count, settings.ThemeOptions.Count);

@@ -1,42 +1,45 @@
+using Avalonia.Input.Platform;
+using Avalonia.Media.Imaging;
+using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.ApiKeys;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.CreditCards;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.Shared;
 using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Infrastructure.Services;
+using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.UI.Shared.Controls;
 using Xunit;
 
 namespace ShellKrypt.Tests;
 
 [Collection(AppRootTestCollection.Name)]
-public sealed class ItemWorkspaceEditorTests : IDisposable
+public sealed class ItemWorkspaceEditorTests
 {
-    private readonly string? _previousAppRoot;
-    private readonly string _appRoot;
-    private readonly MainWindowViewModel _root;
+    private readonly LocalizationService _localization = new();
+    private readonly ItemWorkspaceRuntime _runtime;
 
     public ItemWorkspaceEditorTests()
     {
-        _appRoot = Path.Combine(Path.GetTempPath(), "ShellKrypt.ItemWorkspace.Tests", Guid.NewGuid().ToString("N"));
-        _previousAppRoot = Environment.GetEnvironmentVariable(DefaultPaths.AppRootOverrideEnvironmentVariable);
-        Environment.SetEnvironmentVariable(DefaultPaths.AppRootOverrideEnvironmentVariable, _appRoot);
-        _root = new MainWindowViewModel();
+        _runtime = new ItemWorkspaceRuntime(
+            new VaultSessionController(new AppState()),
+            _localization,
+            new StubActivityRecorder(),
+            new StubSecureClipboard());
     }
 
     [Fact]
     public void WebLoginEditor_CancelEditRestoresSnapshot()
     {
         var editor = new WebLoginEditorViewModel(
-            _root,
+            _runtime,
             new StubWebLoginService(),
             new CapturingPasswordGenerator(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
         var row = new WebLoginRowVm(
-            _root.Localization,
+            _localization,
             "login-1",
             "Example",
             "user",
@@ -65,7 +68,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     {
         var generator = new CapturingPasswordGenerator();
         var editor = new WebLoginEditorViewModel(
-            _root,
+            _runtime,
             new StubWebLoginService(),
             generator,
             (_, _) => Task.CompletedTask,
@@ -114,12 +117,12 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     public void CardEditor_DeleteCancelReturnsToDetailsWithoutChangingValues()
     {
         var editor = new CardEditorViewModel(
-            _root,
+            _runtime,
             new StubCardService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
         var row = new CardRowVm(
-            _root.Localization,
+            _localization,
             "card-1",
             "Personal",
             "Bank",
@@ -149,7 +152,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
     public void CardEditor_PreviewAlwaysMasksNumberAndNeverContainsCvc()
     {
         var editor = new CardEditorViewModel(
-            _root,
+            _runtime,
             new StubCardService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
@@ -185,12 +188,12 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
             "2026-01-02T00:00:00Z",
             "service-user");
         var editor = new ApiKeyEditorViewModel(
-            _root,
+            _runtime,
             new StubApiKeyService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
 
-        editor.OpenDetails(new ApiKeyRowVm(entry, _root.Localization));
+        editor.OpenDetails(new ApiKeyRowVm(entry, _localization));
         editor.BeginEditCommand.Execute(null);
         editor.Value = "changed-secret";
         editor.CancelEditCommand.Execute(null);
@@ -214,16 +217,16 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
             "2026-01-02T00:00:00Z",
             "service-user");
         var editor = new ApiKeyEditorViewModel(
-            _root,
+            _runtime,
             new StubApiKeyService(),
             (_, _) => Task.CompletedTask,
             _ => Task.CompletedTask);
 
-        editor.OpenDetails(new ApiKeyRowVm(entry, _root.Localization));
+        editor.OpenDetails(new ApiKeyRowVm(entry, _localization));
 
         Assert.Equal(ModalShellSize.ItemDetails, editor.ModalSize);
         Assert.DoesNotContain("api-secret", editor.ValueDisplay, StringComparison.Ordinal);
-        Assert.Equal(_root.Localization.Get("ItemWorkspace.Details.NoNotes"), editor.NotesDisplay);
+        Assert.Equal(_localization.Get("ItemWorkspace.Details.NoNotes"), editor.NotesDisplay);
 
         editor.ToggleValueCommand.Execute(null);
         editor.BeginDeleteCommand.Execute(null);
@@ -232,7 +235,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
 
     private WebLoginEditorViewModel CreateWebLoginEditor()
         => new(
-            _root,
+            _runtime,
             new StubWebLoginService(),
             new CapturingPasswordGenerator(),
             (_, _) => Task.CompletedTask,
@@ -240,7 +243,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
 
     private WebLoginRowVm CreateWebLoginRow()
         => new(
-            _root.Localization,
+            _localization,
             "login-1",
             "Example",
             "user",
@@ -254,7 +257,7 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
 
     private CardRowVm CreateCardRow()
         => new(
-            _root.Localization,
+            _localization,
             "card-1",
             "Personal",
             "Bank",
@@ -269,11 +272,19 @@ public sealed class ItemWorkspaceEditorTests : IDisposable
             "2026-01-01T00:00:00Z",
             "2026-01-02T00:00:00Z");
 
-    public void Dispose()
+    private sealed class StubActivityRecorder : IActivityRecorder
     {
-        Environment.SetEnvironmentVariable(DefaultPaths.AppRootOverrideEnvironmentVariable, _previousAppRoot);
-        if (Directory.Exists(_appRoot))
-            Directory.Delete(_appRoot, recursive: true);
+        public ActivityLogService Store => throw new NotSupportedException();
+        public event EventHandler? Changed { add { } remove { } }
+        public void Log(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) { }
+    }
+
+    private sealed class StubSecureClipboard : ISecureClipboardService
+    {
+        public void Attach(IClipboard? clipboard) { }
+        public Task CopyAsync(string text) => Task.CompletedTask;
+        public Task ClearAsync() => Task.CompletedTask;
+        public Task<Bitmap?> TryGetBitmapAsync() => Task.FromResult<Bitmap?>(null);
     }
 
     private sealed class CapturingPasswordGenerator : IPasswordGenerator

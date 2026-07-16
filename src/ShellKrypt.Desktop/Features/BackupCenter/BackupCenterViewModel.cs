@@ -1,12 +1,21 @@
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Core.Backups;
+using ShellKrypt.Core.DataTransfer;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 
 public sealed class BackupCenterViewModel : ViewModelBase
 {
-    public BackupCenterViewModel(MainWindowViewModel root)
+    public BackupCenterViewModel(
+        BackupCenterRuntime desktop,
+        IAutomaticBackupController automaticBackups,
+        IEncryptedVaultBackupService backups,
+        IVaultPlaintextExportService plaintextExports,
+        IVaultCsvImportService csvImports,
+        IDesktopNavigation navigation)
     {
-        var context = new BackupCenterContext(root);
+        var context = new BackupCenterContext(desktop, automaticBackups, backups, plaintextExports, csvImports, navigation);
         Operation = new BackupOperationState();
         History = new BackupHistoryViewModel(context);
         Health = new BackupHealthViewModel(context, History);

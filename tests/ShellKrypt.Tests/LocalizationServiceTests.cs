@@ -1,5 +1,7 @@
 using ShellKrypt.Application.Localization;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Features.VaultAccess;
+using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Infrastructure.Services;
 using System.Text.RegularExpressions;
 using Xunit;
@@ -113,12 +115,12 @@ public sealed class LocalizationServiceTests
     {
         using var workspace = new TempWorkspace();
         using var appRoot = new AppRootScope(workspace.FilePath("appdata"));
-        var root = new MainWindowViewModel();
+        var root = DesktopBootstrap.CreateMainWindowViewModel();
         var welcome = Assert.IsType<WelcomeViewModel>(root.Current);
 
         Assert.Equal("No vaults yet", welcome.EmptyStateTitle);
 
-        root.LanguageId = "tr";
+        root.Localization.SetLanguage("tr");
 
         Assert.Equal("Henüz kasa yok", welcome.EmptyStateTitle);
     }
@@ -152,12 +154,12 @@ public sealed class LocalizationServiceTests
 
     private static IEnumerable<string> EnumerateDesktopViewModelLocalizationKeyLiterals()
     {
-        var viewModelsRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop", "ViewModels");
+        var desktopRoot = Path.Combine(FindRepositoryRoot(), "src", "ShellKrypt.Desktop");
         var regex = new Regex(
             "\"([A-Z][A-Za-z0-9]*(?:\\.[A-Za-z0-9]+){1,})\"",
             RegexOptions.Compiled);
 
-        foreach (var filePath in Directory.EnumerateFiles(viewModelsRoot, "*.cs", SearchOption.AllDirectories))
+        foreach (var filePath in Directory.EnumerateFiles(desktopRoot, "*ViewModel*.cs", SearchOption.AllDirectories))
         {
             var text = File.ReadAllText(filePath);
             foreach (Match match in regex.Matches(text))

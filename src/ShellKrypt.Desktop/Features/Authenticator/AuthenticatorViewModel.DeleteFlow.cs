@@ -29,15 +29,15 @@ public partial class AuthenticatorViewModel
     {
         Error = string.Empty;
 
-        if (_root.VaultPath is null)
+        if (_desktop.Session.VaultPath is null)
         {
-            Error = T(_root, "Common.NoVaultSelected");
+            Error = T(_desktop.Localization, "Common.NoVaultSelected");
             return;
         }
 
         if (SelectedEntry is null)
         {
-            Error = T(_root, "Authenticator.Validation.NoSelection");
+            Error = T(_desktop.Localization, "Authenticator.Validation.NoSelection");
             return;
         }
 
@@ -45,11 +45,11 @@ public partial class AuthenticatorViewModel
         try
         {
             var deleted = SelectedEntry;
-            await _entryService.DeleteAsync(_root.VaultPath, deleted.Id);
+            await _entryService.DeleteAsync(_desktop.Session.VaultPath, deleted.Id);
             _allEntries.Remove(deleted);
             ApplyFilter();
             await _refreshAllItemsAsync(null);
-            _root.LogActivity("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning", affectedItem: deleted.Name);
+            _desktop.Activity.Log("authenticator", "Authenticator deleted", $"Deleted {deleted.Name}.", "warning", affectedItem: deleted.Name);
             IsDeleteConfirmOpen = false;
         }
         catch (Exception ex)

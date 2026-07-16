@@ -1,0 +1,265 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.VaultAccess"
+             x:Class="ShellKrypt.Desktop.Features.VaultAccess.UnlockView"
+             x:CompileBindings="False"
+             x:DataType="vm:UnlockViewModel">
+  <Grid Background="{StaticResource AppBackgroundBrush}">
+    <Border Background="{StaticResource HeroGlowPrimaryBrush}"
+            CornerRadius="999"
+            Width="420"
+            Height="420"
+            HorizontalAlignment="Left"
+            VerticalAlignment="Top"
+            Margin="180,160,0,0"
+            IsHitTestVisible="False">
+      <Border.Effect>
+        <BlurEffect Radius="120"/>
+      </Border.Effect>
+    </Border>
+
+    <Border Background="{StaticResource HeroGlowSecondaryBrush}"
+            CornerRadius="999"
+            Width="360"
+            Height="360"
+            HorizontalAlignment="Right"
+            VerticalAlignment="Bottom"
+            Margin="0,0,180,140"
+            IsHitTestVisible="False">
+      <Border.Effect>
+        <BlurEffect Radius="110"/>
+      </Border.Effect>
+    </Border>
+
+    <StackPanel Width="400"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="18">
+      <StackPanel Spacing="8"
+                  HorizontalAlignment="Center">
+        <Border Width="62"
+                Height="62"
+                CornerRadius="14"
+                Background="{StaticResource SurfaceRaisedBrush}"
+                BorderBrush="{StaticResource BorderBrushSoft}"
+                BorderThickness="1">
+          <Path Width="38"
+                Height="38"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Stretch="Uniform"
+                Fill="{StaticResource CaptionButtonHoverForegroundBrush}"
+                Data="{StaticResource IconShellKryptLogo}"/>
+        </Border>
+        <TextBlock Text="ShellKrypt"
+                   FontSize="28"
+                   FontWeight="Black"
+                   HorizontalAlignment="Center"/>
+        <TextBlock Text="{DynamicResource Loc.Unlock.Tagline}"
+                   Classes="page-subtitle"
+                   FontSize="14"
+                   HorizontalAlignment="Center"/>
+      </StackPanel>
+
+      <Border Classes="unlock-card">
+        <StackPanel Spacing="0">
+          <Border Padding="36,32">
+            <StackPanel Spacing="20">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{Binding VaultTitle}"
+                         FontSize="20"
+                         FontWeight="SemiBold"/>
+              <TextBlock Text="{Binding VaultDescription}"
+                         Classes="page-subtitle"
+                         FontSize="13"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <StackPanel Spacing="8">
+              <TextBlock Text="{DynamicResource Loc.Common.MasterPassword.Label}"
+                         Classes="unlock-kicker"/>
+              <Border Classes="sk-input-shell">
+                <Grid ColumnDefinitions="*,Auto"
+                      ColumnSpacing="8">
+                  <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           Classes="sk-input sk-input-borderless"
+                           PlaceholderText="{DynamicResource Loc.Unlock.Password.Placeholder}"
+                           PasswordChar="*"
+                           IsVisible="{Binding !ShowPassword}"/>
+                  <TextBox Text="{Binding MasterPassword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           Classes="sk-input sk-input-borderless"
+                           PlaceholderText="{DynamicResource Loc.Unlock.Password.Placeholder}"
+                           IsVisible="{Binding ShowPassword}"/>
+                  <Button Grid.Column="1"
+                          Classes="sk-icon-ghost"
+                          Command="{Binding TogglePasswordVisibilityCommand}"
+                          ToolTip.Tip="{Binding PasswordVisibilityLabel}">
+                    <Grid>
+                      <PathIcon Data="{StaticResource IconVisibility}"
+                                Width="17"
+                                Height="17"
+                                IsVisible="{Binding !ShowPassword}"/>
+                      <PathIcon Data="{StaticResource IconVisibilityOff}"
+                                Width="17"
+                                Height="17"
+                                IsVisible="{Binding ShowPassword}"/>
+                    </Grid>
+                  </Button>
+                </Grid>
+              </Border>
+            </StackPanel>
+
+            <Button Content="{DynamicResource Loc.Unlock.Button.Unlock}"
+                    Classes="sk-primary"
+                    Command="{Binding UnlockCommand}"
+                    IsDefault="True"
+                    HorizontalAlignment="Stretch"
+                    IsEnabled="{Binding !IsBusy}"/>
+
+              <Grid ColumnDefinitions="*,Auto"
+                  Margin="0,6,0,0">
+              <StackPanel Spacing="4">
+                <TextBlock Text="{DynamicResource Loc.Unlock.VaultStatus.Label}"
+                           Classes="unlock-kicker"/>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="8">
+                  <Border Width="8"
+                          Height="8"
+                          CornerRadius="999"
+                          Background="{StaticResource DangerBrush}"
+                          VerticalAlignment="Center"/>
+                  <TextBlock Text="{Binding VaultStatusDisplay}"
+                             FontSize="12"
+                             FontWeight="SemiBold"/>
+                </StackPanel>
+              </StackPanel>
+
+              <StackPanel Grid.Column="1"
+                          Spacing="4"
+                          HorizontalAlignment="Right">
+                <TextBlock Text="{DynamicResource Loc.Unlock.LastUpdated.Label}"
+                           Classes="unlock-kicker"
+                           HorizontalAlignment="Right"/>
+                <TextBlock Text="{Binding LastUpdatedDisplay}"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           HorizontalAlignment="Right"/>
+              </StackPanel>
+            </Grid>
+            </StackPanel>
+          </Border>
+
+          <Border Background="{StaticResource SurfaceRaisedBrush}"
+                  Padding="36,20">
+            <Grid ColumnDefinitions="*,Auto"
+                  ColumnSpacing="10"
+                  VerticalAlignment="Center">
+              <StackPanel Orientation="Horizontal"
+                          Spacing="8">
+                <TextBlock Text="✓"
+                           Foreground="{StaticResource AccentBrush}"
+                           FontWeight="Black"
+                           VerticalAlignment="Center"/>
+                <TextBlock Text="{Binding EncryptionDisplay}"
+                           Classes="page-subtitle"
+                           FontSize="12"/>
+              </StackPanel>
+              <Button Grid.Column="1"
+                      Content="{DynamicResource Loc.Unlock.Button.ForgotPassword}"
+                      Classes="sk-link"
+                      Command="{Binding ShowRecoveryCommand}"/>
+            </Grid>
+          </Border>
+        </StackPanel>
+      </Border>
+
+      <Button Content="{DynamicResource Loc.Unlock.Button.BackToVaults}"
+              Classes="sk-link"
+              Command="{Binding BackCommand}"
+              HorizontalAlignment="Center"/>
+
+      <TextBlock Text="{Binding Error}"
+                 Foreground="{StaticResource DangerBrush}"
+                 FontSize="12"
+                 TextAlignment="Center"
+                 IsVisible="{Binding HasError}"/>
+
+      <TextBlock Text="{Binding SessionIdDisplay}"
+                 Classes="page-subtitle"
+                 FontSize="10"
+                 HorizontalAlignment="Center"
+                 Opacity="0.55"/>
+    </StackPanel>
+
+    <Border Background="{StaticResource OverlaySoftScrimBrush}"
+            IsVisible="{Binding ShowRecoveryInfo}">
+      <Grid HorizontalAlignment="Center"
+            VerticalAlignment="Center"
+            MaxWidth="480"
+            Margin="24">
+        <Border Background="{StaticResource SidebarBrush}"
+                CornerRadius="18"
+                Padding="24">
+          <StackPanel Spacing="18">
+            <StackPanel Spacing="8">
+              <TextBlock Text="{Binding RecoveryTitle}"
+                         FontSize="24"
+                         FontWeight="Black"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding RecoveryBody}"
+                         Classes="page-subtitle"
+                         FontSize="13"
+                         TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding RecoverySecondaryBody}"
+                         Classes="page-subtitle"
+                         FontSize="13"
+                         TextWrapping="Wrap"/>
+            </StackPanel>
+
+            <Border Background="{StaticResource SurfaceBrush}"
+                    CornerRadius="12"
+                    Padding="14">
+              <StackPanel Spacing="6">
+                <TextBlock Text="{DynamicResource Loc.Unlock.Recovery.PathTitle}"
+                           Classes="unlock-kicker"/>
+                <TextBlock Text="{DynamicResource Loc.Unlock.Recovery.Step1}"
+                           Classes="page-subtitle"
+                           FontSize="12"/>
+                <TextBlock Text="{DynamicResource Loc.Unlock.Recovery.Step2}"
+                           Classes="page-subtitle"
+                           FontSize="12"/>
+                <TextBlock Text="{DynamicResource Loc.Unlock.Recovery.Step3}"
+                           Classes="page-subtitle"
+                           FontSize="12"/>
+              </StackPanel>
+            </Border>
+
+            <Button Content="{DynamicResource Loc.Common.Close}"
+                    Classes="sk-primary"
+                    Command="{Binding CloseRecoveryCommand}"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+    </Border>
+  </Grid>
+
+  <UserControl.Styles>
+    <Style Selector="Border.unlock-card">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="CornerRadius" Value="16"/>
+      <Setter Property="ClipToBounds" Value="True"/>
+    </Style>
+
+    <Style Selector="TextBlock.unlock-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+      <Setter Property="LetterSpacing" Value="1.2"/>
+    </Style>
+
+
+
+
+
+  </UserControl.Styles>
+</UserControl>

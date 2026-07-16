@@ -3,13 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
 public partial class ProjectSecretImportExportViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly ProjectSecretsRuntime _root;
     private readonly IProjectSecretEnvParser _parser;
     private readonly IProjectSecretEnvWriter _writer;
     private readonly IProjectSecretValueResolver _resolver;
@@ -40,7 +41,7 @@ public partial class ProjectSecretImportExportViewModel : ViewModelBase
     public bool ReplaceExisting => ConflictStrategy == ProjectSecretEnvImportConflictStrategy.ReplaceExisting;
     public bool SkipExisting => ConflictStrategy == ProjectSecretEnvImportConflictStrategy.SkipExisting;
 
-    public ProjectSecretImportExportViewModel(MainWindowViewModel root, IProjectSecretEnvParser parser, IProjectSecretEnvWriter writer, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
+    public ProjectSecretImportExportViewModel(ProjectSecretsRuntime root, IProjectSecretEnvParser parser, IProjectSecretEnvWriter writer, IProjectSecretValueResolver resolver, Func<IReadOnlyList<ApiKeyEntry>> apiKeys)
     { _root = root; _parser = parser; _writer = writer; _resolver = resolver; _apiKeys = apiKeys; }
 
     public void Load(ProjectSecretInput project, bool enabled)

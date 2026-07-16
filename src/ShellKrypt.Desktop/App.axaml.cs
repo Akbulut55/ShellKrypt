@@ -3,8 +3,8 @@ using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using Avalonia.Media;
 using ShellKrypt.Application.Localization;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Desktop.Views;
+using ShellKrypt.Desktop.Bootstrap;
+using ShellKrypt.Desktop.Shell;
 using ShellKrypt.UI.Shared.Theming;
 
 namespace ShellKrypt.Desktop
@@ -20,7 +20,7 @@ namespace ShellKrypt.Desktop
         {
             if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
-                var mainWindowViewModel = new MainWindowViewModel();
+                var mainWindowViewModel = DesktopBootstrap.CreateMainWindowViewModel();
                 ApplyTheme(mainWindowViewModel.ThemeId);
                 ApplyLocalization(mainWindowViewModel.Localization);
                 desktop.MainWindow = new MainWindow

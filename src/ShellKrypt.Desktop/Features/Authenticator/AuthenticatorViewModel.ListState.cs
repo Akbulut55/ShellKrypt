@@ -41,9 +41,9 @@ public partial class AuthenticatorViewModel
     {
         Error = string.Empty;
 
-        if (_root.VaultPath is null)
+        if (_desktop.Session.VaultPath is null)
         {
-            Error = T(_root, "Common.NoVaultSelected");
+            Error = T(_desktop.Localization, "Common.NoVaultSelected");
             return;
         }
 
@@ -51,9 +51,9 @@ public partial class AuthenticatorViewModel
         try
         {
             _allEntries.Clear();
-            var entries = await _entryService.ListAsync(_root.VaultPath, _root.VaultKey);
+            var entries = await _entryService.ListAsync(_desktop.Session.VaultPath, _desktop.Session.VaultKey);
             foreach (var entry in entries)
-                _allEntries.Add(new AuthenticatorAccountVm(entry, _root.Localization));
+                _allEntries.Add(new AuthenticatorAccountVm(entry, _desktop.Localization));
 
             RefreshSnapshots();
             ApplyFilter(selectEntryId);

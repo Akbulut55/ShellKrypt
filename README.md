@@ -58,7 +58,7 @@ ShellKrypt is licensed under GPL-3.0-or-later. See [`LICENSE`](LICENSE) for deta
 
 ## Notes
 
-- The current desktop application version is `0.24.0`.
+- The current desktop application version is `0.25.0`.
 - The official source repository is [Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
 - `ShellKrypt.slnx` is the canonical workload-neutral solution; Android and iOS heads build directly from their project files.
 - Official signed builds, distribution channels, support, names, and branding may be governed separately as described in [`NOTICE.md`](NOTICE.md).

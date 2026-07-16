@@ -1,0 +1,275 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.QuickFill"
+             xmlns:qfcontrols="using:ShellKrypt.Desktop.Features.QuickFill"
+             x:Class="ShellKrypt.Desktop.Features.QuickFill.QuickFillView"
+             x:Name="Root"
+             x:CompileBindings="False"
+             x:DataType="vm:QuickFillViewModel">
+
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="16"
+                MaxWidth="1240"
+                Spacing="14">
+      <Grid ColumnDefinitions="*,Auto,Auto"
+            ColumnSpacing="10">
+        <StackPanel Spacing="6">
+          <TextBlock Text="{DynamicResource Loc.QuickFill.Title}"
+                     FontSize="30"
+                     FontWeight="SemiBold"/>
+          <TextBlock Text="{DynamicResource Loc.QuickFill.Subtitle}"
+                     Classes="page-subtitle"
+                     TextWrapping="Wrap"/>
+        </StackPanel>
+        <Button Grid.Column="1"
+                Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
+                Classes="sk-primary"
+                Command="{Binding NewEntryCommand}"
+                VerticalAlignment="Top"/>
+        <Button Grid.Column="2"
+                Content="{DynamicResource Loc.QuickFill.Button.Refresh}"
+                Classes="sk-secondary"
+                Command="{Binding RefreshCommand}"
+                VerticalAlignment="Top"/>
+      </Grid>
+
+      <Grid ColumnDefinitions="*,*,*,*"
+            ColumnSpacing="10">
+        <Border Classes="qf-metric-card">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Metric.EnabledEntries}"
+                       Classes="qf-kicker"/>
+            <TextBlock Text="{Binding EnabledEntryCount}"
+                       Classes="qf-metric-value"/>
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Entries.Title}"
+                       Classes="qf-muted"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="1"
+                Classes="qf-metric-card">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Metric.TargetApps}"
+                       Classes="qf-kicker"/>
+            <TextBlock Text="{Binding TargetAppCount}"
+                       Classes="qf-metric-value"/>
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Editor.Target}"
+                       Classes="qf-muted"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="2"
+                Classes="qf-metric-card">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Metric.LinkedFields}"
+                       Classes="qf-kicker"/>
+            <TextBlock Text="{Binding LinkedFieldCount}"
+                       Classes="qf-metric-value"/>
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Editor.LinkedFields}"
+                       Classes="qf-muted"/>
+          </StackPanel>
+        </Border>
+        <Border Grid.Column="3"
+                Classes="qf-metric-card">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.QuickFill.Metric.AutoType}"
+                       Classes="qf-kicker"/>
+            <TextBlock Text="{Binding AutoTypeReadyStatus}"
+                       Classes="qf-metric-value"/>
+            <TextBlock Text="{Binding HotkeyStatus}"
+                       Classes="qf-muted"
+                       TextTrimming="CharacterEllipsis"/>
+            <Button Content="{DynamicResource Loc.QuickFill.Button.ConfigureSystemShortcut}"
+                    Classes="sk-secondary"
+                    Command="{Binding ConfigureSystemShortcutCommand}"
+                    IsVisible="{Binding CanConfigureSystemShortcut}"
+                    HorizontalAlignment="Left"/>
+          </StackPanel>
+        </Border>
+      </Grid>
+
+      <Border Classes="qf-toolbar">
+        <Grid ColumnDefinitions="2*,180,180,Auto,Auto"
+              ColumnSpacing="10">
+          <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PlaceholderText="{DynamicResource Loc.QuickFill.Search.Placeholder}"/>
+          <ComboBox Grid.Column="1"
+                    Classes="sk-combo-filter"
+                    ItemsSource="{Binding CategoryFilters}"
+                    SelectedItem="{Binding SelectedCategoryFilter, Mode=TwoWay}"/>
+          <ComboBox Grid.Column="2"
+                    Classes="sk-combo-filter"
+                    ItemsSource="{Binding TargetFilters}"
+                    SelectedItem="{Binding SelectedTargetFilter, Mode=TwoWay}"/>
+          <CheckBox Grid.Column="3"
+                    Content="{DynamicResource Loc.QuickFill.Filter.EnabledOnly}"
+                    IsChecked="{Binding EnabledOnly, Mode=TwoWay}"
+                    VerticalAlignment="Center"/>
+          <Button Grid.Column="4"
+                  Content="{DynamicResource Loc.QuickFill.Button.AcknowledgeAutoType}"
+                  Classes="sk-secondary"
+                  Command="{Binding AcknowledgeAutoTypeCommand}"/>
+        </Grid>
+      </Border>
+
+      <Grid ColumnDefinitions="400,*"
+            ColumnSpacing="14">
+        <Border Classes="qf-panel">
+          <Grid RowDefinitions="Auto,*"
+                RowSpacing="12">
+            <Grid ColumnDefinitions="*,Auto">
+              <TextBlock Text="{DynamicResource Loc.QuickFill.Entries.Title}"
+                         Classes="qf-section-title"/>
+              <TextBlock Grid.Column="1"
+                         Text="{Binding AutoTypeAcknowledgementText}"
+                         Classes="qf-muted"
+                         TextTrimming="CharacterEllipsis"/>
+            </Grid>
+
+            <Grid Grid.Row="1">
+              <ListBox ItemsSource="{Binding FilteredEntries}"
+                       SelectedItem="{Binding SelectedEntry, Mode=TwoWay}"
+                       Classes="qf-entry-list"
+                       IsVisible="{Binding HasFilteredEntries}">
+                <ListBox.ItemTemplate>
+                  <DataTemplate x:DataType="vm:QuickFillEntryRowVm">
+                    <Border Classes="qf-entry-row">
+                      <Grid RowDefinitions="Auto,Auto,Auto"
+                            RowSpacing="6">
+                        <Grid ColumnDefinitions="*,Auto,Auto,Auto"
+                              ColumnSpacing="8">
+                          <TextBlock Text="{Binding Name}"
+                                     FontWeight="SemiBold"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding EnabledDisplay}"
+                                     Classes="qf-badge"/>
+                          <CheckBox Grid.Column="2"
+                                    IsChecked="{Binding IsEnabled, Mode=TwoWay}"
+                                    Command="{Binding DataContext.SetEntryEnabledCommand, ElementName=Root}"
+                                    CommandParameter="{Binding}"
+                                    VerticalAlignment="Center"/>
+                          <Button Grid.Column="3"
+                                  Content="X"
+                                  Classes="sk-secondary"
+                                  Command="{Binding DataContext.DeleteEntryRowCommand, ElementName=Root}"
+                                  CommandParameter="{Binding}"
+                                  Height="28"
+                                  Padding="8,0"/>
+                        </Grid>
+                        <TextBlock Grid.Row="1"
+                                   Text="{Binding TargetDisplay}"
+                                   Classes="qf-muted"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <Grid Grid.Row="2"
+                              ColumnDefinitions="*,Auto">
+                          <TextBlock Text="{Binding Category}"
+                                     Classes="qf-muted"
+                                     TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Grid.Column="1"
+                                     Text="{Binding FieldSummary}"
+                                     Classes="qf-muted"/>
+                        </Grid>
+                      </Grid>
+                    </Border>
+                  </DataTemplate>
+                </ListBox.ItemTemplate>
+              </ListBox>
+
+              <Border Classes="qf-empty-panel"
+                      IsVisible="{Binding !HasFilteredEntries}">
+                <StackPanel Spacing="8"
+                            HorizontalAlignment="Center"
+                            VerticalAlignment="Center">
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Empty.Title}"
+                             FontSize="18"
+                             FontWeight="SemiBold"
+                             TextAlignment="Center"/>
+                  <TextBlock Text="{DynamicResource Loc.QuickFill.Empty.Subtitle}"
+                             Classes="page-subtitle"
+                             TextWrapping="Wrap"
+                             TextAlignment="Center"
+                             MaxWidth="260"/>
+                  <Button Content="{DynamicResource Loc.QuickFill.Button.NewEntry}"
+                          Classes="sk-primary"
+                          Command="{Binding NewEntryCommand}"
+                          HorizontalAlignment="Center"/>
+                </StackPanel>
+              </Border>
+            </Grid>
+          </Grid>
+        </Border>
+
+        <Border Grid.Column="1"
+                Classes="qf-panel">
+          <ScrollViewer VerticalScrollBarVisibility="Auto"
+                        HorizontalScrollBarVisibility="Disabled">
+            <qfcontrols:QuickFillEntryEditorView DataContext="{Binding Editor}"/>
+          </ScrollViewer>
+        </Border>
+      </Grid>
+    </StackPanel>
+  </ScrollViewer>
+
+  <UserControl.Styles>
+    <Style Selector="Border.qf-panel, Border.qf-metric-card, Border.qf-toolbar">
+      <Setter Property="Background" Value="{StaticResource SidebarBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="12"/>
+      <Setter Property="Padding" Value="16"/>
+    </Style>
+
+    <Style Selector="Border.qf-entry-row">
+      <Setter Property="Background" Value="{StaticResource SurfaceRaisedBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="8"/>
+      <Setter Property="Padding" Value="12"/>
+      <Setter Property="Margin" Value="0,0,0,10"/>
+    </Style>
+
+    <Style Selector="Border.qf-empty-panel">
+      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
+      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
+      <Setter Property="BorderThickness" Value="1"/>
+      <Setter Property="CornerRadius" Value="10"/>
+      <Setter Property="Padding" Value="18"/>
+      <Setter Property="MinHeight" Value="520"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-kicker">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="10"/>
+      <Setter Property="FontWeight" Value="Black"/>
+      <Setter Property="LetterSpacing" Value="1.8"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-section-title">
+      <Setter Property="FontSize" Value="18"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-muted">
+      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
+      <Setter Property="FontSize" Value="12"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-metric-value">
+      <Setter Property="FontSize" Value="20"/>
+      <Setter Property="FontWeight" Value="SemiBold"/>
+    </Style>
+
+    <Style Selector="TextBlock.qf-badge">
+      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="FontWeight" Value="Black"/>
+    </Style>
+
+    <Style Selector="ListBox.qf-entry-list">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="MinHeight" Value="620"/>
+    </Style>
+  </UserControl.Styles>
+</UserControl>

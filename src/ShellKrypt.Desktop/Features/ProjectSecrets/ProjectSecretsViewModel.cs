@@ -3,13 +3,14 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.ProjectSecrets;
 
 public partial class ProjectSecretsViewModel : ViewModelBase
 {
-    private readonly MainWindowViewModel _root;
+    private readonly ProjectSecretsRuntime _root;
     private readonly IProjectSecretService _service;
     private readonly IApiKeyService _apiKeyService;
     private readonly Func<string?, Task> _refreshAllItems;
@@ -42,7 +43,7 @@ public partial class ProjectSecretsViewModel : ViewModelBase
     public string ProjectCountText => $"{Projects.Count} projects";
 
     public ProjectSecretsViewModel(
-        MainWindowViewModel root,
+        ProjectSecretsRuntime root,
         IProjectSecretService service,
         IApiKeyService apiKeyService,
         IProjectSecretEnvParser parser,

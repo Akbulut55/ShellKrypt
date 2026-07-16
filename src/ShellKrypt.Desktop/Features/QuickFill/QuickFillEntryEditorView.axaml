@@ -1,0 +1,116 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:qfcontrols="using:ShellKrypt.Desktop.Features.QuickFill"
+             x:Class="ShellKrypt.Desktop.Features.QuickFill.QuickFillEntryEditorView"
+             x:CompileBindings="False">
+  <UserControl.Styles>
+    <Style Selector="Border.qfe-chip">
+      <Setter Property="Background" Value="{DynamicResource TableHeaderBrush}" />
+      <Setter Property="CornerRadius" Value="2" />
+      <Setter Property="Padding" Value="8,4" />
+      <Setter Property="MinHeight" Value="24" />
+    </Style>
+    <Style Selector="Border.qfe-sequence-card">
+      <Setter Property="Background" Value="{DynamicResource SurfaceRaisedBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="14" />
+    </Style>
+    <Style Selector="Border.qfe-sequence-row">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="10,8" />
+      <Setter Property="MinHeight" Value="48" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+    <Style Selector="Border.qfe-sequence-empty">
+      <Setter Property="Background" Value="{DynamicResource SurfaceBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource BorderBrushSoft}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="6" />
+      <Setter Property="Padding" Value="16" />
+      <Setter Property="MinHeight" Value="96" />
+    </Style>
+    <Style Selector="TextBlock.qfe-sequence-arrow">
+      <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+      <Setter Property="FontFamily" Value="{DynamicResource MonoFontFamily}" />
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="4,0,12,0" />
+    </Style>
+    <Style Selector="TextBlock.qfe-label">
+      <Setter Property="Foreground" Value="{DynamicResource TextMutedBrush}" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+    <Style Selector="TextBlock.qfe-section-title">
+      <Setter Property="Foreground" Value="{DynamicResource TextPrimaryBrush}" />
+      <Setter Property="FontSize" Value="22" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid>
+    <Grid RowDefinitions="Auto,Auto,Auto"
+          RowSpacing="20">
+      <Grid Grid.Row="0"
+            ColumnDefinitions="*,*"
+            RowDefinitions="Auto,Auto"
+            ColumnSpacing="18"
+            RowSpacing="8">
+        <TextBlock Grid.Row="0"
+                   Grid.Column="0"
+                   Text="{DynamicResource Loc.QuickFill.Entry.Name}"
+                   Classes="qfe-label" />
+        <TextBlock Grid.Row="0"
+                   Grid.Column="1"
+                   Text="{DynamicResource Loc.QuickFill.Entry.Category}"
+                   Classes="qfe-label" />
+        <TextBox Grid.Row="1"
+                 Grid.Column="0"
+                 PlaceholderText="{DynamicResource Loc.QuickFill.Entry.NamePlaceholder}"
+                 Text="{Binding EntryName}"
+                 Classes="sk-input" />
+        <TextBox Grid.Row="1"
+                 Grid.Column="1"
+                 Text="{Binding EntryCategory}"
+                 Classes="sk-input" />
+      </Grid>
+
+      <Border Grid.Row="1" Classes="qfe-sequence-card">
+        <qfcontrols:QuickFillSequenceStepsView/>
+      </Border>
+
+      <Grid Grid.Row="2"
+            RowDefinitions="Auto,Auto"
+            RowSpacing="16">
+        <TextBox Grid.Row="0"
+                 Text="{Binding Notes}"
+                 PlaceholderText="{DynamicResource Loc.QuickFill.Entry.Notes}"
+                 Classes="sk-input sk-textarea" />
+        <Grid Grid.Row="1"
+              ColumnDefinitions="*,Auto,Auto,Auto"
+              ColumnSpacing="14"
+              VerticalAlignment="Center">
+          <Button Grid.Column="1"
+                  Content="{DynamicResource Loc.Common.Cancel}"
+                  Command="{Binding CancelEditCommand}"
+                  Classes="sk-secondary" />
+          <Button Grid.Column="2"
+                  Content="{DynamicResource Loc.Common.Delete}"
+                  Command="{Binding DeleteEntryCommand}"
+                  IsVisible="{Binding CanDeleteEntry}"
+                  Classes="sk-danger" />
+          <Button Grid.Column="3"
+                  Content="{DynamicResource Loc.QuickFill.Button.SaveEntry}"
+                  Command="{Binding SaveEntryCommand}"
+                  Classes="sk-primary" />
+        </Grid>
+      </Grid>
+    </Grid>
+
+    <qfcontrols:QuickFillAddStepModalView/>
+  </Grid>
+</UserControl>

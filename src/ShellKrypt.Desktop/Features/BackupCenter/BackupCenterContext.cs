@@ -2,27 +2,34 @@ using ShellKrypt.Application.Backups;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Core.Backups;
 using ShellKrypt.Core.DataTransfer;
-using ShellKrypt.Desktop.ViewModels;
+using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 
-internal sealed class BackupCenterContext(MainWindowViewModel root)
+internal sealed class BackupCenterContext(
+    BackupCenterRuntime desktop,
+    IAutomaticBackupController automaticBackups,
+    IEncryptedVaultBackupService backups,
+    IVaultPlaintextExportService plaintextExports,
+    IVaultCsvImportService csvImports,
+    IDesktopNavigation navigation)
 {
-    public LocalizationService Localization => root.Localization;
-    public IEncryptedVaultBackupService Backups => root.EncryptedBackupService;
-    public IVaultPlaintextExportService PlaintextExports => root.PlaintextExportService;
-    public IVaultCsvImportService CsvImports => root.CsvImportService;
-    public BackupCenterHistory History => root.BackupCenterHistory;
-    public BackupScheduleSettings Schedule => root.BackupSchedule;
-    public AutomaticBackupState AutomaticState => root.AutomaticBackupState;
-    public string? VaultPath => root.VaultPath;
-    public bool HasAutomaticBackupPassphrase => root.AutomaticBackups.HasSessionPassphrase;
-    public bool IsAutomaticBackupRunning => root.AutomaticBackups.IsRunning;
+    public LocalizationService Localization => desktop.Localization;
+    public IEncryptedVaultBackupService Backups => backups;
+    public IVaultPlaintextExportService PlaintextExports => plaintextExports;
+    public IVaultCsvImportService CsvImports => csvImports;
+    public IDesktopFileService Files => desktop.Files;
+    public BackupCenterHistory History => automaticBackups.History;
+    public BackupScheduleSettings Schedule => automaticBackups.Schedule;
+    public AutomaticBackupState AutomaticState => automaticBackups.State;
+    public string? VaultPath => desktop.Session.VaultPath;
+    public bool HasAutomaticBackupPassphrase => automaticBackups.HasSessionPassphrase;
+    public bool IsAutomaticBackupRunning => automaticBackups.IsRunning;
 
     public event EventHandler? AutomaticBackupChanged
     {
-        add => root.AutomaticBackupChanged += value;
-        remove => root.AutomaticBackupChanged -= value;
+        add => automaticBackups.Changed += value;
+        remove => automaticBackups.Changed -= value;
     }
 
     public string T(string key, params object[] args) => Localization.Get(key, args);
@@ -31,36 +38,33 @@ internal sealed class BackupCenterContext(MainWindowViewModel root)
     {
         vaultPath = "";
         vaultKey = [];
-        if (!root.IsUnlocked || string.IsNullOrWhiteSpace(root.VaultPath))
+        if (!desktop.Session.IsUnlocked || string.IsNullOrWhiteSpace(desktop.Session.VaultPath))
         {
             operation.Status = T("BackupCenter.Status.UnlockVault");
             return false;
         }
 
-        vaultPath = root.VaultPath;
-        vaultKey = root.VaultKey;
+        vaultPath = desktop.Session.VaultPath;
+        vaultKey = desktop.Session.VaultKey;
         return true;
     }
 
-    public string VaultDisplayName => string.IsNullOrWhiteSpace(root.VaultPath)
+    public string VaultDisplayName => string.IsNullOrWhiteSpace(desktop.Session.VaultPath)
         ? T("BackupCenter.Status.NoActiveVault")
-        : Path.GetFileNameWithoutExtension(root.VaultPath);
+        : Path.GetFileNameWithoutExtension(desktop.Session.VaultPath);
 
     public Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName)
-        => root.PickOpenFileAsync(title, extensions, fileTypeName);
-
+        => desktop.Dialogs.PickOpenFileAsync(title, extensions, fileTypeName);
     public Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName)
-        => root.PickSaveFileAsync(title, suggestedName, defaultExtension, extensions, fileTypeName);
-
-    public Task<string?> PickFolderAsync(string title) => root.PickFolderAsync(title);
-    public Task ClearClipboardAsync() => root.ClearClipboardAsync();
-    public void SetAutomaticBackupPassphrase(string? value) => root.SetAutomaticBackupSessionPassphrase(value);
-    public void ClearAutomaticBackupPassphrase() => root.ClearAutomaticBackupSessionPassphrase();
-    public Task<AutomaticBackupRunResult> RunAutomaticBackupNowAsync() => root.RunAutomaticBackupNowAsync();
-    public void SaveSchedule() => root.SaveBackupScheduleState();
-    public void SaveHistory() => root.SaveBackupCenterHistory();
-    public void ReloadShell() => root.ReloadShell();
-
+        => desktop.Dialogs.PickSaveFileAsync(title, suggestedName, defaultExtension, extensions, fileTypeName);
+    public Task<string?> PickFolderAsync(string title) => desktop.Dialogs.PickFolderAsync(title);
+    public Task ClearClipboardAsync() => desktop.Clipboard.ClearAsync();
+    public void SetAutomaticBackupPassphrase(string? value) => automaticBackups.SetSessionPassphrase(value);
+    public void ClearAutomaticBackupPassphrase() => automaticBackups.ClearSessionPassphrase();
+    public Task<AutomaticBackupRunResult> RunAutomaticBackupNowAsync() => automaticBackups.RunNowAsync();
+    public void SaveSchedule() => automaticBackups.SaveSchedule();
+    public void SaveHistory() => automaticBackups.SaveHistory();
+    public void ReloadShell() => navigation.ReloadShell();
     public void LogActivity(string category, string title, string detail, string severity, string? vaultPath, string? affectedItem)
-        => root.LogActivity(category, title, detail, severity, vaultPath, affectedItem);
+        => desktop.Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
 }

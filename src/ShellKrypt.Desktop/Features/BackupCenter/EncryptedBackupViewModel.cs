@@ -1,8 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Core.Backups;
-using ShellKrypt.Desktop.ViewModels;
-using ShellKrypt.Infrastructure.Services;
+using ShellKrypt.Desktop.Shell;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;
 
@@ -33,7 +32,7 @@ public sealed partial class EncryptedBackupViewModel : ViewModelBase
         _operation = operation;
         _history = history;
         var baseName = context.VaultDisplayName;
-        ExportPath = UseHistoryOrDefault(context.History.LastEncryptedBackupPath, DefaultPaths.GetSuggestedExportPath($"{baseName} Backup", ".skbx"));
+        ExportPath = UseHistoryOrDefault(context.History.LastEncryptedBackupPath, context.Files.GetSuggestedExportPath($"{baseName} Backup", ".skbx"));
         VerifyPath = FirstNotEmpty(context.History.LastVerifiedBackupPath, context.History.LastEncryptedBackupPath);
         RestorePath = FirstNotEmpty(context.History.LastRestoredBackupPath, context.History.LastVerifiedBackupPath, context.History.LastEncryptedBackupPath);
     }

@@ -1,0 +1,62 @@
+using ShellKrypt.Application.Activity;
+using ShellKrypt.Application.Authenticator;
+using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Backups;
+using ShellKrypt.Application.Items;
+using ShellKrypt.Application.Localization;
+using ShellKrypt.Application.ProjectSecrets;
+using ShellKrypt.Application.Settings;
+using ShellKrypt.Application.Vaulting;
+using ShellKrypt.Core.Authenticator;
+using ShellKrypt.Core.Backups;
+using ShellKrypt.Core.CryptoTools;
+using ShellKrypt.Core.DataTransfer;
+using ShellKrypt.Core.Items;
+using ShellKrypt.Core.ProjectSecrets;
+using ShellKrypt.Core.Vaulting;
+using ShellKrypt.Desktop.Features.Authenticator;
+using ShellKrypt.Desktop.Features.BackupCenter;
+using ShellKrypt.Desktop.Services;
+using ShellKrypt.Desktop.Services.QuickFill;
+using ShellKrypt.Desktop.Shell.Runtime;
+
+namespace ShellKrypt.Desktop.Bootstrap;
+
+internal sealed record DesktopServiceCatalog(
+    IVaultSessionController VaultSession,
+    IDesktopSettingsController Settings,
+    IDesktopDialogService Dialogs,
+    IDesktopFileService Files,
+    ISecureClipboardService SecureClipboard,
+    IActivityRecorder ActivityRecorder,
+    IAutomaticBackupController AutomaticBackups,
+    IQuickFillController QuickFill,
+    VaultRegistryService VaultRegistryService,
+    LocalizationService Localization,
+    AuthenticatorQrImageImportService AuthenticatorQrImportService,
+    SessionSecurityService SessionSecurity,
+    IVaultService VaultService,
+    IVaultItemSummaryService VaultItemSummaryService,
+    IWebLoginService WebLoginService,
+    ICardService CardService,
+    INoteService NoteService,
+    IAuthenticatorEntryService AuthenticatorEntryService,
+    IOneTimePasswordGenerator OneTimePasswordGenerator,
+    IApiKeyService ApiKeyService,
+    IProjectSecretService ProjectSecretService,
+    IProjectSecretEnvParser ProjectSecretEnvParser,
+    IProjectSecretEnvWriter ProjectSecretEnvWriter,
+    IProjectSecretScanner ProjectSecretScanner,
+    IProjectSecretValueResolver ProjectSecretValueResolver,
+    IQuickFillEntryService QuickFillEntryService,
+    IHealthAuditService HealthAuditService,
+    IPasswordGenerator PasswordGenerator,
+    IPasswordStrengthService PasswordStrengthService,
+    IHashService HashService,
+    IBase64Service Base64Service,
+    IEncryptedVaultBackupService EncryptedBackupService,
+    IVaultPlaintextExportService PlaintextExportService,
+    IVaultCsvImportService CsvImportService,
+    ForegroundWindowService ForegroundWindowService,
+    AutoTypeService AutoTypeService,
+    GlobalHotkeyService GlobalHotkeyService);
