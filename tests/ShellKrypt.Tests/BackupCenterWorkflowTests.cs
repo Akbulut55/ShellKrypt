@@ -10,7 +10,6 @@ using ShellKrypt.Desktop.Features.BackupCenter;
 using ShellKrypt.Desktop.Features.Settings;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.Shell;
-using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Backups;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Services;

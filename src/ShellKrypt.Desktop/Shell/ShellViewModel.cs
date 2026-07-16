@@ -12,7 +12,6 @@ using ShellKrypt.Core.Items;
 using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.CryptoTools;
 using ShellKrypt.Core.ProjectSecrets;
-using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Bootstrap;
 using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.Application.Localization;
@@ -78,7 +77,6 @@ public partial class ShellViewModel : ViewModelBase
         ApiKeys = workspaces.ApiKeys;
         ProjectSecrets = workspaces.ProjectSecrets;
         CryptoTools = workspaces.CryptoTools;
-        QuickFill = workspaces.QuickFill;
         Health = workspaces.Health;
         BackupCenter = workspaces.BackupCenter;
         Settings = workspaces.Settings;
@@ -94,7 +92,6 @@ public partial class ShellViewModel : ViewModelBase
     public ApiKeysViewModel ApiKeys { get; }
     public ProjectSecretsViewModel ProjectSecrets { get; }
     public CryptoToolsViewModel CryptoTools { get; }
-    public QuickFillViewModel QuickFill { get; }
     public HealthViewModel Health { get; }
     public BackupCenterViewModel BackupCenter { get; }
     public AllItemsViewModel AllItems { get; }
@@ -129,7 +126,6 @@ public partial class ShellViewModel : ViewModelBase
         ApiKeys.RefreshLocalization();
         ProjectSecrets.RefreshLocalization();
         CryptoTools.RefreshLocalization();
-        QuickFill.RefreshLocalization();
         Health.RefreshLocalization();
         BackupCenter.RefreshLocalization();
         Settings.RefreshLocalization();

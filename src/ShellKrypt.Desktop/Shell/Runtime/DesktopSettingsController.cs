@@ -27,7 +27,6 @@ public sealed class DesktopSettingsController : IDesktopSettingsController
         _settings.NormalizeBackupCenterHistory();
         _settings.NormalizeEmergencyKit();
         _settings.NormalizeBackupSchedule();
-        _settings.NormalizeQuickFill();
         _settings.NormalizeMarkdownSettings();
         _sessionSecurity.ApplySettings(_settings.ToSessionSecuritySettings());
         Localization.SetLanguage(_settings.LanguageId);
@@ -81,7 +80,6 @@ public sealed class DesktopSettingsController : IDesktopSettingsController
     public EmergencyKitState EmergencyKit => _settings.EmergencyKit;
     public BackupScheduleSettings BackupSchedule => _settings.BackupSchedule;
     public AutomaticBackupState AutomaticBackupState => _settings.AutomaticBackupState;
-    public QuickFillSettings QuickFill => _settings.QuickFill;
 
     public void AcceptSecurityAcknowledgement()
     {
@@ -106,12 +104,6 @@ public sealed class DesktopSettingsController : IDesktopSettingsController
     public void SaveBackupScheduleState()
     {
         _settings.NormalizeBackupSchedule();
-        SaveAndNotify();
-    }
-
-    public void SaveQuickFillSettings()
-    {
-        _settings.NormalizeQuickFill();
         SaveAndNotify();
     }
 

@@ -6,7 +6,6 @@ using ShellKrypt.Desktop.Features.ItemWorkspaces.WebLogins;
 using ShellKrypt.Desktop.Features.ProjectSecrets;
 using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Desktop.Features.CryptoTools;
-using ShellKrypt.Desktop.Features.QuickFill;
 using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
@@ -50,14 +49,6 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             services.PasswordStrengthService,
             services.HashService,
             services.Base64Service);
-        var quickFill = new QuickFillViewModel(
-            new QuickFillRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.QuickFill),
-            services.QuickFillEntryService,
-            services.WebLoginService,
-            services.CardService,
-            services.ApiKeyService,
-            services.AuthenticatorEntryService);
-
         return new ShellWorkspaces(
             allItems,
             webLogins,
@@ -67,7 +58,6 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             apiKeys,
             projectSecrets,
             cryptoTools,
-            quickFill,
             new HealthViewModel(new SecurityAuditRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Settings), shell, services.HealthAuditService),
             new BackupCenterViewModel(new BackupCenterRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.Files), services.AutomaticBackups, services.EncryptedBackupService, services.PlaintextExportService, services.CsvImportService, root),
             new SettingsViewModel(new SettingsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Settings, services.Files), root, shell, services.VaultRegistryService, services.VaultService),
@@ -84,7 +74,6 @@ internal sealed record ShellWorkspaces(
     ApiKeysViewModel ApiKeys,
     ProjectSecretsViewModel ProjectSecrets,
     CryptoToolsViewModel CryptoTools,
-    QuickFillViewModel QuickFill,
     HealthViewModel Health,
     BackupCenterViewModel BackupCenter,
     SettingsViewModel Settings,

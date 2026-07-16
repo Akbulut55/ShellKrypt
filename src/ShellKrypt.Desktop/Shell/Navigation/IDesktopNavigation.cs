@@ -1,5 +1,3 @@
-using ShellKrypt.Core.Items;
-
 namespace ShellKrypt.Desktop.Shell.Navigation;
 
 public interface IDesktopNavigation
@@ -10,5 +8,4 @@ public interface IDesktopNavigation
     void OnUnlocked(byte[] vaultKey);
     void Lock();
     void ReloadShell();
-    void OpenQuickFillManager(QuickFillTargetContext? target = null);
 }

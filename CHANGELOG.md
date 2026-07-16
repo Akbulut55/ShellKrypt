@@ -22,6 +22,14 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+### Removed
+
+- Removed the unfinished Quick Fill feature, including its encrypted entry type,
+  Desktop workspace, global hotkey, target-capture, Auto-Type backends, settings,
+  localization, and tests.
+- Removed the shared Mobile project and Android/iOS platform heads until Desktop
+  development is complete.
+
 ## [ShellKrypt 0.25.0] - 2026-07-16
 
 ### Changed

@@ -8,8 +8,6 @@ using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
-using ShellKrypt.Desktop.Services;
-using ShellKrypt.Desktop.Services.QuickFill;
 using ShellKrypt.Desktop.Shell.Runtime;
 using ShellKrypt.Desktop.Shell;
 using ShellKrypt.Infrastructure.Authenticator;
@@ -58,7 +56,6 @@ public static class DesktopBootstrap
         var projectSecretEnvWriter = new EnvFileWriter();
         var projectSecretScanner = new ProjectSecretFilesystemScanner();
         var projectSecretValueResolver = new ProjectSecretValueResolver();
-        var quickFillEntryService = new QuickFillEntryService(itemRepository);
         var healthAuditService = new HealthAuditService(itemRepository);
         var passwordGenerator = new PasswordGenerator();
         var passwordStrengthService = new PasswordStrengthService();
@@ -68,9 +65,6 @@ public static class DesktopBootstrap
         var plaintextExportService = new VaultPlaintextExportService();
         var csvImportService = new VaultCsvImportService();
         var automaticBackupFiles = new AutomaticBackupFileStore();
-        var foregroundWindowService = new ForegroundWindowService();
-        var autoTypeService = new AutoTypeService();
-        var globalHotkeyService = new GlobalHotkeyService();
         var automaticBackupCoordinator = new AutomaticBackupCoordinator(
             encryptedBackupService,
             automaticBackupFiles,
@@ -78,7 +72,6 @@ public static class DesktopBootstrap
                 ? new AutomaticBackupContext(vaultSession.VaultPath, vaultSession.VaultKey, settings.BackupSchedule, settings.AutomaticBackupState)
                 : null);
         var automaticBackups = new AutomaticBackupController(automaticBackupCoordinator, settings, vaultSession, activityRecorder);
-        var quickFill = new QuickFillController(globalHotkeyService, foregroundWindowService, settings);
 
         var services = new DesktopServiceCatalog(
             vaultSession,
@@ -88,7 +81,6 @@ public static class DesktopBootstrap
             secureClipboard,
             activityRecorder,
             automaticBackups,
-            quickFill,
             vaultRegistryService,
             localization,
             authenticatorQrImportService,
@@ -106,7 +98,6 @@ public static class DesktopBootstrap
             projectSecretEnvWriter,
             projectSecretScanner,
             projectSecretValueResolver,
-            quickFillEntryService,
             healthAuditService,
             passwordGenerator,
             passwordStrengthService,
@@ -114,14 +105,10 @@ public static class DesktopBootstrap
             base64Service,
             encryptedBackupService,
             plaintextExportService,
-            csvImportService,
-            foregroundWindowService,
-            autoTypeService,
-            globalHotkeyService);
+            csvImportService);
 
         var lockedSurfaces = new LockedSurfaceFactory(vaultService, vaultRegistryService, vaultSession, dialogs, secureClipboard, activityRecorder, settings, localization, desktopFiles);
         var unlockedWorkspaces = new UnlockedWorkspaceFactory(services);
-        var quickFillPopup = new QuickFillPopupFactory(services);
         var navigation = new DesktopNavigationService(
             vaultSession,
             vaultRegistryService,
@@ -140,11 +127,9 @@ public static class DesktopBootstrap
             settings,
             secureClipboard,
             automaticBackups,
-            quickFill,
             localization,
             sessionSecurity,
-            navigation,
-            quickFillPopup);
+            navigation);
         return root;
     }
 }

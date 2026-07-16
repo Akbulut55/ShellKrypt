@@ -10,7 +10,6 @@ public static class ShellKryptSectionKeys
     public const string Authenticator = "auth";
     public const string Notes = "notes";
     public const string CryptoTools = "crypto_tools";
-    public const string QuickFill = "quick_fill";
     public const string Audit = "audit";
     public const string Backup = "backup";
     public const string Settings = "settings";
@@ -48,24 +47,9 @@ public static class ShellKryptSectionCatalog
         new(ShellKryptSectionKeys.Authenticator, ShellKryptSectionGroups.Items, "Authenticator", "Auth", "AU", "Desktop authenticator codes from QR screenshots or pasted secret keys.", true),
         new(ShellKryptSectionKeys.Notes, ShellKryptSectionGroups.Items, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes and vault reference material.", true),
         new(ShellKryptSectionKeys.CryptoTools, ShellKryptSectionGroups.Tools, "Crypto Tools", "Crypto", "CT", "Generate passwords, hash text, and transform Base64 locally.", false),
-        new(ShellKryptSectionKeys.QuickFill, ShellKryptSectionGroups.Tools, "Quick Fill", "Fill", "QF", "Manage app-specific logins and information for desktop Quick Fill.", false),
         new(ShellKryptSectionKeys.Audit, ShellKryptSectionGroups.Security, "Security Audit", "Audit", "SE", "Audit reuse, age, and password risk across the vault.", false),
         new(ShellKryptSectionKeys.Backup, ShellKryptSectionGroups.Data, "Backup Center", "Backups", "BK", "Create, verify, restore, and export local vault data.", false),
         new(ShellKryptSectionKeys.Activity, ShellKryptSectionGroups.Data, "Activity Logs", "Logs", "AC", "Review vault activity events and plaintext report exports.", false),
         new(ShellKryptSectionKeys.Settings, ShellKryptSectionGroups.App, "Settings", "Settings", "ST", "Manage vault security and desktop behavior.", false)
-    ];
-
-    public static IReadOnlyList<ShellKryptSectionDescriptor> MobileSections { get; } =
-    [
-        new(ShellKryptSectionKeys.Vault, ShellKryptSectionGroups.Vault, "All Items", "All", "AI", "All encrypted records in this vault.", false),
-        new(ShellKryptSectionKeys.WebLogins, ShellKryptSectionGroups.Items, "Web Logins", "Logins", "WB", "Credentials and account URLs.", true),
-        new(ShellKryptSectionKeys.Cards, ShellKryptSectionGroups.Items, "Credit Cards", "Cards", "CC", "Payment cards and expiry details.", true),
-        new(ShellKryptSectionKeys.ApiKeys, ShellKryptSectionGroups.Items, "API Keys", "API", "AP", "Tokens, client secrets, and provider fields.", true),
-        new(ShellKryptSectionKeys.ProjectSecrets, ShellKryptSectionGroups.Items, "Project Secrets", "Projects", "PS", ".env variables and project secrets.", true),
-        new(ShellKryptSectionKeys.Authenticator, ShellKryptSectionGroups.Items, "Authenticator", "Auth", "AU", "TOTP and HOTP codes.", true),
-        new(ShellKryptSectionKeys.Notes, ShellKryptSectionGroups.Items, "Markdown Notes", "Notes", "SN", "Encrypted markdown notes.", true),
-        new(ShellKryptSectionKeys.Audit, ShellKryptSectionGroups.Security, "Security Audit", "Audit", "SE", "Password risk and remediation.", false),
-        new(ShellKryptSectionKeys.Activity, ShellKryptSectionGroups.Data, "Activity Logs", "Logs", "AC", "Vault activity events.", false),
-        new(ShellKryptSectionKeys.Settings, ShellKryptSectionGroups.App, "Settings", "Settings", "ST", "Security and app behavior.", false)
     ];
 }

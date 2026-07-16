@@ -42,7 +42,6 @@ internal static class VaultItemDuplicateKey
             ItemType.Note => BuildNoteDuplicateKey(payloadJson),
             ItemType.Authenticator => BuildAuthenticatorDuplicateKey(payloadJson),
             ItemType.ApiKey => BuildApiKeyDuplicateKey(payloadJson),
-            ItemType.QuickFillEntry => BuildQuickFillDuplicateKey(payloadJson),
             ItemType.ProjectSecret => BuildProjectSecretDuplicateKey(payloadJson),
             _ => $"{(int)type}|{payloadJson.Trim()}"
         };
@@ -98,17 +97,6 @@ internal static class VaultItemDuplicateKey
             "authenticator",
             NormalizeDuplicatePart(payload.ServiceName),
             NormalizeDuplicatePart(payload.KeyType));
-    }
-
-    private static string BuildQuickFillDuplicateKey(string payloadJson)
-    {
-        var payload = JsonSerializer.Deserialize<QuickFillEntryPayload>(payloadJson, JsonOptions)
-            ?? new QuickFillEntryPayload("", "Other", true, new QuickFillTargetRule("", ""), Array.Empty<QuickFillField>(), false, "");
-
-        return string.Join("|",
-            "quick-fill",
-            NormalizeDuplicatePart(payload.Name),
-            NormalizeDuplicatePart(payload.Target.ProcessName));
     }
 
     private static string BuildProjectSecretDuplicateKey(string payloadJson)

@@ -3,7 +3,6 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Backups;
 using ShellKrypt.Application.Localization;
-using ShellKrypt.Desktop.Services;
 using ShellKrypt.Desktop.Shell;
 
 namespace ShellKrypt.Desktop.Features.BackupCenter;

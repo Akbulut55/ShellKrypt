@@ -16,8 +16,6 @@ using ShellKrypt.Core.ProjectSecrets;
 using ShellKrypt.Core.Vaulting;
 using ShellKrypt.Desktop.Features.Authenticator;
 using ShellKrypt.Desktop.Features.BackupCenter;
-using ShellKrypt.Desktop.Services;
-using ShellKrypt.Desktop.Services.QuickFill;
 using ShellKrypt.Desktop.Shell.Runtime;
 
 namespace ShellKrypt.Desktop.Bootstrap;
@@ -30,7 +28,6 @@ internal sealed record DesktopServiceCatalog(
     ISecureClipboardService SecureClipboard,
     IActivityRecorder ActivityRecorder,
     IAutomaticBackupController AutomaticBackups,
-    IQuickFillController QuickFill,
     VaultRegistryService VaultRegistryService,
     LocalizationService Localization,
     AuthenticatorQrImageImportService AuthenticatorQrImportService,
@@ -48,7 +45,6 @@ internal sealed record DesktopServiceCatalog(
     IProjectSecretEnvWriter ProjectSecretEnvWriter,
     IProjectSecretScanner ProjectSecretScanner,
     IProjectSecretValueResolver ProjectSecretValueResolver,
-    IQuickFillEntryService QuickFillEntryService,
     IHealthAuditService HealthAuditService,
     IPasswordGenerator PasswordGenerator,
     IPasswordStrengthService PasswordStrengthService,
@@ -56,7 +52,4 @@ internal sealed record DesktopServiceCatalog(
     IBase64Service Base64Service,
     IEncryptedVaultBackupService EncryptedBackupService,
     IVaultPlaintextExportService PlaintextExportService,
-    IVaultCsvImportService CsvImportService,
-    ForegroundWindowService ForegroundWindowService,
-    AutoTypeService AutoTypeService,
-    GlobalHotkeyService GlobalHotkeyService);
+    IVaultCsvImportService CsvImportService);

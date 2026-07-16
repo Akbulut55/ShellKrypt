@@ -6,7 +6,6 @@ using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Authenticator;
 using ShellKrypt.Core.Items;
-using ShellKrypt.Desktop.Services;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Authenticator;
 using ShellKrypt.Infrastructure.Services;

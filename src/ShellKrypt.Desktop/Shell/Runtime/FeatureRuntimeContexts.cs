@@ -37,22 +37,6 @@ public sealed record MarkdownNotesRuntime(IVaultSessionController Session, Local
     public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
 }
 
-public sealed record QuickFillRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, ISecureClipboardService Clipboard, IDesktopDialogService Dialogs, IQuickFillController QuickFillController) : ILocalizedRuntime
-{
-    public string? VaultPath => Session.VaultPath;
-    public byte[] VaultKey => Session.VaultKey;
-    public bool IsUnlocked => Session.IsUnlocked;
-    public QuickFillSettings QuickFill => QuickFillController.Settings;
-    public string QuickFillHotkeyStatus => QuickFillController.HotkeyStatus;
-    public bool CanConfigureQuickFillSystemShortcut => QuickFillController.CanConfigureSystemShortcut;
-    public void SetVaultPath(string? path) => Session.SetVaultPath(path);
-    public Task CopyToClipboardAsync(string value) => Clipboard.CopyAsync(value);
-    public Task<bool> ConfirmAsync(string title, string message, string confirmText, bool destructive = false) => Dialogs.ConfirmAsync(title, message, confirmText, destructive);
-    public void ConfigureQuickFillSystemShortcut() => QuickFillController.ConfigureSystemShortcut();
-    public void AcceptQuickFillAutoTypeAcknowledgement() => QuickFillController.AcceptAutoTypeAcknowledgement();
-    public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
-}
-
 public sealed record ActivityLogsRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, IDesktopDialogService Dialogs) : ILocalizedRuntime
 {
     public event EventHandler? ActivityChanged { add => Activity.Changed += value; remove => Activity.Changed -= value; }

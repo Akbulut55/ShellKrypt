@@ -23,10 +23,8 @@ public interface IDesktopSettingsController
     EmergencyKitState EmergencyKit { get; }
     BackupScheduleSettings BackupSchedule { get; }
     AutomaticBackupState AutomaticBackupState { get; }
-    QuickFillSettings QuickFill { get; }
     void AcceptSecurityAcknowledgement();
     void SaveBackupCenterHistory();
     void SaveEmergencyKitState();
     void SaveBackupScheduleState();
-    void SaveQuickFillSettings();
 }

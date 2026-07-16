@@ -5,7 +5,7 @@ ShellKrypt is a local-only encrypted vault for individuals who want to manage cr
 ## Status
 
 - Stage: active pre-1.0 development.
-- Status note: Desktop workflows are functional, but packaging, mobile parity, and public-release validation are incomplete.
+- Status note: Desktop workflows are functional, but packaging and public-release validation are incomplete.
 - Main audience: Developers and privacy-conscious individuals who prefer local encrypted storage.
 - Maintainer: Independent project owner.
 
@@ -19,7 +19,6 @@ ShellKrypt is a local-only encrypted vault for individuals who want to manage cr
 
 - .NET 10 SDK.
 - Windows or Linux desktop environment supported by Avalonia for current desktop development.
-- Android or iOS workloads only when building the optional mobile platform heads.
 
 ## Quick Start
 
@@ -41,8 +40,7 @@ Result: ShellKrypt encrypts the item in the .skvault file and restores it after 
 ## Limitations
 
 - ShellKrypt is pre-1.0, has not received an external security audit, and should not be treated as a certified regulated-data platform.
-- Quick Fill remains unfinished, and native Wayland Auto-Type is not supported.
-- Mobile apps, code signing, installers, update delivery, and public support processes are not release-ready.
+- Code signing, installers, update delivery, and public support processes are not release-ready.
 
 ## Security Or Privacy Notes
 
@@ -60,5 +58,5 @@ ShellKrypt is licensed under GPL-3.0-or-later. See [`LICENSE`](LICENSE) for deta
 
 - The current desktop application version is `0.25.0`.
 - The official source repository is [Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
-- `ShellKrypt.slnx` is the canonical workload-neutral solution; Android and iOS heads build directly from their project files.
+- `ShellKrypt.slnx` is the canonical solution for the Desktop application and shared libraries.
 - Official signed builds, distribution channels, support, names, and branding may be governed separately as described in [`NOTICE.md`](NOTICE.md).

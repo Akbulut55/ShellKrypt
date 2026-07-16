@@ -61,7 +61,7 @@
   "Settings.DestroyVault.PasswordTitle": "Ana Parolayı Onayla",
   "Settings.DestroyVault.Subtitle": "{0} kalıcı olarak silinsin mi?",
   "Settings.DestroyVault.Title": "Kasayı Kalıcı Olarak Sil?",
-  "Settings.DestroyVault.Warning": "Bu kasadaki tüm parolalar, kartlar, API anahtarları, doğrulayıcı tohumları, markdown notları, Quick Fill kayıtları, etkinlik kayıtları ve şifreli veriler kalıcı olarak yok edilecek.",
+  "Settings.DestroyVault.Warning": "Bu kasadaki tüm parolalar, kartlar, API anahtarları, doğrulayıcı tohumları, markdown notları, proje sırları, etkinlik kayıtları ve şifreli veriler kalıcı olarak yok edilecek.",
   "Settings.FocusLock.Disabled": "Uygulama odakta değilken ShellKrypt kilitli kalmaz.",
   "Settings.FocusLock.Enabled": "Uygulama odağı kaybedince ShellKrypt {0} sonra kilitlenir.",
   "Settings.FocusLock.SelectedDelay": "seçilen gecikme",

@@ -44,7 +44,7 @@ The project does not guarantee:
 
 - The project may change, break, pause, or be withdrawn without a guaranteed support period.
 - Automatic backups run only under their documented in-app conditions and are not an operating-system backup service.
-- Platform-specific behavior, including Quick Fill, native Wayland Auto-Type, mobile features, packaging, and update delivery, may be incomplete or unsupported.
+- Platform-specific packaging, code signing, and update delivery may be incomplete or unsupported.
 
 ## Not Professional Advice
 

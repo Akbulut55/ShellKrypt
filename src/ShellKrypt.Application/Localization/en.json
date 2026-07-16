@@ -61,7 +61,7 @@
   "Settings.DestroyVault.PasswordTitle": "Confirm Master Password",
   "Settings.DestroyVault.Subtitle": "Permanently delete {0}?",
   "Settings.DestroyVault.Title": "Permanently Delete Vault?",
-  "Settings.DestroyVault.Warning": "All passwords, cards, API keys, authenticator seeds, markdown notes, Quick Fill entries, activity logs, and encrypted data inside this vault will be permanently destroyed.",
+  "Settings.DestroyVault.Warning": "All passwords, cards, API keys, authenticator seeds, markdown notes, project secrets, activity logs, and encrypted data inside this vault will be permanently destroyed.",
   "Settings.FocusLock.Disabled": "ShellKrypt stays unlocked when the app is not focused.",
   "Settings.FocusLock.Enabled": "ShellKrypt locks after {0} when the app loses focus.",
   "Settings.FocusLock.SelectedDelay": "the selected delay",

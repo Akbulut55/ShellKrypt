@@ -40,10 +40,7 @@ public partial class MainWindow : Window
     private void OnOpened(object? sender, EventArgs e)
     {
         if (DataContext is MainWindowViewModel vm)
-        {
             vm.AttachClipboard(Clipboard);
-            vm.AttachQuickFillHotkey();
-        }
     }
 
     private void OnActivated(object? sender, EventArgs e)
@@ -81,14 +78,6 @@ public partial class MainWindow : Window
     private void OnKeyDown(object? sender, KeyEventArgs e)
     {
         RecordActivity();
-        if (e.Key == Key.K &&
-            e.KeyModifiers.HasFlag(KeyModifiers.Control) &&
-            e.KeyModifiers.HasFlag(KeyModifiers.Alt) &&
-            DataContext is MainWindowViewModel vm)
-        {
-            e.Handled = true;
-            vm.OpenQuickFillPopup();
-        }
     }
 
     private void OnTextInput(object? sender, TextInputEventArgs e)
@@ -111,7 +100,7 @@ public partial class MainWindow : Window
         _isExiting = true;
         _trayIcon?.Dispose();
         if (DataContext is MainWindowViewModel vm)
-            vm.Shutdown();
+            vm.Lock();
     }
 
     private void OnDataContextChanged(object? sender, EventArgs e)

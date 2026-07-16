@@ -1,5 +1,4 @@
 using ShellKrypt.Application.Vaulting;
-using ShellKrypt.Core.Items;
 using ShellKrypt.Desktop.Shell;
 
 namespace ShellKrypt.Desktop.Shell.Navigation;
@@ -56,15 +55,6 @@ internal sealed class DesktopNavigationService(
             return;
         ReplaceCurrent(createShell(this));
         sessionSecurity.RecordActivity();
-    }
-
-    public void OpenQuickFillManager(QuickFillTargetContext? target = null)
-    {
-        if (Current is not ShellViewModel shell)
-            return;
-        shell.ShowQuickFill();
-        if (target is not null)
-            shell.QuickFill.PrepareEntryFromTarget(target);
     }
 
     private void ReplaceCurrent(ViewModelBase next)

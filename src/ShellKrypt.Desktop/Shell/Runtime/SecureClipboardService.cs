@@ -1,6 +1,5 @@
 using Avalonia.Input.Platform;
 using Avalonia.Media.Imaging;
-using ShellKrypt.Desktop.Services;
 
 namespace ShellKrypt.Desktop.Shell.Runtime;
 

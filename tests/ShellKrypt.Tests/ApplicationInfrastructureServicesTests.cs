@@ -40,11 +40,8 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.NotNull(settings.EmergencyKit);
         Assert.NotNull(settings.BackupSchedule);
         Assert.NotNull(settings.AutomaticBackupState);
-        Assert.NotNull(settings.QuickFill);
         Assert.False(settings.BackupSchedule.Enabled);
         Assert.Equal(BackupScheduleSettings.DefaultRetentionCount, settings.BackupSchedule.RetentionCount);
-        Assert.True(settings.QuickFill.GlobalHotkeyEnabled);
-        Assert.Equal(QuickFillSettings.DefaultShortcut, settings.QuickFill.GlobalShortcut);
 
         settings.ClipboardClearSeconds = 1;
         settings.ClipboardCopyEnabled = false;
@@ -57,8 +54,6 @@ public sealed class ApplicationInfrastructureServicesTests
         settings.BackupSchedule.Frequency = BackupScheduleFrequency.Weekly;
         settings.BackupSchedule.RetentionCount = 7;
         settings.AutomaticBackupState.LastStatus = "success";
-        settings.QuickFill.GlobalShortcut = " Ctrl+Alt+K ";
-        settings.QuickFill.AutoTypeAcknowledgedAtUtc = " 2026-06-16T10:00:00.0000000+00:00 ";
         settings.EmergencyKit.NoPasswordRecoveryAcknowledged = true;
         settings.AcceptCurrentSecurityAcknowledgement("2026-05-31T10:15:30.0000000+00:00");
         service.Save(settings);
@@ -75,7 +70,6 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.EmergencyKit), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.BackupSchedule), out _));
         Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.AutomaticBackupState), out _));
-        Assert.True(document.RootElement.TryGetProperty(nameof(AppSettings.QuickFill), out _));
         Assert.Equal(SessionSecuritySettings.MinClipboardClearSeconds, service.Load().ClipboardClearSeconds);
         Assert.False(service.Load().ClipboardCopyEnabled);
         Assert.True(service.Load().CloseToTrayEnabled);
@@ -85,8 +79,6 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.True(service.Load().BackupSchedule.Enabled);
         Assert.Equal(BackupScheduleFrequency.Weekly, service.Load().BackupSchedule.Frequency);
         Assert.Equal(7, service.Load().BackupSchedule.RetentionCount);
-        Assert.Equal(QuickFillSettings.DefaultShortcut, service.Load().QuickFill.GlobalShortcut);
-        Assert.Equal("2026-06-16T10:00:00.0000000+00:00", service.Load().QuickFill.AutoTypeAcknowledgedAtUtc);
         Assert.True(service.Load().EmergencyKit.NoPasswordRecoveryAcknowledged);
         Assert.Equal("2026-05-31T10:15:30.0000000+00:00", service.Load().SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(AppSettings.CurrentSecurityAcknowledgementVersion, service.Load().SecurityAcknowledgementVersionAccepted);

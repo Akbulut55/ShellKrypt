@@ -19,7 +19,7 @@ reporters can rely on.
 - Data sensitivity: high.
 - Authentication required: yes, through local master-password vault unlock.
 - Authorization model: local vault ownership after successful unlock; no remote roles or account service.
-- External systems with security impact: operating system, filesystem, clipboard, package supply chain, optional mobile platforms, and user-selected backup or synchronization tools.
+- External systems with security impact: operating system, filesystem, clipboard, package supply chain, and user-selected backup or synchronization tools.
 - Highest-risk area: loss or disclosure of vault key material, decrypted secrets, master passwords, backup passphrases, or plaintext exports.
 
 ShellKrypt is pre-1.0 and has not received an external security audit. Report suspected vulnerabilities privately to the project owner or through the repository's private security-advisory channel when available. Do not include real vaults, credentials, backups, exports, or private logs in a report; reproduce issues with synthetic data.
@@ -91,7 +91,7 @@ Access rules:
 | Boundary | Main Risk | Rule |
 |---|---|---|
 | Vault, backup, import, and export files | Traversal, overwrite, malformed input, data loss, or disclosure | Canonicalize paths, enforce expected formats and limits, validate before mutation, and use transactions where needed |
-| Clipboard, reveal, Quick Fill, and Auto-Type | Secret disclosure to other processes or the wrong target | Require explicit action, respect copy controls, clear best-effort, and never claim unsupported platform behavior |
+| Clipboard and reveal actions | Secret disclosure to other processes or unintended observers | Require explicit action, respect copy controls, and clear clipboard content on a best-effort basis |
 | Project Secrets scanning and `.env` workflows | Reading excessive files or exposing plaintext values | Scan only user-selected roots with limits and ignores; never log or display matched secret values |
 | QR, image, CSV, JSON, and package parsers | Resource exhaustion, malformed data, or partial writes | Limit input size, validate structure, and fail without unsafe partial state |
 

@@ -1,4 +1,3 @@
-using ShellKrypt.Desktop.Services;
 
 namespace ShellKrypt.Desktop.Shell.Runtime;
 
