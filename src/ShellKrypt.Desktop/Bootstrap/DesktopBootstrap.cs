@@ -135,7 +135,24 @@ public static class DesktopBootstrap
             unlockedWorkspaces.Create);
         sessionSecurity.LockRequested += (_, _) => navigation.Lock();
         navigation.Initialize();
-        var root = new MainWindowViewModel(services, navigation, quickFillPopup);
+        var root = new MainWindowViewModel(
+            vaultSession,
+            settings,
+            dialogs,
+            secureClipboard,
+            activityRecorder,
+            automaticBackups,
+            quickFill,
+            desktopFeatures,
+            vaultRegistryService,
+            localization,
+            sessionSecurity,
+            vaultService,
+            encryptedBackupService,
+            plaintextExportService,
+            csvImportService,
+            navigation,
+            quickFillPopup);
         return root;
     }
 }

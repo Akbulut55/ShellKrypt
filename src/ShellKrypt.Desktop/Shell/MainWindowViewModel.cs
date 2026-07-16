@@ -57,27 +57,41 @@ public partial class MainWindowViewModel : ViewModelBase
     private ViewModelBase current = null!;
 
     internal MainWindowViewModel(
-        DesktopServiceCatalog services,
+        IVaultSessionController vaultSession,
+        IDesktopSettingsController settings,
+        IDesktopDialogService dialogs,
+        ISecureClipboardService secureClipboard,
+        IActivityRecorder activityRecorder,
+        IAutomaticBackupController automaticBackups,
+        IQuickFillController quickFillController,
+        DesktopFeatureServices desktopFeatures,
+        VaultRegistryService vaultRegistryService,
+        LocalizationService localization,
+        SessionSecurityService sessionSecurity,
+        IVaultService vaultService,
+        IEncryptedVaultBackupService encryptedBackupService,
+        IVaultPlaintextExportService plaintextExportService,
+        IVaultCsvImportService csvImportService,
         DesktopNavigationService navigation,
         QuickFillPopupFactory quickFillPopup)
     {
-        _vaultSession = services.VaultSession;
-        _settings = services.Settings;
-        _dialogs = services.Dialogs;
-        _secureClipboard = services.SecureClipboard;
-        _activityRecorder = services.ActivityRecorder;
-        _automaticBackups = services.AutomaticBackups;
-        _quickFillController = services.QuickFill;
-        _vaultRegistryService = services.VaultRegistryService;
-        _localization = services.Localization;
-        _sessionSecurity = services.SessionSecurity;
-        _vaultService = services.VaultService;
-        _encryptedBackupService = services.EncryptedBackupService;
-        _plaintextExportService = services.PlaintextExportService;
-        _csvImportService = services.CsvImportService;
+        _vaultSession = vaultSession;
+        _settings = settings;
+        _dialogs = dialogs;
+        _secureClipboard = secureClipboard;
+        _activityRecorder = activityRecorder;
+        _automaticBackups = automaticBackups;
+        _quickFillController = quickFillController;
+        _vaultRegistryService = vaultRegistryService;
+        _localization = localization;
+        _sessionSecurity = sessionSecurity;
+        _vaultService = vaultService;
+        _encryptedBackupService = encryptedBackupService;
+        _plaintextExportService = plaintextExportService;
+        _csvImportService = csvImportService;
         _navigation = navigation;
         _quickFillPopup = quickFillPopup;
-        DesktopFeatures = services.DesktopFeatures;
+        DesktopFeatures = desktopFeatures;
 
         _settings.Changed += (_, _) => NotifySettingsChanged();
         _activityRecorder.Changed += (_, _) => ActivityChanged?.Invoke(this, EventArgs.Empty);

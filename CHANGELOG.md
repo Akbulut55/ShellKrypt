@@ -22,6 +22,18 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+### Changed
+
+- Added an explicit Desktop composition root and focused factories for locked
+  surfaces, unlocked workspaces, and the Quick Fill popup.
+- Extracted vault session, settings, dialogs, secure clipboard, activity,
+  automatic backup, Quick Fill, and navigation lifecycle responsibilities from
+  the main window viewmodel into focused Desktop runtime services.
+- Decoupled Desktop feature viewmodels from the main window and reorganized the
+  Desktop project around Shell, Bootstrap, and colocated feature workspaces.
+- Added architecture checks that enforce composition ownership and prevent the
+  retired lifecycle-based Desktop namespaces from returning.
+
 ## [ShellKrypt 0.24.0] - 2026-07-15
 
 ### Changed
