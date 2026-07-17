@@ -1,6 +1,7 @@
 ShellKrypt Source License 1.0
 
-Copyright (C) 2026 Karvulas. All rights reserved.
+Copyright (C) 2026 the ShellKrypt author, publishing as Karvulas. All rights
+reserved.
 
 Effective date: July 17, 2026.
 
@@ -11,7 +12,12 @@ defined by the Open Source Initiative.
 
 1. Definitions
 
-"Licensor" means Karvulas, the copyright owner of ShellKrypt.
+"Karvulas" means the public project name under which the individual ShellKrypt
+author publishes the Software. Karvulas is not represented by this license as
+an incorporated company or separate legal entity.
+
+"Licensor" means that individual author and copyright owner, publishing the
+Software as Karvulas.
 
 "Software" means the ShellKrypt source code, object code, user interface,
 documentation, and first-party assets distributed under this license. It does

@@ -50,7 +50,7 @@ Result: ShellKrypt encrypts the item in the .skvault file and restores it after 
 
 ## License
 
-Copyright (C) 2026 Karvulas.
+Copyright (C) 2026 the ShellKrypt author, publishing as Karvulas.
 
 ShellKrypt is source-available commercial software under the
 [`ShellKrypt Source License 1.0`](LICENSE). The source may be inspected,
