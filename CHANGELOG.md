@@ -22,8 +22,17 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.26.0] - 2026-07-17
+
+### Added
+
+- Added contributor guidance covering proposed changes, review expectations,
+  authorship, and submission responsibilities.
+
 ### Changed
 
+- Refactored public project documentation for clearer ownership, usage,
+  contribution, and distribution guidance.
 - Moved the remaining Avalonia controls, theme definitions, converters, navigation
   catalog, and presentation helpers from `ShellKrypt.UI.Shared` into their owning
   Desktop feature and shell folders, removing the obsolete shared UI project.
@@ -767,13 +776,12 @@ MAJOR.MINOR.PATCH
 ### Changed
 
 - Filled the root README, security policy, agent instructions, and handbook documents with ShellKrypt-specific product, architecture, security, database, development, operations, decision, roadmap, and release guidance.
-- Prepared GPL-3.0-or-later source licensing, public-facing notices/disclaimers, and pre-release security reporting guidance.
+- Prepared public-facing notices, disclaimers, and pre-release security reporting guidance.
 - Added first-use security acknowledgement to the desktop launcher before creating, importing, or opening vaults.
 - Added versioning to the security acknowledgement so material terms, privacy, disclaimer, or security text changes can require re-acceptance.
 
 ### Added
 
-- Added `LICENSE` with the full GPL v3 license text.
 - Added `NOTICE.md` for official-build, modified-build, and branding expectations.
 - Added `DISCLAIMER.md` covering no warranty, no password recovery, plaintext exports, clipboard limits, audit status, and regulated-data limits.
 - Added `TERMS.md` and `PRIVACY.md` with usage and local-only privacy notices.

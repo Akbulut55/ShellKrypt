@@ -15,13 +15,19 @@ Related documents:
 
 ## Acceptance
 
-> By using, accessing, downloading, copying, installing, contributing to, or relying on ShellKrypt, people acknowledge these terms and the related privacy, notice, security, license, and disclaimer documents. People who do not agree should not use ShellKrypt for real data.
+> By installing or using ShellKrypt, or by copying, compiling, modifying, or
+> contributing to it under the applicable license, people acknowledge these
+> terms and the related privacy, notice, security, license, and disclaimer
+> documents. Merely viewing the public source repository through its hosting
+> platform is not treated as acceptance of these terms. People who do not agree
+> should not exercise licensed rights or use ShellKrypt for real data.
 
 ## Scope Of Use
 
 - Store and manage user-controlled encrypted vault records locally.
 - Create local encrypted backups and explicit reports or exports.
-- Inspect, modify, and redistribute covered source under the applicable license.
+- Inspect, compile, run, and modify source for personal noncommercial use under
+  the applicable license.
 
 The project is not intended for:
 
@@ -40,6 +46,8 @@ The project is not intended for:
 - Do not use ShellKrypt to access, store, distribute, or process data without lawful authority.
 - Do not misrepresent modified or unofficial builds as official, signed, tested, endorsed, or supported ShellKrypt releases.
 - Do not remove or violate license, attribution, or third-party notice obligations.
+- Do not redistribute ShellKrypt source or binaries, operate it as a hosted
+  service, or use it commercially without a separate written license.
 
 ## Data, External Systems, And Shared Output
 
@@ -49,7 +57,8 @@ The project is not intended for:
 
 ## License, Notices, And Attribution
 
-- License or usage status: GPL-3.0-or-later source, subject to the full license text.
+- License or usage status: source-available commercial software under the
+  ShellKrypt Source License 1.0, subject to the full license text.
 - Notice or attribution location: [`NOTICE.md`](NOTICE.md) and [`LICENSE`](LICENSE).
 - Branding or official-distribution rules: described in [`NOTICE.md`](NOTICE.md); unofficial builds must not imply official status.
 
@@ -70,4 +79,5 @@ The project is not intended for:
 
 - Which jurisdiction and governing-law terms are appropriate for official distribution?
 - What commercial support, refund, and store-specific terms will apply?
-- What contributor terms are needed before accepting external contributions?
+- Which commercial license agreement and entitlement terms will govern
+  official paid builds?

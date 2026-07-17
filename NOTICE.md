@@ -1,19 +1,24 @@
 # ShellKrypt: Notice
 
-This document records notices that should travel with ShellKrypt when it is
-shared, published, packaged, copied, or redistributed.
+This document records notices for official ShellKrypt packages and for any
+copying or distribution separately authorized by the copyright owner. It does
+not itself grant permission to distribute ShellKrypt.
 
 ## Project Notice
 
 - Project name: ShellKrypt.
-- Copyright: Copyright (C) 2026 Akbulut55.
-- Owner or maintainer: Akbulut55.
-- Primary license or usage status: GPL-3.0-or-later source; pre-release software.
+- Copyright: Copyright (C) 2026 Karvulas.
+- Owner or maintainer: Karvulas.
+- Primary license or usage status: ShellKrypt Source License 1.0;
+  source-available commercial pre-release software.
 - Official source or home: [https://github.com/Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
 
 ## License Notice
 
-> ShellKrypt source code is distributed under GPL-3.0-or-later. People may use, study, modify, and redistribute covered source under that license, including its source-availability and notice obligations.
+> Current ShellKrypt source code is distributed under the ShellKrypt Source
+> License 1.0. Personal noncommercial source builds and modifications are
+> permitted, but redistribution and commercial use require separate written
+> permission from the copyright owner.
 
 License file or link:
 
@@ -43,12 +48,16 @@ Distribution rules:
 
 - Verify an official source, signature, or checksum once official verification methods are published.
 - Do not present third-party, modified, or unsigned builds as tested, signed, endorsed, or supported official ShellKrypt releases.
+- Do not distribute source, compiled packages, installers, containers, or
+  hosted ShellKrypt services without a separate written license.
 
 ## Modified Copies
 
-- Modified copies must be identified as: modified or unofficial builds when distributed to others.
-- Modified copies must not claim: official endorsement, signing, testing, support, or origin that they do not have.
-- Required changes to notice or attribution: preserve GPL and third-party notices and clearly identify material modifications where required.
+- Personal noncommercial modifications are permitted by the active license.
+- Distribution of modified source or binaries requires separate written
+  permission from the copyright owner.
+- Authorized modified distributions must preserve applicable ShellKrypt and
+  third-party notices and must not imply official endorsement or support.
 
 ## Names, Logos, And Branding
 
@@ -61,3 +70,5 @@ Distribution rules:
 - Which third-party notices must be bundled with each installer or store package?
 - What official repository, domain, signing identity, and checksum channel will be published?
 - Which branding uses will require explicit permission before public 1.0?
+- What commercial license, pricing, support, and store terms will accompany
+  official builds?

@@ -77,7 +77,7 @@
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:AuthenticatorAccountVm">
                       <Button Classes="auth-list-button"
-                              Command="{Binding DataContext.SelectEntryCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                              Command="{Binding $parent[UserControl].((vm:AuthenticatorViewModel)DataContext).SelectEntryCommand}"
                               CommandParameter="{Binding}">
                         <Border Classes="auth-list-item"
                                 Classes.active="{Binding IsSelected}">

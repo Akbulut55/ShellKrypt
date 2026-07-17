@@ -50,13 +50,19 @@ Result: ShellKrypt encrypts the item in the .skvault file and restores it after 
 
 ## License
 
-Copyright (C) 2026 Akbulut55.
+Copyright (C) 2026 Karvulas.
 
-ShellKrypt is licensed under GPL-3.0-or-later. See [`LICENSE`](LICENSE) for details.
+ShellKrypt is source-available commercial software under the
+[`ShellKrypt Source License 1.0`](LICENSE). The source may be inspected,
+compiled, and modified for personal noncommercial use, but redistribution and
+commercial use require separate permission from the copyright owner.
+
+ShellKrypt is not open-source software as defined by the Open Source
+Initiative.
 
 ## Notes
 
-- The current desktop application version is `0.25.0`.
+- The current desktop application version is `0.26.0`.
 - The official source repository is [Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
 - `ShellKrypt.slnx` is the canonical solution for the Desktop application and shared libraries.
 - Official signed builds, distribution channels, support, names, and branding may be governed separately as described in [`NOTICE.md`](NOTICE.md).
