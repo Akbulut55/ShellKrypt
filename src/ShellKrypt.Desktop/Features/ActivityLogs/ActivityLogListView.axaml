@@ -20,7 +20,10 @@
             <DataTemplate x:DataType="local:ActivityItemVm">
               <Border Classes="table-row">
                 <Grid ColumnDefinitions="0.82*,0.76*,1.22*,1.04*,0.58*" ColumnSpacing="8" MinHeight="64" Margin="12,0">
-                  <TextBlock Text="{Binding TimestampColumnDisplay}" Classes="activity-row-meta" VerticalAlignment="Center"/>
+                  <StackPanel VerticalAlignment="Center" Spacing="2">
+                    <TextBlock Text="{Binding TimestampColumnDisplay}" Classes="activity-row-meta"/>
+                    <TextBlock Text="{Binding TimestampDisplay}" Classes="activity-row-relative" TextTrimming="CharacterEllipsis"/>
+                  </StackPanel>
                   <TextBlock Grid.Column="1" Text="{Binding EventReferenceDisplay}" Classes="activity-row-accent" VerticalAlignment="Center"/>
                   <TextBlock Grid.Column="2" Text="{Binding Title}" Classes="table-cell-primary" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
                   <TextBlock Grid.Column="3" Text="{Binding AffectedItemDisplay}" Classes="table-cell-secondary" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>

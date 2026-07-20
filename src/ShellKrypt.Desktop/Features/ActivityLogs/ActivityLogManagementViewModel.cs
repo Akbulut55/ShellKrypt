@@ -44,10 +44,20 @@ public sealed partial class ActivityLogManagementViewModel : ObservableObject
     partial void OnIsBusyChanged(bool value) => NotifyCommandState();
 
     [RelayCommand(CanExecute = nameof(CanExportAll))]
-    private Task ExportAllAsync() => ExportAsync("All", _list.AllItemsInSelectedSortOrder, new("all", "all", "all", _list.AppliedFilters.Sort, false));
+    private Task ExportAllAsync() => ExportAsync(
+        "All",
+        _list.AllItemsInSelectedSortOrder.ToArray(),
+        _list.TotalEvents,
+        new("all", "all", "all", _list.AppliedFilters.Sort, false),
+        CurrentVaultDisplayName);
 
     [RelayCommand(CanExecute = nameof(CanExportFiltered))]
-    private Task ExportFilteredAsync() => ExportAsync("Filtered", _list.FilteredItems, _list.AppliedFilters);
+    private Task ExportFilteredAsync() => ExportAsync(
+        "Filtered",
+        _list.FilteredItems.ToArray(),
+        _list.TotalEvents,
+        _list.AppliedFilters,
+        CurrentVaultDisplayName);
 
     [RelayCommand(CanExecute = nameof(CanClear))]
     private async Task ClearAsync()
@@ -89,7 +99,12 @@ public sealed partial class ActivityLogManagementViewModel : ObservableObject
             Error = T("Activity.Error.OperationFailed");
     }
 
-    private async Task ExportAsync(string scope, IReadOnlyList<ActivityItemVm> items, ActivityAppliedFilters filters)
+    private async Task ExportAsync(
+        string scope,
+        IReadOnlyList<ActivityItemVm> items,
+        int sourceTotalEvents,
+        ActivityAppliedFilters filters,
+        string vaultDisplayName)
     {
         ResetMessages();
         if (items.Count == 0)
@@ -101,12 +116,12 @@ public sealed partial class ActivityLogManagementViewModel : ObservableObject
         IsBusy = true;
         try
         {
-            var suggestedName = $"ShellKrypt-{SanitizeFileName(CurrentVaultDisplayName)}-activity-{_reports.Now:yyyyMMdd-HHmmss}.json";
+            var suggestedName = $"ShellKrypt-{SanitizeFileName(vaultDisplayName)}-activity-{_reports.Now:yyyyMMdd-HHmmss}.json";
             var exportPath = await _runtime.PickSaveFileAsync(T("Activity.Export.DialogTitle"), suggestedName, ".json", [".json"], T("Activity.Export.FileType"));
             if (string.IsNullOrWhiteSpace(exportPath))
                 return;
 
-            var json = _reports.BuildJson(scope, CurrentVaultDisplayName, items, _list.TotalEvents, filters);
+            var json = _reports.BuildJson(scope, vaultDisplayName, items, sourceTotalEvents, filters);
             await _reports.WriteAsync(exportPath, json);
             Status = T("Activity.Export.PlaintextWarning");
             var result = _runtime.LogActivity("activity", "Activity report exported", $"Saved {items.Count} activity log entries to {Path.GetFileName(exportPath)}.", "info", affectedItem: Path.GetFileName(exportPath));

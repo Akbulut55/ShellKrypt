@@ -116,6 +116,23 @@ public sealed class ActivityLogsRefactorTests
     }
 
     [Fact]
+    public void ActivityItem_RelativeTimestampUsesInjectedClockAndHandlesFutureValues()
+    {
+        var localization = new LocalizationService();
+        var clock = new FixedTimeProvider(Now);
+
+        string Display(DateTimeOffset timestamp)
+            => new ActivityItemVm(Entry(Guid.NewGuid().ToString("N"), timestamp, "audit", "Event", "Safe", "info", "Audit"), localization, clock).TimestampDisplay;
+
+        Assert.Equal(localization.Get("Activity.Time.JustNow"), Display(Now.AddSeconds(-30)));
+        Assert.Equal(localization.Get("Activity.Time.MinutesAgo", 5), Display(Now.AddMinutes(-5)));
+        Assert.Equal(localization.Get("Activity.Time.HoursAgo", 2), Display(Now.AddHours(-2)));
+        Assert.Equal(localization.Get("Activity.Time.DaysAgo", 2), Display(Now.AddDays(-2)));
+        Assert.Equal("Jul 12, 2026 | 12:00", Display(Now.AddDays(-8)));
+        Assert.Equal("Jul 20, 2026 | 13:00", Display(Now.AddHours(1)));
+    }
+
+    [Fact]
     public void Report_DescribesScopeFiltersAndNonAuthenticatingChecksumWithoutSearchText()
     {
         var localization = new LocalizationService();
@@ -460,6 +477,55 @@ public sealed class ActivityLogsRefactorTests
     }
 
     [Fact]
+    public async Task Management_ExportFilteredSnapshotsEventsMetadataAndVaultBeforePickerCompletes()
+    {
+        using var workspace = new TempWorkspace();
+        var output = workspace.FilePath("snapshot.json");
+        var recorder = new TestRecorder();
+        var store = new CapturingStore
+        {
+            LoadResult = new(
+                [
+                    Entry("audit-original", Now, "audit", "Original audit", "Safe", "info", "Audit"),
+                    Entry("vault-original", Now.AddMinutes(-1), "vault", "Original vault", "Safe", "success", "Vault")
+                ],
+                0,
+                ActivityLogFailureKind.None)
+        };
+        var dialogs = new TestDialogs
+        {
+            SavePathCompletion = new(TaskCreationOptions.RunContinuationsAsynchronously)
+        };
+        var model = CreateWorkspace(recorder, store, dialogs);
+        model.Activate();
+        model.List.ShowAuditCommand.Execute(null);
+
+        var exportTask = model.Management.ExportFilteredCommand.ExecuteAsync(null);
+        Assert.True(model.Management.IsBusy);
+
+        store.LoadResult = new(
+            [
+                Entry("audit-original", Now, "audit", "Original audit", "Safe", "info", "Audit"),
+                Entry("vault-original", Now.AddMinutes(-1), "vault", "Original vault", "Safe", "success", "Vault"),
+                Entry("audit-new", Now.AddMinutes(1), "audit", "New audit", "Safe", "warning", "Audit")
+            ],
+            0,
+            ActivityLogFailureKind.None);
+        recorder.Emit(ActivityLogOperationResult.Succeeded);
+        model.List.ShowVaultCommand.Execute(null);
+        dialogs.SavePathCompletion.SetResult(output);
+        await exportTask;
+
+        using var document = JsonDocument.Parse(await File.ReadAllTextAsync(output));
+        var root = document.RootElement;
+        Assert.Equal("Test", root.GetProperty("Vault").GetString());
+        Assert.Equal(2, root.GetProperty("SourceTotalEvents").GetInt32());
+        Assert.Equal(1, root.GetProperty("TotalEvents").GetInt32());
+        Assert.Equal("audit", root.GetProperty("AppliedFilters").GetProperty("Category").GetString());
+        Assert.Equal("audit-original", root.GetProperty("Events")[0].GetProperty("Id").GetString());
+    }
+
+    [Fact]
     public async Task Management_ExportFailureShowsOnlySafeLocalizedError()
     {
         using var workspace = new TempWorkspace();
@@ -556,8 +622,10 @@ public sealed class ActivityLogsRefactorTests
     {
         public bool ConfirmDangerous { get; set; }
         public string? SavePath { get; set; }
+        public TaskCompletionSource<string?>? SavePathCompletion { get; set; }
         public Task<string?> PickOpenFileAsync(string title, string[] extensions, string fileTypeName) => Task.FromResult<string?>(null);
-        public Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName) => Task.FromResult(SavePath);
+        public Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName)
+            => SavePathCompletion?.Task ?? Task.FromResult(SavePath);
         public Task<string?> PickFolderAsync(string title) => Task.FromResult<string?>(null);
         public Task<bool> ConfirmDangerousActionAsync(string title, string message, string detail, string confirmText) => Task.FromResult(ConfirmDangerous);
         public Task<bool> ConfirmAsync(string title, string message, string confirmText, bool destructive = false) => Task.FromResult(false);

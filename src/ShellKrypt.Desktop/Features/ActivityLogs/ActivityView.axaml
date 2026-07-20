@@ -41,12 +41,21 @@
     <Grid Grid.Row="3" ColumnDefinitions="*,280" ColumnSpacing="12" MinWidth="650">
       <Grid RowDefinitions="Auto,*" RowSpacing="10">
         <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
-          <ComboBox ItemsSource="{Binding List.SeverityOptions}" SelectedItem="{Binding List.SelectedSeverityOption}"
-                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
-          <ComboBox Grid.Column="1" ItemsSource="{Binding List.DateRangeOptions}" SelectedItem="{Binding List.SelectedDateRangeOption}"
-                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
-          <ComboBox Grid.Column="2" ItemsSource="{Binding List.SortOptions}" SelectedItem="{Binding List.SelectedSortOption}"
-                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
+          <ComboBox ItemsSource="{Binding List.SeverityOptions}" SelectedItem="{Binding List.SelectedSeverityOption}" Classes="sk-combo-compact">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="local:ActivityFilterOptionVm"><TextBlock Text="{Binding Label}"/></DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <ComboBox Grid.Column="1" ItemsSource="{Binding List.DateRangeOptions}" SelectedItem="{Binding List.SelectedDateRangeOption}" Classes="sk-combo-compact">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="local:ActivityFilterOptionVm"><TextBlock Text="{Binding Label}"/></DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
+          <ComboBox Grid.Column="2" ItemsSource="{Binding List.SortOptions}" SelectedItem="{Binding List.SelectedSortOption}" Classes="sk-combo-compact">
+            <ComboBox.ItemTemplate>
+              <DataTemplate x:DataType="local:ActivityFilterOptionVm"><TextBlock Text="{Binding Label}"/></DataTemplate>
+            </ComboBox.ItemTemplate>
+          </ComboBox>
         </Grid>
         <local:ActivityLogListView Grid.Row="1" DataContext="{Binding List}"/>
       </Grid>

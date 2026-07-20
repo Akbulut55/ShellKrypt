@@ -54,14 +54,10 @@ public sealed partial class ActivityLogListViewModel : ObservableObject
     public IReadOnlyList<ActivityFilterOptionVm> SeverityOptions { get; }
     public IReadOnlyList<ActivityFilterOptionVm> DateRangeOptions { get; }
     public IReadOnlyList<ActivityFilterOptionVm> SortOptions { get; }
-    public IReadOnlyList<ActivityItemVm> AllItems => _allItems;
     public IReadOnlyList<ActivityItemVm> FilteredItems => _filteredItems;
     public IReadOnlyList<ActivityItemVm> AllItemsInSelectedSortOrder => Sort(_allItems).ToArray();
     public int TotalEvents => _allItems.Count;
     public int FilteredEventCount => _filteredItems.Count;
-    public int TodayCount => _allItems.Count(item => IsInDateRange(item.Entry.TimestampUtc, "today"));
-    public int WarningCount => _allItems.Count(item => item.Severity is "warning" or "danger");
-    public int VaultEventCount => _allItems.Count(item => item.Category == "vault");
     public bool HasStoredItems => _allItems.Count > 0;
     public bool HasVisibleItems => _filteredItems.Count > 0;
     public bool HasNarrowingFilter => !string.IsNullOrWhiteSpace(SearchText)
@@ -179,9 +175,6 @@ public sealed partial class ActivityLogListViewModel : ObservableObject
     {
         OnPropertyChanged(nameof(TotalEvents));
         OnPropertyChanged(nameof(FilteredEventCount));
-        OnPropertyChanged(nameof(TodayCount));
-        OnPropertyChanged(nameof(WarningCount));
-        OnPropertyChanged(nameof(VaultEventCount));
         OnPropertyChanged(nameof(HasStoredItems));
         OnPropertyChanged(nameof(HasVisibleItems));
         OnPropertyChanged(nameof(HasNarrowingFilter));

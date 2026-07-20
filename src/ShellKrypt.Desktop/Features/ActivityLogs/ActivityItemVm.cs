@@ -69,22 +69,6 @@ public sealed partial class ActivityItemVm : ObservableObject
         "danger" => "DangerMutedBrush",
         _ => "InfoMutedBrush"
     };
-    public string IconGlyph => Entry.Category switch
-    {
-        "vault" => "VA",
-        "web" => "WB",
-        "cards" => "CC",
-        "notes" => "MD",
-        "authenticator" => "AU",
-        "api_keys" => "AK",
-        "audit" => "SE",
-        "crypto-tools" => "CT",
-        "settings" => "ST",
-        "transfer" => "IO",
-        "activity" => "AC",
-        _ => "SY"
-    };
-
     private string FormatColumnTimestamp(string timestampUtc)
     {
         if (!DateTimeOffset.TryParse(timestampUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
@@ -110,6 +94,8 @@ public sealed partial class ActivityItemVm : ObservableObject
         var local = TimeZoneInfo.ConvertTime(parsed, _timeProvider.LocalTimeZone);
         var delta = _timeProvider.GetLocalNow() - local;
 
+        if (delta < TimeSpan.Zero)
+            return local.ToString("MMM d, yyyy | HH:mm", CultureInfo.InvariantCulture);
         if (delta < TimeSpan.FromMinutes(1))
             return T("Activity.Time.JustNow");
         if (delta < TimeSpan.FromHours(1))

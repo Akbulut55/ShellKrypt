@@ -22,6 +22,19 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.27.2] - 2026-07-20
+
+### Fixed
+
+- Snapshotted Activity Logs report events, filters, source totals, and vault
+  display metadata before opening the export picker so asynchronous updates
+  cannot produce internally inconsistent reports.
+- Completed typed compiled bindings for investigation filter options and aligned
+  English and Turkish guidance with severity, date, and filtered export actions.
+- Restored visible clock-backed relative timestamps in activity rows, handled
+  future timestamps without labeling them as current, and removed unused legacy
+  row and summary state.
+
 ## [ShellKrypt 0.27.1] - 2026-07-20
 
 ### Fixed

@@ -140,6 +140,11 @@ public sealed class DesktopArchitectureTests
         Assert.True(File.Exists(Path.Combine(activity, "ActivityLogListViewModel.cs")));
         Assert.True(File.Exists(Path.Combine(activity, "ActivityLogDetailsViewModel.cs")));
         Assert.True(File.Exists(Path.Combine(activity, "ActivityLogManagementViewModel.cs")));
+
+        var activityView = File.ReadAllText(Path.Combine(activity, "ActivityView.axaml"));
+        Assert.DoesNotContain("DisplayMemberBinding", activityView, StringComparison.Ordinal);
+        Assert.Equal(3, activityView.Split("x:DataType=\"local:ActivityFilterOptionVm\"", StringSplitOptions.None).Length - 1);
+        Assert.Contains("TimestampDisplay", File.ReadAllText(Path.Combine(activity, "ActivityLogListView.axaml")), StringComparison.Ordinal);
     }
 
     [Fact]
