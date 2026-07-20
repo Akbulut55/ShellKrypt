@@ -226,7 +226,7 @@ public sealed class ApplicationInfrastructureServicesTests
                 vaultPath),
             unlock.VaultKey);
 
-        var loaded = Assert.Single(service.Load(vaultPath, unlock.VaultKey));
+        var loaded = Assert.Single(service.Load(vaultPath, unlock.VaultKey).Entries);
         Assert.DoesNotContain("super-secret", loaded.Detail);
         Assert.DoesNotContain("4111111111111111", loaded.Detail);
         Assert.Contains("[redacted]", loaded.Detail);

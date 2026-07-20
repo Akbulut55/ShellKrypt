@@ -22,6 +22,30 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.27.0] - 2026-07-20
+
+### Added
+
+- Added combined severity, local date-range, category, search, and sort controls
+  to Activity Logs, with explicit all-events and filtered-result report exports.
+- Added value-free warnings for unreadable encrypted activity rows and safe
+  operation failures.
+
+### Changed
+
+- Refactored Activity Logs around focused list, details, management, report, and
+  row presentation components with navigation-scoped activation, compiled
+  bindings, and synthetic design-time states.
+- Changed activity persistence operations to return explicit safe outcomes while
+  preserving the existing encrypted vault schema and payload format.
+
+### Fixed
+
+- Replaced the misleading Activity Logs integrity-hash label and report field
+  with a clearly documented unkeyed SHA-256 content checksum.
+- Removed the unused legacy global activity-log path and stopped retired Activity
+  workspaces from remaining subscribed after shell replacement.
+
 ## [ShellKrypt 0.26.0] - 2026-07-17
 
 ### Added

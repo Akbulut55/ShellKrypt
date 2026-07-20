@@ -118,6 +118,37 @@ public sealed class DesktopArchitectureTests
         Assert.Empty(violations);
     }
 
+    [Fact]
+    public void ActivityLogs_UseTypedCompiledViewsAndFocusedCollaborators()
+    {
+        var activity = Path.Combine(DesktopRoot(), "Features", "ActivityLogs");
+        var views = Directory.EnumerateFiles(activity, "*.axaml", SearchOption.TopDirectoryOnly)
+            .Where(path => !path.EndsWith("Styles.axaml", StringComparison.Ordinal));
+        var bindingViolations = views
+            .Where(path =>
+            {
+                var source = File.ReadAllText(path);
+                return source.Contains("x:CompileBindings=\"False\"", StringComparison.Ordinal)
+                    || !source.Contains("x:DataType=", StringComparison.Ordinal);
+            })
+            .Select(path => Path.GetFileName(path))
+            .ToArray();
+        var retiredPartials = Directory.EnumerateFiles(activity, "ActivityViewModel.*.cs", SearchOption.TopDirectoryOnly).ToArray();
+
+        Assert.Empty(bindingViolations);
+        Assert.Empty(retiredPartials);
+        Assert.True(File.Exists(Path.Combine(activity, "ActivityLogListViewModel.cs")));
+        Assert.True(File.Exists(Path.Combine(activity, "ActivityLogDetailsViewModel.cs")));
+        Assert.True(File.Exists(Path.Combine(activity, "ActivityLogManagementViewModel.cs")));
+    }
+
+    [Fact]
+    public void ActivityRecorder_DoesNotExposeBackingStore()
+    {
+        var contract = File.ReadAllText(Path.Combine(DesktopRoot(), "Shell", "Runtime", "IActivityRecorder.cs"));
+        Assert.DoesNotContain("ActivityLogService Store", contract, StringComparison.Ordinal);
+    }
+
     private static IEnumerable<string> Sources(string root)
         => Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories);
 

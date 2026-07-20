@@ -4,10 +4,9 @@ namespace ShellKrypt.Desktop.Shell.Runtime;
 
 public sealed class ActivityRecorder(ActivityLogService store, IVaultSessionController session) : IActivityRecorder
 {
-    public ActivityLogService Store => store;
-    public event EventHandler? Changed;
+    public event EventHandler<ActivityRecorderChangedEventArgs>? Changed;
 
-    public void Log(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null)
+    public ActivityLogOperationResult Log(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null)
     {
         var targetVaultPath = string.IsNullOrWhiteSpace(vaultPath) ? session.VaultPath : vaultPath;
         var entry = new ActivityLogEntry(
@@ -22,13 +21,9 @@ public sealed class ActivityRecorder(ActivityLogService store, IVaultSessionCont
             AffectedItem = string.IsNullOrWhiteSpace(affectedItem) ? null : affectedItem.Trim()
         };
 
-        try
-        {
-            store.Append(entry, session.IsUnlocked ? session.VaultKey : null);
-            Changed?.Invoke(this, EventArgs.Empty);
-        }
-        catch
-        {
-        }
+        var result = store.Append(entry, session.IsUnlocked ? session.VaultKey : null);
+        if (result.FailureKind != ActivityLogFailureKind.Unavailable)
+            Changed?.Invoke(this, new ActivityRecorderChangedEventArgs(result));
+        return result;
     }
 }

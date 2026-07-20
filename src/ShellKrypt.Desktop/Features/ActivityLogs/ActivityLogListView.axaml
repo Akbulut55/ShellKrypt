@@ -1,0 +1,46 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:ShellKrypt.Desktop.Features.ActivityLogs"
+             x:Class="ShellKrypt.Desktop.Features.ActivityLogs.ActivityLogListView"
+             x:DataType="local:ActivityLogListViewModel">
+  <Border Classes="table-shell" ClipToBounds="True">
+    <Grid RowDefinitions="Auto,*,Auto">
+      <Border Classes="table-header-row">
+        <Grid ColumnDefinitions="0.82*,0.76*,1.22*,1.04*,0.58*" ColumnSpacing="8">
+          <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}" Classes="table-header-text"/>
+          <TextBlock Grid.Column="1" Text="{DynamicResource Loc.Activity.Table.EventReference}" Classes="table-header-text"/>
+          <TextBlock Grid.Column="2" Text="{DynamicResource Loc.Activity.Table.EventTitle}" Classes="table-header-text"/>
+          <TextBlock Grid.Column="3" Text="{DynamicResource Loc.Activity.Table.AffectedItem}" Classes="table-header-text"/>
+          <TextBlock Grid.Column="4" Text="{DynamicResource Loc.Activity.Table.Status}" Classes="table-header-text" HorizontalAlignment="Right"/>
+        </Grid>
+      </Border>
+      <Grid Grid.Row="1">
+        <ListBox ItemsSource="{Binding Items}" SelectedItem="{Binding SelectedItem}" Classes="table-list" IsVisible="{Binding HasVisibleItems}">
+          <ListBox.ItemTemplate>
+            <DataTemplate x:DataType="local:ActivityItemVm">
+              <Border Classes="table-row">
+                <Grid ColumnDefinitions="0.82*,0.76*,1.22*,1.04*,0.58*" ColumnSpacing="8" MinHeight="64" Margin="12,0">
+                  <TextBlock Text="{Binding TimestampColumnDisplay}" Classes="activity-row-meta" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="1" Text="{Binding EventReferenceDisplay}" Classes="activity-row-accent" VerticalAlignment="Center"/>
+                  <TextBlock Grid.Column="2" Text="{Binding Title}" Classes="table-cell-primary" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                  <TextBlock Grid.Column="3" Text="{Binding AffectedItemDisplay}" Classes="table-cell-secondary" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+                  <Border Grid.Column="4" Background="{Binding SeverityBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
+                          CornerRadius="999" Padding="8,3" HorizontalAlignment="Right" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding SeverityChipText}" Foreground="{Binding SeverityForeground, Converter={StaticResource ThemeResourceBrushConverter}}" FontSize="10" FontWeight="Bold"/>
+                  </Border>
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ListBox.ItemTemplate>
+        </ListBox>
+        <StackPanel IsVisible="{Binding !HasVisibleItems}" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="6">
+          <TextBlock Text="{Binding EmptyStateTitle}" Classes="table-empty-title" HorizontalAlignment="Center"/>
+          <TextBlock Text="{Binding EmptyStateSubtitle}" Classes="table-empty-subtitle" TextWrapping="Wrap" TextAlignment="Center" MaxWidth="420"/>
+        </StackPanel>
+      </Grid>
+      <Border Grid.Row="2" Classes="table-footer-row">
+        <TextBlock Text="{Binding ItemsSummary}" Classes="table-footer-text"/>
+      </Border>
+    </Grid>
+  </Border>
+</UserControl>

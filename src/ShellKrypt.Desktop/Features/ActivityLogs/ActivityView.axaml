@@ -1,347 +1,63 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:vm="using:ShellKrypt.Desktop.Features.ActivityLogs"
+             xmlns:local="using:ShellKrypt.Desktop.Features.ActivityLogs"
              x:Class="ShellKrypt.Desktop.Features.ActivityLogs.ActivityView"
-             x:CompileBindings="False"
-             x:DataType="vm:ActivityViewModel">
+             x:DataType="local:ActivityViewModel">
+  <Grid Margin="16" RowDefinitions="Auto,Auto,Auto,*" RowSpacing="12">
+    <StackPanel Spacing="6">
+      <TextBlock Text="{DynamicResource Loc.Activity.Title}" FontSize="28" FontWeight="SemiBold" LetterSpacing="-0.8"/>
+      <TextBlock Text="{DynamicResource Loc.Activity.Subtitle}" Classes="page-subtitle" FontSize="13"/>
+    </StackPanel>
 
-  <Grid>
-    <Grid Margin="16"
-          RowDefinitions="Auto,Auto,*,Auto"
-          RowSpacing="14"
-          HorizontalAlignment="Stretch">
-        <Grid Grid.Row="0"
-              Margin="0,10,0,0">
-          <StackPanel Spacing="9">
-                <TextBlock Text="{DynamicResource Loc.Activity.Title}"
-                       FontSize="28"
-                       FontWeight="SemiBold"
-                       LetterSpacing="-0.8"/>
-                <TextBlock Text="{DynamicResource Loc.Activity.Subtitle}"
-                       Classes="page-subtitle"
-                       FontSize="13"/>
-          </StackPanel>
+    <Border Grid.Row="1" Classes="activity-warning" IsVisible="{Binding HasCorruptionWarning}">
+      <TextBlock Text="{Binding CorruptionWarning}" TextWrapping="Wrap"/>
+    </Border>
+    <Border Grid.Row="1" Classes="activity-error" IsVisible="{Binding HasLoadFailure}">
+      <TextBlock Text="{Binding LoadFailureMessage}" TextWrapping="Wrap"/>
+    </Border>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="12">
+      <WrapPanel Orientation="Horizontal">
+        <Border Classes="activity-search-shell">
+          <TextBox Text="{Binding List.SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Classes="sk-search-input" PlaceholderText="{DynamicResource Loc.Activity.Search.Placeholder}"/>
+        </Border>
+        <Button Content="{DynamicResource Loc.Common.All}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsAllFilterActive}" Command="{Binding List.ShowAllCommand}"/>
+        <Button Content="{DynamicResource Loc.Activity.Filter.Vault}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsVaultFilterActive}" Command="{Binding List.ShowVaultCommand}"/>
+        <Button Content="{DynamicResource Loc.Activity.Filter.Items}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsItemsFilterActive}" Command="{Binding List.ShowItemsCommand}"/>
+        <Button Content="{DynamicResource Loc.Activity.Filter.Audit}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsAuditFilterActive}" Command="{Binding List.ShowAuditCommand}"/>
+        <Button Content="{DynamicResource Loc.Activity.Filter.Export}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsTransferFilterActive}" Command="{Binding List.ShowTransferCommand}"/>
+        <Button Content="{DynamicResource Loc.Activity.Filter.Settings}" Classes="sk-chip activity-filter-chip"
+                Classes.active="{Binding List.IsSettingsFilterActive}" Command="{Binding List.ShowSettingsCommand}"/>
+      </WrapPanel>
+      <Button Grid.Column="1" Content="{DynamicResource Loc.Activity.Button.Refresh}" Classes="sk-secondary" Command="{Binding RefreshCommand}"/>
+    </Grid>
+
+    <Grid Grid.Row="3" ColumnDefinitions="*,280" ColumnSpacing="12" MinWidth="650">
+      <Grid RowDefinitions="Auto,*" RowSpacing="10">
+        <Grid ColumnDefinitions="*,*,*" ColumnSpacing="8">
+          <ComboBox ItemsSource="{Binding List.SeverityOptions}" SelectedItem="{Binding List.SelectedSeverityOption}"
+                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
+          <ComboBox Grid.Column="1" ItemsSource="{Binding List.DateRangeOptions}" SelectedItem="{Binding List.SelectedDateRangeOption}"
+                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
+          <ComboBox Grid.Column="2" ItemsSource="{Binding List.SortOptions}" SelectedItem="{Binding List.SelectedSortOption}"
+                    DisplayMemberBinding="{Binding Label}" Classes="sk-combo-compact"/>
         </Grid>
+        <local:ActivityLogListView Grid.Row="1" DataContext="{Binding List}"/>
+      </Grid>
 
-        <WrapPanel Grid.Row="1"
-                   Orientation="Horizontal"
-                   VerticalAlignment="Center">
-          <Border Classes="activity-search-shell">
-            <TextBox Text="{Binding SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                     Classes="sk-search-input"
-                     PlaceholderText="{DynamicResource Loc.Activity.Search.Placeholder}"/>
-          </Border>
-
-          <WrapPanel Orientation="Horizontal"
-                     VerticalAlignment="Center">
-            <Button Content="{DynamicResource Loc.Common.All}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsAllFilterActive}"
-                    Command="{Binding ShowAllCommand}"/>
-            <Button Content="{DynamicResource Loc.Activity.Filter.Vault}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsVaultFilterActive}"
-                    Command="{Binding ShowVaultCommand}"/>
-            <Button Content="{DynamicResource Loc.Activity.Filter.Items}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsItemsFilterActive}"
-                    Command="{Binding ShowItemsCommand}"/>
-            <Button Content="{DynamicResource Loc.Activity.Filter.Audit}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsAuditFilterActive}"
-                    Command="{Binding ShowAuditCommand}"/>
-            <Button Content="{DynamicResource Loc.Activity.Filter.Export}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsTransferFilterActive}"
-                    Command="{Binding ShowTransferCommand}"/>
-            <Button Content="{DynamicResource Loc.Activity.Filter.Settings}"
-                    Classes="sk-chip activity-filter-chip"
-                    Classes.active="{Binding IsSettingsFilterActive}"
-                    Command="{Binding ShowSettingsCommand}"/>
-          </WrapPanel>
-        </WrapPanel>
-
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,250"
-              MinWidth="560"
-              ColumnSpacing="12">
-          <Border Classes="table-shell"
-                  ClipToBounds="True"
-                  VerticalAlignment="Stretch">
-            <Grid RowDefinitions="Auto,*,Auto">
-              <Border Classes="table-header-row">
-                <Grid ColumnDefinitions="0.82*,0.66*,1.22*,1.04*,0.58*"
-                      ColumnSpacing="8">
-                  <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}"
-                             Classes="table-header-text"/>
-                  <TextBlock Grid.Column="1"
-                             Text="{DynamicResource Loc.Activity.Table.SessionId}"
-                             Classes="table-header-text"/>
-                  <TextBlock Grid.Column="2"
-                             Text="{DynamicResource Loc.Activity.Table.EventTitle}"
-                             Classes="table-header-text"/>
-                  <TextBlock Grid.Column="3"
-                             Text="{DynamicResource Loc.Activity.Table.AffectedItem}"
-                             Classes="table-header-text"/>
-                  <TextBlock Grid.Column="4"
-                             Text="{DynamicResource Loc.Activity.Table.Status}"
-                             Classes="table-header-text"
-                             HorizontalAlignment="Right"/>
-                </Grid>
-              </Border>
-
-              <Grid Grid.Row="1">
-                <ListBox ItemsSource="{Binding Items}"
-                         SelectedItem="{Binding SelectedItem}"
-                         Classes="table-list"
-                         IsVisible="{Binding HasItems}">
-                  <ListBox.ItemTemplate>
-                    <DataTemplate x:DataType="vm:ActivityItemVm">
-                      <Border Classes="table-row">
-                        <Grid ColumnDefinitions="0.82*,0.66*,1.22*,1.04*,0.58*"
-                              ColumnSpacing="8"
-                              MinHeight="72"
-                              Margin="12,0">
-                          <TextBlock Text="{Binding TimestampColumnDisplay}"
-                                     Classes="activity-row-meta"
-                                     VerticalAlignment="Center"/>
-                          <TextBlock Grid.Column="1"
-                                     Text="{Binding SessionIdDisplay}"
-                                     Classes="activity-row-accent"
-                                     VerticalAlignment="Center"/>
-                          <TextBlock Grid.Column="2"
-                                     Text="{Binding Title}"
-                                     FontSize="13"
-                                     FontWeight="SemiBold"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <TextBlock Grid.Column="3"
-                                     Text="{Binding AffectedItemDisplay}"
-                                     Classes="activity-row-meta"
-                                     VerticalAlignment="Center"
-                                     TextTrimming="CharacterEllipsis"/>
-                          <Border Grid.Column="4"
-                                  Background="{Binding SeverityBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
-                                  CornerRadius="999"
-                                  Padding="10,4"
-                                  HorizontalAlignment="Right"
-                                  VerticalAlignment="Center">
-                            <TextBlock Text="{Binding SeverityChipText}"
-                                       Foreground="{Binding SeverityForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
-                                       FontSize="10"
-                                       FontWeight="Black"/>
-                          </Border>
-                        </Grid>
-                      </Border>
-                    </DataTemplate>
-                  </ListBox.ItemTemplate>
-                </ListBox>
-
-                <Border Background="Transparent"
-                        Padding="28,38"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Stretch"
-                        IsVisible="{Binding !HasItems}">
-                  <StackPanel Classes="table-empty">
-                    <TextBlock Text="{Binding EmptyStateTitle}"
-                               Classes="table-empty-title"/>
-                    <TextBlock Text="{Binding EmptyStateSubtitle}"
-                               Classes="table-empty-subtitle"/>
-                  </StackPanel>
-                </Border>
-              </Grid>
-
-              <Border Grid.Row="2"
-                      Classes="table-footer-row"
-                      IsVisible="{Binding HasFilteredItems}">
-                <TextBlock Text="{Binding ItemsSummary}"
-                           Classes="table-footer-text"
-                           VerticalAlignment="Center"/>
-              </Border>
-            </Grid>
-          </Border>
-
-          <Grid Grid.Column="1"
-                RowDefinitions="*,Auto"
-                RowSpacing="12">
-            <Border Classes="activity-detail-card"
-                    ClipToBounds="True">
-              <ScrollViewer HorizontalScrollBarVisibility="Disabled"
-                            VerticalScrollBarVisibility="Auto">
-                <StackPanel Spacing="16">
-                  <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Title}"
-                             Foreground="{StaticResource AccentBrush}"
-                             FontSize="11"
-                             FontWeight="Black"
-                             LetterSpacing="2.2"/>
-
-                  <StackPanel Spacing="12">
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Metadata.EventUuid}"
-                                 Classes="activity-detail-label"/>
-                      <Border Classes="activity-detail-shell">
-                        <TextBlock Text="{Binding SelectedEventId}"
-                                   Classes="activity-detail-value"
-                                   TextWrapping="Wrap"/>
-                      </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}"
-                                 Classes="activity-detail-label"/>
-                      <TextBlock Text="{Binding SelectedTimestamp}"
-                                 Classes="activity-detail-value"/>
-                    </StackPanel>
-
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Category}"
-                                 Classes="activity-detail-label"/>
-                      <TextBlock Text="{Binding SelectedCategory}"
-                                 Classes="activity-detail-value"/>
-                    </StackPanel>
-
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Table.Status}"
-                                 Classes="activity-detail-label"/>
-                      <Border Background="{Binding SelectedStatusBackground, Converter={StaticResource ThemeResourceBrushConverter}}"
-                              CornerRadius="999"
-                              Padding="10,4"
-                              HorizontalAlignment="Left">
-                        <TextBlock Text="{Binding SelectedStatus}"
-                                   Foreground="{Binding SelectedStatusForeground, Converter={StaticResource ThemeResourceBrushConverter}}"
-                                   FontSize="10"
-                                   FontWeight="Black"/>
-                      </Border>
-                    </StackPanel>
-
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Table.AffectedItem}"
-                                 Classes="activity-detail-label"/>
-                      <TextBlock Text="{Binding SelectedAffectedItem}"
-                                 Classes="activity-detail-value"
-                                 TextWrapping="Wrap"/>
-                    </StackPanel>
-
-                    <StackPanel Spacing="4">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Detail}"
-                                 Classes="activity-detail-label"/>
-                      <TextBlock Text="{Binding SelectedDetail}"
-                                 Classes="activity-detail-value"
-                                 TextWrapping="Wrap"/>
-                    </StackPanel>
-                  </StackPanel>
-
-                  <Border Classes="activity-detail-shell">
-                    <StackPanel Spacing="8">
-                      <TextBlock Text="{DynamicResource Loc.Activity.Metadata.IntegrityHash}"
-                                 Classes="activity-detail-label"/>
-                      <TextBlock Text="{Binding SelectedIntegrityHash}"
-                                 Foreground="{StaticResource SuccessBrush}"
-                                 FontSize="11"
-                                 FontFamily="{StaticResource MonoFontFamily}"
-                                 TextWrapping="Wrap"/>
-                    </StackPanel>
-                  </Border>
-
-                </StackPanel>
-              </ScrollViewer>
-            </Border>
-
-            <Border Grid.Row="1"
-                    Classes="activity-detail-card">
-              <StackPanel Spacing="14">
-                <TextBlock Text="{DynamicResource Loc.Activity.Management.Title}"
-                           Foreground="{StaticResource AccentBrush}"
-                           FontSize="11"
-                           FontWeight="Black"
-                           LetterSpacing="2.2"/>
-                <TextBlock Text="{DynamicResource Loc.Activity.Management.Subtitle}"
-                           Classes="page-subtitle"
-                           FontSize="12"
-                           TextWrapping="Wrap"/>
-                <Grid ColumnDefinitions="*,*"
-                      ColumnSpacing="8">
-                  <Button Content="{DynamicResource Loc.Activity.Button.ExportReport}"
-                          Classes="sk-secondary activity-management-button"
-                          Command="{Binding ExportReportCommand}"/>
-                  <Button Grid.Column="1"
-                          Content="{DynamicResource Loc.Activity.Button.ClearLogs}"
-                          Classes="sk-secondary activity-management-button"
-                          Command="{Binding ClearCommand}"/>
-                </Grid>
-              </StackPanel>
-            </Border>
-
-          </Grid>
-        </Grid>
-
-        <TextBlock Grid.Row="3"
-                   Text="{Binding Error}"
-                   Foreground="{StaticResource DangerBrush}"
-                   FontSize="12"
-                   IsVisible="{Binding HasError}"/>
+      <Grid Grid.Column="1" RowDefinitions="*,Auto" RowSpacing="12">
+        <local:ActivityLogDetailsView DataContext="{Binding Details}"/>
+        <local:ActivityLogManagementView Grid.Row="1" DataContext="{Binding Management}"/>
+      </Grid>
     </Grid>
   </Grid>
-
   <UserControl.Styles>
-    <Style Selector="Border.activity-search-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/>
-      <Setter Property="BorderThickness" Value="1"/>
-      <Setter Property="CornerRadius" Value="8"/>
-      <Setter Property="Padding" Value="0"/>
-      <Setter Property="Height" Value="38"/>
-      <Setter Property="Width" Value="360"/>
-      <Setter Property="Margin" Value="0,0,12,12"/>
-    </Style>
-
-
-    <Style Selector="Button.activity-filter-chip">
-      <Setter Property="Margin" Value="0,0,4,12"/>
-      <Setter Property="VerticalAlignment" Value="Center"/>
-    </Style>
-
-    <Style Selector="TextBlock.activity-row-meta">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
-    </Style>
-
-    <Style Selector="TextBlock.activity-row-accent">
-      <Setter Property="Foreground" Value="{StaticResource AccentBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-      <Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/>
-    </Style>
-
-    <Style Selector="Border.activity-detail-card">
-      <Setter Property="Background" Value="{StaticResource SurfaceBrush}"/>
-      <Setter Property="CornerRadius" Value="16"/>
-      <Setter Property="Padding" Value="22"/>
-    </Style>
-
-    <Style Selector="TextBlock.activity-detail-label">
-      <Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/>
-      <Setter Property="FontSize" Value="10"/>
-      <Setter Property="FontWeight" Value="Black"/>
-      <Setter Property="LetterSpacing" Value="2.2"/>
-    </Style>
-
-    <Style Selector="TextBlock.activity-detail-value">
-      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/>
-      <Setter Property="FontSize" Value="12"/>
-    </Style>
-
-    <Style Selector="Border.activity-detail-shell">
-      <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/>
-      <Setter Property="CornerRadius" Value="12"/>
-      <Setter Property="Padding" Value="14,12"/>
-    </Style>
-
-    <Style Selector="Button.activity-management-button">
-      <Setter Property="Padding" Value="8,9"/>
-      <Setter Property="MinWidth" Value="0"/>
-      <Setter Property="HorizontalContentAlignment" Value="Center"/>
-    </Style>
-
+    <StyleInclude Source="avares://ShellKrypt/Features/ActivityLogs/ActivityLogStyles.axaml"/>
   </UserControl.Styles>
 </UserControl>

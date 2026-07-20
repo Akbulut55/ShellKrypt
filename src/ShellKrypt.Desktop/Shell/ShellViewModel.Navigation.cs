@@ -16,6 +16,8 @@ public partial class ShellViewModel
 
         if (CurrentPage is AuthenticatorViewModel previousAuthenticator)
             previousAuthenticator.Deactivate();
+        if (CurrentPage is ActivityViewModel previousActivity)
+            previousActivity.Deactivate();
 
         CurrentPage = value.Key switch
         {
@@ -36,6 +38,8 @@ public partial class ShellViewModel
 
         if (CurrentPage is AuthenticatorViewModel currentAuthenticator)
             currentAuthenticator.Activate();
+        if (CurrentPage is ActivityViewModel currentActivity)
+            currentActivity.Activate();
 
         if (ReferenceEquals(CurrentPage, ProjectSecrets))
             _ = ProjectSecrets.RefreshApiKeysAsync();

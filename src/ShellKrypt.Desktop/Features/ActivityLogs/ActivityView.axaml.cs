@@ -7,5 +7,7 @@ public partial class ActivityView : UserControl
     public ActivityView()
     {
         InitializeComponent();
+        if (Design.IsDesignMode)
+            DataContext = ActivityViewDesignData.CreatePopulated();
     }
 }

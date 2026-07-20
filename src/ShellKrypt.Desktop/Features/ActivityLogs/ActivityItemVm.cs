@@ -10,11 +10,13 @@ namespace ShellKrypt.Desktop.Features.ActivityLogs;
 public sealed partial class ActivityItemVm : ObservableObject
 {
     private readonly LocalizationService _localization;
+    private readonly TimeProvider _timeProvider;
 
-    public ActivityItemVm(ActivityLogEntry entry, LocalizationService localization)
+    public ActivityItemVm(ActivityLogEntry entry, LocalizationService localization, TimeProvider timeProvider)
     {
         Entry = entry;
         _localization = localization;
+        _timeProvider = timeProvider;
     }
 
     public ActivityLogEntry Entry { get; }
@@ -24,7 +26,7 @@ public sealed partial class ActivityItemVm : ObservableObject
     public string Detail => Entry.Detail;
     public string Severity => Entry.Severity;
     public string VaultDisplay => string.IsNullOrWhiteSpace(Entry.VaultPath) ? "ShellKrypt" : Path.GetFileNameWithoutExtension(Entry.VaultPath);
-    public string SessionIdDisplay => $"SES-{Id[..4].ToUpperInvariant()}";
+    public string EventReferenceDisplay => $"EVT-{Id[..Math.Min(8, Id.Length)].ToUpperInvariant()}";
     public string TimestampColumnDisplay => FormatColumnTimestamp(Entry.TimestampUtc);
     public string AffectedItemDisplay => !string.IsNullOrWhiteSpace(Entry.AffectedItem)
         ? Entry.AffectedItem
@@ -37,6 +39,7 @@ public sealed partial class ActivityItemVm : ObservableObject
         "notes" => T("Activity.Category.Notes"),
         "authenticator" => T("Activity.Category.Authenticator"),
         "api_keys" => T("Activity.Category.ApiKeys"),
+        "project_secrets" => T("Activity.Category.ProjectSecrets"),
         "audit" => T("Activity.Category.Audit"),
         "crypto-tools" => T("Activity.Category.CryptoTools"),
         "settings" => T("Activity.Category.Settings"),
@@ -82,12 +85,12 @@ public sealed partial class ActivityItemVm : ObservableObject
         _ => "SY"
     };
 
-    private static string FormatColumnTimestamp(string timestampUtc)
+    private string FormatColumnTimestamp(string timestampUtc)
     {
         if (!DateTimeOffset.TryParse(timestampUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
             return "--:--:--";
 
-        return parsed.ToLocalTime().ToString("HH:mm:ss", CultureInfo.InvariantCulture);
+        return TimeZoneInfo.ConvertTime(parsed, _timeProvider.LocalTimeZone).ToString("HH:mm:ss", CultureInfo.InvariantCulture);
     }
 
     public void RefreshLocalization()
@@ -104,8 +107,8 @@ public sealed partial class ActivityItemVm : ObservableObject
         if (!DateTimeOffset.TryParse(timestampUtc, CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out var parsed))
             return T("Activity.Time.Unknown");
 
-        var local = parsed.ToLocalTime();
-        var delta = DateTimeOffset.Now - local;
+        var local = TimeZoneInfo.ConvertTime(parsed, _timeProvider.LocalTimeZone);
+        var delta = _timeProvider.GetLocalNow() - local;
 
         if (delta < TimeSpan.FromMinutes(1))
             return T("Activity.Time.JustNow");
@@ -116,6 +119,6 @@ public sealed partial class ActivityItemVm : ObservableObject
         if (delta < TimeSpan.FromDays(7))
             return T("Activity.Time.DaysAgo", Math.Max(1, (int)delta.TotalDays));
 
-        return local.ToString("MMM d, yyyy â€¢ HH:mm", CultureInfo.InvariantCulture);
+        return local.ToString("MMM d, yyyy | HH:mm", CultureInfo.InvariantCulture);
     }
 }

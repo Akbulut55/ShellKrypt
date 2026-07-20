@@ -1,4 +1,5 @@
 using Avalonia.Media.Imaging;
+using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Localization;
 using ShellKrypt.Application.Settings;
 
@@ -39,13 +40,13 @@ public sealed record MarkdownNotesRuntime(IVaultSessionController Session, Local
 
 public sealed record ActivityLogsRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, IDesktopDialogService Dialogs) : ILocalizedRuntime
 {
-    public event EventHandler? ActivityChanged { add => Activity.Changed += value; remove => Activity.Changed -= value; }
+    public event EventHandler<ActivityRecorderChangedEventArgs>? ActivityChanged { add => Activity.Changed += value; remove => Activity.Changed -= value; }
     public string? VaultPath => Session.VaultPath;
     public byte[] VaultKey => Session.VaultKey;
     public bool IsUnlocked => Session.IsUnlocked;
     public Task<string?> PickSaveFileAsync(string title, string suggestedName, string defaultExtension, string[] extensions, string fileTypeName) => Dialogs.PickSaveFileAsync(title, suggestedName, defaultExtension, extensions, fileTypeName);
     public Task<bool> ConfirmDangerousActionAsync(string title, string message, string detail, string confirmText) => Dialogs.ConfirmDangerousActionAsync(title, message, detail, confirmText);
-    public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
+    public ActivityLogOperationResult LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
 }
 
 public sealed record SecurityAuditRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, IDesktopSettingsController Settings) : ILocalizedRuntime

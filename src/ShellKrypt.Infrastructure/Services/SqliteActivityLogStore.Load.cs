@@ -7,9 +7,10 @@ namespace ShellKrypt.Infrastructure.Services;
 
 public sealed partial class SqliteActivityLogStore
 {
-    private static IReadOnlyList<ActivityLogEntry> LoadVaultEntries(string vaultPath, byte[] vaultKey)
+    private static ActivityLogLoadResult LoadVaultEntries(string vaultPath, byte[] vaultKey)
     {
         var entries = new List<ActivityLogEntry>();
+        var skippedCorruptEntries = 0;
 
         try
         {
@@ -53,14 +54,15 @@ public sealed partial class SqliteActivityLogStore
                 catch
                 {
                     // Skip individual corrupted entries instead of hiding the whole log.
+                    skippedCorruptEntries++;
                 }
             }
         }
         catch
         {
-            return [];
+            return new([], 0, ActivityLogFailureKind.ReadFailed);
         }
 
-        return entries;
+        return new(entries, skippedCorruptEntries, ActivityLogFailureKind.None);
     }
 }

@@ -14,27 +14,43 @@ public sealed partial class SqliteActivityLogStore : IActivityLogStore
         PropertyNameCaseInsensitive = true
     };
 
-    public IReadOnlyList<ActivityLogEntry> Load(string? vaultPath = null, byte[]? vaultKey = null)
+    public ActivityLogLoadResult Load(string? vaultPath = null, byte[]? vaultKey = null)
     {
         if (!string.IsNullOrWhiteSpace(vaultPath) && vaultKey is { Length: > 0 })
             return LoadVaultEntries(vaultPath, vaultKey);
 
-        return [];
+        return ActivityLogLoadResult.Empty;
     }
 
-    public void Append(ActivityLogEntry entry, byte[]? vaultKey = null)
+    public ActivityLogOperationResult Append(ActivityLogEntry entry, byte[]? vaultKey = null)
     {
-        if (!string.IsNullOrWhiteSpace(entry.VaultPath) && vaultKey is { Length: > 0 })
+        if (string.IsNullOrWhiteSpace(entry.VaultPath) || vaultKey is not { Length: > 0 })
+            return new(ActivityLogFailureKind.Unavailable);
+
+        try
+        {
             AppendVaultEntry(entry, vaultKey);
-
-        // Activity logs are vault-scoped and encrypted. Events without a vault key are intentionally not persisted.
+            return ActivityLogOperationResult.Succeeded;
+        }
+        catch
+        {
+            return new(ActivityLogFailureKind.WriteFailed);
+        }
     }
 
-    public void Clear(string? vaultPath = null, byte[]? vaultKey = null)
+    public ActivityLogOperationResult Clear(string? vaultPath = null, byte[]? vaultKey = null)
     {
-        if (!string.IsNullOrWhiteSpace(vaultPath) && vaultKey is { Length: > 0 })
-            ClearVaultEntries(vaultPath);
+        if (string.IsNullOrWhiteSpace(vaultPath) || vaultKey is not { Length: > 0 })
+            return new(ActivityLogFailureKind.Unavailable);
 
-        // Legacy global activity logs are quarantined by leaving them unread and unwritten.
+        try
+        {
+            ClearVaultEntries(vaultPath);
+            return ActivityLogOperationResult.Succeeded;
+        }
+        catch
+        {
+            return new(ActivityLogFailureKind.ClearFailed);
+        }
     }
 }

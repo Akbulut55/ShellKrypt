@@ -62,7 +62,7 @@ Initiative.
 
 ## Notes
 
-- The current desktop application version is `0.26.0`.
+- The current desktop application version is `0.27.0`.
 - The official source repository is [Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
 - `ShellKrypt.slnx` is the canonical solution for the Desktop application and shared libraries.
 - Official signed builds, distribution channels, support, names, and branding may be governed separately as described in [`NOTICE.md`](NOTICE.md).

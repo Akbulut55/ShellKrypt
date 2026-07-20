@@ -1,0 +1,15 @@
+<Styles xmlns="https://github.com/avaloniaui">
+  <Style Selector="Border.activity-search-shell">
+    <Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/><Setter Property="BorderBrush" Value="{StaticResource BorderBrushSoft}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Height" Value="38"/><Setter Property="Width" Value="320"/><Setter Property="Margin" Value="0,0,10,8"/>
+  </Style>
+  <Style Selector="Button.activity-filter-chip"><Setter Property="Margin" Value="0,0,4,8"/></Style>
+  <Style Selector="TextBlock.activity-row-meta"><Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/><Setter Property="FontSize" Value="12"/><Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/></Style>
+  <Style Selector="TextBlock.activity-row-accent"><Setter Property="Foreground" Value="{StaticResource AccentBrush}"/><Setter Property="FontSize" Value="11"/><Setter Property="FontFamily" Value="{StaticResource MonoFontFamily}"/></Style>
+  <Style Selector="Border.activity-detail-card"><Setter Property="Background" Value="{StaticResource SurfaceBrush}"/><Setter Property="CornerRadius" Value="12"/><Setter Property="Padding" Value="16"/></Style>
+  <Style Selector="TextBlock.activity-detail-label"><Setter Property="Foreground" Value="{StaticResource TextMutedBrush}"/><Setter Property="FontSize" Value="10"/><Setter Property="FontWeight" Value="Black"/><Setter Property="LetterSpacing" Value="1.6"/></Style>
+  <Style Selector="TextBlock.activity-detail-value"><Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}"/><Setter Property="FontSize" Value="12"/></Style>
+  <Style Selector="Border.activity-detail-shell"><Setter Property="Background" Value="{StaticResource AppBackgroundSoftBrush}"/><Setter Property="CornerRadius" Value="10"/><Setter Property="Padding" Value="12"/></Style>
+  <Style Selector="Button.activity-management-button"><Setter Property="MinWidth" Value="0"/><Setter Property="HorizontalContentAlignment" Value="Center"/></Style>
+  <Style Selector="Border.activity-warning"><Setter Property="Background" Value="{StaticResource WarningMutedBrush}"/><Setter Property="BorderBrush" Value="{StaticResource WarningForegroundBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Padding" Value="12,8"/></Style>
+  <Style Selector="Border.activity-error"><Setter Property="Background" Value="{StaticResource DangerMutedBrush}"/><Setter Property="BorderBrush" Value="{StaticResource DangerBrush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="8"/><Setter Property="Padding" Value="12,8"/></Style>
+</Styles>
