@@ -19,7 +19,7 @@ public sealed partial class SqliteActivityLogStore : IActivityLogStore
         if (!string.IsNullOrWhiteSpace(vaultPath) && vaultKey is { Length: > 0 })
             return LoadVaultEntries(vaultPath, vaultKey);
 
-        return ActivityLogLoadResult.Empty;
+        return new([], 0, ActivityLogFailureKind.Unavailable);
     }
 
     public ActivityLogOperationResult Append(ActivityLogEntry entry, byte[]? vaultKey = null)

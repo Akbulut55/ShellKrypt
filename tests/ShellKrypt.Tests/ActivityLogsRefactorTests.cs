@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using ShellKrypt.Application.Activity;
@@ -7,6 +8,7 @@ using ShellKrypt.Application.Ports;
 using ShellKrypt.Desktop.Features.ActivityLogs;
 using ShellKrypt.Desktop.Shell.Dialogs;
 using ShellKrypt.Desktop.Shell.Runtime;
+using ShellKrypt.Infrastructure.Crypto;
 using ShellKrypt.Infrastructure.Services;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -165,6 +167,74 @@ public sealed class ActivityLogsRefactorTests
     }
 
     [Fact]
+    public void ActivityRecorder_EmitsTypedSuccessAndFailureResults()
+    {
+        var store = new CapturingStore();
+        var session = new TestSession();
+        var recorder = new ActivityRecorder(new ActivityLogService(store), session);
+        var results = new List<ActivityLogOperationResult>();
+        recorder.Changed += (_, args) => results.Add(args.Result);
+
+        recorder.Log("audit", "Recorded", "Safe detail");
+        store.AppendResult = new(ActivityLogFailureKind.WriteFailed);
+        recorder.Log("audit", "Failed", "Safe detail");
+        store.AppendResult = new(ActivityLogFailureKind.Unavailable);
+        session.IsUnlocked = false;
+        recorder.Log("audit", "Unavailable", "Safe detail");
+
+        Assert.Equal(
+            [
+                ActivityLogOperationResult.Succeeded,
+                new(ActivityLogFailureKind.WriteFailed),
+                new(ActivityLogFailureKind.Unavailable)
+            ],
+            results);
+    }
+
+    [Fact]
+    public void ActivityWorkspace_ClearsWarningsAndDisplayedEntriesOnSubsequentReloads()
+    {
+        var store = new CapturingStore
+        {
+            LoadResult = new([Entry("one", Now, "audit", "Reviewed", "Safe", "info", "Audit")], 2, ActivityLogFailureKind.None)
+        };
+        var model = CreateWorkspace(new TestRecorder(), store);
+        model.Activate();
+        Assert.True(model.HasCorruptionWarning);
+        Assert.Single(model.List.Items);
+
+        store.LoadResult = new([Entry("two", Now, "vault", "Clean", "Safe", "success", "Vault")], 0, ActivityLogFailureKind.None);
+        model.RefreshCommand.Execute(null);
+        Assert.False(model.HasCorruptionWarning);
+        Assert.Equal("two", Assert.Single(model.List.Items).Id);
+
+        store.LoadResult = new([], 0, ActivityLogFailureKind.ReadFailed);
+        model.RefreshCommand.Execute(null);
+        Assert.True(model.HasLoadFailure);
+        Assert.Empty(model.List.Items);
+        Assert.Null(model.List.SelectedItem);
+    }
+
+    [Fact]
+    public void ActivityPreviewData_ProvidesEverySyntheticState()
+    {
+        Assert.Empty(ActivityViewDesignData.CreateEmpty().List.Items);
+
+        var populated = ActivityViewDesignData.CreatePopulated();
+        Assert.NotEmpty(populated.List.Items);
+        Assert.Null(populated.List.SelectedItem);
+
+        Assert.NotNull(ActivityViewDesignData.CreateSelected().List.SelectedItem);
+
+        var filtered = ActivityViewDesignData.CreateFiltered();
+        Assert.True(filtered.List.HasNarrowingFilter);
+        Assert.InRange(filtered.List.FilteredEventCount, 1, filtered.List.TotalEvents - 1);
+
+        Assert.True(ActivityViewDesignData.CreateWarning().HasCorruptionWarning);
+        Assert.True(ActivityViewDesignData.CreateFailure().HasLoadFailure);
+    }
+
+    [Fact]
     public async Task SqliteStore_ReportsCorruptRowsWithoutHidingReadableEntries()
     {
         using var workspace = new TempWorkspace();
@@ -182,6 +252,39 @@ public sealed class ActivityLogsRefactorTests
         var command = connection.CreateCommand();
         command.CommandText = "UPDATE activity_logs SET encryptedPayload = $payload WHERE id = 'corrupt';";
         command.Parameters.Add("$payload", SqliteType.Blob).Value = RandomNumberGenerator.GetBytes(64);
+        await command.ExecuteNonQueryAsync();
+
+        var result = service.Load(vaultPath, unlock.VaultKey);
+        Assert.True(result.Success);
+        Assert.Equal(1, result.SkippedCorruptEntries);
+        Assert.Equal("readable", Assert.Single(result.Entries).Id);
+    }
+
+    [Fact]
+    public async Task SqliteStore_CountsAuthenticatedNullPayloadAsCorrupt()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultPath = workspace.FilePath("activity-null-payload.skvault");
+        var vaultService = new SqliteVaultService();
+        await vaultService.CreateAsync(vaultPath, "Vault Master Passphrase 2026");
+        var unlock = await vaultService.UnlockAsync(vaultPath, "Vault Master Passphrase 2026");
+        Assert.True(unlock.Success, unlock.Error);
+        var service = new ActivityLogService(new SqliteActivityLogStore());
+        Assert.True(service.Append(Entry("readable", Now, "audit", "Readable", "Safe", "info", "Audit") with { VaultPath = vaultPath }, unlock.VaultKey).Success);
+
+        const string id = "null-payload";
+        var timestamp = Now.AddMinutes(-1).ToString("O");
+        var encryptedPayload = AesGcmBlob.Encrypt(
+            unlock.VaultKey!,
+            Encoding.UTF8.GetBytes("null"),
+            AesGcmBlob.CreateAssociatedData("activity-log", "v2", id, timestamp));
+        await using var connection = new SqliteConnection(new SqliteConnectionStringBuilder { DataSource = vaultPath, Mode = SqliteOpenMode.ReadWrite, Pooling = false }.ToString());
+        await connection.OpenAsync();
+        var command = connection.CreateCommand();
+        command.CommandText = "INSERT INTO activity_logs (id, timestampUtc, encryptedPayload) VALUES ($id, $timestamp, $payload);";
+        command.Parameters.AddWithValue("$id", id);
+        command.Parameters.AddWithValue("$timestamp", timestamp);
+        command.Parameters.Add("$payload", SqliteType.Blob).Value = encryptedPayload;
         await command.ExecuteNonQueryAsync();
 
         var result = service.Load(vaultPath, unlock.VaultKey);
@@ -221,9 +324,34 @@ public sealed class ActivityLogsRefactorTests
         var missingPath = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString("N"), "missing.skvault");
         var key = new byte[32];
 
+        Assert.Equal(ActivityLogFailureKind.Unavailable, store.Load(null, key).FailureKind);
+        Assert.Equal(ActivityLogFailureKind.Unavailable, store.Load(missingPath, null).FailureKind);
         Assert.Equal(ActivityLogFailureKind.ReadFailed, store.Load(missingPath, key).FailureKind);
         Assert.Equal(ActivityLogFailureKind.WriteFailed, store.Append(Entry("one", Now, "audit", "Write", "Safe", "info", "Audit") with { VaultPath = missingPath }, key).FailureKind);
         Assert.Equal(ActivityLogFailureKind.ClearFailed, store.Clear(missingPath, key).FailureKind);
+    }
+
+    [Fact]
+    public async Task SqliteStore_ClearOnlyDeletesTheSelectedVaultActivity()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var firstPath = workspace.FilePath("first.skvault");
+        var secondPath = workspace.FilePath("second.skvault");
+        await vaultService.CreateAsync(firstPath, "First Vault Master Passphrase 2026");
+        await vaultService.CreateAsync(secondPath, "Second Vault Master Passphrase 2026");
+        var first = await vaultService.UnlockAsync(firstPath, "First Vault Master Passphrase 2026");
+        var second = await vaultService.UnlockAsync(secondPath, "Second Vault Master Passphrase 2026");
+        Assert.True(first.Success, first.Error);
+        Assert.True(second.Success, second.Error);
+        var service = new ActivityLogService(new SqliteActivityLogStore());
+        Assert.True(service.Append(Entry("first", Now, "audit", "First", "Safe", "info", "Audit") with { VaultPath = firstPath }, first.VaultKey).Success);
+        Assert.True(service.Append(Entry("second", Now, "audit", "Second", "Safe", "info", "Audit") with { VaultPath = secondPath }, second.VaultKey).Success);
+
+        Assert.True(service.Clear(firstPath, first.VaultKey).Success);
+
+        Assert.Empty(service.Load(firstPath, first.VaultKey).Entries);
+        Assert.Equal("second", Assert.Single(service.Load(secondPath, second.VaultKey).Entries).Id);
     }
 
     [Fact]
@@ -242,6 +370,25 @@ public sealed class ActivityLogsRefactorTests
         await model.Management.ClearCommand.ExecuteAsync(null);
         Assert.Equal(1, store.ClearCalls);
         Assert.Equal(1, recorder.LogCalls);
+    }
+
+    [Fact]
+    public async Task Management_ClearFailureIsSafeAndDoesNotRecordSuccess()
+    {
+        var recorder = new TestRecorder();
+        var store = new CapturingStore
+        {
+            LoadResult = new([Entry("one", Now, "audit", "Reviewed", "Safe", "info", "Audit")], 0, ActivityLogFailureKind.None),
+            ClearResult = new(ActivityLogFailureKind.ClearFailed)
+        };
+        var model = CreateWorkspace(recorder, store, new TestDialogs { ConfirmDangerous = true });
+        model.Activate();
+
+        await model.Management.ClearCommand.ExecuteAsync(null);
+
+        Assert.True(model.Management.HasError);
+        Assert.Single(model.List.Items);
+        Assert.Equal(0, recorder.LogCalls);
     }
 
     [Fact]
@@ -265,6 +412,9 @@ public sealed class ActivityLogsRefactorTests
         model.Activate();
         Assert.False(model.Management.CanExportFiltered);
 
+        model.List.SelectedSortOption = model.List.SortOptions.Single(option => option.Id == "oldest");
+        Assert.False(model.Management.CanExportFiltered);
+
         model.List.ShowAuditCommand.Execute(null);
         Assert.True(model.Management.CanExportFiltered);
         await model.Management.ExportFilteredCommand.ExecuteAsync(null);
@@ -274,6 +424,75 @@ public sealed class ActivityLogsRefactorTests
         Assert.Equal(2, document.RootElement.GetProperty("SourceTotalEvents").GetInt32());
         Assert.Equal(1, document.RootElement.GetProperty("TotalEvents").GetInt32());
         Assert.Equal(1, recorder.LogCalls);
+    }
+
+    [Fact]
+    public async Task Management_ExportAllIgnoresNarrowingFiltersAndUsesSelectedSort()
+    {
+        using var workspace = new TempWorkspace();
+        var recorder = new TestRecorder();
+        var store = new CapturingStore
+        {
+            LoadResult = new(
+                [
+                    Entry("newer-audit", Now, "audit", "Audit event", "Safe", "info", "Audit"),
+                    Entry("older-vault", Now.AddMinutes(-1), "vault", "Vault event", "Safe", "success", "Vault")
+                ],
+                0,
+                ActivityLogFailureKind.None)
+        };
+        var output = workspace.FilePath("all.json");
+        var model = CreateWorkspace(recorder, store, new TestDialogs { SavePath = output });
+        model.Activate();
+        model.List.SelectedSortOption = model.List.SortOptions.Single(option => option.Id == "oldest");
+        model.List.ShowAuditCommand.Execute(null);
+
+        await model.Management.ExportAllCommand.ExecuteAsync(null);
+
+        using var document = JsonDocument.Parse(await File.ReadAllTextAsync(output));
+        var root = document.RootElement;
+        Assert.Equal("All", root.GetProperty("ExportScope").GetString());
+        Assert.Equal(2, root.GetProperty("TotalEvents").GetInt32());
+        Assert.Equal("all", root.GetProperty("AppliedFilters").GetProperty("Category").GetString());
+        Assert.Equal("oldest", root.GetProperty("AppliedFilters").GetProperty("Sort").GetString());
+        Assert.Equal(["older-vault", "newer-audit"], root.GetProperty("Events").EnumerateArray().Select(item => item.GetProperty("Id").GetString()));
+        Assert.Equal(1, recorder.LogCalls);
+    }
+
+    [Fact]
+    public async Task Management_ExportFailureShowsOnlySafeLocalizedError()
+    {
+        using var workspace = new TempWorkspace();
+        var directoryPath = workspace.FilePath("directory-target");
+        Directory.CreateDirectory(directoryPath);
+        var recorder = new TestRecorder();
+        var store = new CapturingStore { LoadResult = new([Entry("one", Now, "audit", "Reviewed", "Safe", "info", "Audit")], 0, ActivityLogFailureKind.None) };
+        var model = CreateWorkspace(recorder, store, new TestDialogs { SavePath = directoryPath });
+        model.Activate();
+
+        await model.Management.ExportAllCommand.ExecuteAsync(null);
+
+        Assert.True(model.Management.HasError);
+        Assert.DoesNotContain(directoryPath, model.Management.Error, StringComparison.Ordinal);
+        Assert.Equal(0, recorder.LogCalls);
+    }
+
+    [Fact]
+    public void ActivityWorkspace_RefreshesLocalizedRowAndFilterPresentation()
+    {
+        var localization = new LocalizationService();
+        var store = new CapturingStore { LoadResult = new([Entry("one", Now, "audit", "Reviewed", "Safe", "warning", "Audit")], 0, ActivityLogFailureKind.None) };
+        var runtime = new ActivityLogsRuntime(new TestSession(), localization, new TestRecorder(), new TestDialogs());
+        var model = new ActivityViewModel(runtime, new ActivityLogService(store), new FixedTimeProvider(Now));
+        model.Activate();
+        var englishSeverity = model.List.Items[0].SeverityChipText;
+
+        localization.SetLanguage("tr");
+        model.RefreshLocalization();
+
+        Assert.NotEqual(englishSeverity, model.List.Items[0].SeverityChipText);
+        Assert.Equal(localization.Get("Activity.Severity.Warning"), model.List.Items[0].SeverityChipText);
+        Assert.Equal(localization.Get("Activity.Filter.AllSeverities"), model.List.SeverityOptions[0].Label);
     }
 
     private static ActivityViewModel CreateWorkspace(TestRecorder recorder, CapturingStore store, TestDialogs? dialogs = null)
@@ -289,11 +508,18 @@ public sealed class ActivityLogsRefactorTests
     {
         public ActivityLogEntry? Appended { get; private set; }
         public ActivityLogLoadResult LoadResult { get; set; } = ActivityLogLoadResult.Empty;
+        public ActivityLogOperationResult AppendResult { get; set; } = ActivityLogOperationResult.Succeeded;
         public ActivityLogOperationResult ClearResult { get; set; } = ActivityLogOperationResult.Succeeded;
         public int ClearCalls { get; private set; }
         public ActivityLogLoadResult Load(string? vaultPath, byte[]? vaultKey) => LoadResult;
-        public ActivityLogOperationResult Append(ActivityLogEntry entry, byte[]? vaultKey) { Appended = entry; return ActivityLogOperationResult.Succeeded; }
-        public ActivityLogOperationResult Clear(string? vaultPath, byte[]? vaultKey) { ClearCalls++; LoadResult = ActivityLogLoadResult.Empty; return ClearResult; }
+        public ActivityLogOperationResult Append(ActivityLogEntry entry, byte[]? vaultKey) { Appended = entry; return AppendResult; }
+        public ActivityLogOperationResult Clear(string? vaultPath, byte[]? vaultKey)
+        {
+            ClearCalls++;
+            if (ClearResult.Success)
+                LoadResult = ActivityLogLoadResult.Empty;
+            return ClearResult;
+        }
     }
 
     private sealed class TestRecorder : IActivityRecorder
@@ -317,8 +543,8 @@ public sealed class ActivityLogsRefactorTests
 
     private sealed class TestSession : IVaultSessionController
     {
-        public string? VaultPath => "/synthetic/Test.skvault";
-        public bool IsUnlocked => true;
+        public string? VaultPath { get; set; } = "/synthetic/Test.skvault";
+        public bool IsUnlocked { get; set; } = true;
         public byte[] VaultKey { get; } = new byte[32];
         public event EventHandler? StateChanged { add { } remove { } }
         public void SetVaultPath(string? path) { }

@@ -3,9 +3,6 @@ using ShellKrypt.Application.Localization;
 
 namespace ShellKrypt.Desktop.Features.ActivityLogs;
 
-public enum ActivityDateRange { All, Today, Last7Days, Last30Days }
-public enum ActivitySortDirection { NewestFirst, OldestFirst }
-
 public sealed class ActivityFilterOptionVm(string id, string localizationKey, LocalizationService localization) : ObservableObject
 {
     public string Id { get; } = id;

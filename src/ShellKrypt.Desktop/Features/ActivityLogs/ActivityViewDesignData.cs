@@ -11,7 +11,21 @@ public static class ActivityViewDesignData
     private static readonly DateTimeOffset PreviewNow = new(2026, 7, 20, 12, 0, 0, TimeSpan.Zero);
 
     public static ActivityViewModel CreateEmpty() => Create(ActivityLogLoadResult.Empty);
-    public static ActivityViewModel CreatePopulated() => Create(new(Entries(), 0, ActivityLogFailureKind.None));
+    public static ActivityViewModel CreatePopulated()
+    {
+        var model = Create(new(Entries(), 0, ActivityLogFailureKind.None));
+        model.List.SelectedItem = null;
+        return model;
+    }
+
+    public static ActivityViewModel CreateSelected() => Create(new(Entries(), 0, ActivityLogFailureKind.None));
+
+    public static ActivityViewModel CreateFiltered()
+    {
+        var model = Create(new(Entries(), 0, ActivityLogFailureKind.None));
+        model.List.ShowAuditCommand.Execute(null);
+        return model;
+    }
     public static ActivityViewModel CreateWarning() => Create(new(Entries(), 2, ActivityLogFailureKind.None));
     public static ActivityViewModel CreateFailure() => Create(new([], 0, ActivityLogFailureKind.ReadFailed));
 

@@ -22,8 +22,7 @@ public sealed class ActivityRecorder(ActivityLogService store, IVaultSessionCont
         };
 
         var result = store.Append(entry, session.IsUnlocked ? session.VaultKey : null);
-        if (result.FailureKind != ActivityLogFailureKind.Unavailable)
-            Changed?.Invoke(this, new ActivityRecorderChangedEventArgs(result));
+        Changed?.Invoke(this, new ActivityRecorderChangedEventArgs(result));
         return result;
     }
 }

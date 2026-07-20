@@ -22,6 +22,17 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.27.1] - 2026-07-20
+
+### Fixed
+
+- Completed Activity Logs failure propagation so unavailable reads and recorder
+  writes return and publish typed outcomes instead of appearing successful.
+- Cleared stale activity contents after failed reloads and counted malformed
+  authenticated payloads among skipped unreadable entries.
+- Completed synthetic Activity Logs preview states and expanded regression
+  coverage for scoped clearing, exports, localization, and safe failures.
+
 ## [ShellKrypt 0.27.0] - 2026-07-20
 
 ### Added

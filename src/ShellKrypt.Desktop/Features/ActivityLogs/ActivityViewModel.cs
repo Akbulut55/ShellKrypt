@@ -84,6 +84,8 @@ public sealed partial class ActivityViewModel : ViewModelBase
         SkippedCorruptEntries = result.Success ? result.SkippedCorruptEntries : 0;
         if (result.Success)
             List.Load(result.Entries);
+        else
+            List.Load([]);
     }
 
     private void OnActivityChanged(object? sender, ActivityRecorderChangedEventArgs args)
