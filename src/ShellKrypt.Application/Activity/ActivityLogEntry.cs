@@ -10,5 +10,4 @@ public sealed record ActivityLogEntry(
     string? VaultPath)
 {
     public string? AffectedItem { get; init; }
-    public IReadOnlyDictionary<string, string> Metadata { get; init; } = new Dictionary<string, string>();
 }

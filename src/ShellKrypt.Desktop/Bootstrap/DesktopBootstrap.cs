@@ -80,6 +80,7 @@ public static class DesktopBootstrap
             desktopFiles,
             secureClipboard,
             activityRecorder,
+            activityLogService,
             automaticBackups,
             vaultRegistryService,
             localization,

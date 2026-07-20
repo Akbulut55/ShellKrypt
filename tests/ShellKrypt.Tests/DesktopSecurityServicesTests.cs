@@ -137,7 +137,7 @@ public sealed class DesktopSecurityServicesTests
                     vaultPath),
                 vaultKey);
 
-            var loaded = store.Load(vaultPath, vaultKey).Single();
+            var loaded = store.Load(vaultPath, vaultKey).Entries.Single();
 
             Assert.DoesNotContain("super-secret", loaded.Detail);
             Assert.DoesNotContain("4111111111111111", loaded.Detail);

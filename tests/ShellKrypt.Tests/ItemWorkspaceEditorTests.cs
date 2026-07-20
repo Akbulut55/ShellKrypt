@@ -274,9 +274,9 @@ public sealed class ItemWorkspaceEditorTests
 
     private sealed class StubActivityRecorder : IActivityRecorder
     {
-        public ActivityLogService Store => throw new NotSupportedException();
-        public event EventHandler? Changed { add { } remove { } }
-        public void Log(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) { }
+        public event EventHandler<ActivityRecorderChangedEventArgs>? Changed { add { } remove { } }
+        public ActivityLogOperationResult Log(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null)
+            => ActivityLogOperationResult.Succeeded;
     }
 
     private sealed class StubSecureClipboard : ISecureClipboardService

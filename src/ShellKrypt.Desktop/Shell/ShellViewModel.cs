@@ -101,6 +101,7 @@ public partial class ShellViewModel : ViewModelBase
     public void Deactivate()
     {
         Authenticator.Deactivate();
+        Activity.Deactivate();
     }
 
     public override void RefreshLocalization()

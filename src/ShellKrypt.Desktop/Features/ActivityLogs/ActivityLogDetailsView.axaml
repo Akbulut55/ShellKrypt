@@ -1,0 +1,36 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:ShellKrypt.Desktop.Features.ActivityLogs"
+             x:Class="ShellKrypt.Desktop.Features.ActivityLogs.ActivityLogDetailsView"
+             x:DataType="local:ActivityLogDetailsViewModel">
+  <Border Classes="activity-detail-card" ClipToBounds="True">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+      <StackPanel Spacing="13">
+        <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Title}" Foreground="{StaticResource AccentBrush}" FontSize="11" FontWeight="Black" LetterSpacing="2.2"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Metadata.EventUuid}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedEventId}" Classes="activity-detail-value" TextWrapping="Wrap"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Table.Timestamp}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedTimestamp}" Classes="activity-detail-value"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Category}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedCategory}" Classes="activity-detail-value"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Table.Status}" Classes="activity-detail-label"/>
+        <Border Background="{Binding SelectedStatusBackground, Converter={StaticResource ThemeResourceBrushConverter}}" CornerRadius="999" Padding="8,3" HorizontalAlignment="Left">
+          <TextBlock Text="{Binding SelectedStatus}" Foreground="{Binding SelectedStatusForeground, Converter={StaticResource ThemeResourceBrushConverter}}" FontSize="10" FontWeight="Bold"/>
+        </Border>
+        <TextBlock Text="{DynamicResource Loc.Activity.Table.AffectedItem}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedAffectedItem}" Classes="activity-detail-value" TextWrapping="Wrap"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Vault}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedVault}" Classes="activity-detail-value" TextWrapping="Wrap"/>
+        <TextBlock Text="{DynamicResource Loc.Activity.Metadata.Detail}" Classes="activity-detail-label"/>
+        <TextBlock Text="{Binding SelectedDetail}" Classes="activity-detail-value" TextWrapping="Wrap"/>
+        <Border Classes="activity-detail-shell">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{DynamicResource Loc.Activity.Metadata.ContentChecksum}" Classes="activity-detail-label"/>
+            <TextBlock Text="{Binding SelectedContentChecksum}" Foreground="{StaticResource TextPrimaryBrush}" FontSize="11" FontFamily="{StaticResource MonoFontFamily}" TextWrapping="Wrap"/>
+            <TextBlock Text="{DynamicResource Loc.Activity.Metadata.ContentChecksumHelp}" Classes="page-subtitle" FontSize="10" TextWrapping="Wrap"/>
+          </StackPanel>
+        </Border>
+      </StackPanel>
+    </ScrollViewer>
+  </Border>
+</UserControl>

@@ -296,7 +296,7 @@ public sealed class VaultSecurityHardeningTests
         tamper.Parameters.AddWithValue("$id", entryId);
         await tamper.ExecuteNonQueryAsync();
 
-        Assert.Empty(store.Load(vaultPath, vaultKey));
+        Assert.Empty(store.Load(vaultPath, vaultKey).Entries);
     }
 
     [Fact]

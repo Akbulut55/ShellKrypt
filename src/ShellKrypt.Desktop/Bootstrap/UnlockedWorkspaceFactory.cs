@@ -61,7 +61,7 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
             new HealthViewModel(new SecurityAuditRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Settings), shell, services.HealthAuditService),
             new BackupCenterViewModel(new BackupCenterRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs, services.Files), services.AutomaticBackups, services.EncryptedBackupService, services.PlaintextExportService, services.CsvImportService, root),
             new SettingsViewModel(new SettingsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Settings, services.Files), root, shell, services.VaultRegistryService, services.VaultService),
-            new ActivityViewModel(new ActivityLogsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Dialogs), services.ActivityRecorder.Store));
+            new ActivityViewModel(new ActivityLogsRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.Dialogs), services.ActivityLogService));
     }
 }
 

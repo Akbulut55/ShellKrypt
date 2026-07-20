@@ -7,9 +7,10 @@ namespace ShellKrypt.Infrastructure.Services;
 
 public sealed partial class SqliteActivityLogStore
 {
-    private static IReadOnlyList<ActivityLogEntry> LoadVaultEntries(string vaultPath, byte[] vaultKey)
+    private static ActivityLogLoadResult LoadVaultEntries(string vaultPath, byte[] vaultKey)
     {
         var entries = new List<ActivityLogEntry>();
+        var skippedCorruptEntries = 0;
 
         try
         {
@@ -35,8 +36,15 @@ public sealed partial class SqliteActivityLogStore
                     var payloadBytes = reader.GetFieldValue<byte[]>(2);
                     var json = Encoding.UTF8.GetString(AesGcmBlob.Decrypt(vaultKey, payloadBytes, ActivityLogAssociatedData(id, timestampUtc)));
                     var payload = JsonSerializer.Deserialize<ActivityLogPayload>(json, JsonOptions);
-                    if (payload is null)
+                    if (payload is null
+                        || payload.Category is null
+                        || payload.Title is null
+                        || payload.Detail is null
+                        || payload.Severity is null)
+                    {
+                        skippedCorruptEntries++;
                         continue;
+                    }
 
                     entries.Add(new ActivityLogEntry(
                         Id: id,
@@ -53,14 +61,15 @@ public sealed partial class SqliteActivityLogStore
                 catch
                 {
                     // Skip individual corrupted entries instead of hiding the whole log.
+                    skippedCorruptEntries++;
                 }
             }
         }
         catch
         {
-            return [];
+            return new([], 0, ActivityLogFailureKind.ReadFailed);
         }
 
-        return entries;
+        return new(entries, skippedCorruptEntries, ActivityLogFailureKind.None);
     }
 }

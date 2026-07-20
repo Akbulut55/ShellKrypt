@@ -22,6 +22,54 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.27.2] - 2026-07-20
+
+### Fixed
+
+- Snapshotted Activity Logs report events, filters, source totals, and vault
+  display metadata before opening the export picker so asynchronous updates
+  cannot produce internally inconsistent reports.
+- Completed typed compiled bindings for investigation filter options and aligned
+  English and Turkish guidance with severity, date, and filtered export actions.
+- Restored visible clock-backed relative timestamps in activity rows, handled
+  future timestamps without labeling them as current, and removed unused legacy
+  row and summary state.
+
+## [ShellKrypt 0.27.1] - 2026-07-20
+
+### Fixed
+
+- Completed Activity Logs failure propagation so unavailable reads and recorder
+  writes return and publish typed outcomes instead of appearing successful.
+- Cleared stale activity contents after failed reloads and counted malformed
+  authenticated payloads among skipped unreadable entries.
+- Completed synthetic Activity Logs preview states and expanded regression
+  coverage for scoped clearing, exports, localization, and safe failures.
+
+## [ShellKrypt 0.27.0] - 2026-07-20
+
+### Added
+
+- Added combined severity, local date-range, category, search, and sort controls
+  to Activity Logs, with explicit all-events and filtered-result report exports.
+- Added value-free warnings for unreadable encrypted activity rows and safe
+  operation failures.
+
+### Changed
+
+- Refactored Activity Logs around focused list, details, management, report, and
+  row presentation components with navigation-scoped activation, compiled
+  bindings, and synthetic design-time states.
+- Changed activity persistence operations to return explicit safe outcomes while
+  preserving the existing encrypted vault schema and payload format.
+
+### Fixed
+
+- Replaced the misleading Activity Logs integrity-hash label and report field
+  with a clearly documented unkeyed SHA-256 content checksum.
+- Removed the unused legacy global activity-log path and stopped retired Activity
+  workspaces from remaining subscribed after shell replacement.
+
 ## [ShellKrypt 0.26.0] - 2026-07-17
 
 ### Added

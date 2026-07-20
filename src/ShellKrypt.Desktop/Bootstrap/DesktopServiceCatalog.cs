@@ -27,6 +27,7 @@ internal sealed record DesktopServiceCatalog(
     IDesktopFileService Files,
     ISecureClipboardService SecureClipboard,
     IActivityRecorder ActivityRecorder,
+    ActivityLogService ActivityLogService,
     IAutomaticBackupController AutomaticBackups,
     VaultRegistryService VaultRegistryService,
     LocalizationService Localization,

@@ -12,18 +12,19 @@ public sealed partial class ActivityLogService
         _store = store;
     }
 
-    public IReadOnlyList<ActivityLogEntry> Load(string? vaultPath = null, byte[]? vaultKey = null)
+    public ActivityLogLoadResult Load(string? vaultPath = null, byte[]? vaultKey = null)
         => _store.Load(vaultPath, vaultKey);
 
-    public void Append(ActivityLogEntry entry, byte[]? vaultKey = null)
+    public ActivityLogOperationResult Append(ActivityLogEntry entry, byte[]? vaultKey = null)
         => _store.Append(SanitizeEntry(entry), vaultKey);
 
-    public void Clear(string? vaultPath = null, byte[]? vaultKey = null)
+    public ActivityLogOperationResult Clear(string? vaultPath = null, byte[]? vaultKey = null)
         => _store.Clear(vaultPath, vaultKey);
 
     private static ActivityLogEntry SanitizeEntry(ActivityLogEntry entry)
         => entry with
         {
+            Title = SanitizeLogText(entry.Title),
             Detail = SanitizeLogText(entry.Detail),
             AffectedItem = string.IsNullOrWhiteSpace(entry.AffectedItem) ? entry.AffectedItem : SanitizeLogText(entry.AffectedItem)
         };
