@@ -1,0 +1,44 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             xmlns:markdown="using:ShellKrypt.Application.Markdown"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotePreviewView"
+             x:DataType="vm:MarkdownNotesViewModel">
+  <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+    <StackPanel Spacing="0">
+      <Border Classes="notesPreviewPlaceholder" IsVisible="{Binding !HasPreviewContent}">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptyTitle}" FontSize="17" FontWeight="Bold"/>
+          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptySubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+      <ItemsControl ItemsSource="{Binding PreviewBlocks}" IsVisible="{Binding HasPreviewContent}">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="markdown:MarkdownBlock">
+            <StackPanel Margin="0,0,0,18">
+              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH1" IsVisible="{Binding IsHeading1}" TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH2" IsVisible="{Binding IsHeading2}" TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Text}" Classes="notesMarkdownH3" IsVisible="{Binding IsHeading3}" TextWrapping="Wrap"/>
+              <TextBlock Text="{Binding Text}" Classes="notesMarkdownParagraph" IsVisible="{Binding IsParagraph}" TextWrapping="Wrap"/>
+              <Border Background="{StaticResource QuoteBackgroundBrush}" BorderBrush="{StaticResource AccentBrush}"
+                      BorderThickness="4,0,0,0" CornerRadius="8" Padding="16,14" IsVisible="{Binding IsQuote}">
+                <TextBlock Text="{Binding Text}" FontSize="14" FontStyle="Italic" LineHeight="22" TextWrapping="Wrap"/>
+              </Border>
+              <Border Background="{StaticResource AppBackgroundSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}"
+                      BorderThickness="1" CornerRadius="8" Padding="16,14" IsVisible="{Binding IsCodeBlock}">
+                <TextBlock Text="{Binding Text}" Classes="notesMarkdownCode" TextWrapping="Wrap"/>
+              </Border>
+              <ItemsControl ItemsSource="{Binding DisplayItems}" IsVisible="{Binding IsList}">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate x:DataType="x:String">
+                    <TextBlock Text="{Binding .}" Classes="notesMarkdownListItem" TextWrapping="Wrap"/>
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+              </ItemsControl>
+            </StackPanel>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

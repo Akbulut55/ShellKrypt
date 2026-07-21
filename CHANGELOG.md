@@ -22,6 +22,29 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.28.0] - 2026-07-21
+
+### Added
+
+- Added safe, typed note operation results, unreadable-row reporting, guarded
+  deletion, and Save/Discard/Cancel handling for dirty Markdown drafts.
+
+### Changed
+
+- Moved Markdown Note validation, normalization, identity, and timestamp rules
+  into the Application layer while preserving the existing encrypted vault
+  payload and associated-data format.
+- Refactored Markdown Notes around focused list, document, and deterministic
+  autosave state with explicit activation, navigation, and lock-time cleanup.
+- Changed the note picker to one searchable alphabetical list and enabled
+  compiled bindings without pointer or click selection handlers.
+
+### Fixed
+
+- Prevented navigation and note selection from silently discarding dirty drafts,
+  stopped delayed autosaves outside the active workspace, and replaced raw
+  persistence errors with localized value-free messages.
+
 ## [ShellKrypt 0.27.2] - 2026-07-20
 
 ### Fixed

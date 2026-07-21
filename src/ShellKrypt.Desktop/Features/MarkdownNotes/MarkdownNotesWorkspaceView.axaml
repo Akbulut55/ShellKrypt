@@ -1,0 +1,39 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesWorkspaceView"
+             x:DataType="vm:MarkdownNotesViewModel">
+  <Grid>
+    <Grid Margin="16" IsVisible="{Binding HasEditor}">
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding IsSplitMode}">
+        <Border Classes="notesPane">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"/>
+            <vm:MarkdownNoteEditorView Grid.Row="1"/>
+          </Grid>
+        </Border>
+        <Border Grid.Column="1" Classes="notesPane">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"/>
+            <vm:MarkdownNotePreviewView Grid.Row="1"/>
+          </Grid>
+        </Border>
+      </Grid>
+      <Border Classes="notesPane" IsVisible="{Binding IsEditorOnlyMode}">
+        <vm:MarkdownNoteEditorView/>
+      </Border>
+      <Border Classes="notesPane" IsVisible="{Binding IsPreviewOnlyMode}">
+        <vm:MarkdownNotePreviewView/>
+      </Border>
+    </Grid>
+    <Border Background="Transparent" IsVisible="{Binding !HasEditor}">
+      <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Subtitle}" Classes="page-subtitle"
+                   MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
+        <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="sk-primary"
+                Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

@@ -1,0 +1,94 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesHeaderView"
+             x:DataType="vm:MarkdownNotesViewModel">
+  <Border Classes="notesHeader">
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto" ColumnSpacing="14" VerticalAlignment="Center">
+      <StackPanel Spacing="7">
+        <StackPanel Orientation="Horizontal" Spacing="8">
+          <TextBlock Text="{Binding SelectedNoteTitleDisplay}" FontSize="24" FontWeight="Bold"
+                     TextTrimming="CharacterEllipsis" MaxWidth="420" VerticalAlignment="Center"
+                     IsVisible="{Binding !IsEditing}"/>
+          <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Classes="notesHeaderTitleInput" PlaceholderText="{DynamicResource Loc.Notes.Title.Placeholder}"
+                   IsVisible="{Binding IsEditing}"/>
+          <Button Classes="sk-icon notesTitlePickerButton" Command="{Binding ToggleNotePickerCommand}">
+            <PathIcon Data="{StaticResource IconDropDown}" Width="16" Height="16" Foreground="{StaticResource TextMutedBrush}"/>
+            <Button.Flyout>
+              <Flyout Placement="BottomEdgeAlignedLeft" FlyoutPresenterClasses="cleanPickerFlyout">
+                <Border Classes="sk-picker-popup notesPickerPopup">
+                  <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="10">
+                    <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                      <StackPanel>
+                        <TextBlock Text="{DynamicResource Loc.Notes.Picker.SelectNote}" FontSize="17" FontWeight="Bold"/>
+                        <TextBlock Text="{Binding NoteCount}" Classes="notesMutedText"/>
+                      </StackPanel>
+                      <Button Grid.Column="1" Content="{DynamicResource Loc.Notes.Button.Add}" Classes="sk-primary"
+                              Command="{Binding NewNoteCommand}"/>
+                    </Grid>
+                    <TextBox Grid.Row="1" Text="{Binding NotePickerSearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             Classes="sk-picker-search notesPickerSearch" PlaceholderText="{DynamicResource Loc.Notes.Picker.SearchPlaceholder}"/>
+                    <Border Grid.Row="2" Classes="notesPickerSectionHeader">
+                      <Grid ColumnDefinitions="*,Auto">
+                        <TextBlock Text="{DynamicResource Loc.Notes.Picker.AllNotes}" Classes="notesKicker"/>
+                        <TextBlock Grid.Column="1" Text="{Binding NotePickerAll.Count}" Classes="notesPickerCount"/>
+                      </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                      <StackPanel Spacing="8">
+                        <ItemsControl ItemsSource="{Binding NotePickerAll}" IsVisible="{Binding HasNotePickerAll}">
+                          <ItemsControl.ItemTemplate>
+                            <DataTemplate x:DataType="vm:NoteItemVm">
+                              <Border Classes="sk-picker-card notesPickerItem" Classes.active="{Binding IsSelected}">
+                                <Grid ColumnDefinitions="*,Auto" ColumnSpacing="10">
+                                  <Button Classes="notesPickerItemButton" Command="{Binding SelectCommand}">
+                                    <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="Bold" TextTrimming="CharacterEllipsis"/>
+                                  </Button>
+                                  <Button Grid.Column="1" Classes="sk-icon-ghost notesPickerDeleteButton" Command="{Binding DeleteCommand}">
+                                    <PathIcon Data="{StaticResource IconDelete}" Width="15" Height="15"/>
+                                  </Button>
+                                </Grid>
+                              </Border>
+                            </DataTemplate>
+                          </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                        <Border Classes="notesPickerEmpty" IsVisible="{Binding !HasNotePickerAll}">
+                          <TextBlock Text="{DynamicResource Loc.Notes.Picker.NoResults}" Classes="notesMutedText"/>
+                        </Border>
+                      </StackPanel>
+                    </ScrollViewer>
+                  </Grid>
+                </Border>
+              </Flyout>
+            </Button.Flyout>
+          </Button>
+        </StackPanel>
+        <TextBlock Text="{Binding SelectedNoteMeta}" Classes="notesMutedText" TextTrimming="CharacterEllipsis"/>
+      </StackPanel>
+
+      <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="6" VerticalAlignment="Center">
+        <Button Classes="sk-icon-ghost notesModeButton" Classes.active="{Binding IsSplitMode}"
+                Command="{Binding ShowSplitModeCommand}" ToolTip.Tip="{DynamicResource Loc.Notes.Mode.Split}">
+          <PathIcon Data="{StaticResource IconMarkdownSplitMode}" Width="20" Height="20"/>
+        </Button>
+        <Button Classes="sk-icon-ghost notesModeButton" Classes.active="{Binding !IsSplitMode}"
+                Command="{Binding ToggleDocumentViewCommand}" ToolTip.Tip="{DynamicResource Loc.Notes.Mode.PreviewToggle}">
+          <Grid>
+            <PathIcon Data="{StaticResource IconMarkdownEditorMode}" Width="20" Height="20" IsVisible="{Binding !IsPreviewOnlyMode}"/>
+            <PathIcon Data="{StaticResource IconMarkdownPreviewMode}" Width="20" Height="20" IsVisible="{Binding IsPreviewOnlyMode}"/>
+          </Grid>
+        </Button>
+        <Button Content="{Binding FavoriteToggleLabel}" Classes="sk-secondary" Command="{Binding ToggleFavoriteCommand}" IsEnabled="{Binding CanManageSelection}"/>
+        <Button Content="{DynamicResource Loc.Common.Copy}" Classes="sk-secondary" Command="{Binding CopyContentCommand}" IsEnabled="{Binding CanCopyContent}"/>
+        <Button Content="{DynamicResource Loc.Common.Delete}" Classes="sk-danger" Command="{Binding DeleteCommand}" IsEnabled="{Binding CanManageSelection}"/>
+      </StackPanel>
+
+      <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+        <Button Content="{DynamicResource Loc.Common.Cancel}" Classes="sk-secondary" Command="{Binding CancelEditingCommand}" IsVisible="{Binding ShowHeaderCommitButtons}"/>
+        <Button Content="{DynamicResource Loc.Common.Save}" Classes="sk-primary" Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}" IsVisible="{Binding ShowHeaderCommitButtons}"/>
+        <Button Content="{DynamicResource Loc.Notes.Button.CreateNew}" Classes="sk-primary" Command="{Binding NewNoteCommand}" IsVisible="{Binding ShowHeaderCreateButton}"/>
+      </StackPanel>
+    </Grid>
+  </Border>
+</UserControl>

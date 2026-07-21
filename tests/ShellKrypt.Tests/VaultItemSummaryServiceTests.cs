@@ -1,4 +1,5 @@
 using ShellKrypt.Application.Items;
+using ShellKrypt.Application.Notes;
 using ShellKrypt.Core.Items;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
@@ -109,7 +110,7 @@ public sealed class VaultItemSummaryServiceTests
             unlock.VaultKey!,
             new WebLoginService(itemRepository),
             new CardService(itemRepository),
-            new NoteService(itemRepository),
+            new NoteService(new EncryptedNoteStore(itemRepository)),
             new VaultItemSummaryService(itemRepository, new VaultItemPayloadReader()));
     }
 

@@ -1,4 +1,5 @@
-using ShellKrypt.Core.Items;
+using ShellKrypt.Application.Notes;
+using Microsoft.Data.Sqlite;
 using ShellKrypt.Infrastructure.Items;
 using ShellKrypt.Infrastructure.Vaulting;
 using Xunit;
@@ -13,11 +14,11 @@ public sealed class NoteServiceTests
         using var workspace = new TempWorkspace();
         var vaultService = new SqliteVaultService();
         var repo = new SqliteItemRepository();
-        var service = new NoteService(repo);
+        var service = new NoteService(new EncryptedNoteStore(repo));
         var vaultPath = workspace.FilePath("vault.skvault");
         var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
 
-        var added = await service.AddAsync(
+        var addResult = await service.AddAsync(
             vaultPath,
             vaultKey,
             new NoteInput(
@@ -25,15 +26,18 @@ public sealed class NoteServiceTests
                 Content: "# Heading",
                 Favorite: true));
 
+        Assert.True(addResult.Success);
+        var added = Assert.IsType<NoteEntry>(addResult.Entry);
         Assert.Equal("Deployment Runbook", added.Title);
         Assert.Equal("# Heading", added.Content);
         Assert.True(added.Favorite);
 
-        var listed = await service.ListAsync(vaultPath, vaultKey);
-        Assert.Single(listed);
-        Assert.Equal(added, listed[0]);
+        var listed = await service.LoadAsync(vaultPath, vaultKey);
+        Assert.True(listed.Success);
+        Assert.Single(listed.Entries);
+        Assert.Equal(added, listed.Entries[0]);
 
-        var updated = await service.UpdateAsync(
+        var updateResult = await service.UpdateAsync(
             vaultPath,
             vaultKey,
             added.Id,
@@ -43,19 +47,51 @@ public sealed class NoteServiceTests
                 Content: "Updated content",
                 Favorite: false));
 
+        Assert.True(updateResult.Success);
+        var updated = Assert.IsType<NoteEntry>(updateResult.Entry);
         Assert.Equal(added.Id, updated.Id);
         Assert.Equal(added.CreatedAtUtc, updated.CreatedAtUtc);
         Assert.Equal("Deployment Runbook v2", updated.Title);
         Assert.Equal("Updated content", updated.Content);
         Assert.False(updated.Favorite);
 
-        listed = await service.ListAsync(vaultPath, vaultKey);
-        Assert.Single(listed);
-        Assert.Equal(updated, listed[0]);
+        listed = await service.LoadAsync(vaultPath, vaultKey);
+        Assert.Single(listed.Entries);
+        Assert.Equal(updated, listed.Entries[0]);
 
-        await service.DeleteAsync(vaultPath, added.Id);
+        var deleteResult = await service.DeleteAsync(vaultPath, added.Id);
+        Assert.True(deleteResult.Success);
 
-        Assert.Empty(await service.ListAsync(vaultPath, vaultKey));
+        Assert.Empty((await service.LoadAsync(vaultPath, vaultKey)).Entries);
+    }
+
+    [Fact]
+    public async Task Load_SkipsIndividuallyCorruptEncryptedRows()
+    {
+        using var workspace = new TempWorkspace();
+        var vaultService = new SqliteVaultService();
+        var repo = new SqliteItemRepository();
+        var service = new NoteService(new EncryptedNoteStore(repo));
+        var vaultPath = workspace.FilePath("vault.skvault");
+        var vaultKey = await CreateAndUnlockVaultAsync(vaultService, vaultPath, "Vault Master Passphrase 2026");
+        var first = await service.AddAsync(vaultPath, vaultKey, new NoteInput("First", "one", false));
+        var second = await service.AddAsync(vaultPath, vaultKey, new NoteInput("Second", "two", false));
+        Assert.True(first.Success && second.Success);
+
+        await using (var connection = new SqliteConnection($"Data Source={vaultPath}"))
+        {
+            await connection.OpenAsync();
+            var command = connection.CreateCommand();
+            command.CommandText = "UPDATE items SET encryptedPayload = X'010203' WHERE id = $id";
+            command.Parameters.AddWithValue("$id", first.Entry!.Id);
+            await command.ExecuteNonQueryAsync();
+        }
+
+        var result = await service.LoadAsync(vaultPath, vaultKey);
+
+        Assert.True(result.Success);
+        Assert.Equal(1, result.SkippedCorruptEntries);
+        Assert.Equal("Second", Assert.Single(result.Entries).Title);
     }
 
     private static async Task<byte[]> CreateAndUnlockVaultAsync(SqliteVaultService vaultService, string vaultPath, string masterPassword)

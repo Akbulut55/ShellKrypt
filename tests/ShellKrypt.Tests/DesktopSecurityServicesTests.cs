@@ -2,6 +2,7 @@ using System.Security.Cryptography;
 using System.Text;
 using ShellKrypt.Application.Activity;
 using ShellKrypt.Application.Audit;
+using ShellKrypt.Application.Notes;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
 using ShellKrypt.Core.Authenticator;
@@ -50,7 +51,7 @@ public sealed class DesktopSecurityServicesTests
             var cards = new CardService(repo);
             var apiKeys = new ApiKeyService(repo);
             var authenticators = new AuthenticatorEntryService(repo);
-            var notes = new NoteService(repo);
+            var notes = new NoteService(new EncryptedNoteStore(repo));
             var vaultPath = DefaultPaths.GetSuggestedVaultPath("metadata-test");
 
             await vaultService.CreateAsync(vaultPath, "Vault Master Passphrase 2026");

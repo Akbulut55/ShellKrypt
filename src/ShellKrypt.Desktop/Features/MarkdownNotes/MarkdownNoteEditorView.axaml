@@ -1,0 +1,11 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNoteEditorView"
+             x:DataType="vm:MarkdownNotesViewModel">
+  <TextBox Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+           Classes="notesMarkdownEditor" AcceptsReturn="True" TextWrapping="Wrap"
+           PlaceholderText="{DynamicResource Loc.Notes.Editor.Placeholder}"
+           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+           ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+</UserControl>

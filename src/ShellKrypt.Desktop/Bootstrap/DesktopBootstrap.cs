@@ -3,6 +3,7 @@ using ShellKrypt.Application.Authenticator;
 using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Items;
 using ShellKrypt.Application.Localization;
+using ShellKrypt.Application.Notes;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;
@@ -45,7 +46,7 @@ public static class DesktopBootstrap
         var vaultItemSummaryService = new VaultItemSummaryService(itemRepository, new VaultItemPayloadReader());
         var webLoginService = new WebLoginService(itemRepository);
         var cardService = new CardService(itemRepository);
-        var noteService = new NoteService(itemRepository);
+        var noteService = new NoteService(new EncryptedNoteStore(itemRepository));
         var authenticatorEntryService = new AuthenticatorEntryService(itemRepository);
         var oneTimePasswordGenerator = new OneTimePasswordGenerator();
         var authenticatorQrImportService = new AuthenticatorQrImageImportService(

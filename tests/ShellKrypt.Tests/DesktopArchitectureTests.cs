@@ -154,6 +154,33 @@ public sealed class DesktopArchitectureTests
         Assert.DoesNotContain("ActivityLogService Store", contract, StringComparison.Ordinal);
     }
 
+    [Fact]
+    public void MarkdownNotes_UseTypedCompiledViewsAndFocusedCollaborators()
+    {
+        var notes = Path.Combine(DesktopRoot(), "Features", "MarkdownNotes");
+        var views = Directory.EnumerateFiles(notes, "*.axaml", SearchOption.TopDirectoryOnly)
+            .Where(path => !path.EndsWith("Styles.axaml", StringComparison.Ordinal));
+        var violations = views.Where(path =>
+        {
+            var source = File.ReadAllText(path);
+            return source.Contains("x:CompileBindings=\"False\"", StringComparison.Ordinal)
+                || !source.Contains("x:DataType=", StringComparison.Ordinal);
+        }).Select(Path.GetFileName).ToArray();
+
+        Assert.Empty(violations);
+        Assert.Empty(Directory.EnumerateFiles(notes, "MarkdownNotesViewModel.*.cs", SearchOption.TopDirectoryOnly));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteListState.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteDocumentState.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteAutoSaveController.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotesHeaderView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNoteEditorView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotePreviewView.axaml")));
+
+        var codeBehind = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml.cs"));
+        Assert.DoesNotContain("PointerPressed", codeBehind, StringComparison.Ordinal);
+        Assert.DoesNotContain("Clicked", codeBehind, StringComparison.Ordinal);
+    }
+
     private static IEnumerable<string> Sources(string root)
         => Directory.EnumerateFiles(root, "*.cs", SearchOption.AllDirectories);
 
