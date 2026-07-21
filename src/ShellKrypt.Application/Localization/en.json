@@ -73,6 +73,7 @@
   "Settings.Language.Description": "Choose the app display language.",
   "Settings.Language.Title": "Language",
   "Settings.MarkdownAutoSave.Enabled": "Markdown notes save automatically after {0}.",
+  "Settings.MarkdownAutoSave.Disabled": "Markdown notes require manual saving.",
   "Settings.MarkdownAutoSave.SelectedDelay": "selected delay",
   "Settings.MarkdownAutoSave.Title": "Markdown notes auto-save",
   "Settings.MasterPassword.Confirm": "CONFIRM NEW PASSWORD",

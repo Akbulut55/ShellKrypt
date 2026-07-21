@@ -9,6 +9,9 @@ public sealed partial class NoteItemVm : ObservableObject
     public string Id { get; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
+    public string UpdatedAtDisplay => DateTimeOffset.TryParse(UpdatedAtUtc, out var timestamp)
+        ? timestamp.ToLocalTime().ToString("g")
+        : "";
 
     [ObservableProperty] private string title;
     [ObservableProperty] private string content;
@@ -45,5 +48,6 @@ public sealed partial class NoteItemVm : ObservableObject
         IsFavorite = entry.Favorite;
         UpdatedAtUtc = entry.UpdatedAtUtc;
         OnPropertyChanged(nameof(UpdatedAtUtc));
+        OnPropertyChanged(nameof(UpdatedAtDisplay));
     }
 }

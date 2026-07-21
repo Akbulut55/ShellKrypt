@@ -27,7 +27,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [ObservableProperty] private string warning = "";
     [ObservableProperty] private string autoSaveStatus = "";
     [ObservableProperty] private bool isBusy;
-    [ObservableProperty] private bool isNotePickerOpen;
+    [ObservableProperty] private bool isNoteLibraryOpen;
 
     public MarkdownNotesViewModel(
         MarkdownNotesRuntime root,
@@ -44,16 +44,17 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         Document.DraftChanged += (_, _) => OnDraftChanged();
         Document.PropertyChanged += (_, _) => NotifyDocumentState();
         List.PropertyChanged += (_, _) => NotifyListState();
-        List.PickerNotes.CollectionChanged += (_, _) => NotifyListState();
+        List.LibraryNotes.CollectionChanged += (_, _) => NotifyListState();
     }
 
-    public ObservableCollection<NoteItemVm> NotePickerAll => List.PickerNotes;
+    public ObservableCollection<NoteItemVm> NoteLibraryItems => List.LibraryNotes;
     public ObservableCollection<MarkdownBlock> PreviewBlocks => Document.PreviewBlocks;
     public string EditorTitle { get => Document.Title; set => Document.Title = value; }
     public string EditorContent { get => Document.Content; set => Document.Content = value; }
-    public string NotePickerSearchText { get => List.SearchText; set => List.SearchText = value; }
+    public string NoteLibrarySearchText { get => List.SearchText; set => List.SearchText = value; }
     public int NoteCount => List.Count;
-    public bool HasNotePickerAll => List.HasResults;
+    public string NoteCountLabel => T(_root, "Notes.Header.Notes", NoteCount);
+    public bool HasNoteLibraryItems => List.HasResults;
     public bool HasEditor => Document.HasDocument;
     public bool IsCreatingNote => Document.IsCreating;
     public bool IsEditing => Document.IsEditing;
@@ -63,17 +64,23 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     public bool IsSplitMode => Document.ViewMode == "split";
     public bool IsEditorOnlyMode => Document.ViewMode == "editor";
     public bool IsPreviewOnlyMode => Document.ViewMode == "preview";
+    public bool IsAutoSaveEnabled => _root.MarkdownAutoSaveSeconds > 0;
     public bool CanSave => Document.IsEditing && !IsBusy && !string.IsNullOrWhiteSpace(Document.Title);
     public bool CanManageSelection => SelectedNote is not null && !IsBusy;
     public bool CanCopyContent => !IsBusy && !string.IsNullOrWhiteSpace(Document.Content);
+    public bool IsSelectionFavorite => SelectedNote?.IsFavorite == true;
     public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true
         ? T(_root, "Notes.Button.Unstar")
         : T(_root, "Notes.Button.Star");
     public bool ShowHeaderCommitButtons => Document.IsDirty;
     public bool ShowHeaderCreateButton => !Document.IsDirty;
+    public string DocumentStatus => AutoSaveStatus.Length > 0
+        ? AutoSaveStatus
+        : Document.IsDirty ? T(_root, "Notes.Status.Unsaved") : "";
+    public bool HasDocumentStatus => DocumentStatus.Length > 0;
     public string SelectedNoteTitleDisplay => HasEditor
         ? string.IsNullOrWhiteSpace(Document.Title) ? T(_root, "Notes.Untitled") : Document.Title.Trim()
-        : T(_root, "Notes.Picker.SelectNote");
+        : T(_root, "Notes.Library.SelectNote");
     public string SelectedNoteMeta => Document.IsCreating
         ? T(_root, "Notes.Meta.Draft")
         : SelectedNote is null ? T(_root, "Notes.Meta.Select") : T(_root, "Notes.Meta.LastEdited", FormatTimestamp(SelectedNote.UpdatedAtUtc));
@@ -94,6 +101,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         _active = false;
         _autoSave.Cancel();
         AutoSaveStatus = "";
+        IsNoteLibraryOpen = false;
     }
 
     public void ClearSensitive()
@@ -138,20 +146,25 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     }
 
     [RelayCommand]
-    private void ToggleNotePicker() => IsNotePickerOpen = !IsNotePickerOpen;
+    private void OpenNoteLibrary() => IsNoteLibraryOpen = true;
 
     [RelayCommand]
-    private void CloseNotePicker() => IsNotePickerOpen = false;
+    private void CloseNoteLibrary() => IsNoteLibraryOpen = false;
 
     [RelayCommand]
-    private async Task SelectNoteFromPickerAsync(NoteItemVm? note)
+    private async Task SelectNoteFromLibraryAsync(NoteItemVm? note)
     {
-        if (note is null || ReferenceEquals(note, SelectedNote))
+        if (note is null)
             return;
+        if (ReferenceEquals(note, SelectedNote))
+        {
+            IsNoteLibraryOpen = false;
+            return;
+        }
         if (!await CanLeaveDraftAsync())
             return;
         ApplySelection(note);
-        IsNotePickerOpen = false;
+        IsNoteLibraryOpen = false;
     }
 
     [RelayCommand]
@@ -162,7 +175,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         _autoSave.Cancel();
         SelectedNote = null;
         Document.New();
-        IsNotePickerOpen = false;
+        IsNoteLibraryOpen = false;
         Error = "";
         NotifyDocumentState();
     }
@@ -216,7 +229,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         }
 
         List.Notes.Remove(note);
-        List.RefreshPicker();
+        List.RefreshLibrary();
         if (note.Id == SelectedNote?.Id)
         {
             SelectedNote = null;
@@ -246,7 +259,8 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         }
 
         note.Apply(result.Entry);
-        List.RefreshPicker();
+        List.RefreshLibrary();
+        NotifyDocumentState();
         _root.LogActivity("notes", previous ? "Markdown note unstarred" : "Markdown note starred",
             previous ? "A markdown note was unstarred." : "A markdown note was starred.", "info", affectedItem: note.Title);
     }
@@ -273,7 +287,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     [RelayCommand] private void ShowSplitMode() => SetViewMode("split");
     [RelayCommand] private void ShowEditorMode() => SetViewMode("editor");
     [RelayCommand] private void ShowPreviewMode() => SetViewMode("preview");
-    [RelayCommand] private void ToggleDocumentView() => SetViewMode(IsPreviewOnlyMode ? "editor" : "preview");
 
     private void SetViewMode(string mode)
     {
@@ -311,6 +324,13 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     private void ScheduleAutoSave()
     {
+        if (!IsAutoSaveEnabled)
+        {
+            _autoSave.Cancel();
+            AutoSaveStatus = "";
+            NotifyDocumentState();
+            return;
+        }
         if (!_active || !Document.IsDirty || string.IsNullOrWhiteSpace(Document.Title))
             return;
         AutoSaveStatus = T(_root, "Notes.AutoSave.Pending");
@@ -369,7 +389,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
                 note.Apply(result.Entry);
             }
             Document.AcceptPersisted(note, keepEditing);
-            List.RefreshPicker();
+            List.RefreshLibrary();
             AutoSaveStatus = isAutoSave
                 ? T(_root, "Notes.AutoSave.SavedAt", _timeProvider.GetLocalNow().ToString("HH:mm:ss"))
                 : "";
@@ -405,7 +425,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     private NoteItemVm CreateViewModel(NoteEntry entry)
         => new(entry.Id, entry.Title, entry.Content, entry.Favorite, entry.CreatedAtUtc, entry.UpdatedAtUtc,
-            note => SelectNoteFromPickerAsync(note), note => DeleteAsync(note));
+            note => SelectNoteFromLibraryAsync(note), note => DeleteAsync(note));
 
     private string FailureMessage(NoteFailureKind kind) => kind switch
     {
@@ -421,13 +441,19 @@ public partial class MarkdownNotesViewModel : ViewModelBase
 
     partial void OnErrorChanged(string value) => OnPropertyChanged(nameof(HasError));
     partial void OnWarningChanged(string value) => OnPropertyChanged(nameof(HasWarning));
+    partial void OnAutoSaveStatusChanged(string value)
+    {
+        OnPropertyChanged(nameof(DocumentStatus));
+        OnPropertyChanged(nameof(HasDocumentStatus));
+    }
     partial void OnIsBusyChanged(bool value) => NotifyDocumentState();
 
     private void NotifyListState()
     {
         OnPropertyChanged(nameof(NoteCount));
-        OnPropertyChanged(nameof(HasNotePickerAll));
-        OnPropertyChanged(nameof(NotePickerAll));
+        OnPropertyChanged(nameof(NoteCountLabel));
+        OnPropertyChanged(nameof(HasNoteLibraryItems));
+        OnPropertyChanged(nameof(NoteLibraryItems));
     }
 
     private void NotifyDocumentState()
@@ -435,12 +461,14 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         NotifyLocalized(nameof(EditorTitle), nameof(EditorContent), nameof(PreviewBlocks), nameof(HasPreviewContent),
             nameof(HasEditor), nameof(IsCreatingNote), nameof(IsEditing), nameof(IsSplitMode), nameof(IsEditorOnlyMode),
             nameof(IsPreviewOnlyMode), nameof(CanSave), nameof(ShowHeaderCommitButtons), nameof(ShowHeaderCreateButton),
-            nameof(CanManageSelection), nameof(CanCopyContent), nameof(FavoriteToggleLabel), nameof(SelectedNoteTitleDisplay), nameof(SelectedNoteMeta));
+            nameof(CanManageSelection), nameof(CanCopyContent), nameof(IsSelectionFavorite), nameof(FavoriteToggleLabel), nameof(SelectedNoteTitleDisplay), nameof(SelectedNoteMeta),
+            nameof(IsAutoSaveEnabled), nameof(DocumentStatus), nameof(HasDocumentStatus));
     }
 
     public override void RefreshLocalization()
     {
         NotifyDocumentState();
+        OnPropertyChanged(nameof(NoteCountLabel));
         if (_skippedCorruptEntries > 0)
             Warning = T(_root, "Notes.Warning.CorruptRows", _skippedCorruptEntries);
     }

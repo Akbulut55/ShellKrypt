@@ -6,7 +6,56 @@ namespace ShellKrypt.Tests;
 public sealed class MarkdownNotesStateTests
 {
     [Fact]
-    public void Picker_IsAlphabeticalAndSearchDoesNotChangeDocument()
+    public void Runtime_ReadsCurrentAutoSaveSettingInsteadOfCapturedDelay()
+    {
+        var seconds = 3;
+        var runtime = new ShellKrypt.Desktop.Shell.Runtime.MarkdownNotesRuntime(
+            null!, null!, null!, null!, () => seconds, null!);
+
+        Assert.Equal(3, runtime.MarkdownAutoSaveSeconds);
+        seconds = 0;
+        Assert.Equal(0, runtime.MarkdownAutoSaveSeconds);
+    }
+
+    [Fact]
+    public void Library_OpensAndClosesExplicitly()
+    {
+        var model = MarkdownNotesDesignData.CreateSelectedPreview();
+
+        model.OpenNoteLibraryCommand.Execute(null);
+        Assert.True(model.IsNoteLibraryOpen);
+
+        model.CloseNoteLibraryCommand.Execute(null);
+        Assert.False(model.IsNoteLibraryOpen);
+    }
+
+    [Fact]
+    public void DisabledAutoSave_UsesUnsavedManualStatus()
+    {
+        var model = MarkdownNotesDesignData.CreateAutoSaveDisabledDirty();
+
+        Assert.False(model.IsAutoSaveEnabled);
+        Assert.True(model.Document.IsDirty);
+        Assert.Equal("Unsaved changes", model.DocumentStatus);
+        Assert.Equal("", model.AutoSaveStatus);
+    }
+
+    [Fact]
+    public void LibrarySearch_DoesNotReplaceDirtyDocument()
+    {
+        var model = MarkdownNotesDesignData.CreateAutoSaveDisabledDirty();
+        var sourceId = model.Document.SourceId;
+        var content = model.Document.Content;
+
+        model.NoteLibrarySearchText = "Recovery";
+
+        Assert.Equal(sourceId, model.Document.SourceId);
+        Assert.Equal(content, model.Document.Content);
+        Assert.Equal("Recovery checklist", Assert.Single(model.NoteLibraryItems).Title);
+    }
+
+    [Fact]
+    public void Library_IsAlphabeticalAndSearchDoesNotChangeDocument()
     {
         var list = new NoteListState();
         list.Replace([
@@ -18,7 +67,7 @@ public sealed class MarkdownNotesStateTests
 
         list.SearchText = "needle";
 
-        Assert.Equal("Zulu", Assert.Single(list.PickerNotes).Title);
+        Assert.Equal("Zulu", Assert.Single(list.LibraryNotes).Title);
         Assert.Equal("b", document.SourceId);
         Assert.Equal("needle", document.Content);
     }
@@ -41,7 +90,7 @@ public sealed class MarkdownNotesStateTests
     }
 
     [Fact]
-    public void MostRecentlyUpdated_IsIndependentOfAlphabeticalPickerOrder()
+    public void MostRecentlyUpdated_IsIndependentOfAlphabeticalLibraryOrder()
     {
         var list = new NoteListState();
         list.Replace([
@@ -49,7 +98,7 @@ public sealed class MarkdownNotesStateTests
             Note("new", "Zulu", "", "2026-07-21T10:00:00Z")
         ]);
 
-        Assert.Equal(["Alpha", "Zulu"], list.PickerNotes.Select(note => note.Title));
+        Assert.Equal(["Alpha", "Zulu"], list.LibraryNotes.Select(note => note.Title));
         Assert.Equal("new", list.MostRecentlyUpdated()!.Id);
     }
 

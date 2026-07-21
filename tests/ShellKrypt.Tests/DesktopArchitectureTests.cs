@@ -173,6 +173,7 @@ public sealed class DesktopArchitectureTests
         Assert.True(File.Exists(Path.Combine(notes, "NoteDocumentState.cs")));
         Assert.True(File.Exists(Path.Combine(notes, "NoteAutoSaveController.cs")));
         Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotesHeaderView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotesLibraryView.axaml")));
         Assert.True(File.Exists(Path.Combine(notes, "MarkdownNoteEditorView.axaml")));
         Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotePreviewView.axaml")));
 
@@ -183,6 +184,7 @@ public sealed class DesktopArchitectureTests
         var extractedViews = new[]
         {
             "MarkdownNotesHeaderView.axaml.cs",
+            "MarkdownNotesLibraryView.axaml.cs",
             "MarkdownNoteEditorView.axaml.cs",
             "MarkdownNotePreviewView.axaml.cs",
             "MarkdownNotesWorkspaceView.axaml.cs"
@@ -194,6 +196,19 @@ public sealed class DesktopArchitectureTests
             Assert.Contains("DataContext is null", source, StringComparison.Ordinal);
             Assert.Contains("MarkdownNotesDesignData", source, StringComparison.Ordinal);
         });
+
+        var featureSources = Directory.EnumerateFiles(notes, "*", SearchOption.TopDirectoryOnly)
+            .Where(path => path.EndsWith(".cs", StringComparison.Ordinal) || path.EndsWith(".axaml", StringComparison.Ordinal))
+            .Select(File.ReadAllText);
+        Assert.All(featureSources, source => Assert.DoesNotContain("Picker", source, StringComparison.Ordinal));
+
+        var workspace = File.ReadAllText(Path.Combine(notes, "MarkdownNotesWorkspaceView.axaml"));
+        Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", workspace, StringComparison.Ordinal);
+        Assert.Contains("MinWidth=\"972\"", workspace, StringComparison.Ordinal);
+
+        var composition = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml"));
+        Assert.Contains("MarkdownNotesLibraryView", composition, StringComparison.Ordinal);
+        Assert.Contains("Gesture=\"Escape\"", composition, StringComparison.Ordinal);
     }
 
     private static IEnumerable<string> Sources(string root)

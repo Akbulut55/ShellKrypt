@@ -8,7 +8,7 @@ public partial class MarkdownNotesView : UserControl
     {
         InitializeComponent();
         if (Design.IsDesignMode)
-            DataContext = MarkdownNotesDesignData.CreateSelectedPreview();
+            DataContext = MarkdownNotesDesignData.CreateSplit();
     }
 
 }

@@ -73,6 +73,7 @@
   "Settings.Language.Description": "Uygulama görüntüleme dilini seç.",
   "Settings.Language.Title": "Dil",
   "Settings.MarkdownAutoSave.Enabled": "Markdown notları {0} sonra otomatik kaydedilir.",
+  "Settings.MarkdownAutoSave.Disabled": "Markdown notlarının elle kaydedilmesi gerekir.",
   "Settings.MarkdownAutoSave.SelectedDelay": "seçilen gecikme",
   "Settings.MarkdownAutoSave.Title": "Markdown notları otomatik kaydet",
   "Settings.MasterPassword.Confirm": "YENİ PAROLAYI ONAYLA",

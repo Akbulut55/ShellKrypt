@@ -16,25 +16,34 @@ public static class MarkdownNotesDesignData
     public static MarkdownNotesViewModel CreateEditing() => Create(new(Entries(), 0, NoteFailureKind.None), edit: true);
     public static MarkdownNotesViewModel CreateSplit() => Create(new(Entries(), 0, NoteFailureKind.None), split: true);
     public static MarkdownNotesViewModel CreateDirty() => Create(new(Entries(), 0, NoteFailureKind.None), dirty: true);
+    public static MarkdownNotesViewModel CreateLibraryOpen()
+    {
+        var model = Create(new(Entries(), 0, NoteFailureKind.None));
+        model.IsNoteLibraryOpen = true;
+        return model;
+    }
+    public static MarkdownNotesViewModel CreateAutoSaveDisabledDirty()
+        => Create(new(Entries(), 0, NoteFailureKind.None), dirty: true, autoSaveSeconds: 0);
     public static MarkdownNotesViewModel CreateAutoSavePending()
     {
         var model = Create(new(Entries(), 0, NoteFailureKind.None), dirty: true);
-        model.AutoSaveStatus = "Autosave pending...";
+        model.AutoSaveStatus = Localized("Notes.AutoSave.Pending");
         return model;
     }
     public static MarkdownNotesViewModel CreateAutoSaveFailure()
     {
         var model = Create(new(Entries(), 0, NoteFailureKind.None), dirty: true);
-        model.AutoSaveStatus = model.List.Count > 0 ? "Autosave failed." : "";
+        model.AutoSaveStatus = model.List.Count > 0 ? Localized("Notes.AutoSave.Failed") : "";
         return model;
     }
     public static MarkdownNotesViewModel CreateWarning() => Create(new(Entries(), 2, NoteFailureKind.None));
     public static MarkdownNotesViewModel CreateLoadFailure() => Create(new([], 0, NoteFailureKind.ReadFailed));
 
-    private static MarkdownNotesViewModel Create(NoteLoadResult result, bool select = true, bool edit = false, bool split = false, bool dirty = false)
+    private static MarkdownNotesViewModel Create(NoteLoadResult result, bool select = true, bool edit = false, bool split = false, bool dirty = false, int autoSaveSeconds = 3)
     {
         var localization = new LocalizationService();
-        var runtime = new MarkdownNotesRuntime(new DesignSession(), localization, new DesignRecorder(), new DesignClipboard(), 3, new DesignDialogs());
+        var liveAutoSaveSeconds = 0;
+        var runtime = new MarkdownNotesRuntime(new DesignSession(), localization, new DesignRecorder(), new DesignClipboard(), () => liveAutoSaveSeconds, new DesignDialogs());
         var model = new MarkdownNotesViewModel(runtime, new NoteService(new DesignStore(result)), _ => Task.CompletedTask, new FixedTimeProvider(Now));
         model.ActivateAsync().GetAwaiter().GetResult();
         if (!select)
@@ -49,6 +58,7 @@ public static class MarkdownNotesDesignData
             if (dirty)
                 model.Document.Content += "\n\nUnsaved preview-only change.";
         }
+        liveAutoSaveSeconds = autoSaveSeconds;
         return model;
     }
 
@@ -57,6 +67,8 @@ public static class MarkdownNotesDesignData
         new("note-a", "Deployment runbook", "# Deployment\n\n- Verify backup\n- Rotate credentials", true, Now.AddDays(-10).ToString("O"), Now.AddMinutes(-8).ToString("O")),
         new("note-b", "Recovery checklist", "> Synthetic preview content only.", false, Now.AddDays(-8).ToString("O"), Now.AddHours(-2).ToString("O"))
     ];
+
+    private static string Localized(string key) => new LocalizationService().Get(key);
 
     private sealed class DesignStore(NoteLoadResult result) : INoteStore
     {

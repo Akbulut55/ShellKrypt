@@ -22,6 +22,29 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.28.2] - 2026-07-21
+
+### Added
+
+- Added an Off option for Markdown Notes autosave while retaining the existing
+  three-second default and manual Save/Discard/Cancel behavior.
+
+### Changed
+
+- Replaced the title-attached note picker with a searchable notes-library
+  overlay and reorganized document modes and actions into a focused toolbar.
+- Refined editor and preview surfaces with readable document spacing and
+  horizontally scrollable split panes at narrow window widths.
+- Expanded deterministic designer states for the composed workspace, notes
+  library, manual-save drafts, autosave, warnings, and failures.
+
+### Fixed
+
+- Made Markdown Notes read the current autosave setting when returning from
+  Settings instead of retaining the delay captured when the shell was created.
+- Moved note failures and unreadable-row warnings into the document flow so
+  they no longer cover editor or preview content.
+
 ## [ShellKrypt 0.28.1] - 2026-07-21
 
 ### Fixed

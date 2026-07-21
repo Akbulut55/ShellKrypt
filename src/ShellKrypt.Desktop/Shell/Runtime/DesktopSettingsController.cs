@@ -44,7 +44,11 @@ public sealed class DesktopSettingsController : IDesktopSettingsController
     public int ClipboardClearSeconds { get => _settings.ClipboardClearSeconds; set => Set(value, _settings.ClipboardClearSeconds, next => _settings.ClipboardClearSeconds = next); }
     public bool ClipboardCopyEnabled { get => _settings.ClipboardCopyEnabled; set => Set(value, _settings.ClipboardCopyEnabled, next => _settings.ClipboardCopyEnabled = next); }
     public bool CloseToTrayEnabled { get => _settings.CloseToTrayEnabled; set => Set(value, _settings.CloseToTrayEnabled, next => _settings.CloseToTrayEnabled = next); }
-    public int MarkdownAutoSaveSeconds { get => _settings.MarkdownAutoSaveSeconds; set => Set(Math.Max(1, value), _settings.MarkdownAutoSaveSeconds, next => _settings.MarkdownAutoSaveSeconds = next); }
+    public int MarkdownAutoSaveSeconds
+    {
+        get => _settings.MarkdownAutoSaveSeconds;
+        set => Set(AppSettings.NormalizeMarkdownAutoSaveSeconds(value), _settings.MarkdownAutoSaveSeconds, next => _settings.MarkdownAutoSaveSeconds = next);
+    }
 
     public string ThemeId
     {

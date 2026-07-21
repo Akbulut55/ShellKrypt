@@ -8,9 +8,11 @@
   <UserControl.Styles>
     <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
   </UserControl.Styles>
-  <TextBox Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-           Classes="notesMarkdownEditor" AcceptsReturn="True" TextWrapping="Wrap"
-           PlaceholderText="{DynamicResource Loc.Notes.Editor.Placeholder}"
-           ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-           ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+  <Border Classes="notesDocumentSurface">
+    <TextBox Text="{Binding EditorContent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+             Classes="notesMarkdownEditor" AcceptsReturn="True" TextWrapping="Wrap"
+             PlaceholderText="{DynamicResource Loc.Notes.Editor.Placeholder}"
+             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+             ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+  </Border>
 </UserControl>

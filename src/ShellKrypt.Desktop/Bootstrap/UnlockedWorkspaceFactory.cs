@@ -20,7 +20,7 @@ internal sealed class UnlockedWorkspaceFactory(DesktopServiceCatalog services)
         var itemRuntime = new ItemWorkspaceRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard);
         var allItems = new AllItemsViewModel(new AllItemsRuntime(services.VaultSession, services.Localization), shell, services.VaultItemSummaryService);
         var webLogins = new WebLoginsViewModel(itemRuntime, services.WebLoginService, services.PasswordGenerator, allItems.RefreshAfterMutationAsync);
-        var notes = new MarkdownNotesViewModel(new MarkdownNotesRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Settings.MarkdownAutoSaveSeconds, services.Dialogs), services.NoteService, allItems.RefreshAfterMutationAsync);
+        var notes = new MarkdownNotesViewModel(new MarkdownNotesRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, () => services.Settings.MarkdownAutoSaveSeconds, services.Dialogs), services.NoteService, allItems.RefreshAfterMutationAsync);
         var cards = new CardsViewModel(itemRuntime, services.CardService, allItems.RefreshAfterMutationAsync);
         var authenticator = new AuthenticatorViewModel(
             new AuthenticatorRuntime(services.VaultSession, services.Localization, services.ActivityRecorder, services.SecureClipboard, services.Dialogs),

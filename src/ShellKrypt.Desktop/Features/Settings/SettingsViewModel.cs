@@ -79,6 +79,7 @@ public sealed partial class SettingsViewModel : ViewModelBase
 
     public ObservableCollection<SecondsDurationOption> MarkdownAutoSaveDurationOptions { get; } =
     [
+        new(0, "Settings.Duration.Off", "Off"),
         new(3, "Settings.Duration.3Seconds", "3 Seconds"),
         new(5, "Settings.Duration.5Seconds", "5 Seconds"),
         new(15, "Settings.Duration.15Seconds", "15 Seconds"),
@@ -127,7 +128,9 @@ public sealed partial class SettingsViewModel : ViewModelBase
     public string ClipboardClearSummary => ClipboardCopyEnabled
         ? T("Settings.Clipboard.Enabled", LowerLabel(SelectedClipboardClearDuration?.Label) ?? T("Settings.Clipboard.SelectedTimeout"))
         : T("Settings.Clipboard.Disabled");
-    public string MarkdownAutoSaveSummary => T("Settings.MarkdownAutoSave.Enabled", LowerLabel(SelectedMarkdownAutoSaveDuration?.Label) ?? T("Settings.MarkdownAutoSave.SelectedDelay"));
+    public string MarkdownAutoSaveSummary => SelectedMarkdownAutoSaveDuration?.Seconds == 0
+        ? T("Settings.MarkdownAutoSave.Disabled")
+        : T("Settings.MarkdownAutoSave.Enabled", LowerLabel(SelectedMarkdownAutoSaveDuration?.Label) ?? T("Settings.MarkdownAutoSave.SelectedDelay"));
     public string PasswordPolicyGuidance => VaultMasterPasswordPolicy.Guidance;
     public string RecoveryGuidanceText => T("Settings.RecoveryGuidance");
     public string SelectedSecurityProfileDescription => SelectedSecurityProfile?.Description ?? VaultSecurityProfiles.Default.Description;

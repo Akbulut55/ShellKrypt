@@ -8,6 +8,7 @@ public sealed class AppSettings
 {
     public const string DefaultThemeId = "dark";
     public const string DefaultLanguageId = "en";
+    public const int DefaultMarkdownAutoSaveSeconds = 3;
     public const int CurrentSecurityAcknowledgementVersion = 1;
 
     public static readonly IReadOnlySet<string> KnownThemeIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -26,7 +27,7 @@ public sealed class AppSettings
     public int ClipboardClearSeconds { get; set; } = 15;
     public bool ClipboardCopyEnabled { get; set; } = true;
     public bool CloseToTrayEnabled { get; set; }
-    public int MarkdownAutoSaveSeconds { get; set; } = 3;
+    public int MarkdownAutoSaveSeconds { get; set; } = DefaultMarkdownAutoSaveSeconds;
     public string? SecurityAcknowledgementAcceptedAtUtc { get; set; }
     public int SecurityAcknowledgementVersionAccepted { get; set; }
     public BackupCenterHistory BackupCenterHistory { get; set; } = new();
@@ -77,8 +78,11 @@ public sealed class AppSettings
 
     public void NormalizeMarkdownSettings()
     {
-        MarkdownAutoSaveSeconds = Math.Max(1, MarkdownAutoSaveSeconds);
+        MarkdownAutoSaveSeconds = NormalizeMarkdownAutoSaveSeconds(MarkdownAutoSaveSeconds);
     }
+
+    public static int NormalizeMarkdownAutoSaveSeconds(int seconds)
+        => seconds < 0 ? DefaultMarkdownAutoSaveSeconds : seconds;
 
     public static string NormalizeThemeId(string? themeId)
     {

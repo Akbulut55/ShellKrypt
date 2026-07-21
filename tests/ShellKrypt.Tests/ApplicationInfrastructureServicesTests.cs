@@ -16,6 +16,20 @@ namespace ShellKrypt.Tests;
 [Collection(AppRootTestCollection.Name)]
 public sealed class ApplicationInfrastructureServicesTests
 {
+    [Theory]
+    [InlineData(0, 0)]
+    [InlineData(1, 1)]
+    [InlineData(30, 30)]
+    [InlineData(-1, AppSettings.DefaultMarkdownAutoSaveSeconds)]
+    public void AppSettings_NormalizesOptionalMarkdownAutoSave(int value, int expected)
+    {
+        var settings = new AppSettings { MarkdownAutoSaveSeconds = value };
+
+        settings.NormalizeMarkdownSettings();
+
+        Assert.Equal(expected, settings.MarkdownAutoSaveSeconds);
+    }
+
     [Fact]
     public void AppSettingsService_PreservesDesktopDefaultsAndJsonShape()
     {
@@ -31,6 +45,7 @@ public sealed class ApplicationInfrastructureServicesTests
         Assert.Equal(15, settings.AutoLockMinutes);
         Assert.Equal(20, settings.LockOnDeactivateSeconds);
         Assert.Equal(15, settings.ClipboardClearSeconds);
+        Assert.Equal(AppSettings.DefaultMarkdownAutoSaveSeconds, settings.MarkdownAutoSaveSeconds);
         Assert.False(settings.CloseToTrayEnabled);
         Assert.Null(settings.SecurityAcknowledgementAcceptedAtUtc);
         Assert.Equal(0, settings.SecurityAcknowledgementVersionAccepted);

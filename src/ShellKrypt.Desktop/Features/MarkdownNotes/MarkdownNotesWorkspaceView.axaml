@@ -4,40 +4,54 @@
              xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
              x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesWorkspaceView"
              x:DataType="vm:MarkdownNotesViewModel"
-             d:DesignWidth="1200" d:DesignHeight="650">
+             d:DesignWidth="1200" d:DesignHeight="610">
   <UserControl.Styles>
     <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
   </UserControl.Styles>
+
   <Grid>
-    <Grid Margin="16" IsVisible="{Binding HasEditor}">
-      <Grid ColumnDefinitions="*,*" ColumnSpacing="12" IsVisible="{Binding IsSplitMode}">
-        <Border Classes="notesPane">
-          <Grid RowDefinitions="Auto,*">
-            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"/>
-            <vm:MarkdownNoteEditorView Grid.Row="1"/>
-          </Grid>
-        </Border>
-        <Border Grid.Column="1" Classes="notesPane">
-          <Grid RowDefinitions="Auto,*">
-            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"/>
-            <vm:MarkdownNotePreviewView Grid.Row="1"/>
-          </Grid>
-        </Border>
-      </Grid>
-      <Border Classes="notesPane" IsVisible="{Binding IsEditorOnlyMode}">
+    <Grid Margin="16,4,16,16" IsVisible="{Binding HasEditor}">
+      <ScrollViewer IsVisible="{Binding IsSplitMode}"
+                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                    HorizontalContentAlignment="Stretch">
+        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" MinWidth="972">
+          <Border Classes="notesPane">
+            <Grid RowDefinitions="Auto,*">
+              <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"/>
+              <vm:MarkdownNoteEditorView Grid.Row="1"/>
+            </Grid>
+          </Border>
+          <Border Grid.Column="1" Classes="notesPane">
+            <Grid RowDefinitions="Auto,*">
+              <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"/>
+              <vm:MarkdownNotePreviewView Grid.Row="1"/>
+            </Grid>
+          </Border>
+        </Grid>
+      </ScrollViewer>
+
+      <Border Classes="notesPane notesSinglePane" IsVisible="{Binding IsEditorOnlyMode}"
+              MaxWidth="920" HorizontalAlignment="Stretch">
         <vm:MarkdownNoteEditorView/>
       </Border>
-      <Border Classes="notesPane" IsVisible="{Binding IsPreviewOnlyMode}">
+      <Border Classes="notesPane notesSinglePane" IsVisible="{Binding IsPreviewOnlyMode}"
+              MaxWidth="920" HorizontalAlignment="Stretch">
         <vm:MarkdownNotePreviewView/>
       </Border>
     </Grid>
+
     <Border Background="Transparent" IsVisible="{Binding !HasEditor}">
       <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
-        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="20" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <Border Classes="notesEmptyIcon">
+          <PathIcon Data="{StaticResource IconMarkdown}" Width="30" Height="30"/>
+        </Border>
+        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="21" FontWeight="Bold" HorizontalAlignment="Center"/>
         <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Subtitle}" Classes="page-subtitle"
                    MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
-        <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="sk-primary"
-                Command="{Binding NewNoteCommand}" HorizontalAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+          <Button Content="{DynamicResource Loc.Notes.Library.AllNotes}" Classes="sk-secondary" Command="{Binding OpenNoteLibraryCommand}"/>
+          <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="sk-primary" Command="{Binding NewNoteCommand}"/>
+        </StackPanel>
       </StackPanel>
     </Border>
   </Grid>
