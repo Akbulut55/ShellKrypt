@@ -22,6 +22,16 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.28.1] - 2026-07-21
+
+### Fixed
+
+- Initialized theme and localization resources inside the Avalonia designer so
+  Markdown Notes previews display localized controls with the intended palette.
+- Added direct-preview styles, synthetic states, and design dimensions for the
+  extracted Markdown Notes header, editor, preview, and workspace controls while
+  preserving one inherited design model in the composed workspace preview.
+
 ## [ShellKrypt 0.28.0] - 2026-07-21
 
 ### Added
