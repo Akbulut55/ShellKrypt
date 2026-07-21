@@ -179,6 +179,21 @@ public sealed class DesktopArchitectureTests
         var codeBehind = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml.cs"));
         Assert.DoesNotContain("PointerPressed", codeBehind, StringComparison.Ordinal);
         Assert.DoesNotContain("Clicked", codeBehind, StringComparison.Ordinal);
+
+        var extractedViews = new[]
+        {
+            "MarkdownNotesHeaderView.axaml.cs",
+            "MarkdownNoteEditorView.axaml.cs",
+            "MarkdownNotePreviewView.axaml.cs",
+            "MarkdownNotesWorkspaceView.axaml.cs"
+        };
+        Assert.All(extractedViews, fileName =>
+        {
+            var source = File.ReadAllText(Path.Combine(notes, fileName));
+            Assert.Contains("OnAttachedToVisualTree", source, StringComparison.Ordinal);
+            Assert.Contains("DataContext is null", source, StringComparison.Ordinal);
+            Assert.Contains("MarkdownNotesDesignData", source, StringComparison.Ordinal);
+        });
     }
 
     private static IEnumerable<string> Sources(string root)

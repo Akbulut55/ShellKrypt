@@ -1,8 +1,19 @@
 using Avalonia.Controls;
+using Avalonia;
 
 namespace ShellKrypt.Desktop.Features.MarkdownNotes;
 
 public partial class MarkdownNotePreviewView : UserControl
 {
-    public MarkdownNotePreviewView() => InitializeComponent();
+    public MarkdownNotePreviewView()
+    {
+        InitializeComponent();
+    }
+
+    protected override void OnAttachedToVisualTree(VisualTreeAttachmentEventArgs e)
+    {
+        base.OnAttachedToVisualTree(e);
+        if (Design.IsDesignMode && DataContext is null)
+            DataContext = MarkdownNotesDesignData.CreateSelectedPreview();
+    }
 }

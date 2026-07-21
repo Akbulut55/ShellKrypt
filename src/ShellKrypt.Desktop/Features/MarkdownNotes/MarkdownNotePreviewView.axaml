@@ -1,9 +1,14 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
              xmlns:markdown="using:ShellKrypt.Application.Markdown"
              x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotePreviewView"
-             x:DataType="vm:MarkdownNotesViewModel">
+             x:DataType="vm:MarkdownNotesViewModel"
+             d:DesignWidth="600" d:DesignHeight="600">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
+  </UserControl.Styles>
   <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
     <StackPanel Spacing="0">
       <Border Classes="notesPreviewPlaceholder" IsVisible="{Binding !HasPreviewContent}">
