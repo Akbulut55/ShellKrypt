@@ -3,6 +3,7 @@
              xmlns:vm="using:ShellKrypt.Desktop.Features.Authenticator"
              xmlns:ui="using:ShellKrypt.Desktop.Shell.Dialogs"
              x:Class="ShellKrypt.Desktop.Features.Authenticator.AuthenticatorView"
+             x:Name="Root"
              x:CompileBindings="False"
              x:DataType="vm:AuthenticatorViewModel">
 
@@ -77,7 +78,7 @@
                   <ItemsControl.ItemTemplate>
                     <DataTemplate x:DataType="vm:AuthenticatorAccountVm">
                       <Button Classes="auth-list-button"
-                              Command="{Binding $parent[UserControl].((vm:AuthenticatorViewModel)DataContext).SelectEntryCommand}"
+                              Command="{Binding DataContext.SelectEntryCommand, ElementName=Root}"
                               CommandParameter="{Binding}">
                         <Border Classes="auth-list-item"
                                 Classes.active="{Binding IsSelected}">

@@ -22,6 +22,27 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.28.3] - 2026-08-08
+
+### Changed
+
+- Replaced the Markdown Notes text input path with a document-backed editor so
+  large drafts no longer copy and republish the complete note on every keystroke.
+- Made Markdown preview parsing cancellable and demand-driven, and virtualized
+  typed preview blocks to keep large notes responsive while editing or changing
+  document modes.
+- Simplified the Markdown workspace to one editor and preview control tree,
+  moved the note title beside the library action, and reduced document framing.
+
+### Fixed
+
+- Wrapped long Markdown lines and constrained split panes so the preview remains
+  visible instead of being pushed beyond the workspace at wide or narrow sizes.
+- Cleared editor undo history when sensitive note state is discarded and avoided
+  redundant dirty-state and library-search notifications.
+- Fixed the Authenticator account-selection command binding so its list can be
+  created without a runtime XAML type-resolution failure.
+
 ## [ShellKrypt 0.28.2] - 2026-07-21
 
 ### Added

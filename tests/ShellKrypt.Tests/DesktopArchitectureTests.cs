@@ -7,6 +7,17 @@ namespace ShellKrypt.Tests;
 public sealed class DesktopArchitectureTests
 {
     [Fact]
+    public void Authenticator_ListCommandAvoidsRuntimeXamlTypeResolution()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            DesktopRoot(), "Features", "Authenticator", "AuthenticatorView.axaml"));
+
+        Assert.Contains("x:Name=\"Root\"", source, StringComparison.Ordinal);
+        Assert.Contains("Command=\"{Binding DataContext.SelectEntryCommand, ElementName=Root}\"", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("((vm:AuthenticatorViewModel)DataContext)", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void UnlockAndReload_RecreateWorkspacesAndDeactivateTransientState()
     {
         var root = DesktopBootstrap.CreateMainWindowViewModel();
@@ -177,6 +188,22 @@ public sealed class DesktopArchitectureTests
         Assert.True(File.Exists(Path.Combine(notes, "MarkdownNoteEditorView.axaml")));
         Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotePreviewView.axaml")));
 
+        var editor = File.ReadAllText(Path.Combine(notes, "MarkdownNoteEditorView.axaml"));
+        Assert.Contains("editor:TextEditor", editor, StringComparison.Ordinal);
+        Assert.Contains("Document=\"{Binding EditorDocument}\"", editor, StringComparison.Ordinal);
+        Assert.Contains("WordWrap=\"True\"", editor, StringComparison.Ordinal);
+        Assert.Contains("IsReadOnly=\"False\"", editor, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TextBox Text=\"{Binding EditorContent", editor, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(notes, "MarkdownTextEditor.cs")));
+        var desktopProject = File.ReadAllText(Path.Combine(DesktopRoot(), "ShellKrypt.Desktop.csproj"));
+        Assert.Contains("Avalonia.AvaloniaEdit\" Version=\"12.0.0", desktopProject, StringComparison.Ordinal);
+        var app = File.ReadAllText(Path.Combine(DesktopRoot(), "App.axaml"));
+        Assert.Contains("avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml", app, StringComparison.Ordinal);
+
+        var header = File.ReadAllText(Path.Combine(notes, "MarkdownNotesHeaderView.axaml"));
+        Assert.Contains("ColumnDefinitions=\"Auto,420,*,Auto\"", header, StringComparison.Ordinal);
+        Assert.Contains("Grid.Column=\"3\" Orientation=\"Horizontal\"", header, StringComparison.Ordinal);
+
         var codeBehind = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml.cs"));
         Assert.DoesNotContain("PointerPressed", codeBehind, StringComparison.Ordinal);
         Assert.DoesNotContain("Clicked", codeBehind, StringComparison.Ordinal);
@@ -204,7 +231,17 @@ public sealed class DesktopArchitectureTests
 
         var workspace = File.ReadAllText(Path.Combine(notes, "MarkdownNotesWorkspaceView.axaml"));
         Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", workspace, StringComparison.Ordinal);
-        Assert.Contains("MinWidth=\"972\"", workspace, StringComparison.Ordinal);
+        Assert.Contains("MinWidth=\"{Binding WorkspaceMinimumWidth}\"", workspace, StringComparison.Ordinal);
+        Assert.Contains("Width=\"{Binding Bounds.Width, ElementName=WorkspaceViewport}\"", workspace, StringComparison.Ordinal);
+        Assert.Equal(1, workspace.Split("MarkdownNoteEditorView", StringSplitOptions.None).Length - 1);
+        Assert.Equal(1, workspace.Split("MarkdownNotePreviewView", StringSplitOptions.None).Length - 1);
+
+        var preview = File.ReadAllText(Path.Combine(notes, "MarkdownNotePreviewView.axaml"));
+        Assert.DoesNotContain("IsVisible=\"{Binding IsHeading", preview, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsVisible=\"{Binding IsParagraph", preview, StringComparison.Ordinal);
+        Assert.Contains("DataType=\"{x:Type markdown:MarkdownHeading1Block}\"", preview, StringComparison.Ordinal);
+        Assert.Contains("DataType=\"{x:Type markdown:MarkdownListBlock}\"", preview, StringComparison.Ordinal);
+        Assert.Contains("VirtualizingStackPanel", preview, StringComparison.Ordinal);
 
         var composition = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml"));
         Assert.Contains("MarkdownNotesLibraryView", composition, StringComparison.Ordinal);

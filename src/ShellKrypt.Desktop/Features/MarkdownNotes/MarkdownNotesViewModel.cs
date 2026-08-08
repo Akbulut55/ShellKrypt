@@ -1,4 +1,6 @@
+using System.ComponentModel;
 using System.Collections.ObjectModel;
+using AvaloniaEdit.Document;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Markdown;
@@ -17,10 +19,12 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     private readonly TimeProvider _timeProvider;
     private bool _active;
     private bool _loaded;
+    private bool _contentEmpty = true;
+    private bool _hasContent;
     private int _skippedCorruptEntries;
 
     public NoteListState List { get; } = new();
-    public NoteDocumentState Document { get; } = new();
+    public NoteDocumentState Document { get; }
 
     [ObservableProperty] private NoteItemVm? selectedNote;
     [ObservableProperty] private string error = "";
@@ -40,17 +44,17 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         _refreshAllItemsAsync = refreshAllItemsAsync;
         var clock = timeProvider ?? TimeProvider.System;
         _timeProvider = clock;
+        Document = new NoteDocumentState(clock);
         _autoSave = new NoteAutoSaveController(clock, () => TimeSpan.FromSeconds(Math.Max(1, _root.MarkdownAutoSaveSeconds)));
         Document.DraftChanged += (_, _) => OnDraftChanged();
-        Document.PropertyChanged += (_, _) => NotifyDocumentState();
-        List.PropertyChanged += (_, _) => NotifyListState();
-        List.LibraryNotes.CollectionChanged += (_, _) => NotifyListState();
+        Document.PropertyChanged += OnDocumentPropertyChanged;
+        List.Refreshed += (_, _) => NotifyListState();
     }
 
     public ObservableCollection<NoteItemVm> NoteLibraryItems => List.LibraryNotes;
-    public ObservableCollection<MarkdownBlock> PreviewBlocks => Document.PreviewBlocks;
+    public IReadOnlyList<MarkdownBlock> PreviewBlocks => Document.PreviewBlocks;
+    public TextDocument EditorDocument => Document.EditorDocument;
     public string EditorTitle { get => Document.Title; set => Document.Title = value; }
-    public string EditorContent { get => Document.Content; set => Document.Content = value; }
     public string NoteLibrarySearchText { get => List.SearchText; set => List.SearchText = value; }
     public int NoteCount => List.Count;
     public string NoteCountLabel => T(_root, "Notes.Header.Notes", NoteCount);
@@ -59,15 +63,23 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     public bool IsCreatingNote => Document.IsCreating;
     public bool IsEditing => Document.IsEditing;
     public bool HasPreviewContent => Document.HasPreview;
+    public bool ShowEditorPlaceholder => Document.EditorDocument.TextLength == 0;
     public bool HasError => Error.Length > 0;
     public bool HasWarning => Warning.Length > 0;
     public bool IsSplitMode => Document.ViewMode == "split";
     public bool IsEditorOnlyMode => Document.ViewMode == "editor";
     public bool IsPreviewOnlyMode => Document.ViewMode == "preview";
+    public bool ShowEditorPane => IsEditorOnlyMode || IsSplitMode;
+    public bool ShowPreviewPane => IsPreviewOnlyMode || IsSplitMode;
+    public int EditorPaneColumnSpan => IsEditorOnlyMode ? 2 : 1;
+    public int PreviewPaneColumn => IsPreviewOnlyMode ? 0 : 1;
+    public int PreviewPaneColumnSpan => IsPreviewOnlyMode ? 2 : 1;
+    public double WorkspaceMinimumWidth => IsSplitMode ? 972 : 0;
+    public double DocumentPaneMaxWidth => IsSplitMode ? double.PositiveInfinity : 920;
     public bool IsAutoSaveEnabled => _root.MarkdownAutoSaveSeconds > 0;
     public bool CanSave => Document.IsEditing && !IsBusy && !string.IsNullOrWhiteSpace(Document.Title);
     public bool CanManageSelection => SelectedNote is not null && !IsBusy;
-    public bool CanCopyContent => !IsBusy && !string.IsNullOrWhiteSpace(Document.Content);
+    public bool CanCopyContent => !IsBusy && Document.EditorDocument.TextLength > 0;
     public bool IsSelectionFavorite => SelectedNote?.IsFavorite == true;
     public string FavoriteToggleLabel => SelectedNote?.IsFavorite == true
         ? T(_root, "Notes.Button.Unstar")
@@ -90,6 +102,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     public async Task ActivateAsync()
     {
         _active = true;
+        Document.Activate();
         if (!_loaded)
             await LoadAsync();
         else if (Document.IsDirty)
@@ -100,6 +113,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     {
         _active = false;
         _autoSave.Cancel();
+        Document.Deactivate();
         AutoSaveStatus = "";
         IsNoteLibraryOpen = false;
     }
@@ -112,8 +126,10 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         List.SearchText = "";
         List.Replace([]);
         Document.Clear();
+        _skippedCorruptEntries = 0;
         Error = "";
         Warning = "";
+        NotifyDocumentState();
     }
 
     private async Task LoadAsync()
@@ -201,6 +217,7 @@ public partial class MarkdownNotesViewModel : ViewModelBase
             Document.DiscardChanges();
         }
         AutoSaveStatus = "";
+        NotifyDocumentState();
     }
 
     [RelayCommand]
@@ -295,7 +312,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         Document.ViewMode = mode;
         if (mode == "editor")
             Document.IsEditing = true;
-        NotifyDocumentState();
     }
 
     private async Task<bool> CanLeaveDraftAsync()
@@ -318,7 +334,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
     private void OnDraftChanged()
     {
         Error = "";
-        NotifyDocumentState();
         ScheduleAutoSave();
     }
 
@@ -328,7 +343,6 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         {
             _autoSave.Cancel();
             AutoSaveStatus = "";
-            NotifyDocumentState();
             return;
         }
         if (!_active || !Document.IsDirty || string.IsNullOrWhiteSpace(Document.Title))
@@ -454,13 +468,73 @@ public partial class MarkdownNotesViewModel : ViewModelBase
         OnPropertyChanged(nameof(NoteCountLabel));
         OnPropertyChanged(nameof(HasNoteLibraryItems));
         OnPropertyChanged(nameof(NoteLibraryItems));
+        OnPropertyChanged(nameof(NoteLibrarySearchText));
+    }
+
+    private void OnDocumentPropertyChanged(object? sender, PropertyChangedEventArgs args)
+    {
+        switch (args.PropertyName)
+        {
+            case nameof(NoteDocumentState.Title):
+                NotifyLocalized(nameof(CanSave), nameof(SelectedNoteTitleDisplay));
+                break;
+            case nameof(NoteDocumentState.Content):
+                NotifyContentAvailability();
+                break;
+            case nameof(NoteDocumentState.PreviewBlocks):
+            case nameof(NoteDocumentState.HasPreview):
+                NotifyLocalized(nameof(PreviewBlocks), nameof(HasPreviewContent));
+                break;
+            case nameof(NoteDocumentState.IsDirty):
+                NotifyLocalized(nameof(CanSave), nameof(ShowHeaderCommitButtons), nameof(ShowHeaderCreateButton),
+                    nameof(DocumentStatus), nameof(HasDocumentStatus));
+                break;
+            case nameof(NoteDocumentState.IsEditing):
+                NotifyLocalized(nameof(IsEditing), nameof(CanSave));
+                break;
+            case nameof(NoteDocumentState.IsCreating):
+                NotifyLocalized(nameof(IsCreatingNote), nameof(SelectedNoteMeta));
+                break;
+            case nameof(NoteDocumentState.HasDocument):
+                NotifyLocalized(nameof(HasEditor), nameof(CanCopyContent));
+                break;
+            case nameof(NoteDocumentState.ViewMode):
+                NotifyLocalized(nameof(IsSplitMode), nameof(IsEditorOnlyMode), nameof(IsPreviewOnlyMode),
+                    nameof(ShowEditorPane), nameof(ShowPreviewPane), nameof(EditorPaneColumnSpan),
+                    nameof(PreviewPaneColumn), nameof(PreviewPaneColumnSpan), nameof(WorkspaceMinimumWidth),
+                    nameof(DocumentPaneMaxWidth));
+                break;
+            case nameof(NoteDocumentState.SourceId):
+                NotifyLocalized(nameof(SelectedNoteTitleDisplay), nameof(SelectedNoteMeta));
+                break;
+        }
+    }
+
+    private void NotifyContentAvailability()
+    {
+        var isEmpty = Document.EditorDocument.TextLength == 0;
+        if (_contentEmpty != isEmpty)
+        {
+            _contentEmpty = isEmpty;
+            OnPropertyChanged(nameof(ShowEditorPlaceholder));
+        }
+
+        var hasContent = !isEmpty;
+        if (_hasContent != hasContent)
+        {
+            _hasContent = hasContent;
+            OnPropertyChanged(nameof(CanCopyContent));
+        }
     }
 
     private void NotifyDocumentState()
     {
-        NotifyLocalized(nameof(EditorTitle), nameof(EditorContent), nameof(PreviewBlocks), nameof(HasPreviewContent),
+        NotifyLocalized(nameof(EditorTitle), nameof(EditorDocument), nameof(PreviewBlocks), nameof(HasPreviewContent),
+            nameof(ShowEditorPlaceholder),
             nameof(HasEditor), nameof(IsCreatingNote), nameof(IsEditing), nameof(IsSplitMode), nameof(IsEditorOnlyMode),
-            nameof(IsPreviewOnlyMode), nameof(CanSave), nameof(ShowHeaderCommitButtons), nameof(ShowHeaderCreateButton),
+            nameof(IsPreviewOnlyMode), nameof(ShowEditorPane), nameof(ShowPreviewPane), nameof(EditorPaneColumnSpan),
+            nameof(PreviewPaneColumn), nameof(PreviewPaneColumnSpan), nameof(WorkspaceMinimumWidth), nameof(DocumentPaneMaxWidth),
+            nameof(CanSave), nameof(ShowHeaderCommitButtons), nameof(ShowHeaderCreateButton),
             nameof(CanManageSelection), nameof(CanCopyContent), nameof(IsSelectionFavorite), nameof(FavoriteToggleLabel), nameof(SelectedNoteTitleDisplay), nameof(SelectedNoteMeta),
             nameof(IsAutoSaveEnabled), nameof(DocumentStatus), nameof(HasDocumentStatus));
     }

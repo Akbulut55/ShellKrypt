@@ -1,3 +1,4 @@
+using ShellKrypt.Application.Markdown;
 using ShellKrypt.Desktop.Features.MarkdownNotes;
 using Xunit;
 
@@ -38,6 +39,48 @@ public sealed class MarkdownNotesStateTests
         Assert.True(model.Document.IsDirty);
         Assert.Equal("Unsaved changes", model.DocumentStatus);
         Assert.Equal("", model.AutoSaveStatus);
+    }
+
+    [Fact]
+    public void EditorTyping_DoesNotPublishACompleteTextReplacement()
+    {
+        var model = MarkdownNotesDesignData.CreateAutoSaveDisabledDirty();
+        var notifications = new List<string?>();
+        model.PropertyChanged += (_, args) => notifications.Add(args.PropertyName);
+
+        model.Document.EditorDocument.Insert(model.Document.EditorDocument.TextLength, "x");
+
+        Assert.DoesNotContain(nameof(MarkdownNotesViewModel.EditorDocument), notifications);
+        Assert.True(notifications.Count < 10, $"A single edit raised {notifications.Count} UI notifications.");
+
+        notifications.Clear();
+        model.Document.EditorDocument.Insert(model.Document.EditorDocument.TextLength, "y");
+        Assert.Empty(notifications);
+    }
+
+    [Fact]
+    public void DirtyState_StopsPublishingAfterTheDraftIsAlreadyDirty()
+    {
+        var original = new string('a', 40_000);
+        var document = new NoteDocumentState();
+        document.Open(Note("large", "Large", original));
+        var dirtyChanges = 0;
+        document.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(NoteDocumentState.IsDirty))
+                dirtyChanges++;
+        };
+
+        document.Content = original + "x";
+        document.Content = original + "xy";
+        document.Content = original + "xyz";
+
+        Assert.True(document.IsDirty);
+        Assert.Equal(1, dirtyChanges);
+
+        document.Content = original;
+        Assert.False(document.IsDirty);
+        Assert.Equal(2, dirtyChanges);
     }
 
     [Fact]
@@ -87,6 +130,45 @@ public sealed class MarkdownNotesStateTests
         Assert.Equal("Original", document.Title);
         Assert.Equal("body", document.Content);
         Assert.False(document.IsEditing);
+        Assert.False(document.EditorDocument.UndoStack.CanUndo);
+    }
+
+    [Fact]
+    public void Document_ClearRemovesTextAndUndoHistory()
+    {
+        var document = new NoteDocumentState();
+        document.Open(Note("a", "Sensitive", "original"));
+        document.EditorDocument.Insert(document.EditorDocument.TextLength, " secret");
+        Assert.True(document.EditorDocument.UndoStack.CanUndo);
+
+        document.Clear();
+
+        Assert.Equal(0, document.EditorDocument.TextLength);
+        Assert.False(document.EditorDocument.UndoStack.CanUndo);
+        Assert.False(document.EditorDocument.UndoStack.CanRedo);
+    }
+
+    [Fact]
+    public async Task Document_BuildsLargePreviewOnlyWhenTheSelectedModeNeedsIt()
+    {
+        var document = new NoteDocumentState(previewDelay: TimeSpan.Zero);
+        document.New();
+        document.Content = string.Join('\n', Enumerable.Range(1, 1_000).Select(index => $"## Section {index}\n\nParagraph {index}."));
+
+        Assert.Empty(document.PreviewBlocks);
+
+        var previewChanges = 0;
+        document.PropertyChanged += (_, args) =>
+        {
+            if (args.PropertyName == nameof(NoteDocumentState.PreviewBlocks))
+                previewChanges++;
+        };
+        document.ViewMode = "preview";
+        await document.AwaitPreviewAsync();
+
+        Assert.Equal(2_000, document.PreviewBlocks.Count);
+        Assert.Equal(1, previewChanges);
+        Assert.All(document.PreviewBlocks, block => Assert.NotEqual(typeof(MarkdownBlock), block.GetType()));
     }
 
     [Fact]

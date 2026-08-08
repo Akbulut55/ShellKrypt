@@ -1,5 +1,6 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using ShellKrypt.Application.Markdown;
 using ShellKrypt.Application.Notes;
 
 namespace ShellKrypt.Desktop.Features.MarkdownNotes;
@@ -9,6 +10,7 @@ public sealed partial class NoteItemVm : ObservableObject
     public string Id { get; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
+    public string SearchableContent { get; private set; }
     public string UpdatedAtDisplay => DateTimeOffset.TryParse(UpdatedAtUtc, out var timestamp)
         ? timestamp.ToLocalTime().ToString("g")
         : "";
@@ -34,6 +36,7 @@ public sealed partial class NoteItemVm : ObservableObject
         Id = id;
         Title = title;
         Content = content;
+        SearchableContent = SimpleMarkdown.ToPlainText(content);
         IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
@@ -45,6 +48,7 @@ public sealed partial class NoteItemVm : ObservableObject
     {
         Title = entry.Title;
         Content = entry.Content;
+        SearchableContent = SimpleMarkdown.ToPlainText(entry.Content);
         IsFavorite = entry.Favorite;
         UpdatedAtUtc = entry.UpdatedAtUtc;
         OnPropertyChanged(nameof(UpdatedAtUtc));

@@ -10,35 +10,34 @@
   </UserControl.Styles>
 
   <Grid>
-    <Grid Margin="16,4,16,16" IsVisible="{Binding HasEditor}">
-      <ScrollViewer IsVisible="{Binding IsSplitMode}"
-                    HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
-                    HorizontalContentAlignment="Stretch">
-        <Grid ColumnDefinitions="*,*" ColumnSpacing="12" MinWidth="972">
-          <Border Classes="notesPane">
-            <Grid RowDefinitions="Auto,*">
-              <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"/>
-              <vm:MarkdownNoteEditorView Grid.Row="1"/>
-            </Grid>
-          </Border>
-          <Border Grid.Column="1" Classes="notesPane">
-            <Grid RowDefinitions="Auto,*">
-              <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"/>
-              <vm:MarkdownNotePreviewView Grid.Row="1"/>
-            </Grid>
-          </Border>
-        </Grid>
-      </ScrollViewer>
-
-      <Border Classes="notesPane notesSinglePane" IsVisible="{Binding IsEditorOnlyMode}"
-              MaxWidth="920" HorizontalAlignment="Stretch">
-        <vm:MarkdownNoteEditorView/>
-      </Border>
-      <Border Classes="notesPane notesSinglePane" IsVisible="{Binding IsPreviewOnlyMode}"
-              MaxWidth="920" HorizontalAlignment="Stretch">
-        <vm:MarkdownNotePreviewView/>
-      </Border>
-    </Grid>
+    <ScrollViewer x:Name="WorkspaceViewport"
+                  Margin="16,4,16,16"
+                  IsVisible="{Binding HasEditor}"
+                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                  HorizontalContentAlignment="Stretch">
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
+            MinWidth="{Binding WorkspaceMinimumWidth}"
+            Width="{Binding Bounds.Width, ElementName=WorkspaceViewport}">
+        <Border Grid.Column="0" Grid.ColumnSpan="{Binding EditorPaneColumnSpan}"
+                Classes="notesPane" IsVisible="{Binding ShowEditorPane}"
+                MaxWidth="{Binding DocumentPaneMaxWidth}" HorizontalAlignment="Stretch">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"
+                       IsVisible="{Binding IsSplitMode}"/>
+            <vm:MarkdownNoteEditorView Grid.Row="1"/>
+          </Grid>
+        </Border>
+        <Border Grid.Column="{Binding PreviewPaneColumn}" Grid.ColumnSpan="{Binding PreviewPaneColumnSpan}"
+                Classes="notesPane" IsVisible="{Binding ShowPreviewPane}"
+                MaxWidth="{Binding DocumentPaneMaxWidth}" HorizontalAlignment="Stretch">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"
+                       IsVisible="{Binding IsSplitMode}"/>
+            <vm:MarkdownNotePreviewView Grid.Row="1"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </ScrollViewer>
 
     <Border Background="Transparent" IsVisible="{Binding !HasEditor}">
       <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">

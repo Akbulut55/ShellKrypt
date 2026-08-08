@@ -275,8 +275,9 @@ public sealed class ApplicationInfrastructureServicesTests
         - two
         """);
 
-        Assert.Contains(blocks, block => block.IsHeading1 && block.Text == "Title");
-        Assert.Contains(blocks, block => block.IsList && block.DisplayItems.Count == 2);
+        Assert.Contains(blocks, block => block is MarkdownHeading1Block { Text: "Title" });
+        Assert.Contains(blocks, block => block is MarkdownParagraphBlock);
+        Assert.Contains(blocks, block => block is MarkdownListBlock { DisplayItems.Count: 2 });
         Assert.Equal("Title Body with strong and link. one two", SimpleMarkdown.ToPlainText("# Title\n\nBody with **strong** and [link](https://example.com).\n\n- one\n- two"));
     }
 
