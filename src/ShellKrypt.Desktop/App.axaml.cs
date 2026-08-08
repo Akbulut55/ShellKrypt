@@ -14,6 +14,11 @@ namespace ShellKrypt.Desktop
         public override void Initialize()
         {
             AvaloniaXamlLoader.Load(this);
+            if (Avalonia.Controls.Design.IsDesignMode)
+            {
+                ApplyTheme("dark");
+                ApplyLocalization(new LocalizationService());
+            }
         }
 
         public override void OnFrameworkInitializationCompleted()

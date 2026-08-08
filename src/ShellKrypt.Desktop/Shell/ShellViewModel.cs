@@ -102,6 +102,7 @@ public partial class ShellViewModel : ViewModelBase
     {
         Authenticator.Deactivate();
         Activity.Deactivate();
+        MarkdownNotes.ClearSensitive();
     }
 
     public override void RefreshLocalization()

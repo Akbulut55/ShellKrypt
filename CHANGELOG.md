@@ -22,6 +22,83 @@ MAJOR.MINOR.PATCH
 
 ## [Unreleased]
 
+## [ShellKrypt 0.28.3] - 2026-08-08
+
+### Changed
+
+- Replaced the Markdown Notes text input path with a document-backed editor so
+  large drafts no longer copy and republish the complete note on every keystroke.
+- Made Markdown preview parsing cancellable and demand-driven, and virtualized
+  typed preview blocks to keep large notes responsive while editing or changing
+  document modes.
+- Simplified the Markdown workspace to one editor and preview control tree,
+  moved the note title beside the library action, and reduced document framing.
+
+### Fixed
+
+- Wrapped long Markdown lines and constrained split panes so the preview remains
+  visible instead of being pushed beyond the workspace at wide or narrow sizes.
+- Cleared editor undo history when sensitive note state is discarded and avoided
+  redundant dirty-state and library-search notifications.
+- Fixed the Authenticator account-selection command binding so its list can be
+  created without a runtime XAML type-resolution failure.
+
+## [ShellKrypt 0.28.2] - 2026-07-21
+
+### Added
+
+- Added an Off option for Markdown Notes autosave while retaining the existing
+  three-second default and manual Save/Discard/Cancel behavior.
+
+### Changed
+
+- Replaced the title-attached note picker with a searchable notes-library
+  overlay and reorganized document modes and actions into a focused toolbar.
+- Refined editor and preview surfaces with readable document spacing and
+  horizontally scrollable split panes at narrow window widths.
+- Expanded deterministic designer states for the composed workspace, notes
+  library, manual-save drafts, autosave, warnings, and failures.
+
+### Fixed
+
+- Made Markdown Notes read the current autosave setting when returning from
+  Settings instead of retaining the delay captured when the shell was created.
+- Moved note failures and unreadable-row warnings into the document flow so
+  they no longer cover editor or preview content.
+
+## [ShellKrypt 0.28.1] - 2026-07-21
+
+### Fixed
+
+- Initialized theme and localization resources inside the Avalonia designer so
+  Markdown Notes previews display localized controls with the intended palette.
+- Added direct-preview styles, synthetic states, and design dimensions for the
+  extracted Markdown Notes header, editor, preview, and workspace controls while
+  preserving one inherited design model in the composed workspace preview.
+
+## [ShellKrypt 0.28.0] - 2026-07-21
+
+### Added
+
+- Added safe, typed note operation results, unreadable-row reporting, guarded
+  deletion, and Save/Discard/Cancel handling for dirty Markdown drafts.
+
+### Changed
+
+- Moved Markdown Note validation, normalization, identity, and timestamp rules
+  into the Application layer while preserving the existing encrypted vault
+  payload and associated-data format.
+- Refactored Markdown Notes around focused list, document, and deterministic
+  autosave state with explicit activation, navigation, and lock-time cleanup.
+- Changed the note picker to one searchable alphabetical list and enabled
+  compiled bindings without pointer or click selection handlers.
+
+### Fixed
+
+- Prevented navigation and note selection from silently discarding dirty drafts,
+  stopped delayed autosaves outside the active workspace, and replaced raw
+  persistence errors with localized value-free messages.
+
 ## [ShellKrypt 0.27.2] - 2026-07-20
 
 ### Fixed

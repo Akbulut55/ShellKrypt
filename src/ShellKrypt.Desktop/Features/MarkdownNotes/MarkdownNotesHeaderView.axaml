@@ -1,0 +1,96 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesHeaderView"
+             x:DataType="vm:MarkdownNotesViewModel"
+             d:DesignWidth="1200" d:DesignHeight="150">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
+  </UserControl.Styles>
+
+  <Border Classes="notesHeader">
+    <Grid RowDefinitions="Auto,Auto" RowSpacing="12">
+      <Grid ColumnDefinitions="Auto,420,*,Auto" ColumnSpacing="14">
+        <Button Classes="sk-secondary notesLibraryButton" Command="{Binding OpenNoteLibraryCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="8">
+            <PathIcon Data="{StaticResource IconViewList}" Width="17" Height="17"/>
+            <TextBlock Text="{DynamicResource Loc.Notes.Library.AllNotes}"/>
+          </StackPanel>
+        </Button>
+
+        <StackPanel Grid.Column="1" Spacing="4" VerticalAlignment="Center">
+          <TextBlock Text="{Binding SelectedNoteTitleDisplay}" Classes="notesDocumentTitle"
+                     IsVisible="{Binding !IsEditing}"/>
+          <TextBox Text="{Binding EditorTitle, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   Classes="notesHeaderTitleInput" PlaceholderText="{DynamicResource Loc.Notes.Title.Placeholder}"
+                   IsVisible="{Binding IsEditing}"/>
+          <TextBlock Text="{Binding SelectedNoteMeta}" Classes="notesMutedText" TextTrimming="CharacterEllipsis"/>
+        </StackPanel>
+
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Button Content="{DynamicResource Loc.Common.Cancel}" Classes="sk-secondary"
+                  Command="{Binding CancelEditingCommand}" IsVisible="{Binding ShowHeaderCommitButtons}"/>
+          <Button Content="{DynamicResource Loc.Common.Save}" Classes="sk-primary"
+                  Command="{Binding SaveCommand}" IsEnabled="{Binding CanSave}"
+                  IsVisible="{Binding ShowHeaderCommitButtons}"/>
+          <Button Classes="sk-primary" Command="{Binding NewNoteCommand}" IsVisible="{Binding ShowHeaderCreateButton}">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <PathIcon Data="{StaticResource IconAdd}" Width="15" Height="15"/>
+              <TextBlock Text="{DynamicResource Loc.Notes.Button.CreateNew}"/>
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+
+      <Grid Grid.Row="1" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="14">
+        <Border Classes="notesModeGroup">
+          <StackPanel Orientation="Horizontal" Spacing="3">
+            <Button Classes="notesModeButton" Classes.active="{Binding IsEditorOnlyMode}"
+                    Command="{Binding ShowEditorModeCommand}" ToolTip.Tip="{DynamicResource Loc.Notes.Mode.Editor}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconEdit}" Width="15" Height="15"/>
+                <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}"/>
+              </StackPanel>
+            </Button>
+            <Button Classes="notesModeButton" Classes.active="{Binding IsSplitMode}"
+                    Command="{Binding ShowSplitModeCommand}" ToolTip.Tip="{DynamicResource Loc.Notes.Mode.Split}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconMarkdownSplitMode}" Width="16" Height="16"/>
+                <TextBlock Text="{DynamicResource Loc.Notes.Mode.Split}"/>
+              </StackPanel>
+            </Button>
+            <Button Classes="notesModeButton" Classes.active="{Binding IsPreviewOnlyMode}"
+                    Command="{Binding ShowPreviewModeCommand}" ToolTip.Tip="{DynamicResource Loc.Notes.Mode.Preview}">
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <PathIcon Data="{StaticResource IconMarkdownPreviewMode}" Width="16" Height="16"/>
+                <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}"/>
+              </StackPanel>
+            </Button>
+          </StackPanel>
+        </Border>
+
+        <TextBlock Grid.Column="1" Text="{Binding DocumentStatus}" Classes="notesSaveStatus"
+                   IsVisible="{Binding HasDocumentStatus}" VerticalAlignment="Center"/>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="4">
+          <Button Classes="sk-icon-ghost notesActionButton" Command="{Binding ToggleFavoriteCommand}"
+                  IsEnabled="{Binding CanManageSelection}" ToolTip.Tip="{Binding FavoriteToggleLabel}">
+            <Grid>
+              <PathIcon Data="{StaticResource IconStar}" Width="18" Height="18" IsVisible="{Binding !IsSelectionFavorite}"/>
+              <PathIcon Data="{StaticResource IconStarFilled}" Width="18" Height="18" IsVisible="{Binding IsSelectionFavorite}"/>
+            </Grid>
+          </Button>
+          <Button Classes="sk-icon-ghost notesActionButton" Command="{Binding CopyContentCommand}"
+                  IsEnabled="{Binding CanCopyContent}" ToolTip.Tip="{DynamicResource Loc.Notes.Tooltip.Copy}">
+            <PathIcon Data="{StaticResource IconContentCopy}" Width="18" Height="18"/>
+          </Button>
+          <Button Classes="sk-icon-ghost notesActionButton notesDeleteAction" Command="{Binding DeleteCommand}"
+                  IsEnabled="{Binding CanManageSelection}" ToolTip.Tip="{DynamicResource Loc.Notes.Tooltip.Delete}">
+            <PathIcon Data="{StaticResource IconDelete}" Width="18" Height="18"/>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Grid>
+  </Border>
+</UserControl>

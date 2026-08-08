@@ -53,7 +53,7 @@ public sealed class DesktopRuntimeServicesTests
         Assert.Equal(AppSettings.DefaultThemeId, controller.ThemeId);
         Assert.Equal("tr", persisted.LanguageId);
         Assert.Equal(30, persisted.AutoLockMinutes);
-        Assert.Equal(1, persisted.MarkdownAutoSaveSeconds);
+        Assert.Equal(0, persisted.MarkdownAutoSaveSeconds);
         Assert.Equal(30, sessionSecurity.Settings.AutoLockMinutes);
         Assert.Equal("tr", localization.CurrentLanguageId);
         Assert.Equal("tr", appearance.LastLanguageId);

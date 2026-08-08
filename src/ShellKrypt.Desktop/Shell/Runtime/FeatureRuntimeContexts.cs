@@ -29,12 +29,14 @@ public sealed record ProjectSecretsRuntime(IVaultSessionController Session, IAct
     public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
 }
 
-public sealed record MarkdownNotesRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, ISecureClipboardService Clipboard, IDesktopSettingsController Settings) : ILocalizedRuntime
+public sealed record MarkdownNotesRuntime(IVaultSessionController Session, LocalizationService Localization, IActivityRecorder Activity, ISecureClipboardService Clipboard, Func<int> AutoSaveSeconds, IDesktopDialogService Dialogs) : ILocalizedRuntime
 {
     public string? VaultPath => Session.VaultPath;
     public byte[] VaultKey => Session.VaultKey;
-    public int MarkdownAutoSaveSeconds => Settings.MarkdownAutoSaveSeconds;
+    public int MarkdownAutoSaveSeconds => AutoSaveSeconds();
     public Task CopyToClipboardAsync(string value) => Clipboard.CopyAsync(value);
+    public Task<bool> ConfirmAsync(string title, string message, string confirmText, bool destructive = false) => Dialogs.ConfirmAsync(title, message, confirmText, destructive);
+    public Task<UnsavedChangesChoice> ResolveUnsavedChangesAsync(string title, string message, string saveText, string discardText) => Dialogs.ResolveUnsavedChangesAsync(title, message, saveText, discardText);
     public void LogActivity(string category, string title, string detail, string severity = "info", string? vaultPath = null, string? affectedItem = null) => Activity.Log(category, title, detail, severity, vaultPath, affectedItem);
 }
 

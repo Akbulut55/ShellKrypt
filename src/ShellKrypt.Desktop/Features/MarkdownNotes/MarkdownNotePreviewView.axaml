@@ -1,0 +1,79 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             xmlns:markdown="using:ShellKrypt.Application.Markdown"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotePreviewView"
+             x:DataType="vm:MarkdownNotesViewModel"
+             d:DesignWidth="600" d:DesignHeight="600">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
+    <Style Selector="ListBox.notesPreviewList">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="BorderThickness" Value="0"/>
+      <Setter Property="Padding" Value="0"/>
+    </Style>
+    <Style Selector="ListBox.notesPreviewList > ListBoxItem">
+      <Setter Property="Background" Value="Transparent"/>
+      <Setter Property="Padding" Value="0"/>
+      <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+      <Setter Property="Focusable" Value="False"/>
+    </Style>
+  </UserControl.Styles>
+  <Border Classes="notesDocumentSurface">
+    <Grid>
+      <Border Classes="notesPreviewPlaceholder" IsVisible="{Binding !HasPreviewContent}">
+        <StackPanel Spacing="8">
+          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptyTitle}" FontSize="17" FontWeight="Bold"/>
+          <TextBlock Text="{DynamicResource Loc.Notes.Preview.EmptySubtitle}" Classes="page-subtitle" TextWrapping="Wrap"/>
+        </StackPanel>
+      </Border>
+      <ListBox ItemsSource="{Binding PreviewBlocks}"
+               IsVisible="{Binding HasPreviewContent}"
+               Classes="notesPreviewList"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <ListBox.ItemsPanel>
+          <ItemsPanelTemplate>
+            <VirtualizingStackPanel/>
+          </ItemsPanelTemplate>
+        </ListBox.ItemsPanel>
+        <ListBox.DataTemplates>
+          <DataTemplate DataType="{x:Type markdown:MarkdownHeading1Block}" x:DataType="markdown:MarkdownHeading1Block">
+            <TextBlock Text="{Binding Text}" Classes="notesMarkdownH1" Margin="0,0,0,18" TextWrapping="Wrap"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownHeading2Block}" x:DataType="markdown:MarkdownHeading2Block">
+            <TextBlock Text="{Binding Text}" Classes="notesMarkdownH2" Margin="0,0,0,18" TextWrapping="Wrap"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownHeading3Block}" x:DataType="markdown:MarkdownHeading3Block">
+            <TextBlock Text="{Binding Text}" Classes="notesMarkdownH3" Margin="0,0,0,18" TextWrapping="Wrap"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownParagraphBlock}" x:DataType="markdown:MarkdownParagraphBlock">
+            <TextBlock Text="{Binding Text}" Classes="notesMarkdownParagraph" Margin="0,0,0,18" TextWrapping="Wrap"/>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownQuoteBlock}" x:DataType="markdown:MarkdownQuoteBlock">
+            <Border Background="{StaticResource QuoteBackgroundBrush}" BorderBrush="{StaticResource AccentBrush}"
+                    BorderThickness="4,0,0,0" CornerRadius="8" Padding="16,14" Margin="0,0,0,18">
+              <TextBlock Text="{Binding Text}" FontSize="14" FontStyle="Italic" LineHeight="22" TextWrapping="Wrap"/>
+            </Border>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownCodeBlock}" x:DataType="markdown:MarkdownCodeBlock">
+            <Border Background="{StaticResource AppBackgroundSoftBrush}" BorderBrush="{StaticResource BorderBrushSoft}"
+                    BorderThickness="1" CornerRadius="8" Padding="16,14" Margin="0,0,0,18">
+              <TextBlock Text="{Binding Text}" Classes="notesMarkdownCode" TextWrapping="Wrap"/>
+            </Border>
+          </DataTemplate>
+          <DataTemplate DataType="{x:Type markdown:MarkdownListBlock}" x:DataType="markdown:MarkdownListBlock">
+            <ItemsControl ItemsSource="{Binding DisplayItems}" Margin="0,0,0,18">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="x:String">
+                  <TextBlock Text="{Binding .}" Classes="notesMarkdownListItem" TextWrapping="Wrap"/>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </DataTemplate>
+        </ListBox.DataTemplates>
+      </ListBox>
+    </Grid>
+  </Border>
+</UserControl>

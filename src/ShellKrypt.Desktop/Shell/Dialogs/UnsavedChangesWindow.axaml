@@ -1,0 +1,23 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ShellKrypt.Desktop.Shell.Dialogs.UnsavedChangesWindow"
+        Width="560" SizeToContent="Height" CanResize="False"
+        WindowStartupLocation="CenterOwner" ShowInTaskbar="False"
+        WindowDecorations="None" Background="{StaticResource SurfaceRaisedBrush}">
+  <Border Background="{StaticResource SurfaceRaisedBrush}" CornerRadius="18" Padding="32">
+    <Grid RowDefinitions="Auto,Auto" RowSpacing="28">
+      <StackPanel Spacing="12">
+        <TextBlock x:Name="MessageText" FontSize="22" FontWeight="Black"
+                   TextAlignment="Center" TextWrapping="Wrap"/>
+        <TextBlock Text="{DynamicResource Loc.Notes.Unsaved.Detail}"
+                   Classes="page-subtitle" TextAlignment="Center" TextWrapping="Wrap"/>
+      </StackPanel>
+      <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto,Auto" ColumnSpacing="12">
+        <Button Grid.Column="1" Content="{DynamicResource Loc.Common.Cancel}" Classes="sk-secondary"
+                Click="OnCancelClicked"/>
+        <Button x:Name="DiscardButton" Grid.Column="2" Classes="sk-danger" Click="OnDiscardClicked"/>
+        <Button x:Name="SaveButton" Grid.Column="3" Classes="sk-primary" IsDefault="True" Click="OnSaveClicked"/>
+      </Grid>
+    </Grid>
+  </Border>
+</Window>

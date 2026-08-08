@@ -45,6 +45,8 @@ internal sealed class DesktopNavigationService(
         automaticBackups.ClearSessionPassphrase();
         sessionSecurity.SetUnlocked(false);
         _ = clipboard.ClearAsync();
+        if (Current is ShellViewModel shell)
+            shell.Deactivate();
         session.ClearSensitive();
         GoWelcome();
     }

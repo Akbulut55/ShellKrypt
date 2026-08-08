@@ -1,0 +1,82 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesLibraryView"
+             x:DataType="vm:MarkdownNotesViewModel"
+             d:DesignWidth="560" d:DesignHeight="620">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
+  </UserControl.Styles>
+
+  <Border Classes="notesLibraryPanel">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="14">
+      <Grid ColumnDefinitions="*,Auto" ColumnSpacing="12">
+        <StackPanel Spacing="4">
+          <TextBlock Text="{DynamicResource Loc.Notes.Library.Title}" FontSize="21" FontWeight="Bold"/>
+          <TextBlock Text="{Binding NoteCountLabel}" Classes="notesMutedText"/>
+        </StackPanel>
+        <Button Grid.Column="1" Classes="sk-icon-ghost notesActionButton"
+                Command="{Binding CloseNoteLibraryCommand}" ToolTip.Tip="{DynamicResource Loc.Common.Close}">
+          <PathIcon Data="{StaticResource IconClose}" Width="18" Height="18"/>
+        </Button>
+      </Grid>
+
+      <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+        <Border Classes="notesLibrarySearchShell">
+          <Grid ColumnDefinitions="Auto,*" ColumnSpacing="8">
+            <PathIcon Data="{StaticResource IconSearch}" Width="16" Height="16" Foreground="{StaticResource TextMutedBrush}"/>
+            <TextBox Grid.Column="1" Text="{Binding NoteLibrarySearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                     Classes="sk-search-input" PlaceholderText="{DynamicResource Loc.Notes.Library.Search}"/>
+          </Grid>
+        </Border>
+        <Button Grid.Column="1" Classes="sk-primary" Command="{Binding NewNoteCommand}">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <PathIcon Data="{StaticResource IconAdd}" Width="15" Height="15"/>
+            <TextBlock Text="{DynamicResource Loc.Notes.Button.CreateNew}"/>
+          </StackPanel>
+        </Button>
+      </Grid>
+
+      <Grid Grid.Row="2" ColumnDefinitions="*,Auto">
+        <TextBlock Text="{DynamicResource Loc.Notes.Library.Alphabetical}" Classes="notesKicker"/>
+        <TextBlock Grid.Column="1" Text="{Binding NoteLibraryItems.Count}" Classes="notesLibraryCount"/>
+      </Grid>
+
+      <ScrollViewer Grid.Row="3" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+        <Grid>
+          <ItemsControl ItemsSource="{Binding NoteLibraryItems}" IsVisible="{Binding HasNoteLibraryItems}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:NoteItemVm">
+                <Border Classes="notesLibraryItem" Classes.active="{Binding IsSelected}">
+                  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                    <Button Classes="notesLibraryItemButton" Command="{Binding SelectCommand}">
+                      <Grid ColumnDefinitions="Auto,*" ColumnSpacing="10">
+                        <PathIcon Data="{StaticResource IconStarFilled}" Width="14" Height="14"
+                                  Foreground="{StaticResource AccentBrush}" IsVisible="{Binding IsFavorite}"/>
+                        <StackPanel Grid.Column="1" Spacing="3">
+                          <TextBlock Text="{Binding Title}" FontSize="14" FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                          <TextBlock Text="{Binding UpdatedAtDisplay}" Classes="notesLibraryTimestamp" TextTrimming="CharacterEllipsis"/>
+                        </StackPanel>
+                      </Grid>
+                    </Button>
+                    <Button Grid.Column="1" Classes="sk-icon-ghost notesLibraryDeleteButton" Command="{Binding DeleteCommand}"
+                            ToolTip.Tip="{DynamicResource Loc.Notes.Tooltip.Delete}">
+                      <PathIcon Data="{StaticResource IconDelete}" Width="15" Height="15"/>
+                    </Button>
+                  </Grid>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          <Border Classes="notesLibraryEmpty" IsVisible="{Binding !HasNoteLibraryItems}">
+            <StackPanel Spacing="6">
+              <TextBlock Text="{DynamicResource Loc.Notes.Library.NoResults}" FontWeight="SemiBold"/>
+              <TextBlock Text="{DynamicResource Loc.Notes.Library.NoResultsHint}" Classes="notesMutedText" TextWrapping="Wrap"/>
+            </StackPanel>
+          </Border>
+        </Grid>
+      </ScrollViewer>
+    </Grid>
+  </Border>
+</UserControl>

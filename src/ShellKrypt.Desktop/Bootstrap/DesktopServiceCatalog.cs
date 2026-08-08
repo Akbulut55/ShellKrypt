@@ -4,6 +4,7 @@ using ShellKrypt.Application.Audit;
 using ShellKrypt.Application.Backups;
 using ShellKrypt.Application.Items;
 using ShellKrypt.Application.Localization;
+using ShellKrypt.Application.Notes;
 using ShellKrypt.Application.ProjectSecrets;
 using ShellKrypt.Application.Settings;
 using ShellKrypt.Application.Vaulting;

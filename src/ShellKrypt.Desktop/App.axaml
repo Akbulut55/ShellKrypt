@@ -25,6 +25,7 @@
                 <ColorPaletteResources x:Key="Light" Accent="#00819a"/>
             </FluentTheme.Palettes>
         </FluentTheme>
+        <StyleInclude Source="avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml"/>
         <StyleInclude Source="avares://ShellKrypt/Features/ItemWorkspaces/Shared/ItemWorkspaceStyles.axaml"/>
 
         <StyleInclude Source="avares://ShellKrypt/Resources/Styles/Foundations.axaml"/>

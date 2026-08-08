@@ -20,7 +20,7 @@ public static partial class SimpleMarkdown
             {
                 if (trimmed.StartsWith("```", StringComparison.Ordinal))
                 {
-                    blocks.Add(new MarkdownBlock(MarkdownBlockKind.CodeBlock, string.Join('\n', codeLines)));
+                    blocks.Add(new MarkdownCodeBlock(string.Join('\n', codeLines)));
                     codeLines.Clear();
                     inCodeBlock = false;
                 }
@@ -52,7 +52,7 @@ public static partial class SimpleMarkdown
             {
                 FlushParagraph(blocks, paragraphLines);
                 FlushList(blocks, listItems, listOrdered);
-                blocks.Add(new MarkdownBlock(headingKind, StripInline(headingText)));
+                blocks.Add(CreateTextBlock(headingKind, StripInline(headingText)));
                 continue;
             }
 
@@ -71,7 +71,7 @@ public static partial class SimpleMarkdown
             {
                 FlushParagraph(blocks, paragraphLines);
                 FlushList(blocks, listItems, listOrdered);
-                blocks.Add(new MarkdownBlock(MarkdownBlockKind.Quote, StripInline(trimmed.TrimStart('>', ' '))));
+                blocks.Add(new MarkdownQuoteBlock(StripInline(trimmed.TrimStart('>', ' '))));
                 continue;
             }
 
@@ -79,7 +79,7 @@ public static partial class SimpleMarkdown
         }
 
         if (inCodeBlock && codeLines.Count > 0)
-            blocks.Add(new MarkdownBlock(MarkdownBlockKind.CodeBlock, string.Join('\n', codeLines)));
+            blocks.Add(new MarkdownCodeBlock(string.Join('\n', codeLines)));
 
         FlushParagraph(blocks, paragraphLines);
         FlushList(blocks, listItems, listOrdered);

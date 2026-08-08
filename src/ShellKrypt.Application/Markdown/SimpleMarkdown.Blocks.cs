@@ -67,7 +67,7 @@ public static partial class SimpleMarkdown
 
         var text = StripInline(string.Join(' ', paragraphLines));
         if (!string.IsNullOrWhiteSpace(text))
-            blocks.Add(new MarkdownBlock(MarkdownBlockKind.Paragraph, text));
+            blocks.Add(new MarkdownParagraphBlock(text));
 
         paragraphLines.Clear();
     }
@@ -77,13 +77,18 @@ public static partial class SimpleMarkdown
         if (items.Count == 0)
             return;
 
-        blocks.Add(new MarkdownBlock(
-            ordered ? MarkdownBlockKind.OrderedList : MarkdownBlockKind.UnorderedList,
-            string.Empty,
-            items.ToArray()));
+        blocks.Add(new MarkdownListBlock(ordered, items.ToArray()));
 
         items.Clear();
     }
+
+    private static MarkdownBlock CreateTextBlock(MarkdownBlockKind kind, string text) => kind switch
+    {
+        MarkdownBlockKind.Heading1 => new MarkdownHeading1Block(text),
+        MarkdownBlockKind.Heading2 => new MarkdownHeading2Block(text),
+        MarkdownBlockKind.Heading3 => new MarkdownHeading3Block(text),
+        _ => new MarkdownParagraphBlock(text)
+    };
 
     [GeneratedRegex(@"^\d+\.\s+(.+)$")]
     private static partial Regex OrderedListRegex();

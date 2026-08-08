@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:vm="using:ShellKrypt.Desktop.Features.MarkdownNotes"
+             x:Class="ShellKrypt.Desktop.Features.MarkdownNotes.MarkdownNotesWorkspaceView"
+             x:DataType="vm:MarkdownNotesViewModel"
+             d:DesignWidth="1200" d:DesignHeight="610">
+  <UserControl.Styles>
+    <StyleInclude Source="avares://ShellKrypt/Features/MarkdownNotes/MarkdownNotesStyles.axaml"/>
+  </UserControl.Styles>
+
+  <Grid>
+    <ScrollViewer x:Name="WorkspaceViewport"
+                  Margin="16,4,16,16"
+                  IsVisible="{Binding HasEditor}"
+                  HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled"
+                  HorizontalContentAlignment="Stretch">
+      <Grid ColumnDefinitions="*,*" ColumnSpacing="12"
+            MinWidth="{Binding WorkspaceMinimumWidth}"
+            Width="{Binding Bounds.Width, ElementName=WorkspaceViewport}">
+        <Border Grid.Column="0" Grid.ColumnSpan="{Binding EditorPaneColumnSpan}"
+                Classes="notesPane" IsVisible="{Binding ShowEditorPane}"
+                MaxWidth="{Binding DocumentPaneMaxWidth}" HorizontalAlignment="Stretch">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Editor}" Classes="notesPaneTitle"
+                       IsVisible="{Binding IsSplitMode}"/>
+            <vm:MarkdownNoteEditorView Grid.Row="1"/>
+          </Grid>
+        </Border>
+        <Border Grid.Column="{Binding PreviewPaneColumn}" Grid.ColumnSpan="{Binding PreviewPaneColumnSpan}"
+                Classes="notesPane" IsVisible="{Binding ShowPreviewPane}"
+                MaxWidth="{Binding DocumentPaneMaxWidth}" HorizontalAlignment="Stretch">
+          <Grid RowDefinitions="Auto,*">
+            <TextBlock Text="{DynamicResource Loc.Notes.Mode.Preview}" Classes="notesPaneTitle"
+                       IsVisible="{Binding IsSplitMode}"/>
+            <vm:MarkdownNotePreviewView Grid.Row="1"/>
+          </Grid>
+        </Border>
+      </Grid>
+    </ScrollViewer>
+
+    <Border Background="Transparent" IsVisible="{Binding !HasEditor}">
+      <StackPanel Spacing="12" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Border Classes="notesEmptyIcon">
+          <PathIcon Data="{StaticResource IconMarkdown}" Width="30" Height="30"/>
+        </Border>
+        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Title}" FontSize="21" FontWeight="Bold" HorizontalAlignment="Center"/>
+        <TextBlock Text="{DynamicResource Loc.Notes.NoSelection.Subtitle}" Classes="page-subtitle"
+                   MaxWidth="420" TextWrapping="Wrap" TextAlignment="Center"/>
+        <StackPanel Orientation="Horizontal" Spacing="8" HorizontalAlignment="Center">
+          <Button Content="{DynamicResource Loc.Notes.Library.AllNotes}" Classes="sk-secondary" Command="{Binding OpenNoteLibraryCommand}"/>
+          <Button Content="{DynamicResource Loc.Notes.Button.CreateMarkdown}" Classes="sk-primary" Command="{Binding NewNoteCommand}"/>
+        </StackPanel>
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

@@ -64,6 +64,15 @@ public sealed class DesktopDialogService(SessionSecurityService sessionSecurity)
         return await new ConfirmActionWindow(title, message, "", confirmText).ShowDialog<bool>(mainWindow);
     }
 
+    public async Task<UnsavedChangesChoice> ResolveUnsavedChangesAsync(string title, string message, string saveText, string discardText)
+    {
+        if (GetMainWindow() is not { } mainWindow)
+            return UnsavedChangesChoice.Cancel;
+        using var _ = sessionSecurity.SuppressTransientFocusLoss();
+        return await new UnsavedChangesWindow(title, message, saveText, discardText)
+            .ShowDialog<UnsavedChangesChoice>(mainWindow);
+    }
+
     public async Task<string?> PromptPasswordAsync(string title, string message, string detail, string confirmText)
     {
         if (GetMainWindow() is not { } mainWindow)

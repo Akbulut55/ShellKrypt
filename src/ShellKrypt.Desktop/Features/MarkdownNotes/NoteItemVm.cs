@@ -1,7 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using ShellKrypt.Application.Markdown;
-using ShellKrypt.Core.Items;
-using System;
+using ShellKrypt.Application.Notes;
 
 namespace ShellKrypt.Desktop.Features.MarkdownNotes;
 
@@ -10,85 +10,48 @@ public sealed partial class NoteItemVm : ObservableObject
     public string Id { get; }
     public string CreatedAtUtc { get; }
     public string UpdatedAtUtc { get; private set; }
+    public string SearchableContent { get; private set; }
+    public string UpdatedAtDisplay => DateTimeOffset.TryParse(UpdatedAtUtc, out var timestamp)
+        ? timestamp.ToLocalTime().ToString("g")
+        : "";
 
     [ObservableProperty] private string title;
     [ObservableProperty] private string content;
     [ObservableProperty] private bool isFavorite;
     [ObservableProperty] private bool isSelected;
 
-    public NoteItemVm(string id, string title, string content, bool favorite, string createdAtUtc, string updatedAtUtc)
+    public IAsyncRelayCommand SelectCommand { get; }
+    public IAsyncRelayCommand DeleteCommand { get; }
+
+    public NoteItemVm(
+        string id,
+        string title,
+        string content,
+        bool favorite,
+        string createdAtUtc,
+        string updatedAtUtc,
+        Func<NoteItemVm, Task>? select = null,
+        Func<NoteItemVm, Task>? delete = null)
     {
         Id = id;
         Title = title;
         Content = content;
+        SearchableContent = SimpleMarkdown.ToPlainText(content);
         IsFavorite = favorite;
         CreatedAtUtc = createdAtUtc;
         UpdatedAtUtc = updatedAtUtc;
-    }
-
-    public string FavoriteGlyph => IsFavorite ? "STAR" : string.Empty;
-
-    public string PreviewText
-    {
-        get
-        {
-            var plainText = SimpleMarkdown.ToPlainText(Content);
-            return string.IsNullOrWhiteSpace(plainText)
-                ? "No content yet."
-                : plainText;
-        }
-    }
-
-    public string UpdatedDisplay => FormatRelativeTimestamp(UpdatedAtUtc);
-    public string StatusLabel => IsFavorite ? "Starred" : "Markdown";
-
-    partial void OnIsFavoriteChanged(bool value)
-    {
-        OnPropertyChanged(nameof(FavoriteGlyph));
-        OnPropertyChanged(nameof(StatusLabel));
-    }
-
-    partial void OnContentChanged(string value)
-    {
-        OnPropertyChanged(nameof(PreviewText));
-    }
-
-    public void TouchUpdated()
-    {
-        UpdatedAtUtc = DateTimeOffset.UtcNow.ToString("O");
-        OnPropertyChanged(nameof(UpdatedAtUtc));
-        OnPropertyChanged(nameof(UpdatedDisplay));
+        SelectCommand = new AsyncRelayCommand(() => select?.Invoke(this) ?? Task.CompletedTask);
+        DeleteCommand = new AsyncRelayCommand(() => delete?.Invoke(this) ?? Task.CompletedTask);
     }
 
     public void Apply(NoteEntry entry)
     {
         Title = entry.Title;
         Content = entry.Content;
+        SearchableContent = SimpleMarkdown.ToPlainText(entry.Content);
         IsFavorite = entry.Favorite;
         UpdatedAtUtc = entry.UpdatedAtUtc;
         OnPropertyChanged(nameof(UpdatedAtUtc));
-        OnPropertyChanged(nameof(UpdatedDisplay));
-    }
-
-    private static string FormatRelativeTimestamp(string value)
-    {
-        if (!DateTimeOffset.TryParse(value, out var timestamp))
-            return value;
-
-        var delta = DateTimeOffset.UtcNow - timestamp.ToUniversalTime();
-
-        if (delta.TotalMinutes < 1)
-            return "just now";
-
-        if (delta.TotalHours < 1)
-            return $"{Math.Max(1, (int)delta.TotalMinutes)}m ago";
-
-        if (delta.TotalDays < 1)
-            return $"{Math.Max(1, (int)delta.TotalHours)}h ago";
-
-        if (delta.TotalDays < 7)
-            return $"{Math.Max(1, (int)delta.TotalDays)}d ago";
-
-        return timestamp.ToLocalTime().ToString("MMM dd");
+        OnPropertyChanged(nameof(UpdatedAtDisplay));
     }
 }

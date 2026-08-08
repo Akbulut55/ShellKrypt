@@ -7,6 +7,17 @@ namespace ShellKrypt.Tests;
 public sealed class DesktopArchitectureTests
 {
     [Fact]
+    public void Authenticator_ListCommandAvoidsRuntimeXamlTypeResolution()
+    {
+        var source = File.ReadAllText(Path.Combine(
+            DesktopRoot(), "Features", "Authenticator", "AuthenticatorView.axaml"));
+
+        Assert.Contains("x:Name=\"Root\"", source, StringComparison.Ordinal);
+        Assert.Contains("Command=\"{Binding DataContext.SelectEntryCommand, ElementName=Root}\"", source, StringComparison.Ordinal);
+        Assert.DoesNotContain("((vm:AuthenticatorViewModel)DataContext)", source, StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void UnlockAndReload_RecreateWorkspacesAndDeactivateTransientState()
     {
         var root = DesktopBootstrap.CreateMainWindowViewModel();
@@ -152,6 +163,89 @@ public sealed class DesktopArchitectureTests
     {
         var contract = File.ReadAllText(Path.Combine(DesktopRoot(), "Shell", "Runtime", "IActivityRecorder.cs"));
         Assert.DoesNotContain("ActivityLogService Store", contract, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void MarkdownNotes_UseTypedCompiledViewsAndFocusedCollaborators()
+    {
+        var notes = Path.Combine(DesktopRoot(), "Features", "MarkdownNotes");
+        var views = Directory.EnumerateFiles(notes, "*.axaml", SearchOption.TopDirectoryOnly)
+            .Where(path => !path.EndsWith("Styles.axaml", StringComparison.Ordinal));
+        var violations = views.Where(path =>
+        {
+            var source = File.ReadAllText(path);
+            return source.Contains("x:CompileBindings=\"False\"", StringComparison.Ordinal)
+                || !source.Contains("x:DataType=", StringComparison.Ordinal);
+        }).Select(Path.GetFileName).ToArray();
+
+        Assert.Empty(violations);
+        Assert.Empty(Directory.EnumerateFiles(notes, "MarkdownNotesViewModel.*.cs", SearchOption.TopDirectoryOnly));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteListState.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteDocumentState.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "NoteAutoSaveController.cs")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotesHeaderView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotesLibraryView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNoteEditorView.axaml")));
+        Assert.True(File.Exists(Path.Combine(notes, "MarkdownNotePreviewView.axaml")));
+
+        var editor = File.ReadAllText(Path.Combine(notes, "MarkdownNoteEditorView.axaml"));
+        Assert.Contains("editor:TextEditor", editor, StringComparison.Ordinal);
+        Assert.Contains("Document=\"{Binding EditorDocument}\"", editor, StringComparison.Ordinal);
+        Assert.Contains("WordWrap=\"True\"", editor, StringComparison.Ordinal);
+        Assert.Contains("IsReadOnly=\"False\"", editor, StringComparison.Ordinal);
+        Assert.DoesNotContain("<TextBox Text=\"{Binding EditorContent", editor, StringComparison.Ordinal);
+        Assert.False(File.Exists(Path.Combine(notes, "MarkdownTextEditor.cs")));
+        var desktopProject = File.ReadAllText(Path.Combine(DesktopRoot(), "ShellKrypt.Desktop.csproj"));
+        Assert.Contains("Avalonia.AvaloniaEdit\" Version=\"12.0.0", desktopProject, StringComparison.Ordinal);
+        var app = File.ReadAllText(Path.Combine(DesktopRoot(), "App.axaml"));
+        Assert.Contains("avares://AvaloniaEdit/Themes/Fluent/AvaloniaEdit.xaml", app, StringComparison.Ordinal);
+
+        var header = File.ReadAllText(Path.Combine(notes, "MarkdownNotesHeaderView.axaml"));
+        Assert.Contains("ColumnDefinitions=\"Auto,420,*,Auto\"", header, StringComparison.Ordinal);
+        Assert.Contains("Grid.Column=\"3\" Orientation=\"Horizontal\"", header, StringComparison.Ordinal);
+
+        var codeBehind = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml.cs"));
+        Assert.DoesNotContain("PointerPressed", codeBehind, StringComparison.Ordinal);
+        Assert.DoesNotContain("Clicked", codeBehind, StringComparison.Ordinal);
+
+        var extractedViews = new[]
+        {
+            "MarkdownNotesHeaderView.axaml.cs",
+            "MarkdownNotesLibraryView.axaml.cs",
+            "MarkdownNoteEditorView.axaml.cs",
+            "MarkdownNotePreviewView.axaml.cs",
+            "MarkdownNotesWorkspaceView.axaml.cs"
+        };
+        Assert.All(extractedViews, fileName =>
+        {
+            var source = File.ReadAllText(Path.Combine(notes, fileName));
+            Assert.Contains("OnAttachedToVisualTree", source, StringComparison.Ordinal);
+            Assert.Contains("DataContext is null", source, StringComparison.Ordinal);
+            Assert.Contains("MarkdownNotesDesignData", source, StringComparison.Ordinal);
+        });
+
+        var featureSources = Directory.EnumerateFiles(notes, "*", SearchOption.TopDirectoryOnly)
+            .Where(path => path.EndsWith(".cs", StringComparison.Ordinal) || path.EndsWith(".axaml", StringComparison.Ordinal))
+            .Select(File.ReadAllText);
+        Assert.All(featureSources, source => Assert.DoesNotContain("Picker", source, StringComparison.Ordinal));
+
+        var workspace = File.ReadAllText(Path.Combine(notes, "MarkdownNotesWorkspaceView.axaml"));
+        Assert.Contains("HorizontalScrollBarVisibility=\"Auto\"", workspace, StringComparison.Ordinal);
+        Assert.Contains("MinWidth=\"{Binding WorkspaceMinimumWidth}\"", workspace, StringComparison.Ordinal);
+        Assert.Contains("Width=\"{Binding Bounds.Width, ElementName=WorkspaceViewport}\"", workspace, StringComparison.Ordinal);
+        Assert.Equal(1, workspace.Split("MarkdownNoteEditorView", StringSplitOptions.None).Length - 1);
+        Assert.Equal(1, workspace.Split("MarkdownNotePreviewView", StringSplitOptions.None).Length - 1);
+
+        var preview = File.ReadAllText(Path.Combine(notes, "MarkdownNotePreviewView.axaml"));
+        Assert.DoesNotContain("IsVisible=\"{Binding IsHeading", preview, StringComparison.Ordinal);
+        Assert.DoesNotContain("IsVisible=\"{Binding IsParagraph", preview, StringComparison.Ordinal);
+        Assert.Contains("DataType=\"{x:Type markdown:MarkdownHeading1Block}\"", preview, StringComparison.Ordinal);
+        Assert.Contains("DataType=\"{x:Type markdown:MarkdownListBlock}\"", preview, StringComparison.Ordinal);
+        Assert.Contains("VirtualizingStackPanel", preview, StringComparison.Ordinal);
+
+        var composition = File.ReadAllText(Path.Combine(notes, "MarkdownNotesView.axaml"));
+        Assert.Contains("MarkdownNotesLibraryView", composition, StringComparison.Ordinal);
+        Assert.Contains("Gesture=\"Escape\"", composition, StringComparison.Ordinal);
     }
 
     private static IEnumerable<string> Sources(string root)
