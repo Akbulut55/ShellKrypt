@@ -1,0 +1,68 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             x:Class="ShellKrypt.Desktop.Views.Locked.Content.WelcomeView"
+             d:DesignWidth="640"
+             d:DesignHeight="720">
+  <Border Background="{DynamicResource PrimaryDeepBrush}"
+          Padding="72">
+    <StackPanel Width="360"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Spacing="16">
+      <Border Width="76"
+              Height="76"
+              Margin="18,0,0,0"
+              HorizontalAlignment="Left"
+              Background="#24FFFFFF"
+              BorderBrush="#38FFFFFF"
+              BorderThickness="1"
+              CornerRadius="16">
+        <Path Width="34"
+              Height="38"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Fill="White"
+              Stretch="Uniform"
+              Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+      </Border>
+
+      <StackPanel Spacing="12">
+        <TextBlock Text="Welcome to&#x0a;ShellKrypt"
+                   Foreground="White"
+                   Padding="18,0,0,0"
+                   FontSize="44"
+                   FontWeight="SemiBold"
+                   TextWrapping="Wrap" />
+
+        <TextBlock Text="Manage your passwords, secure notes, and sensitive information in one place."
+                   Foreground="#D9FFFFFF"
+                   Padding="18,0,0,0"
+                   FontSize="18"
+                   LineHeight="28"
+                   TextWrapping="Wrap" />
+      </StackPanel>
+
+      <Border HorizontalAlignment="Left"
+              Margin="18,0,0,0"
+              Background="#260F172A"
+              CornerRadius="20"
+              Padding="14,8">
+        <StackPanel Orientation="Horizontal" Spacing="9">
+          <Path Width="15"
+                Height="17"
+                VerticalAlignment="Center"
+                Fill="#BFFFFFFF"
+                Stretch="Uniform"
+                Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+          <TextBlock Text="LOCAL VAULT"
+                     VerticalAlignment="Center"
+                     Foreground="#CCFFFFFF"
+                     FontSize="12"
+                     FontWeight="SemiBold"
+                     LetterSpacing="1.5" />
+        </StackPanel>
+      </Border>
+    </StackPanel>
+  </Border>
+</UserControl>

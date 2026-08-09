@@ -16,4 +16,8 @@
   <ItemGroup>
     <ProjectReference Include="..\ShellKrypt.Vault\ShellKrypt.Vault.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <AvaloniaResource Include="Resources\Fonts\**" />
+  </ItemGroup>
 </Project>
