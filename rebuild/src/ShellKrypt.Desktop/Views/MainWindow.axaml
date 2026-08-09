@@ -1,0 +1,11 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ShellKrypt.Desktop.Views.MainWindow"
+        Title="ShellKrypt"
+        Width="1280"
+        Height="720">
+  <TextBlock Text="Hello World"
+             HorizontalAlignment="Center"
+             VerticalAlignment="Center"
+             FontSize="32" />
+</Window>

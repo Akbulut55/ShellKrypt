@@ -1,0 +1,26 @@
+# .NET build output
+bin/
+obj/
+artifacts/
+
+# IDE and user-specific files
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.rsuser
+*.sln.docstates
+
+# Test and coverage output
+TestResults/
+coverage/
+coverage.*
+
+# Local logs and temporary files
+*.log
+*.tmp
+
+# Operating system files
+.DS_Store
+Thumbs.db

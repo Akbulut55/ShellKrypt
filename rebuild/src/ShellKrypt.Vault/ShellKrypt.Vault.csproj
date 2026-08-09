@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>ShellKrypt.Vault</AssemblyName>
+    <RootNamespace>ShellKrypt.Vault</RootNamespace>
+  </PropertyGroup>
+</Project>
