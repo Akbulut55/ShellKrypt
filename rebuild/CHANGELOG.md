@@ -1,5 +1,15 @@
 # ShellKrypt: Changelog
 
+## [ShellKrypt 0.0.3] - 11/08/2026
+
+### feat(desktop): build the locked vault selection screen
+
+- Add the semantic light color palette and global text colors
+- Refine the responsive welcome panel
+- Add a scrollable placeholder vault list with custom item states
+- Add the styled create-vault action
+- Add icon resources and the Material Symbols license
+
 ## [ShellKrypt 0.0.2] - 09/08/2026
 
 ### feat(desktop): add the initial locked vault experience

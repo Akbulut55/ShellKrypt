@@ -1,17 +1,213 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:local="using:ShellKrypt.Desktop.Views.Locked.Content"
              x:Class="ShellKrypt.Desktop.Views.Locked.Content.VaultListView"
+             x:Name="Root"
+             x:DataType="local:VaultListView"
              d:DesignWidth="640"
              d:DesignHeight="720">
-  <StackPanel HorizontalAlignment="Center"
-              VerticalAlignment="Center"
-              Spacing="16">
-    <TextBlock Text="Vault List"
-               HorizontalAlignment="Center"
-               FontSize="32" />
-    <Button Content="Select Vault"
-            HorizontalAlignment="Center"
-            Click="OnSelectVaultClick" />
-  </StackPanel>
+  <UserControl.Styles>
+    <Style Selector="Button.create-vault">
+      <Setter Property="Height" Value="50" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Padding" Value="16,0" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource PrimaryContainerBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="10" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="CreateVaultSurface"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="Button.create-vault:pointerover /template/ Border#CreateVaultSurface">
+      <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+
+    <Style Selector="TextBlock.create-vault-text">
+      <Setter Property="Foreground"
+              Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.create-vault:pointerover TextBlock.create-vault-text">
+      <Setter Property="Foreground" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Path.create-vault-icon">
+      <Setter Property="Stroke" Value="{StaticResource TextPrimaryBrush}" />
+    </Style>
+
+    <Style Selector="Button.create-vault:pointerover Path.create-vault-icon">
+      <Setter Property="Stroke" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+
+    <Style Selector="ListBox.vault-list">
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="BorderThickness" Value="0" />
+    </Style>
+
+    <Style Selector="ListBox.vault-list > ListBoxItem">
+      <Setter Property="Height" Value="84" />
+      <Setter Property="Margin" Value="0,0,4,12" />
+      <Setter Property="Padding" Value="16" />
+      <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+      <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="Cursor" Value="Hand" />
+      <Setter Property="Template">
+        <ControlTemplate>
+          <Border x:Name="VaultItemSurface"
+                  Background="{TemplateBinding Background}"
+                  BorderBrush="{TemplateBinding BorderBrush}"
+                  BorderThickness="{TemplateBinding BorderThickness}"
+                  CornerRadius="10"
+                  Padding="{TemplateBinding Padding}">
+            <ContentPresenter Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" />
+          </Border>
+        </ControlTemplate>
+      </Setter>
+    </Style>
+
+    <Style Selector="ListBox.vault-list > ListBoxItem:pointerover /template/ Border#VaultItemSurface">
+      <Setter Property="Background" Value="#E8EEF6" />
+      <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+
+    <Style Selector="ListBox.vault-list > ListBoxItem:selected /template/ Border#VaultItemSurface">
+      <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border Background="{StaticResource BackgroundBrush}"
+          Padding="64,48">
+    <Grid MaxWidth="360"
+          MinWidth="280"
+          MaxHeight="624"
+          HorizontalAlignment="Stretch"
+          VerticalAlignment="Center"
+          RowDefinitions="Auto,*,Auto,Auto">
+      <StackPanel Grid.Row="0"
+                  Spacing="6">
+        <TextBlock Text="Choose Your Vault"
+                   FontSize="26"
+                   FontWeight="SemiBold" />
+        <TextBlock Text="Select a vault to continue."
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="16" />
+      </StackPanel>
+
+      <ListBox Grid.Row="1"
+               Classes="vault-list"
+               Padding="0,0,12,0"
+               Margin="0,26,0,0"
+               ScrollViewer.VerticalScrollBarVisibility="Auto"
+               ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+               SelectionChanged="OnVaultSelectionChanged"
+               ItemsSource="{Binding Vaults, ElementName=Root}">
+        <ListBox.ItemTemplate>
+          <DataTemplate x:DataType="local:VaultListItem">
+            <Grid ColumnDefinitions="50,*,20"
+                  ColumnSpacing="16">
+              <Border Grid.Column="0"
+                      Width="50"
+                      Height="50"
+                      Background="#DBEAFE"
+                      CornerRadius="9">
+                <Path Width="24"
+                      Height="26"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      Fill="{StaticResource PrimaryBrush}"
+                      Stretch="Uniform"
+                      Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+              </Border>
+
+              <StackPanel Grid.Column="1"
+                          VerticalAlignment="Center"
+                          Spacing="4">
+                <TextBlock Text="{Binding Name}"
+                           FontSize="15"
+                           FontWeight="SemiBold" />
+                <TextBlock Text="{Binding LastOpened}"
+                           Foreground="{StaticResource TextSecondaryBrush}"
+                           FontSize="13" />
+              </StackPanel>
+
+              <Path Grid.Column="2"
+                    Width="16"
+                    Height="16"
+                    VerticalAlignment="Center"
+                    Stroke="{StaticResource TextSecondaryBrush}"
+                    StrokeThickness="2"
+                    Stretch="Uniform"
+                    Data="M7,4 L13,10 L7,16" />
+            </Grid>
+          </DataTemplate>
+        </ListBox.ItemTemplate>
+      </ListBox>
+
+      <Button Grid.Row="2"
+              Classes="create-vault"
+              Margin="0,24,0,0">
+        <StackPanel Orientation="Horizontal" Spacing="10">
+          <Path Classes="create-vault-icon"
+                Width="18"
+                Height="18"
+                StrokeThickness="2"
+                Data="M9,1 V17 M1,9 H17" />
+          <TextBlock Classes="create-vault-text"
+                     Text="Create New Vault"
+                     FontSize="14"
+                     FontWeight="SemiBold" />
+        </StackPanel>
+      </Button>
+
+      <StackPanel Grid.Row="3"
+                  Margin="0,24,0,0"
+                  HorizontalAlignment="Center"
+                  Spacing="8">
+        <StackPanel HorizontalAlignment="Center"
+                    Orientation="Horizontal"
+                    Spacing="8">
+          <Path Width="17"
+                Height="19"
+                VerticalAlignment="Center"
+                Fill="{StaticResource PrimaryBrush}"
+                Stretch="Uniform"
+                Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+          <TextBlock Text="ShellKrypt"
+                     VerticalAlignment="Center"
+                     FontSize="15"
+                     FontWeight="SemiBold" />
+        </StackPanel>
+        <TextBlock Text="Preview build"
+                   HorizontalAlignment="Center"
+                   Foreground="{StaticResource TextSecondaryBrush}"
+                   FontSize="12"
+                   LetterSpacing="1" />
+      </StackPanel>
+    </Grid>
+  </Border>
 </UserControl>

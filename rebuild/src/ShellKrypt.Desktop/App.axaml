@@ -16,10 +16,13 @@
     <FluentTheme />
 
     <Style Selector="Window">
+      <Setter Property="Background" Value="{StaticResource BackgroundBrush}" />
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
       <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
     </Style>
 
     <Style Selector="TextBlock">
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
       <Setter Property="FontFamily" Value="{StaticResource AppFontFamily}" />
     </Style>
   </Application.Styles>

@@ -1,0 +1,26 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!--
+  Material Symbols: shield
+
+  <StreamGeometry x:Key="IconShield">
+    SVG_PATH_HERE
+  </StreamGeometry>
+  -->
+
+  <!--
+  Material Symbols: person
+
+  <StreamGeometry x:Key="IconPerson">
+    SVG_PATH_HERE
+  </StreamGeometry>
+  -->
+
+  <!--
+  Material Symbols: chevron_right
+
+  <StreamGeometry x:Key="IconChevronRight">
+    SVG_PATH_HERE
+  </StreamGeometry>
+  -->
+</ResourceDictionary>
