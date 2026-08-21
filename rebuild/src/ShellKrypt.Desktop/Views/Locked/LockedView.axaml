@@ -10,7 +10,7 @@
                                  HorizontalContentAlignment="Stretch"
                                  VerticalContentAlignment="Stretch">
       <TransitioningContentControl.PageTransition>
-        <PageSlide Orientation="Vertical" Duration="0:0:0.35" />
+        <PageSlide Orientation="Vertical" Duration="0:0:0.5" />
       </TransitioningContentControl.PageTransition>
       <content:WelcomeView />
     </TransitioningContentControl>
@@ -20,7 +20,7 @@
                                  HorizontalContentAlignment="Stretch"
                                  VerticalContentAlignment="Stretch">
       <TransitioningContentControl.PageTransition>
-        <PageSlide Orientation="Vertical" Duration="0:0:0.35" />
+        <PageSlide Orientation="Vertical" Duration="0:0:0.5" />
       </TransitioningContentControl.PageTransition>
       <content:VaultListView VaultSelected="OnVaultSelected" />
     </TransitioningContentControl>

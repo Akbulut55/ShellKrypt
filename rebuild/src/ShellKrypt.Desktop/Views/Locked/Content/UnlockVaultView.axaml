@@ -4,8 +4,142 @@
              x:Class="ShellKrypt.Desktop.Views.Locked.Content.UnlockVaultView"
              d:DesignWidth="640"
              d:DesignHeight="720">
-  <TextBlock Text="Unlock Vault"
-             HorizontalAlignment="Center"
-             VerticalAlignment="Center"
-             FontSize="32" />
+  <UserControl.Styles>
+    <Style Selector="Button.unlock-primary">
+      <Setter Property="Height" Value="50" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="{StaticResource PrimaryBrush}" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="BorderThickness" Value="0" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.unlock-primary:pointerover">
+      <Setter Property="Background" Value="{StaticResource OnPrimaryContainerBrush}" />
+    </Style>
+
+    <Style Selector="Button.unlock-secondary">
+      <Setter Property="Height" Value="48" />
+      <Setter Property="HorizontalAlignment" Value="Stretch" />
+      <Setter Property="HorizontalContentAlignment" Value="Center" />
+      <Setter Property="VerticalContentAlignment" Value="Center" />
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="Foreground" Value="{StaticResource TextPrimaryBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource BorderDefaultBrush}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+
+    <Style Selector="Button.unlock-secondary:pointerover">
+      <Setter Property="Background" Value="{StaticResource SurfaceMutedBrush}" />
+      <Setter Property="BorderBrush" Value="{StaticResource PrimaryBrush}" />
+    </Style>
+  </UserControl.Styles>
+
+  <Border Background="{StaticResource BackgroundBrush}"
+          Padding="64,48">
+    <StackPanel MaxWidth="360"
+                MinWidth="280"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Center">
+      <Border Width="58"
+              Height="58"
+              HorizontalAlignment="Center"
+              Background="#DBEAFE"
+              CornerRadius="29">
+        <Path Data="{StaticResource IconPlaceHolder}"
+              Width="27"
+              Height="27"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              Fill="{StaticResource PrimaryBrush}"
+              Stretch="Uniform" />
+      </Border>
+
+      <TextBlock Margin="0,22,0,0"
+                 Text="Unlock Your Vault"
+                 HorizontalAlignment="Center"
+                 FontSize="28"
+                 FontWeight="SemiBold" />
+
+      <TextBlock Margin="0,8,0,0"
+                 Text="Enter your master password to continue."
+                 HorizontalAlignment="Center"
+                 Foreground="{StaticResource TextSecondaryBrush}"
+                 FontSize="15"
+                 TextAlignment="Center" />
+
+      <TextBlock Margin="0,42,0,8"
+                 Text="Master Password"
+                 FontSize="13"
+                 FontWeight="SemiBold" />
+
+      <Border Height="48"
+              Background="{StaticResource SurfaceMutedBrush}"
+              BorderBrush="{StaticResource BorderDefaultBrush}"
+              BorderThickness="1"
+              CornerRadius="7">
+        <Grid ColumnDefinitions="*,48">
+          <TextBox Padding="14,0"
+                   VerticalContentAlignment="Center"
+                   Background="Transparent"
+                   BorderThickness="0"
+                   PasswordChar="*"
+                   PlaceholderText="Master Password" />
+
+          <Path Grid.Column="1"
+                Data="{StaticResource IconPlaceHolder}"
+                Width="19"
+                Height="19"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Fill="{StaticResource TextSecondaryBrush}"
+                Stretch="Uniform" />
+        </Grid>
+      </Border>
+
+      <Button Margin="0,32,0,0"
+              Classes="unlock-primary">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="10">
+          <Path Data="{StaticResource IconPlaceHolder}"
+                Width="17"
+                Height="17"
+                VerticalAlignment="Center"
+                Fill="White"
+                Stretch="Uniform" />
+          <TextBlock Text="Unlock Vault"
+                     VerticalAlignment="Center"
+                     Foreground="White"
+                     FontSize="14"
+                     FontWeight="SemiBold" />
+        </StackPanel>
+      </Button>
+
+      <Button Margin="0,14,0,0"
+              Classes="unlock-secondary"
+              Click="OnBackClicked"
+              FontSize="14"
+              FontWeight="SemiBold">
+        <StackPanel Orientation="Horizontal"
+                    Spacing="10">
+          <Path Data="{StaticResource IconPlaceHolder}"
+                Width="17"
+                Height="17"
+                VerticalAlignment="Center"
+                Fill="{StaticResource TextPrimaryBrush}"
+                Stretch="Uniform" />
+          <TextBlock Text="Back to Vaults"
+                     VerticalAlignment="Center"
+                     Foreground="{StaticResource TextPrimaryBrush}"
+                     FontSize="14"
+                     FontWeight="SemiBold" />
+        </StackPanel>
+      </Button>
+    </StackPanel>
+  </Border>
 </UserControl>

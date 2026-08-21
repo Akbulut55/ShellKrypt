@@ -10,10 +10,29 @@ public partial class LockedView : UserControl
 
     private async void OnVaultSelected(object? sender, EventArgs e)
     {
-        RightContent.Content = new UnlockVaultView();
+        LeftContent.IsTransitionReversed = false;
+        RightContent.IsTransitionReversed = false;
 
-        await Task.Delay(150);
+        var unlockVaultView = new UnlockVaultView();
+        unlockVaultView.BackRequested += OnBackRequested;
+        RightContent.Content = unlockVaultView;
+
+        await Task.Delay(300);
 
         LeftContent.Content = new VaultDetailsView();
+    }
+
+    private async void OnBackRequested(object? sender, EventArgs e)
+    {
+        LeftContent.IsTransitionReversed = true;
+        RightContent.IsTransitionReversed = true;
+
+        var vaultListView = new VaultListView();
+        vaultListView.VaultSelected += OnVaultSelected;
+        RightContent.Content = vaultListView;
+
+        await Task.Delay(300);
+
+        LeftContent.Content = new WelcomeView();
     }
 }

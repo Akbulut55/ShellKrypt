@@ -1,5 +1,14 @@
 # ShellKrypt: Changelog
 
+## [ShellKrypt 0.0.4] - 11/08/2026
+
+### feat(desktop): complete the locked vault access flow
+
+- add shared Material Symbols icon resources
+- refine the welcome and vault list presentation
+- build the vault details and unlock views
+- add animated forward and back navigation
+
 ## [ShellKrypt 0.0.3] - 11/08/2026
 
 ### feat(desktop): build the locked vault selection screen

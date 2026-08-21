@@ -6,6 +6,7 @@
     <ResourceDictionary>
       <ResourceDictionary.MergedDictionaries>
         <ResourceInclude Source="avares://ShellKrypt/Resources/Styles/Colors.axaml" />
+        <ResourceInclude Source="avares://ShellKrypt/Resources/Icons/Icons.axaml" />
       </ResourceDictionary.MergedDictionaries>
 
       <FontFamily x:Key="AppFontFamily">avares://ShellKrypt/Resources/Fonts/NotoSans#Noto Sans</FontFamily>

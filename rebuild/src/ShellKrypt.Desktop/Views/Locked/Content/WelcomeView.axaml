@@ -18,13 +18,13 @@
               BorderBrush="#38FFFFFF"
               BorderThickness="1"
               CornerRadius="16">
-        <Path Width="34"
-              Height="38"
+        <Path Data="{StaticResource IconPlaceHolder}"
+              Width="48"
+              Height="48"
               HorizontalAlignment="Center"
               VerticalAlignment="Center"
               Fill="White"
-              Stretch="Uniform"
-              Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+              Stretch="Uniform"/>
       </Border>
 
       <StackPanel Spacing="12">
@@ -46,12 +46,12 @@
               CornerRadius="20"
               Padding="14,8">
         <StackPanel Orientation="Horizontal" Spacing="9">
-          <Path Width="15"
-                Height="17"
-                VerticalAlignment="Center"
-                Fill="#BFFFFFFF"
-                Stretch="Uniform"
-                Data="M12,2 L4,5 V11 C4,16.55 7.84,21.74 12,23 C16.16,21.74 20,16.55 20,11 V5 Z" />
+          <Path Data="{StaticResource IconPlaceHolder}"
+            Width="15"
+            Height="15"
+            VerticalAlignment="Center"
+            Fill="#BFFFFFFF"
+            Stretch="Uniform"/>
           <TextBlock Text="LOCAL VAULT"
                      VerticalAlignment="Center"
                      Foreground="#CCFFFFFF"
