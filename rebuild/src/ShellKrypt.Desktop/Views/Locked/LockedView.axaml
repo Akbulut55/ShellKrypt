@@ -7,6 +7,8 @@
              d:DesignHeight="720">
   <Grid ColumnDefinitions="*,*">
     <TransitioningContentControl x:Name="LeftContent"
+                                 Background="{StaticResource PrimaryBrush}"
+                                 ClipToBounds="True"
                                  HorizontalContentAlignment="Stretch"
                                  VerticalContentAlignment="Stretch">
       <TransitioningContentControl.PageTransition>
@@ -17,6 +19,8 @@
 
     <TransitioningContentControl x:Name="RightContent"
                                  Grid.Column="1"
+                                 Background="{StaticResource BackgroundBrush}"
+                                 ClipToBounds="True"
                                  HorizontalContentAlignment="Stretch"
                                  VerticalContentAlignment="Stretch">
       <TransitioningContentControl.PageTransition>
