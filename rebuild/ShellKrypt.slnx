@@ -1,9 +1,0 @@
-<Solution>
-  <Folder Name="/src/">
-    <Project Path="src/ShellKrypt.Desktop/ShellKrypt.Desktop.csproj" />
-    <Project Path="src/ShellKrypt.Vault/ShellKrypt.Vault.csproj" />
-  </Folder>
-  <Folder Name="/tests/">
-    <Project Path="tests/ShellKrypt.Tests/ShellKrypt.Tests.csproj" />
-  </Folder>
-</Solution>
