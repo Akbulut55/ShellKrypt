@@ -1,6 +1,7 @@
-# ShellKrypt: Changelog
+# ShellKrypt Legacy: Changelog
 
-Public project-level change history for ShellKrypt.
+Historical project-level change history for the archived ShellKrypt
+implementation. Development ended at version `0.28.3`.
 
 Changes are grouped by release using Added, Changed, Fixed, Removed, and Security sections where they apply.
 

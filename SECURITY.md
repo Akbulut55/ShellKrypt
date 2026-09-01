@@ -1,30 +1,44 @@
-# ShellKrypt: Security
+# ShellKrypt Legacy: Security
 
-This document records ShellKrypt's public security expectations: what must be protected, who can access it, what must not be exposed, and how security risks are reviewed.
+This document records the historical security expectations of the archived
+ShellKrypt implementation.
+
+> [!WARNING]
+> ShellKrypt Legacy is unmaintained and does not receive vulnerability fixes,
+> dependency updates, security support, or release validation. Do not rely on
+> this repository for new sensitive-data deployments. The separately maintained
+> ShellKrypt project has its own security policy; a report against this legacy
+> code does not automatically apply to it.
 
 Related documents:
 
 - Privacy notice: [`PRIVACY.md`](PRIVACY.md).
 - Disclaimer: [`DISCLAIMER.md`](DISCLAIMER.md).
 
-Detailed architecture, threat-model, cryptography, data-handling, format, and
-development documents are maintained privately during pre-1.0 development. This
-public policy defines the security expectations users and vulnerability
-reporters can rely on.
+The remaining sections are retained as a historical description of the
+security boundaries intended during development. They are not a current
+maintenance or remediation commitment.
 
 ## Security Summary
 
-- Security owner: Project owner and maintainer.
-- Security status: active and needs external review.
+- Security owner: No active security maintainer for this archive.
+- Security status: archived, unaudited, and unmaintained.
 - Data sensitivity: high.
 - Authentication required: yes, through local master-password vault unlock.
 - Authorization model: local vault ownership after successful unlock; no remote roles or account service.
 - External systems with security impact: operating system, filesystem, clipboard, package supply chain, and user-selected backup or synchronization tools.
 - Highest-risk area: loss or disclosure of vault key material, decrypted secrets, master passwords, backup passphrases, or plaintext exports.
 
-ShellKrypt is pre-1.0 and has not received an external security audit. Report suspected vulnerabilities privately to the project owner or through the repository's private security-advisory channel when available. Do not include real vaults, credentials, backups, exports, or private logs in a report; reproduce issues with synthetic data.
+ShellKrypt Legacy is pre-1.0 and has not received an external security audit.
+The legacy repository does not promise monitoring, response, remediation, or
+publication of security reports. Never include real vaults, credentials,
+backups, exports, or private logs in a report; reproduce issues with synthetic
+data.
 
-Only the latest distributed pre-1.0 build is expected to receive security fixes unless release notes say otherwise. Security claims must remain factual: local-only encrypted vault, Argon2id password derivation, AES-GCM encrypted payloads, no password recovery, and no external audit.
+No legacy build is expected to receive security fixes. Historical security
+claims remain limited to the implemented design: local-only encrypted vault,
+Argon2id password derivation, AES-GCM encrypted payloads, no password recovery,
+and no external audit.
 
 ## Protected Assets
 
@@ -128,7 +142,7 @@ Review triggers:
 - A cryptographic, storage, parsing, native, or platform dependency receives a security advisory or major-version update.
 - A feature adds networking, accounts, telemetry, remote services, plugins, command execution, browser integration, or new secret-sharing boundaries.
 
-## Open Security Questions
+## Unresolved Historical Security Questions
 
 - Which private reporting address and response expectations will be published before public 1.0?
 - What external security review scope is required before recommending ShellKrypt for real sensitive data?

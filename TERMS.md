@@ -1,9 +1,9 @@
-# ShellKrypt: Terms Of Use
+# ShellKrypt Legacy: Terms Of Use
 
-Status: draft for locally distributed pre-release desktop builds.
+Status: archived terms for the legacy pre-release desktop implementation.
 
-These terms describe use of ShellKrypt. They should be reviewed before public
-distribution, sale, hosting, or reliance on the software.
+These terms describe use of ShellKrypt Legacy. The project is archived and
+unmaintained.
 
 Related documents:
 
@@ -15,8 +15,8 @@ Related documents:
 
 ## Acceptance
 
-> By installing or using ShellKrypt, or by copying, compiling, modifying, or
-> contributing to it under the applicable license, people acknowledge these
+> By installing or using ShellKrypt Legacy, or by copying, compiling, or
+> modifying it under the applicable license, people acknowledge these
 > terms and the related privacy, notice, security, license, and disclaimer
 > documents. Merely viewing the public source repository through its hosting
 > platform is not treated as acceptance of these terms. People who do not agree
@@ -44,7 +44,8 @@ The project is not intended for:
 ## Restricted Uses
 
 - Do not use ShellKrypt to access, store, distribute, or process data without lawful authority.
-- Do not misrepresent modified or unofficial builds as official, signed, tested, endorsed, or supported ShellKrypt releases.
+- Do not misrepresent modified or unofficial builds as signed, tested,
+  maintained, endorsed, or supported ShellKrypt Legacy builds.
 - Do not remove or violate license, attribution, or third-party notice obligations.
 - Do not redistribute ShellKrypt source or binaries, operate it as a hosted
   service, or use it commercially without a separate written license.
@@ -57,27 +58,26 @@ The project is not intended for:
 
 ## License, Notices, And Attribution
 
-- License or usage status: source-available commercial software under the
-  ShellKrypt Source License 1.0, subject to the full license text.
+- License or usage status: archived source-available commercial software under
+  the ShellKrypt Legacy Source License 1.0, subject to the full license text.
 - Notice or attribution location: [`NOTICE.md`](NOTICE.md) and [`LICENSE`](LICENSE).
-- Branding or official-distribution rules: described in [`NOTICE.md`](NOTICE.md); unofficial builds must not imply official status.
+- Branding and separately authorized distribution rules are described in
+  [`NOTICE.md`](NOTICE.md); modified builds must not imply maintenance,
+  endorsement, or support.
 
 ## Support, Updates, And Availability
 
-- Support status: active pre-release development with no guaranteed response or support period.
-- Update expectation: updates may be released, delayed, changed, or withdrawn.
+- Support status: archived and unmaintained; no response or support is promised.
+- Update expectation: no updates, security fixes, compatibility work, or new
+  releases are planned.
 - Availability expectation: no promise of continuous availability, hosted access, or continued distribution.
-- Compatibility expectation: pre-1.0 interfaces, formats, workflows, and platform support may change.
+- Compatibility expectation: no compatibility with future operating systems,
+  dependencies, vault formats, or the separately maintained ShellKrypt project
+  is promised.
 
 ## Changes To These Terms
 
-- Change process: update this document when product scope, distribution, support, data handling, or legal expectations materially change.
-- Where changes are announced: project changelog, release notes, or official distribution materials.
+- Change process: this archived document is not expected to change except to
+  correct legal or factual errors concerning the legacy source.
+- Where changes are announced: the legacy repository history.
 - When changes apply: as stated with the relevant release or publication.
-
-## Open Terms Questions
-
-- Which jurisdiction and governing-law terms are appropriate for official distribution?
-- What commercial support, refund, and store-specific terms will apply?
-- Which commercial license agreement and entitlement terms will govern
-  official paid builds?

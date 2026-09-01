@@ -1,10 +1,10 @@
-# ShellKrypt: Privacy Notice
+# ShellKrypt Legacy: Privacy Notice
 
-Status: draft for locally distributed pre-release desktop builds.
+Status: archived notice for the legacy pre-release desktop implementation.
 
-This notice explains what ShellKrypt stores, processes, shares, and avoids
-collecting. Delete the open questions and review the notice before public
-release.
+This notice records what the archived ShellKrypt Legacy implementation stores,
+processes, shares, and avoids collecting. It does not describe the separately
+maintained ShellKrypt project.
 
 ## Summary
 
@@ -76,10 +76,6 @@ ShellKrypt does not automatically send this data to the project owner. Other sof
 
 ## Changes
 
-This notice may change when ShellKrypt changes how it handles data. Meaningful privacy changes should be recorded in [`CHANGELOG.md`](CHANGELOG.md) or release notes before affected features are distributed.
-
-## Open Privacy Questions
-
-- What privacy disclosures will be required by future app stores and distribution channels?
-- Will optional crash reporting or update checking ever be proposed, and what consent model would it require?
-- Which local metadata should receive additional encryption or retention controls before public 1.0?
+This archived notice is not expected to change except to correct legal or
+factual errors concerning the legacy source. It does not promise future privacy
+or security updates.

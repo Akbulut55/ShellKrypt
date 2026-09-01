@@ -1,14 +1,17 @@
-ShellKrypt Source License 1.0
+ShellKrypt Legacy Source License 1.0
 
 Copyright (C) 2026 the ShellKrypt author, publishing as Karvulas. All rights
 reserved.
 
-Effective date: July 17, 2026.
+Effective date: July 17, 2026. Legacy revision date: September 2, 2026.
 
-This license applies to ShellKrypt revisions that include this license.
+This license applies only to revisions published in the ShellKrypt Legacy
+repository that include this license. It does not apply to the separately
+maintained ShellKrypt project or to code published there unless that code
+expressly includes this license.
 
-ShellKrypt is source-available software. It is not open-source software as
-defined by the Open Source Initiative.
+ShellKrypt Legacy is source-available software. It is not open-source software
+as defined by the Open Source Initiative.
 
 1. Definitions
 
@@ -19,9 +22,11 @@ an incorporated company or separate legal entity.
 "Licensor" means that individual author and copyright owner, publishing the
 Software as Karvulas.
 
-"Software" means the ShellKrypt source code, object code, user interface,
-documentation, and first-party assets distributed under this license. It does
-not include third-party components that identify their own license terms.
+"Software" means the archived ShellKrypt source code, object code, user
+interface, documentation, and first-party assets distributed from the
+ShellKrypt Legacy repository under this license. It does not include the
+separately maintained ShellKrypt project or third-party components that
+identify their own license terms.
 
 "Personal Use" means use by an individual solely for that individual's own
 private, noncommercial purposes and not on behalf of an employer, client,
@@ -31,10 +36,6 @@ organization, or other legal entity.
 compensation, internal business operations, professional services, or the
 benefit of an employer, client, organization, or other legal entity.
 
-"Contribution" means source code, documentation, an asset, or another change
-intentionally submitted to the official ShellKrypt repository for possible
-inclusion in the Software.
-
 2. Personal Source License
 
 Subject to this license, the Licensor grants you a limited, nonexclusive,
@@ -43,10 +44,8 @@ comply with its terms to:
 
 a. view and study the source code;
 b. make a reasonable number of copies for backup, evaluation, and development;
-c. compile and run the Software for Personal Use;
-d. modify the Software for Personal Use; and
-e. create a repository fork and submit Contributions to the official
-   ShellKrypt repository, subject to CONTRIBUTING.md.
+c. compile and run the Software for Personal Use; and
+d. modify the Software for Personal Use.
 
 Good-faith security research is permitted when it is conducted lawfully, does
 not access data without authorization, does not disrupt third-party systems,
@@ -59,10 +58,10 @@ distribution, paid support offerings, integration into a commercial product or
 service, and use by or for an organization require a separate written license
 from the Licensor.
 
-Official compiled builds may be offered under separate purchase, store,
-subscription, or end-user terms. Possession of source code does not grant a
-right to official builds, signing identities, update services, support, or
-commercial use.
+Compiled legacy builds may be distributed only when separately authorized by
+the Licensor and may be governed by separate terms. Possession of source code
+does not grant a right to an authorized build, signing identities, update
+services, support, or commercial use.
 
 4. Restrictions
 
@@ -78,17 +77,19 @@ b. operate the Software as software as a service, a managed service, a service
 c. use the Software or any substantial portion of it to create or operate a
    competing product or service;
 d. remove or alter copyright, license, attribution, or proprietary notices;
-e. use ShellKrypt names, logos, or branding in a way that implies endorsement,
-   origin, sponsorship, or official status; or
+e. use the ShellKrypt or ShellKrypt Legacy names, logos, or branding in a way
+   that implies endorsement, origin, sponsorship, current maintenance, or
+   official status; or
 f. circumvent licensing, signing, entitlement, or access-control mechanisms in
-   an official build.
+   an authorized legacy build.
 
 A public repository host may separately permit viewing and platform-hosted
 forking through its own terms. Those platform permissions do not grant a right
 to distribute compiled releases, use the Software commercially, remove this
 license, or exercise rights outside the platform beyond this license. Forks
-used for review, development, or Contribution must retain this license and must
-not claim official status.
+used for personal review or development must retain this license and must not
+claim official status, current maintenance, or association with the separately
+maintained ShellKrypt project.
 
 5. User Data And Output
 
@@ -99,9 +100,10 @@ purposes, subject to applicable law and third-party rights.
 
 6. Contributions
 
-Contributions are governed by CONTRIBUTING.md. Submitting a Contribution does
-not grant the contributor rights to redistribute ShellKrypt or official builds
-outside the permissions in this license.
+The ShellKrypt Legacy repository is archived and does not accept new
+contributions. Previously submitted contributions remain subject to the terms
+under which they were submitted. CONTRIBUTING.md records the repository's
+current contribution status.
 
 7. Third-Party Components
 
@@ -140,12 +142,12 @@ POSSIBILITY OF SUCH DAMAGES.
 
 12. Entire License
 
-This license, together with incorporated contribution terms and any separate
-written commercial agreement, states the permissions granted for the Software.
-If a provision is unenforceable, it will be limited to the minimum extent
-necessary and the remaining provisions will continue in effect.
+This license and any separate written commercial agreement state the
+permissions granted for the Software. If a provision is unenforceable, it will
+be limited to the minimum extent necessary and the remaining provisions will
+continue in effect.
 
-For commercial licensing inquiries, use the contact methods published in the
-official ShellKrypt repository:
+For copyright or commercial licensing inquiries concerning this legacy source,
+use the contact methods published in the ShellKrypt Legacy repository:
 
-https://github.com/Akbulut55/ShellKrypt
+https://github.com/Akbulut55/ShellKrypt-legacy

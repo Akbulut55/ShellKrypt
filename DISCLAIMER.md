@@ -1,7 +1,8 @@
-# ShellKrypt: Disclaimer
+# ShellKrypt Legacy: Disclaimer
 
-This document describes limits and risks for ShellKrypt. It should be reviewed
-before public distribution, sale, or reliance on the software.
+This document describes limits and risks for the archived ShellKrypt Legacy
+software. The project is unmaintained and should not be relied upon for new
+sensitive-data deployments.
 
 Related documents:
 
@@ -12,7 +13,10 @@ Related documents:
 
 ## General Disclaimer
 
-> ShellKrypt is pre-release local encrypted-vault software provided for use at the user's own risk. Users remain responsible for passwords, devices, backups, exports, and decisions based on the software.
+> ShellKrypt Legacy is archived pre-release local encrypted-vault software
+> provided for use at the user's own risk. It receives no updates, security
+> fixes, compatibility work, or support. Users remain responsible for
+> passwords, devices, backups, exports, and decisions based on the software.
 
 ## No Warranty
 
@@ -42,16 +46,11 @@ The project does not guarantee:
 
 ## Availability, Support, And Compatibility Limits
 
-- The project may change, break, pause, or be withdrawn without a guaranteed support period.
+- The project is archived and may stop working as operating systems,
+  dependencies, or platforms change.
 - Automatic backups run only under their documented in-app conditions and are not an operating-system backup service.
 - Platform-specific packaging, code signing, and update delivery may be incomplete or unsupported.
 
 ## Not Professional Advice
 
 > ShellKrypt, its documentation, audit findings, and security notes are not legal, financial, compliance, payment-card, or professional security advice. Obtain qualified advice for regulated or high-risk use.
-
-## Open Disclaimer Questions
-
-- Which jurisdiction-specific liability language is required before official paid distribution?
-- What external review must occur before stronger security claims are permitted?
-- Which support and refund terms will accompany official distribution channels?

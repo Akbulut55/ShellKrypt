@@ -1,13 +1,27 @@
-# ShellKrypt
+# ShellKrypt Legacy
 
-ShellKrypt is a local-only encrypted vault for individuals who want to manage credentials, project secrets, authenticator codes, cards, and notes in user-controlled files without a cloud account. Its first useful workflow is creating a local vault and storing an encrypted record.
+This repository contains the archived legacy implementation of ShellKrypt, a
+local-only encrypted vault for credentials, project secrets, authenticator
+codes, cards, and notes stored in user-controlled files.
+
+> [!WARNING]
+> ShellKrypt Legacy is no longer maintained, supported, or expected to receive
+> security fixes. It remains available as a historical source snapshot. Do not
+> treat it as the current ShellKrypt codebase or use it as the sole store for
+> important or sensitive data.
+
+The current ShellKrypt project is maintained separately at
+[Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt). The projects
+have independent histories, source trees, compatibility expectations, and
+release status.
 
 ## Status
 
-- Stage: active pre-1.0 development.
-- Status note: Desktop workflows are functional, but packaging and public-release validation are incomplete.
+- Stage: archived legacy pre-1.0 implementation.
+- Status note: Development ended at version `0.28.3`; no further releases,
+  maintenance, support, compatibility work, or security fixes are planned.
 - Main audience: Developers and privacy-conscious individuals who prefer local encrypted storage.
-- Maintainer: Independent project owner.
+- Maintenance status: Unmaintained.
 
 ## Highlights
 
@@ -15,10 +29,56 @@ ShellKrypt is a local-only encrypted vault for individuals who want to manage cr
 - Provides dedicated workspaces for Web Logins, Credit Cards, API Keys, Project Secrets, Authenticator, Markdown Notes, Security Audit, backups, and Crypto Tools.
 - Requires no ShellKrypt cloud account, hosted synchronization service, telemetry service, or remote recovery provider.
 
+## Screenshots
+
+<table>
+  <tr>
+    <td><img src="assets/screenshots/welcome.png" alt="Vault launcher"></td>
+    <td><img src="assets/screenshots/unlock.png" alt="Vault unlock"></td>
+    <td><img src="assets/screenshots/allitems.png" alt="All Items workspace"></td>
+  </tr>
+  <tr>
+    <td align="center">Vault launcher</td>
+    <td align="center">Vault unlock</td>
+    <td align="center">All Items</td>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/weblogin.png" alt="Web Logins workspace"></td>
+    <td><img src="assets/screenshots/webloginadd.png" alt="Add Web Login dialog"></td>
+    <td><img src="assets/screenshots/creditcard.png" alt="Credit Cards workspace"></td>
+  </tr>
+  <tr>
+    <td align="center">Web Logins</td>
+    <td align="center">Add Web Login</td>
+    <td align="center">Credit Cards</td>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/creditcarddetail.png" alt="Credit Card details"></td>
+    <td><img src="assets/screenshots/authenticator.png" alt="Authenticator workspace"></td>
+    <td><img src="assets/screenshots/authenticatoradd.png" alt="Add Authenticator dialog"></td>
+  </tr>
+  <tr>
+    <td align="center">Credit Card details</td>
+    <td align="center">Authenticator</td>
+    <td align="center">Add Authenticator</td>
+  </tr>
+  <tr>
+    <td><img src="assets/screenshots/cryptotools.png" alt="Crypto Tools workspace"></td>
+    <td><img src="assets/screenshots/backupcenter.png" alt="Backup Center"></td>
+    <td><img src="assets/screenshots/settings.png" alt="Settings"></td>
+  </tr>
+  <tr>
+    <td align="center">Crypto Tools</td>
+    <td align="center">Backup Center</td>
+    <td align="center">Settings</td>
+  </tr>
+</table>
+
 ## Requirements
 
 - .NET 10 SDK.
-- Windows or Linux desktop environment supported by Avalonia for current desktop development.
+- Windows or Linux desktop environment supported by Avalonia for the historical
+  desktop build.
 
 ## Quick Start
 
@@ -27,7 +87,8 @@ dotnet restore ShellKrypt.slnx
 dotnet run --project src/ShellKrypt.Desktop/ShellKrypt.Desktop.csproj
 ```
 
-Full setup, build, test, and platform commands are documented in the private development guide used by maintainers.
+The commands above are retained for historical source builds. Dependency or
+platform changes may prevent the archived project from building in the future.
 
 ## Example
 
@@ -39,8 +100,11 @@ Result: ShellKrypt encrypts the item in the .skvault file and restores it after 
 
 ## Limitations
 
-- ShellKrypt is pre-1.0, has not received an external security audit, and should not be treated as a certified regulated-data platform.
-- Code signing, installers, update delivery, and public support processes are not release-ready.
+- ShellKrypt Legacy is pre-1.0, has not received an external security audit,
+  and should not be treated as a certified regulated-data platform.
+- The project is archived and receives no security maintenance or support.
+- Code signing, installers, update delivery, and public-release validation were
+  not completed before development ended.
 
 ## Security Or Privacy Notes
 
@@ -52,17 +116,21 @@ Result: ShellKrypt encrypts the item in the .skvault file and restores it after 
 
 Copyright (C) 2026 the ShellKrypt author, publishing as Karvulas.
 
-ShellKrypt is source-available commercial software under the
-[`ShellKrypt Source License 1.0`](LICENSE). The source may be inspected,
+This legacy source snapshot is source-available commercial software under the
+[`ShellKrypt Legacy Source License 1.0`](LICENSE). The source may be inspected,
 compiled, and modified for personal noncommercial use, but redistribution and
 commercial use require separate permission from the copyright owner.
 
-ShellKrypt is not open-source software as defined by the Open Source
+ShellKrypt Legacy is not open-source software as defined by the Open Source
 Initiative.
 
 ## Notes
 
-- The current desktop application version is `0.28.3`.
-- The official source repository is [Akbulut55/ShellKrypt](https://github.com/Akbulut55/ShellKrypt).
+- The final legacy desktop application version is `0.28.3`.
+- This legacy repository is
+  [Akbulut55/ShellKrypt-legacy](https://github.com/Akbulut55/ShellKrypt-legacy).
+- The application represented by this source tree retains its historical
+  `ShellKrypt` product and executable names.
 - `ShellKrypt.slnx` is the canonical solution for the Desktop application and shared libraries.
-- Official signed builds, distribution channels, support, names, and branding may be governed separately as described in [`NOTICE.md`](NOTICE.md).
+- Historical distribution, support, names, and branding terms are described in
+  [`NOTICE.md`](NOTICE.md).
